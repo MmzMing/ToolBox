@@ -1,0 +1,8 @@
+{
+  "base64-string-converter": {
+    "title": "Base64 String Converter",
+    "description": "Encode and decode Base64 strings, with full UTF-8 support",
+    "plainLabel": "Plain text",
+    "base64Label": "Base64"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "hash-text": {
+    "title": "Hash Text",
+    "description": "Compute the MD5, SHA1, SHA256, SHA512, SHA3 or RIPEMD160 hash of a text"
+  },
+  "uuid-generator": {
+    "title": "UUID Generator",
+    "description": "Generate random UUID v4 in bulk, one click to copy"
+  }
+}

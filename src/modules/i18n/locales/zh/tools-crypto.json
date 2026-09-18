@@ -1,0 +1,10 @@
+{
+  "hash-text": {
+    "title": "文本哈希计算",
+    "description": "计算文本的 MD5、SHA1、SHA256、SHA512、SHA3 与 RIPEMD160 哈希值"
+  },
+  "uuid-generator": {
+    "title": "UUID 生成器",
+    "description": "批量生成随机 UUID v4，可一键复制"
+  }
+}

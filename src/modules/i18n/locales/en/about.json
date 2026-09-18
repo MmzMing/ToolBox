@@ -1,0 +1,12 @@
+{
+  "title": "About ToolBox",
+  "intro": "ToolBox is a free and open-source collection of 86 handy tools for developers: crypto, converters, encoders, network calculators, text utilities and more. Everything runs locally in your browser — no data is ever collected.",
+  "privacyTitle": "Privacy first",
+  "privacyBody": "All computations happen in your browser. Nothing you type is ever uploaded to a server.",
+  "fastTitle": "Fast and lightweight",
+  "fastBody": "Static site, lazily loaded modules, no backend, no tracking, no ads.",
+  "openSourceTitle": "Open source",
+  "openSourceBody": "Tool design and features are inspired by the open-source project",
+  "stackTitle": "Tech stack",
+  "linksTitle": "Links"
+}

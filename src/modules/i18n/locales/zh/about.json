@@ -1,0 +1,12 @@
+{
+  "title": "关于 ToolBox",
+  "intro": "ToolBox 是一个免费开源的开发者在线工具箱，收录 86 个常用开发工具：加解密、格式转换、编解码、网络计算、文本处理等。所有工具均在浏览器本地运行，不收集任何数据。",
+  "privacyTitle": "隐私优先",
+  "privacyBody": "所有计算都在你的浏览器中完成，输入与输出数据不会上传到任何服务器。",
+  "fastTitle": "快速轻量",
+  "fastBody": "纯静态站点，按需加载，无后端、无追踪、无广告。",
+  "openSourceTitle": "开源精神",
+  "openSourceBody": "工具设计与功能参考开源项目",
+  "stackTitle": "技术栈",
+  "linksTitle": "相关链接"
+}
