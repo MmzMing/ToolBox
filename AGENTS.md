@@ -63,9 +63,12 @@
 - 图标只用 `lucide-react`，尺寸统一 `size={16}`（内联）或 `className="size-4"`。
 - 间距体系遵循 4 的倍数（`p-2/3/4/6`…）；页面内容区容器 `mx-auto w-full max-w-6xl px-4`。
 - 响应式断点（与 `composable/use-breakpoint.ts` 一致）：
-  手机 `<720`、平板 `720–1279`、PC `>=1280`。布局在三种断点下都必须可用。
+  手机 `<768`、平板 `768–1279`、PC `>=1280`（与 Tailwind md/xl 对齐）。布局在三种断点下都必须可用。
 - flex 容器内的滚动区（ScrollArea/overflow 容器）必须加 `min-h-0`（或 `min-w-0`），
   否则 flex 子元素默认 `min-size:auto` 会撑开父容器导致无法滚动与内容溢出。
+- 全局布局采用 app-shell 模式（根容器 `h-svh overflow-hidden`，唯一滚动容器是 `<main>`），
+  顶栏/侧栏/页脚不放 sticky——移动端浏览器工具栏伸缩会改变视口高度，sticky 头部会随之
+  位移（表现为"头部往上收缩"）。页面内不要再自建滚动容器。
 
 ## 7. 工具开发 SOP（最重要）
 
@@ -132,6 +135,10 @@ export const tool = defineTool({
 
 ## 11. Git 与提交规范
 
+- **AI 代理严禁私自操作 git**：完成修改后只允许停留在"工作区改动"状态，
+  **禁止执行 `git add`（进暂存区）、`git commit`、`git push`**。
+  暂存与提交的时机、拆分方式与提交信息一律由用户决定并手动执行；
+  仅当用户当轮明确要求"提交"时才可代为执行。
 - 分支：`main`（稳定）/ `feat/*`、`fix/*`、`chore/*`。
 - 提交信息：Conventional Commits——
   `feat(tools): add hash-text tool`、`fix(i18n): missing zh keys for converter`、

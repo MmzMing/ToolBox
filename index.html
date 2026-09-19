@@ -7,6 +7,16 @@
     <meta name="description" content="ToolBox — 免费开源的开发者在线工具箱：加密、转换、编码、网络、文本处理等 80+ 实用工具，全部在浏览器本地运行，数据不上传。" />
     <meta name="theme-color" content="#0ea95e" />
     <title>ToolBox - 开发者在线工具箱</title>
+    <script>
+      // 防主题闪烁：绘制前应用主题 class（与 src/modules/theme 约定同键同策略）
+      (function () {
+        try {
+          var t = localStorage.getItem('theme') || 'system';
+          var dark = t === 'dark' || (t === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+          document.documentElement.classList.toggle('dark', dark);
+        } catch (e) {}
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

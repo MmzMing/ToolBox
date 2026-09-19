@@ -2,7 +2,7 @@ import { BookOpen, History, Heart, Info, Moon, Shuffle } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
-import { useTheme } from 'next-themes'
+import { useTheme } from '@/modules/theme/theme-context'
 
 import { GithubIcon } from '@/components/icons/github-icon'
 import {

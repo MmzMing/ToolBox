@@ -1,35 +1,4 @@
 {
-  "json-viewer": {
-    "title": "JSON Viewer",
-    "description": "Format, minify and validate JSON",
-    "indentLabel": "Indent",
-    "indent-2": "2 spaces",
-    "indent-4": "4 spaces",
-    "indent-tab": "Tab",
-    "mode-beautify": "Beautify",
-    "mode-minify": "Minify"
-  },
-  "json-minify": {
-    "title": "JSON Minify",
-    "description": "Remove whitespace from JSON"
-  },
-  "json-to-csv": {
-    "title": "JSON to CSV",
-    "description": "Convert a JSON array to CSV",
-    "delimiterLabel": "Delimiter"
-  },
-  "sql-prettify": {
-    "title": "SQL Prettify",
-    "description": "Format and beautify SQL"
-  },
-  "xml-formatter": {
-    "title": "XML Formatter",
-    "description": "Format and indent XML"
-  },
-  "yaml-viewer": {
-    "title": "YAML Viewer",
-    "description": "Format and validate YAML"
-  },
   "crontab-generator": {
     "title": "Crontab Generator",
     "description": "Generate cron expressions with human-readable description",
@@ -62,16 +31,6 @@
     "title": "Docker Run to Compose",
     "description": "Convert a docker run command to compose config",
     "inputPlaceholder": "docker run -d --name web -p 8080:80 -v /data:/app/data nginx:latest"
-  },
-  "email-normalizer": {
-    "title": "Email Normalizer",
-    "description": "Normalize emails (Gmail dots and plus tags)",
-    "gmailDots": "Remove dots from Gmail local part",
-    "plusTag": "Remove Gmail +tag suffix",
-    "lowercase": "Convert to lowercase",
-    "dedupe": "Deduplicate results",
-    "resultLabel": "Normalized results",
-    "inputPlaceholder": "One email per line"
   },
   "regex-tester": {
     "title": "Regex Tester",
@@ -207,13 +166,21 @@
     "item-stash-drop": "Drop the latest stash entry",
     "item-stash-branch": "Create a branch from a stash entry and restore it"
   },
-  "random-port-generator": {
-    "title": "Random Port Generator",
-    "description": "Generate random ports in a range",
-    "rangeLabel": "Port range",
-    "excludeLabel": "Excluded ports (comma separated)",
-    "excludePlaceholder": "8080, 3000, 5432",
-    "portsLabel": "Generated ports",
-    "portsEmpty": "Click \"Generate\" to get random ports"
+  "code-formatter": {
+    "title": "Code Formatter",
+    "description": "JSON format/minify/to-CSV, SQL, XML and YAML beautify — six modes on one page",
+    "modeLabel": "Mode",
+    "modes": {
+      "jsonFormat": "JSON Format",
+      "jsonMinify": "JSON Minify",
+      "jsonToCsv": "JSON to CSV",
+      "sqlFormat": "SQL Format",
+      "xmlFormat": "XML Format",
+      "yamlFormat": "YAML Format"
+    },
+    "indentLabel": "Indent",
+    "spaces": "spaces",
+    "delimiterLabel": "Delimiter",
+    "inputPlaceholder": "Paste code, e.g. {\"name\": \"ToolBox\"}"
   }
 }

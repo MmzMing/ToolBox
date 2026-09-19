@@ -45,10 +45,10 @@ export async function initI18n(locale: Locale): Promise<void> {
       console.warn(`[i18n] missing key: ${ns}:${key} (${lngs.join(',')})`)
     },
   })
-  await loadLocale(locale)
-  // 后台预载另一语言：跨语言搜索与切换零等待
+  // 两个语言包都在首屏渲染前加载（每语言仅数十 KB，gzip 后更小）：
+  // 命令面板的跨语言搜索会即时查询另一语言的键，延迟加载会产生成片缺键告警
   const other: Locale = locale === 'zh' ? 'en' : 'zh'
-  void loadLocale(other).catch(() => {})
+  await Promise.all([loadLocale(locale), loadLocale(other)])
 }
 
 /** 切换语言：按需加载语言包后再生效（store 与 i18next 同步更新） */

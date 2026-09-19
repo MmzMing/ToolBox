@@ -1,35 +1,4 @@
 {
-  "json-viewer": {
-    "title": "JSON 格式化",
-    "description": "美化、压缩与校验 JSON",
-    "indentLabel": "缩进",
-    "indent-2": "2 空格",
-    "indent-4": "4 空格",
-    "indent-tab": "Tab 缩进",
-    "mode-beautify": "美化",
-    "mode-minify": "压缩"
-  },
-  "json-minify": {
-    "title": "JSON 压缩",
-    "description": "去除 JSON 中的空白与换行"
-  },
-  "json-to-csv": {
-    "title": "JSON 转 CSV",
-    "description": "JSON 数组转换为 CSV",
-    "delimiterLabel": "分隔符"
-  },
-  "sql-prettify": {
-    "title": "SQL 格式化",
-    "description": "美化 SQL 语句"
-  },
-  "xml-formatter": {
-    "title": "XML 格式化",
-    "description": "美化与缩进 XML"
-  },
-  "yaml-viewer": {
-    "title": "YAML 美化",
-    "description": "美化与校验 YAML"
-  },
   "crontab-generator": {
     "title": "Crontab 生成",
     "description": "生成 cron 表达式并附带人类可读描述",
@@ -62,16 +31,6 @@
     "title": "Docker Run 转 Compose",
     "description": "将 docker run 命令转换为 compose 配置",
     "inputPlaceholder": "docker run -d --name web -p 8080:80 -v /data:/app/data nginx:latest"
-  },
-  "email-normalizer": {
-    "title": "邮箱规范化",
-    "description": "Gmail 规则去除点与 +tag",
-    "gmailDots": "去除 Gmail 用户名中的点（.）",
-    "plusTag": "去除 Gmail +tag 后缀",
-    "lowercase": "全部转为小写",
-    "dedupe": "结果去重",
-    "resultLabel": "规范化结果",
-    "inputPlaceholder": "每行一个邮箱"
   },
   "regex-tester": {
     "title": "正则测试",
@@ -207,13 +166,21 @@
     "item-stash-drop": "删除最近的暂存记录",
     "item-stash-branch": "从暂存记录创建新分支并恢复"
   },
-  "random-port-generator": {
-    "title": "随机端口生成",
-    "description": "生成指定范围内的随机端口",
-    "rangeLabel": "端口范围",
-    "excludeLabel": "排除端口（逗号分隔）",
-    "excludePlaceholder": "8080, 3000, 5432",
-    "portsLabel": "生成结果",
-    "portsEmpty": "点击「生成」获取随机端口"
+  "code-formatter": {
+    "title": "代码格式化",
+    "description": "JSON 格式化/压缩/转 CSV、SQL、XML、YAML 美化，六种模式一页完成",
+    "modeLabel": "模式",
+    "modes": {
+      "jsonFormat": "JSON 格式化",
+      "jsonMinify": "JSON 压缩",
+      "jsonToCsv": "JSON 转 CSV",
+      "sqlFormat": "SQL 格式化",
+      "xmlFormat": "XML 格式化",
+      "yamlFormat": "YAML 美化"
+    },
+    "indentLabel": "缩进",
+    "spaces": "空格",
+    "delimiterLabel": "分隔符",
+    "inputPlaceholder": "粘贴代码，例如 {\"name\": \"ToolBox\"}"
   }
 }

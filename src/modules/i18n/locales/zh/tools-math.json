@@ -35,5 +35,48 @@
     "directionLabel": "方向",
     "direction-increase": "增加",
     "direction-decrease": "减少"
+  },
+  "chronometer": {
+    "title": "秒表",
+    "description": "精确计时与计次",
+    "start": "开始",
+    "pause": "暂停",
+    "lap": "计次",
+    "reset": "重置",
+    "lapsLabel": "计次记录",
+    "noLaps": "开始计时后点击“计次”记录分段时间",
+    "lapLabel": "第 {{index}} 次"
+  },
+  "temperature-converter": {
+    "title": "温度转换",
+    "description": "摄氏、华氏与开尔文互转",
+    "valueLabel": "温度值",
+    "unitLabel": "输入单位",
+    "unit-C": "摄氏度（°C）",
+    "unit-F": "华氏度（°F）",
+    "unit-K": "开尔文（K）",
+    "celsiusLabel": "摄氏度（°C）",
+    "fahrenheitLabel": "华氏度（°F）",
+    "kelvinLabel": "开尔文（K）",
+    "invalidValue": "请输入有效的数字"
+  },
+  "benchmark-builder": {
+    "title": "基准测试",
+    "description": "对比多段代码的执行耗时",
+    "safetyNote": "场景代码仅在你的浏览器本地通过 new Function 执行，不会上传服务器；请只粘贴自己信任的代码。",
+    "scenariosLabel": "场景",
+    "namePlaceholder": "场景 {{index}} 名称",
+    "removeScenario": "删除该场景",
+    "addScenario": "添加场景",
+    "iterationsLabel": "每场景执行次数",
+    "run": "运行基准",
+    "invalidIterations": "执行次数必须为正整数",
+    "noScenarios": "请至少填写一个场景的代码",
+    "compileError": "代码编译失败：请检查每个场景是否为合法的函数表达式，如 \"() => 1 + 1\"",
+    "resultsLabel": "结果",
+    "colName": "名称",
+    "colTotal": "总耗时",
+    "colAvg": "平均耗时",
+    "colRatio": "相对倍率"
   }
 }

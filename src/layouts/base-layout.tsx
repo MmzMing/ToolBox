@@ -31,6 +31,7 @@ import { SidebarContent } from '@/layouts/sidebar-content'
 import { getToolByPath } from '@/tools'
 import { categoryIcons } from '@/tools/categories'
 import { siteConfig } from '@/config/site'
+import { cn } from '@/lib/utils'
 
 /**
  * 全局布局：左侧手风琴分类导航（桌面可折叠，平板与手机为抽屉）+ 顶栏 + 内容区。
@@ -52,11 +53,12 @@ export default function BaseLayout() {
     <TooltipProvider delayDuration={200}>
       <div className="flex min-h-svh w-full">
         <aside
-          className={`bg-sidebar sticky top-0 h-svh shrink-0 overflow-hidden border-r transition-[width] duration-200 md:block ${
-            sidebarCollapsed ? 'hidden w-0 border-r-0' : 'w-64'
-          }`}
+          className={cn(
+            'bg-sidebar sticky top-0 hidden h-svh w-64 shrink-0 overflow-hidden border-r md:block',
+            sidebarCollapsed && 'md:hidden',
+          )}
         >
-          <div className="flex h-full w-64 flex-col">
+          <div className="flex h-full flex-col">
             <SidebarContent />
           </div>
         </aside>

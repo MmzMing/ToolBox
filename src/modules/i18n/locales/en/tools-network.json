@@ -59,5 +59,24 @@
     "title": "IPv6 ULA Generator",
     "description": "Generate RFC 4193 private IPv6 prefixes",
     "hint": "Generates random /48 prefixes under fd00::/8 per RFC 4193"
+  },
+  "ip-lookup": {
+    "title": "IP Lookup",
+    "description": "Look up your public IP and the geolocation/ISP of any IP (requires network, via free public services)",
+    "publicIpLabel": "Your public IP",
+    "retry": "Retry",
+    "loading": "Looking up…",
+    "lookupLabel": "IP geolocation lookup",
+    "lookupBtn": "Lookup",
+    "onlineNote": "Geolocation data comes from the free ipwho.is service, for reference only",
+    "fields": {
+      "ip": "IP address",
+      "country": "Country",
+      "region": "Region",
+      "city": "City",
+      "isp": "ISP",
+      "coordinates": "Coordinates",
+      "timezone": "Timezone"
+    }
   }
 }

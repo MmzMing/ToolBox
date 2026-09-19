@@ -11,15 +11,7 @@ import { tool as textToNatoAlphabet } from './text-to-nato-alphabet'
 import { tool as textToBinary } from './text-to-binary'
 import { tool as textToUnicode } from './text-to-unicode'
 import { tool as listConverter } from './list-converter'
-import { tool as yamlToJsonConverter } from './yaml-to-json-converter'
-import { tool as jsonToYamlConverter } from './json-to-yaml-converter'
-import { tool as yamlToToml } from './yaml-to-toml'
-import { tool as tomlToYaml } from './toml-to-yaml'
-import { tool as jsonToToml } from './json-to-toml'
-import { tool as tomlToJson } from './toml-to-json'
-import { tool as xmlToJson } from './xml-to-json'
-import { tool as jsonToXml } from './json-to-xml'
-import { tool as markdownToHtml } from './markdown-to-html'
+import { tool as formatConverter } from './format-converter'
 
 export const converterTools: readonly DefinedTool[] = [
   base64StringConverter,
@@ -33,13 +25,5 @@ export const converterTools: readonly DefinedTool[] = [
   textToBinary,
   textToUnicode,
   listConverter,
-  yamlToJsonConverter,
-  jsonToYamlConverter,
-  yamlToToml,
-  tomlToYaml,
-  jsonToToml,
-  tomlToJson,
-  xmlToJson,
-  jsonToXml,
-  markdownToHtml,
+  formatConverter,
 ]

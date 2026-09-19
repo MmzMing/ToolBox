@@ -22,6 +22,33 @@ export function parseDateInput(input: string): Date {
   return date
 }
 
+export type TimestampUnit = 's' | 'ms'
+
+/** 时间戳 → Date（按单位：秒 10 位 / 毫秒 13 位） */
+export function tsToDate(ts: number, unit: TimestampUnit): Date {
+  if (!Number.isFinite(ts) || ts < 0) {
+    throw new Error(`Invalid timestamp: ${ts}`)
+  }
+  return unit === 's' ? new Date(ts * 1000) : new Date(ts)
+}
+
+/** Date → 时间戳（按单位取整） */
+export function dateToTs(date: Date, unit: TimestampUnit): number {
+  return unit === 's' ? Math.floor(date.getTime() / 1000) : date.getTime()
+}
+
+/** 本地时间展示：yyyy/MM/dd HH:mm:ss */
+export function formatLocalDateTime(date: Date): string {
+  const p = (n: number) => String(n).padStart(2, '0')
+  return `${date.getFullYear()}/${p(date.getMonth() + 1)}/${p(date.getDate())} ${p(date.getHours())}:${p(date.getMinutes())}:${p(date.getSeconds())}`
+}
+
+/** datetime-local 输入框值：yyyy-MM-ddTHH:mm:ss */
+export function toDatetimeLocalValue(date: Date): string {
+  const p = (n: number) => String(n).padStart(2, '0')
+  return `${date.getFullYear()}-${p(date.getMonth() + 1)}-${p(date.getDate())}T${p(date.getHours())}:${p(date.getMinutes())}:${p(date.getSeconds())}`
+}
+
 /** 展开为一个日期的全部常用格式（label 为 i18n 键，value 为格式化结果） */
 export function formatDateAll(date: Date, options?: { relativeLocale?: Locale }): DateOutput[] {
   return [

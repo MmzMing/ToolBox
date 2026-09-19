@@ -19,18 +19,19 @@
     "download": "Download"
   },
   "date-time-converter": {
-    "title": "Date-time Converter",
-    "description": "Convert timestamps, ISO and UTC date formats",
-    "inputLabel": "Date (ISO string or millisecond timestamp)",
-    "now": "Now",
-    "labels": {
-      "iso": "ISO 8601",
-      "local": "Local string",
-      "unixSeconds": "Unix seconds",
-      "unixMs": "Unix milliseconds",
-      "utc": "UTC string",
-      "relative": "Relative time"
-    }
+    "title": "Timestamp Converter",
+    "description": "Convert between Unix timestamps and date-times, shown in your local timezone",
+    "tsLabel": "timestamp",
+    "unitS": "Seconds (10-digit)",
+    "unitMs": "Milliseconds (13-digit)",
+    "nowBtn": "Now",
+    "convertBtn": "Convert",
+    "dtToTsLabel": "Date-time → Timestamp",
+    "tsToDtLabel": "Timestamp → Date-time",
+    "localNote": "Local time",
+    "pickHint": "Pick a date-time then press Convert",
+    "tsHint": "Enter a timestamp above to see the result here",
+    "moreFormats": "More formats"
   },
   "integer-base-converter": {
     "title": "Integer Base Converter",
@@ -115,49 +116,10 @@
     "linesOutput": "Lines",
     "joinedOutput": "Joined"
   },
-  "yaml-to-json-converter": {
-    "title": "YAML to JSON",
-    "description": "Convert YAML to JSON",
-    "inputPlaceholder": "Paste YAML, e.g. name: ToolBox"
-  },
-  "json-to-yaml-converter": {
-    "title": "JSON to YAML",
-    "description": "Convert JSON to YAML",
-    "inputPlaceholder": "Paste JSON, e.g. {\"name\": \"ToolBox\"}"
-  },
-  "yaml-to-toml": {
-    "title": "YAML to TOML",
-    "description": "Convert YAML to TOML",
-    "inputPlaceholder": "Paste YAML, e.g. server:\n  port: 8080"
-  },
-  "toml-to-yaml": {
-    "title": "TOML to YAML",
-    "description": "Convert TOML to YAML",
-    "inputPlaceholder": "Paste TOML, e.g. port = 8080"
-  },
-  "json-to-toml": {
-    "title": "JSON to TOML",
-    "description": "Convert JSON to TOML",
-    "inputPlaceholder": "Paste a JSON object, e.g. {\"port\": 8080}"
-  },
-  "toml-to-json": {
-    "title": "TOML to JSON",
-    "description": "Convert TOML to JSON",
-    "inputPlaceholder": "Paste TOML, e.g. port = 8080"
-  },
-  "xml-to-json": {
-    "title": "XML to JSON",
-    "description": "Convert XML to JSON",
-    "inputPlaceholder": "Paste XML, e.g. <root><a>1</a></root>"
-  },
-  "json-to-xml": {
-    "title": "JSON to XML",
-    "description": "Convert JSON to XML",
-    "inputPlaceholder": "Paste a JSON object, e.g. {\"a\": 1}"
-  },
-  "markdown-to-html": {
-    "title": "Markdown to HTML",
-    "description": "Convert Markdown to HTML",
-    "inputPlaceholder": "Type Markdown, e.g. # Heading"
+  "format-converter": {
+    "title": "Format Converter",
+    "description": "Convert between YAML, JSON, TOML, XML and Markdown — pick a direction, input on the left, output on the right",
+    "conversionLabel": "Conversion",
+    "inputPlaceholder": "Paste content, e.g. name: ToolBox"
   }
 }

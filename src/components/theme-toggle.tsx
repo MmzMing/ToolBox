@@ -1,5 +1,5 @@
 import { Monitor, Moon, Sun } from 'lucide-react'
-import { useTheme } from 'next-themes'
+import { useTheme } from '@/modules/theme/theme-context'
 import { useTranslation } from 'react-i18next'
 
 import { Button } from '@/components/ui/button'
@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 
-/** 亮/暗/跟随系统 三态切换（next-themes 持久化，class 策略驱动 shadcn 令牌） */
+/** 亮/暗/跟随系统 三态切换（modules/theme 持久化，class 策略驱动 shadcn 令牌） */
 export function ThemeToggle() {
   const { t } = useTranslation('common')
   const { theme, setTheme } = useTheme()

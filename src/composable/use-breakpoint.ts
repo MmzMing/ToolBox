@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 
-/** 响应式断点（与 agent.md §6 约定一致）：手机 <720、平板 720–1279、PC >=1280 */
-export const BREAKPOINTS = { tablet: 720, desktop: 1280 } as const
+/** 响应式断点（与 agent.md §6 约定一致）：手机 <768、平板 768–1279、PC >=1280，与 Tailwind md/xl 对齐 */
+export const BREAKPOINTS = { tablet: 768, desktop: 1280 } as const
 
 export type Breakpoint = 'mobile' | 'tablet' | 'desktop'
 
@@ -25,7 +25,9 @@ function subscribe(callback: () => void): () => void {
 }
 
 export function useBreakpoint(): Breakpoint {
-  const [breakpoint, setBreakpoint] = useState<Breakpoint>(() => computeBreakpoint(window.innerWidth))
+  const [breakpoint, setBreakpoint] = useState<Breakpoint>(() =>
+    computeBreakpoint(window.innerWidth),
+  )
 
   useEffect(() => {
     const update = () => setBreakpoint(computeBreakpoint(window.innerWidth))

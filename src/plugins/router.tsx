@@ -22,7 +22,9 @@ export const router = createBrowserRouter([
       { path: 'about', element: <AboutPage /> },
       ...tools.map((tool) => ({
         path: tool.path.replace(/^\//, ''),
-        element: <ToolPage tool={tool} />,
+        // key 强制切换工具时重挂载：共享的 ToolPage 位置不变，react-i18next 的
+        // useTranslation 快照缓存不含 ns，跨分类导航会拿到绑定旧命名空间的过期 t
+        element: <ToolPage key={tool.path} tool={tool} />,
       })),
       ...tools.flatMap((tool) =>
         (tool.redirectFrom ?? []).map((from) => ({

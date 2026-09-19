@@ -19,18 +19,19 @@
     "download": "下载"
   },
   "date-time-converter": {
-    "title": "日期时间转换",
-    "description": "时间戳、ISO、UTC 等日期格式互转",
-    "inputLabel": "日期（ISO 字符串或毫秒时间戳）",
-    "now": "现在",
-    "labels": {
-      "iso": "ISO 8601",
-      "local": "本地字符串",
-      "unixSeconds": "Unix 秒",
-      "unixMs": "Unix 毫秒",
-      "utc": "UTC 字符串",
-      "relative": "相对时间"
-    }
+    "title": "时间戳转换",
+    "description": "Unix 时间戳与日期时间互转，按浏览器本地时区显示",
+    "tsLabel": "时间戳",
+    "unitS": "秒（10 位）",
+    "unitMs": "毫秒（13 位）",
+    "nowBtn": "当前时间",
+    "convertBtn": "转换",
+    "dtToTsLabel": "日期时间 → 时间戳",
+    "tsToDtLabel": "时间戳 → 日期时间",
+    "localNote": "本地时间",
+    "pickHint": "选择日期时间后点击「转换」",
+    "tsHint": "在上方输入时间戳后这里显示结果",
+    "moreFormats": "更多格式"
   },
   "integer-base-converter": {
     "title": "整数进制转换",
@@ -115,49 +116,10 @@
     "linesOutput": "行形式",
     "joinedOutput": "单行连接"
   },
-  "yaml-to-json-converter": {
-    "title": "YAML→JSON",
-    "description": "将 YAML 转换为 JSON",
-    "inputPlaceholder": "粘贴 YAML 内容，例如 name: ToolBox"
-  },
-  "json-to-yaml-converter": {
-    "title": "JSON→YAML",
-    "description": "将 JSON 转换为 YAML",
-    "inputPlaceholder": "粘贴 JSON 内容，例如 {\"name\": \"ToolBox\"}"
-  },
-  "yaml-to-toml": {
-    "title": "YAML→TOML",
-    "description": "将 YAML 转换为 TOML",
-    "inputPlaceholder": "粘贴 YAML 内容，例如 server:\n  port: 8080"
-  },
-  "toml-to-yaml": {
-    "title": "TOML→YAML",
-    "description": "将 TOML 转换为 YAML",
-    "inputPlaceholder": "粘贴 TOML 内容，例如 port = 8080"
-  },
-  "json-to-toml": {
-    "title": "JSON→TOML",
-    "description": "将 JSON 转换为 TOML",
-    "inputPlaceholder": "粘贴 JSON 对象，例如 {\"port\": 8080}"
-  },
-  "toml-to-json": {
-    "title": "TOML→JSON",
-    "description": "将 TOML 转换为 JSON",
-    "inputPlaceholder": "粘贴 TOML 内容，例如 port = 8080"
-  },
-  "xml-to-json": {
-    "title": "XML→JSON",
-    "description": "将 XML 转换为 JSON",
-    "inputPlaceholder": "粘贴 XML 内容，例如 <root><a>1</a></root>"
-  },
-  "json-to-xml": {
-    "title": "JSON→XML",
-    "description": "将 JSON 转换为 XML",
-    "inputPlaceholder": "粘贴 JSON 对象，例如 {\"a\": 1}"
-  },
-  "markdown-to-html": {
-    "title": "Markdown→HTML",
-    "description": "将 Markdown 转换为 HTML",
-    "inputPlaceholder": "输入 Markdown，例如 # 标题"
+  "format-converter": {
+    "title": "格式转换",
+    "description": "YAML、JSON、TOML、XML、Markdown 互转，下拉切换方向，左输入右输出",
+    "conversionLabel": "转换方向",
+    "inputPlaceholder": "粘贴内容，例如 name: ToolBox"
   }
 }

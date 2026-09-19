@@ -59,5 +59,24 @@
     "title": "IPv6 ULA 生成",
     "description": "生成 RFC 4193 私有 IPv6 前缀",
     "hint": "按 RFC 4193 生成 fd00::/8 内的随机 /48 前缀"
+  },
+  "ip-lookup": {
+    "title": "IP 查询",
+    "description": "查询本机公网 IP 与任意 IP 的归属地、ISP（需联网，查询走免费公共服务）",
+    "publicIpLabel": "本机公网 IP",
+    "retry": "重试",
+    "loading": "查询中…",
+    "lookupLabel": "IP 归属地查询",
+    "lookupBtn": "查询",
+    "onlineNote": "归属地数据来自 ipwho.is 免费公共服务，结果仅供参考",
+    "fields": {
+      "ip": "IP 地址",
+      "country": "国家/地区",
+      "region": "省份/州",
+      "city": "城市",
+      "isp": "运营商",
+      "coordinates": "经纬度",
+      "timezone": "时区"
+    }
   }
 }

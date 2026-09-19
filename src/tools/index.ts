@@ -1,4 +1,3 @@
-import { dataTools } from './data'
 import { isRecentTool, type DefinedTool, type Tool } from './define-tool'
 import type { CategoryKey } from './categories'
 import type { RecentToolEntry } from '@/stores/tools.store'
@@ -8,7 +7,6 @@ import { converterTools } from './converter'
 import { developmentTools } from './development'
 import { imagesTools } from './images'
 import { mathTools } from './math'
-import { measurementTools } from './measurement'
 import { networkTools } from './network'
 import { textTools } from './text'
 import { webTools } from './web'
@@ -34,9 +32,7 @@ export const toolsByCategory: readonly ToolCategory[] = [
   { category: 'images', tools: attachCategory('images', imagesTools) },
   { category: 'network', tools: attachCategory('network', networkTools) },
   { category: 'math', tools: attachCategory('math', mathTools) },
-  { category: 'measurement', tools: attachCategory('measurement', measurementTools) },
   { category: 'text', tools: attachCategory('text', textTools) },
-  { category: 'data', tools: attachCategory('data', dataTools) },
 ]
 
 export const tools: readonly Tool[] = toolsByCategory.flatMap((group) => group.tools)

@@ -5,8 +5,6 @@
   "images": "Images and videos",
   "development": "Development",
   "network": "Network",
-  "math": "Math",
-  "measurement": "Measurement",
-  "text": "Text",
-  "data": "Data"
+  "math": "Calculation",
+  "text": "Text"
 }
