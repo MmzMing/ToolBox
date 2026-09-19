@@ -50,7 +50,7 @@ export function TextareaCopyable({
 
   return (
     <div
-      className={cn('relative overflow-hidden rounded-lg border bg-muted/40', className)}
+      className={cn('bg-muted/40 relative overflow-hidden rounded-lg border', className)}
       style={{ minHeight: `calc(${rows} * 1.6rem + 1.5rem)` }}
     >
       {html !== undefined ? (
@@ -58,7 +58,7 @@ export function TextareaCopyable({
           <code className="hljs bg-transparent" dangerouslySetInnerHTML={{ __html: html }} />
         </pre>
       ) : (
-        <pre className="h-full overflow-auto p-3 text-sm leading-relaxed whitespace-pre-wrap break-all">
+        <pre className="h-full overflow-auto p-3 text-sm leading-relaxed break-all whitespace-pre-wrap">
           {value || <span className="text-muted-foreground">{placeholder}</span>}
         </pre>
       )}
@@ -66,7 +66,7 @@ export function TextareaCopyable({
         type="button"
         variant="ghost"
         size="icon-sm"
-        className="absolute top-1.5 right-1.5 bg-background/80 backdrop-blur"
+        className="bg-background/80 absolute top-1.5 right-1.5 backdrop-blur"
         aria-label="copy"
         onClick={() => void copy(value)}
       >

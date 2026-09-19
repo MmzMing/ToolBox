@@ -10,7 +10,7 @@ export function RouteError() {
 
   return (
     <div className="flex min-h-svh flex-col items-center justify-center gap-4 px-4 text-center">
-      <p className="text-sm text-muted-foreground">{message}</p>
+      <p className="text-muted-foreground text-sm">{message}</p>
       <Button asChild variant="outline">
         <Link to="/">Back to home</Link>
       </Button>

@@ -11,7 +11,9 @@ const siteUrl = (process.env.SITE_URL ?? 'https://toolbox.local').replace(/\/$/,
 const toolFiles = globSync('src/tools/*/*/index.ts', { cwd: root })
 const toolPaths = toolFiles
   .map((file) => readFileSync(path.join(root, file), 'utf8'))
-  .flatMap((content) => [...content.matchAll(/path:\s*['"]\/([^'"]+)['"]/g)].map((match) => match[1]))
+  .flatMap((content) =>
+    [...content.matchAll(/path:\s*['"]\/([^'"]+)['"]/g)].map((match) => match[1]),
+  )
   .filter((value, index, all) => all.indexOf(value) === index)
   .sort()
 
@@ -22,7 +24,9 @@ const lastmod = new Date().toISOString().slice(0, 10)
 const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${allPaths
-  .map((p) => `  <url>\n    <loc>${siteUrl}/${p}</loc>\n    <lastmod>${lastmod}</lastmod>\n  </url>`)
+  .map(
+    (p) => `  <url>\n    <loc>${siteUrl}/${p}</loc>\n    <lastmod>${lastmod}</lastmod>\n  </url>`,
+  )
   .join('\n')}
 </urlset>
 `

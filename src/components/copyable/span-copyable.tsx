@@ -21,12 +21,16 @@ export function SpanCopyable({ value, className, showText = true }: SpanCopyable
       title={value}
       onClick={() => void copy(value)}
       className={cn(
-        'inline-flex max-w-full cursor-pointer items-center gap-1.5 rounded-md bg-muted px-2 py-1 font-mono text-xs transition-colors hover:bg-accent',
+        'bg-muted hover:bg-accent inline-flex max-w-full cursor-pointer items-center gap-1.5 rounded-md px-2 py-1 font-mono text-xs transition-colors',
         className,
       )}
     >
       {showText && <span className="truncate">{value}</span>}
-      {copied ? <Check className="size-3 shrink-0 text-primary" /> : <Copy className="size-3 shrink-0 text-muted-foreground" />}
+      {copied ? (
+        <Check className="text-primary size-3 shrink-0" />
+      ) : (
+        <Copy className="text-muted-foreground size-3 shrink-0" />
+      )}
     </button>
   )
 }

@@ -98,5 +98,9 @@ for (const [file, content] of Object.entries(files)) {
 
 console.log(`✔ 已生成 ${category}/${name} 四件套`)
 console.log(`接下来（两步手工动作）:`)
-console.log(`  1. 在 src/tools/${category}/index.ts 注册: import { tool as ${name} } from './${name}' 并加入数组`)
-console.log(`  2. 在 src/modules/i18n/locales/{zh,en}/tools-${category}.json 添加 "${name}": { "title", "description" }`)
+console.log(
+  `  1. 在 src/tools/${category}/index.ts 注册: import { tool as ${name} } from './${name}' 并加入数组`,
+)
+console.log(
+  `  2. 在 src/modules/i18n/locales/{zh,en}/tools-${category}.json 添加 "${name}": { "title", "description" }`,
+)

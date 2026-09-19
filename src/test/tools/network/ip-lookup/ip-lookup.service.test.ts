@@ -68,12 +68,10 @@ describe('lookupIp', () => {
   it('throws on service failure flag and invalid input', async () => {
     vi.stubGlobal(
       'fetch',
-      vi
-        .fn()
-        .mockResolvedValue({
-          ok: true,
-          json: async () => ({ success: false, message: 'reserved range' }),
-        }),
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({ success: false, message: 'reserved range' }),
+      }),
     )
     await expect(lookupIp('8.8.8.8')).rejects.toThrowError(/reserved range/)
     vi.unstubAllGlobals()

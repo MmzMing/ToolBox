@@ -20,8 +20,7 @@ export function hashText(algorithm: HashAlgorithm, input: string): string {
 
 /** 一次计算全部算法，键为算法名 */
 export function hashTextAll(input: string): Record<HashAlgorithm, string> {
-  return Object.fromEntries(hashAlgorithms.map((algorithm) => [algorithm, hashText(algorithm, input)])) as Record<
-    HashAlgorithm,
-    string
-  >
+  return Object.fromEntries(
+    hashAlgorithms.map((algorithm) => [algorithm, hashText(algorithm, input)]),
+  ) as Record<HashAlgorithm, string>
 }
