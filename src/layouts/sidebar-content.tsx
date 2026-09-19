@@ -1,5 +1,6 @@
 import { Wrench } from 'lucide-react'
-import { Link, NavLink } from 'react-router'
+import { useEffect } from 'react'
+import { Link, NavLink, useLocation } from 'react-router'
 import { useTranslation } from 'react-i18next'
 
 import {
@@ -11,8 +12,8 @@ import {
 import { Badge } from '@/components/ui/badge'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { usePreferencesStore } from '@/stores/preferences.store'
-import { categoryIcons, categoryKeys } from '@/tools/categories'
-import { toolsByCategory } from '@/tools'
+import { categoryIcons } from '@/tools/categories'
+import { getToolByPath, toolsByCategory } from '@/tools'
 import { cn } from '@/lib/utils'
 
 const navLinkClass = ({ isActive }: { isActive: boolean }) =>
@@ -37,8 +38,21 @@ export function SidebarContent({ onNavigate }: SidebarContentProps) {
 
   const expandedCategories = usePreferencesStore((state) => state.expandedCategories)
   const setExpandedCategories = usePreferencesStore((state) => state.setExpandedCategories)
+  const location = useLocation()
 
-  const accordionValue = expandedCategories ?? [...categoryKeys]
+  // 默认全部收起；进入工具页时自动展开其所在分类（写入持久化状态，仍可手动收起）
+  const activeCategory = getToolByPath(location.pathname)?.category
+  useEffect(() => {
+    if (!activeCategory) {
+      return
+    }
+    const expanded = usePreferencesStore.getState().expandedCategories ?? []
+    if (!expanded.includes(activeCategory)) {
+      usePreferencesStore.getState().setExpandedCategories([...expanded, activeCategory])
+    }
+  }, [activeCategory])
+
+  const accordionValue = expandedCategories ?? []
 
   return (
     <div className="flex h-full flex-col">

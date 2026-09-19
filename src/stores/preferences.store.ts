@@ -7,10 +7,13 @@ export type Locale = (typeof supportedLocales)[number]
 interface PreferencesState {
   /** 界面语言（i18next 由此驱动，见 modules/i18n） */
   locale: Locale
-  /** 侧栏手风琴展开的分类；null 表示默认全部展开 */
+  /** 侧栏手风琴展开的分类；null 表示默认全部收起 */
   expandedCategories: string[] | null
+  /** 桌面端侧栏是否折叠隐藏 */
+  sidebarCollapsed: boolean
   setLocale: (locale: Locale) => void
   setExpandedCategories: (keys: string[] | null) => void
+  setSidebarCollapsed: (collapsed: boolean) => void
 }
 
 function normalizeLocale(value: unknown, fallback: Locale): Locale {
@@ -28,8 +31,10 @@ export const usePreferencesStore = create<PreferencesState>()(
     (set) => ({
       locale: 'zh',
       expandedCategories: null,
+      sidebarCollapsed: false,
       setLocale: (locale) => set({ locale }),
       setExpandedCategories: (expandedCategories) => set({ expandedCategories }),
+      setSidebarCollapsed: (sidebarCollapsed) => set({ sidebarCollapsed }),
     }),
     {
       name: 'toolbox.preferences',
@@ -41,6 +46,10 @@ export const usePreferencesStore = create<PreferencesState>()(
           ...current,
           locale: normalizeLocale(saved.locale, current.locale),
           expandedCategories: normalizeStringArray(saved.expandedCategories),
+          sidebarCollapsed:
+            typeof saved.sidebarCollapsed === 'boolean'
+              ? saved.sidebarCollapsed
+              : current.sidebarCollapsed,
         }
       },
     },

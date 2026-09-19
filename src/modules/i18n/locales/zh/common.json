@@ -26,6 +26,9 @@
   "github": "GitHub 仓库",
   "about": "关于",
   "actions": "快捷操作",
+  "breadcrumbHome": "工具集",
+  "openSidebar": "展开侧栏",
+  "collapseSidebar": "收起侧栏",
   "openMenu": "打开导航菜单",
   "backHome": "返回首页",
   "footerNote": "全部工具在浏览器本地运行，数据不上传服务器"

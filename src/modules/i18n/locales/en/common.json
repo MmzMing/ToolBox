@@ -26,6 +26,9 @@
   "github": "GitHub repository",
   "about": "About",
   "actions": "Quick actions",
+  "breadcrumbHome": "Tools",
+  "openSidebar": "Show sidebar",
+  "collapseSidebar": "Collapse sidebar",
   "openMenu": "Open navigation menu",
   "backHome": "Back to home",
   "footerNote": "All tools run locally in your browser, no data leaves your device"
