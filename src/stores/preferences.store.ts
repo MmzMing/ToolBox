@@ -38,7 +38,12 @@ export const usePreferencesStore = create<PreferencesState>()(
     }),
     {
       name: 'toolbox.preferences',
-      version: 1,
+      version: 2,
+      // v1 -> v2：手风琴改为默认收起，丢弃旧会话遗留的展开状态（语言与侧栏折叠偏好保留）
+      migrate: (persisted) => {
+        const saved = (persisted ?? {}) as Partial<PreferencesState>
+        return { ...saved, expandedCategories: null }
+      },
       // localStorage 可能被手工改坏：读取时逐字段校验兜底（agent.md §8）
       merge: (persisted, current) => {
         const saved = (persisted ?? {}) as Partial<PreferencesState>
