@@ -55,12 +55,24 @@
   },
   "color-converter": {
     "title": "Color Converter",
-    "description": "Convert colors between HEX, RGB and HSL",
-    "colorInput": "Color (HEX / RGB / HSL / name)",
+    "description": "Convert between HEX, RGB, HSL, HWB, LCH, CMYK and color names, with a picker",
+    "pickerLabel": "Picker",
     "preview": "Color preview",
+    "invalidFormat": "Invalid {{format}} format.",
     "hexLabel": "HEX",
+    "hexPlaceholder": "e.g. #ff0000",
     "rgbLabel": "RGB",
-    "hslLabel": "HSL"
+    "rgbPlaceholder": "e.g. rgb(255, 0, 0)",
+    "hslLabel": "HSL",
+    "hslPlaceholder": "e.g. hsl(0, 100%, 50%)",
+    "hwbLabel": "HWB",
+    "hwbPlaceholder": "e.g. hwb(0, 0%, 0%)",
+    "lchLabel": "LCH",
+    "lchPlaceholder": "e.g. lch(53.24, 104.55, 40.85)",
+    "cmykLabel": "CMYK",
+    "cmykPlaceholder": "e.g. device-cmyk(0, 100%, 100%, 0)",
+    "nameLabel": "Name",
+    "namePlaceholder": "e.g. red"
   },
   "case-converter": {
     "title": "Case Converter",

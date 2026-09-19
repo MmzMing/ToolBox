@@ -36,22 +36,6 @@
     "emptyPreview": "Fill in the network details to generate the QR code",
     "download": "Download PNG"
   },
-  "svg-placeholder-generator": {
-    "title": "SVG Placeholder Generator",
-    "description": "Generate placeholder SVGs with custom size and colors",
-    "widthLabel": "Width (pixels)",
-    "heightLabel": "Height (pixels)",
-    "bgColorLabel": "Background",
-    "fgColorLabel": "Foreground",
-    "fontSizeLabel": "Font size",
-    "textLabel": "Text",
-    "textPlaceholder": "Defaults to width×height when empty",
-    "previewLabel": "Preview",
-    "invalidSize": "Enter a valid width, height and font size",
-    "dataUriOutputLabel": "Data URI",
-    "svgOutputLabel": "SVG code",
-    "download": "Download SVG"
-  },
   "camera-recorder": {
     "title": "Camera Recorder",
     "description": "Take photos and record from your camera",

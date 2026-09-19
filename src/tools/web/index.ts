@@ -11,8 +11,8 @@ import { tool as jwtParser } from './jwt-parser'
 import { tool as slugifyString } from './slugify-string'
 import { tool as htmlWysiwygEditor } from './html-wysiwyg-editor'
 import { tool as userAgentParser } from './user-agent-parser'
-import { tool as httpStatusCodes } from './http-status-codes'
 import { tool as safelinkDecoder } from './safelink-decoder'
+import { tool as ipLookup } from './ip-lookup'
 
 export const webTools: readonly DefinedTool[] = [
   urlEncoder,
@@ -26,6 +26,6 @@ export const webTools: readonly DefinedTool[] = [
   slugifyString,
   htmlWysiwygEditor,
   userAgentParser,
-  httpStatusCodes,
   safelinkDecoder,
+  ipLookup,
 ]

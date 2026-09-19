@@ -1,85 +1,94 @@
 import { describe, expect, it } from 'vitest'
 
-import { hslToRgb, parseColor, rgbToHsl, rgbToHex } from '@/tools/converter/color-converter/service'
+import { COLOR_FORMATS, parseColor, tryParseColor } from '@/tools/converter/color-converter/service'
+
+/** 'rgb(30, 165, 76)' → [30, 165, 76] */
+function channels(rgbString: string): number[] {
+  return (rgbString.match(/\d+/g) ?? []).map(Number)
+}
 
 describe('parseColor', () => {
-  it('parses 6-digit hex', () => {
-    const color = parseColor('#ff0000')
-    expect(color.hex).toBe('#ff0000')
-    expect(color.rgb).toEqual({ r: 255, g: 0, b: 0 })
-    expect(color.hsl).toEqual({ h: 0, s: 100, l: 50 })
+  it('emits all seven formats for a hex color', () => {
+    expect(parseColor('#1ea54c')).toEqual({
+      hex: '#1ea54c',
+      rgb: 'rgb(30, 165, 76)',
+      hsl: 'hsl(140, 69%, 38%)',
+      hwb: 'hwb(140 12% 35%)',
+      lch: 'lch(59.62% 61.82 145.05)',
+      cmyk: 'device-cmyk(82% 0% 54% 35%)',
+      name: 'seagreen',
+    })
   })
 
-  it('parses shorthand 3-digit hex', () => {
-    expect(parseColor('#f00').hex).toBe('#ff0000')
+  it('returns exactly the declared formats', () => {
+    expect(Object.keys(parseColor('red'))).toEqual([...COLOR_FORMATS])
+  })
+
+  it('accepts shorthand hex, missing hash and uppercase input', () => {
+    expect(parseColor('#F00').hex).toBe('#ff0000')
     expect(parseColor('0f0').hex).toBe('#00ff00')
+    expect(parseColor('1ea54c').hex).toBe('#1ea54c')
+    expect(parseColor('  #0000FF  ').hex).toBe('#0000ff')
   })
 
-  it('parses rgb() with commas, spaces and alpha', () => {
-    expect(parseColor('rgb(255, 0, 0)').hex).toBe('#ff0000')
-    expect(parseColor('rgb(255 0 0)').hex).toBe('#ff0000')
-    expect(parseColor('rgba(255, 0, 0, 0.5)').hex).toBe('#ff0000')
-    expect(parseColor('rgb(100%, 0%, 0%)').hex).toBe('#ff0000')
+  it('parses functional and named inputs to the same color', () => {
+    for (const input of ['rgb(255, 0, 0)', 'hsl(0, 100%, 50%)', 'red', '#ff0000']) {
+      expect(parseColor(input).hex).toBe('#ff0000')
+    }
   })
 
-  it('parses hsl() and hsla()', () => {
-    expect(parseColor('hsl(0, 100%, 50%)').hex).toBe('#ff0000')
-    expect(parseColor('hsl(120 100% 25%)').hex).toBe('#008000')
-    expect(parseColor('hsla(240, 100%, 50%, 1)').hex).toBe('#0000ff')
+  it('resolves the closest CSS name', () => {
+    expect(parseColor('#2e8b56').name).toBe('seagreen')
   })
 
-  it('parses the supported color name subset', () => {
-    expect(parseColor('white').hex).toBe('#ffffff')
-    expect(parseColor('RED').hex).toBe('#ff0000')
-    expect(parseColor('Gray').hex).toBe('#808080')
-    expect(parseColor('grey').hex).toBe('#808080')
+  it('drops the alpha channel so every format stays opaque', () => {
+    expect(parseColor('rgba(30, 165, 76, 0.5)')).toEqual(parseColor('#1ea54c'))
+    expect(parseColor('hsla(0, 100%, 50%, .2)')).toEqual(parseColor('#ff0000'))
   })
 
-  it('throws on empty input', () => {
-    expect(() => parseColor('')).toThrow()
-    expect(() => parseColor('   ')).toThrow()
+  it('always emits a picker-safe hex', () => {
+    for (const input of [
+      '#abc',
+      'rgb(10%, 20%, 30%)',
+      'hsla(200, 50%, 50%, .2)',
+      'rebeccapurple',
+    ]) {
+      expect(parseColor(input).hex).toMatch(/^#[0-9a-f]{6}$/)
+    }
   })
 
-  it('throws on unknown formats and names', () => {
-    expect(() => parseColor('not-a-color')).toThrow()
+  it('re-parses every emitted format back to the same rgb channels', () => {
+    const source = parseColor('#1ea54c')
+    const expected = channels(source.rgb)
+    for (const format of COLOR_FORMATS.filter((item) => item !== 'name')) {
+      const actual = channels(parseColor(source[format]).rgb)
+      expect(actual).toHaveLength(expected.length)
+      actual.forEach((value, index) => {
+        expect(Math.abs(value - expected[index])).toBeLessThanOrEqual(1)
+      })
+    }
+  })
+
+  it('clamps out-of-range channels instead of rejecting them', () => {
+    expect(parseColor('rgb(300, -20, 0)').hex).toBe('#ff0000')
+  })
+
+  it('throws on empty and unparseable input', () => {
+    expect(() => parseColor('')).toThrow(/Invalid color/)
+    expect(() => parseColor('   ')).toThrow(/Invalid color/)
+    expect(() => parseColor('not-a-color')).toThrow(/Invalid color: "not-a-color"/)
     expect(() => parseColor('#12345')).toThrow()
-    expect(() => parseColor('#1234567')).toThrow()
-  })
-
-  it('throws on out-of-range channels', () => {
-    expect(() => parseColor('rgb(300, 0, 0)')).toThrow()
-    expect(() => parseColor('hsl(0, 101%, 0%)')).toThrow()
-    expect(() => parseColor('hsl(361, 0%, 0%)')).toThrow()
   })
 })
 
-describe('rgbToHsl / hslToRgb', () => {
-  it('converts primary colors correctly', () => {
-    expect(rgbToHsl({ r: 255, g: 0, b: 0 })).toEqual({ h: 0, s: 100, l: 50 })
-    expect(rgbToHsl({ r: 0, g: 128, b: 0 })).toEqual({ h: 120, s: 100, l: 25 })
-    expect(rgbToHsl({ r: 0, g: 0, b: 255 })).toEqual({ h: 240, s: 100, l: 50 })
+describe('tryParseColor', () => {
+  it('returns null where parseColor throws', () => {
+    expect(tryParseColor('')).toBeNull()
+    expect(tryParseColor('   ')).toBeNull()
+    expect(tryParseColor('oops')).toBeNull()
   })
 
-  it('maps grayscale to zero hue and saturation', () => {
-    expect(rgbToHsl({ r: 0, g: 0, b: 0 })).toEqual({ h: 0, s: 0, l: 0 })
-    expect(rgbToHsl({ r: 255, g: 255, b: 255 })).toEqual({ h: 0, s: 0, l: 100 })
-  })
-
-  it('converts hsl back to rgb', () => {
-    expect(hslToRgb({ h: 0, s: 100, l: 50 })).toEqual({ r: 255, g: 0, b: 0 })
-    expect(hslToRgb({ h: 120, s: 100, l: 25 })).toEqual({ r: 0, g: 128, b: 0 })
-    expect(hslToRgb({ h: 210, s: 50, l: 40 })).toEqual({ r: 51, g: 102, b: 153 })
-    expect(hslToRgb({ h: 0, s: 0, l: 50 })).toEqual({ r: 128, g: 128, b: 128 })
-  })
-
-  it('wraps negative hue like positive equivalent', () => {
-    expect(hslToRgb({ h: -120, s: 100, l: 50 })).toEqual(hslToRgb({ h: 240, s: 100, l: 50 }))
-  })
-})
-
-describe('rgbToHex', () => {
-  it('clamps and pads channels', () => {
-    expect(rgbToHex({ r: 0, g: 128, b: 255 })).toBe('#0080ff')
-    expect(rgbToHex({ r: 300, g: -1, b: 16 })).toBe('#ff0010')
+  it('returns the same values as parseColor', () => {
+    expect(tryParseColor('#1ea54c')).toEqual(parseColor('#1ea54c'))
   })
 })

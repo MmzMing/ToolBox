@@ -36,22 +36,6 @@
     "emptyPreview": "填写网络信息后将生成二维码",
     "download": "下载 PNG"
   },
-  "svg-placeholder-generator": {
-    "title": "SVG 占位图",
-    "description": "生成自定义尺寸与颜色的占位图",
-    "widthLabel": "宽度（像素）",
-    "heightLabel": "高度（像素）",
-    "bgColorLabel": "背景色",
-    "fgColorLabel": "前景色",
-    "fontSizeLabel": "字体大小",
-    "textLabel": "文本",
-    "textPlaceholder": "留空时默认显示 宽×高",
-    "previewLabel": "预览",
-    "invalidSize": "请输入有效的宽高与字体大小",
-    "dataUriOutputLabel": "Data URI",
-    "svgOutputLabel": "SVG 代码",
-    "download": "下载 SVG"
-  },
   "camera-recorder": {
     "title": "摄像头录制",
     "description": "调用摄像头拍照与录制",

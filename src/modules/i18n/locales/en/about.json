@@ -1,6 +1,6 @@
 {
   "title": "About ToolBox",
-  "intro": "ToolBox is a free, open-source toolbox with {{count}} everyday tools: crypto, format converters, encoders, network calculators, text and image utilities. Everything runs locally in your browser — no data is collected or uploaded.",
+  "intro": "ToolBox is a free, open-source toolbox with {{count}} everyday tools: crypto, format converters, encoders, web utilities, text and image tools. Everything runs locally in your browser — no data is collected or uploaded.",
   "whyTitle": "Why this exists",
   "whyBody": "AI can certainly do these jobs — hash a string, convert a format, decode a JWT. But that means maintaining a skill or a workflow, re-describing the task every time, waiting for it to think, and correcting the occasional improvisation. The inputs and outputs were already deterministic, so there is no reason to rebuild the wheel on every run while burning tokens. So these became fixed pages: open it, get the same result, no quota spent, no improvisation.",
   "privacyTitle": "Privacy first",

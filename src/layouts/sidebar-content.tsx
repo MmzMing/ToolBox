@@ -28,7 +28,7 @@ interface SidebarContentProps {
 }
 
 /**
- * 侧栏内容：Logo（点击回首页）+ 10 个分类的手风琴导航。
+ * 侧栏内容：Logo（点击回首页）+ 8 个分类的手风琴导航。
  * 收藏夹与最近使用展示在首页（设计调整：侧栏只承担分类导航职责）。
  * 手风琴展开状态持久化在 preferences store（agent.md §8）。
  */

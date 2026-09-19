@@ -5,75 +5,80 @@ import { InputCopyable } from '@/components/copyable/input-copyable'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { parseColor } from './service'
+import { COLOR_FORMATS, parseColor, tryParseColor } from './service'
+import type { ColorFormat, ColorValues } from './service'
+
+const DEFAULT_COLOR = '#1ea54c'
+const ROW_CLASS = 'grid grid-cols-[72px_1fr] items-center gap-3 sm:grid-cols-[100px_1fr]'
 
 export default function ColorConverter() {
   const { t } = useTranslation('tools-converter')
-  const { t: tCommon } = useTranslation('common')
 
-  const [input, setInput] = useState('')
+  const [values, setValues] = useState<ColorValues>(() => parseColor(DEFAULT_COLOR))
+  const [invalidFormat, setInvalidFormat] = useState<ColorFormat | null>(null)
 
-  const parsed = useMemo(() => {
-    if (input.trim() === '') {
-      return { color: null, error: null }
+  // 取色器必须拿到合法 hex：按格式顺序取第一个仍可解析的行
+  const anchor = useMemo<ColorValues>(() => {
+    for (const format of COLOR_FORMATS) {
+      const parsed = tryParseColor(values[format])
+      if (parsed) {
+        return parsed
+      }
     }
-    try {
-      return { color: parseColor(input), error: null }
-    } catch {
-      return { color: null, error: tCommon('error') }
-    }
-  }, [input, tCommon])
+    return parseColor(DEFAULT_COLOR)
+  }, [values])
 
-  const rows = parsed.color
-    ? [
-        {
-          key: 'hex',
-          label: t('color-converter.hexLabel'),
-          value: parsed.color.hex,
-        },
-        {
-          key: 'rgb',
-          label: t('color-converter.rgbLabel'),
-          value: `rgb(${parsed.color.rgb.r}, ${parsed.color.rgb.g}, ${parsed.color.rgb.b})`,
-        },
-        {
-          key: 'hsl',
-          label: t('color-converter.hslLabel'),
-          value: `hsl(${parsed.color.hsl.h}, ${parsed.color.hsl.s}%, ${parsed.color.hsl.l}%)`,
-        },
-      ]
-    : []
+  const handleFormatChange = (format: ColorFormat, text: string) => {
+    const parsed = tryParseColor(text)
+    const next: ColorValues = { ...(parsed ?? values) }
+    next[format] = text
+    setValues(next)
+    setInvalidFormat(parsed ? null : text.trim() === '' ? null : format)
+  }
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex items-end gap-3">
-        <div className="flex min-w-0 flex-1 flex-col gap-2">
-          <Label>{t('color-converter.colorInput')}</Label>
-          <Input
-            value={input}
-            onChange={(event) => setInput(event.target.value)}
-            className="font-mono"
-            placeholder="#1ea54c / rgb(30, 165, 76) / hsl(148, 69%, 38%)"
-          />
-        </div>
-        <div
-          className="size-10 shrink-0 rounded-md border"
-          style={{ backgroundColor: parsed.color?.hex ?? 'transparent' }}
-          title={parsed.color?.hex}
+    <div className="flex flex-col gap-2">
+      <div className={ROW_CLASS}>
+        <Label htmlFor="color-converter-picker" className="text-muted-foreground justify-end">
+          {t('color-converter.pickerLabel')}
+        </Label>
+        <Input
+          id="color-converter-picker"
+          type="color"
+          value={anchor.hex}
+          onChange={(event) => handleFormatChange('hex', event.target.value)}
+          className="h-9 w-full cursor-pointer p-1"
           aria-label={t('color-converter.preview')}
         />
       </div>
 
-      {parsed.error && (
+      {invalidFormat && (
         <Alert variant="destructive">
-          <AlertDescription>{parsed.error}</AlertDescription>
+          <AlertDescription>
+            {t('color-converter.invalidFormat', {
+              format: t(`color-converter.${invalidFormat}Label`),
+            })}
+          </AlertDescription>
         </Alert>
       )}
 
-      {rows.map((row) => (
-        <div key={row.key} className="flex flex-col gap-1">
-          <Label className="text-muted-foreground">{row.label}</Label>
-          <InputCopyable value={row.value} readOnly className="font-mono" />
+      {COLOR_FORMATS.map((format) => (
+        <div key={format} className={ROW_CLASS}>
+          <Label
+            htmlFor={`color-converter-${format}`}
+            className="text-muted-foreground justify-end"
+          >
+            {t(`color-converter.${format}Label`)}
+          </Label>
+          <InputCopyable
+            id={`color-converter-${format}`}
+            value={values[format]}
+            onValueChange={(text) => handleFormatChange(format, text)}
+            placeholder={t(`color-converter.${format}Placeholder`)}
+            aria-invalid={invalidFormat === format}
+            spellCheck={false}
+            className="font-mono"
+          />
         </div>
       ))}
     </div>

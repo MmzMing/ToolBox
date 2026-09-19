@@ -55,12 +55,24 @@
   },
   "color-converter": {
     "title": "颜色格式转换",
-    "description": "HEX、RGB、HSL 颜色格式互转",
-    "colorInput": "颜色值（HEX / RGB / HSL / 颜色名）",
+    "description": "HEX、RGB、HSL、HWB、LCH、CMYK 与颜色名互转，带取色器",
+    "pickerLabel": "取色器",
     "preview": "颜色预览",
+    "invalidFormat": "{{format}} 格式无效",
     "hexLabel": "HEX",
+    "hexPlaceholder": "例如 #ff0000",
     "rgbLabel": "RGB",
-    "hslLabel": "HSL"
+    "rgbPlaceholder": "例如 rgb(255, 0, 0)",
+    "hslLabel": "HSL",
+    "hslPlaceholder": "例如 hsl(0, 100%, 50%)",
+    "hwbLabel": "HWB",
+    "hwbPlaceholder": "例如 hwb(0, 0%, 0%)",
+    "lchLabel": "LCH",
+    "lchPlaceholder": "例如 lch(53.24, 104.55, 40.85)",
+    "cmykLabel": "CMYK",
+    "cmykPlaceholder": "例如 device-cmyk(0, 100%, 100%, 0)",
+    "nameLabel": "颜色名",
+    "namePlaceholder": "例如 red"
   },
   "case-converter": {
     "title": "命名风格转换",

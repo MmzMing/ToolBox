@@ -11,11 +11,10 @@ const CATEGORIES = [
   'web',
   'images',
   'development',
-  'network',
+  'cheatsheet',
   'math',
-  'measurement',
   'text',
-  'data',
+  'life',
 ]
 
 const [category, rawName] = process.argv.slice(2)

@@ -4,10 +4,10 @@ import type { RecentToolEntry } from '@/stores/tools.store'
 
 import { cryptoTools } from './crypto'
 import { converterTools } from './converter'
+import { cheatsheetTools } from './cheatsheet'
 import { developmentTools } from './development'
 import { imagesTools } from './images'
 import { mathTools } from './math'
-import { networkTools } from './network'
 import { textTools } from './text'
 import { lifeTools } from './life'
 import { webTools } from './web'
@@ -30,8 +30,8 @@ export const toolsByCategory: readonly ToolCategory[] = [
   { category: 'converter', tools: attachCategory('converter', converterTools) },
   { category: 'web', tools: attachCategory('web', webTools) },
   { category: 'development', tools: attachCategory('development', developmentTools) },
+  { category: 'cheatsheet', tools: attachCategory('cheatsheet', cheatsheetTools) },
   { category: 'images', tools: attachCategory('images', imagesTools) },
-  { category: 'network', tools: attachCategory('network', networkTools) },
   { category: 'math', tools: attachCategory('math', mathTools) },
   { category: 'text', tools: attachCategory('text', textTools) },
   { category: 'life', tools: attachCategory('life', lifeTools) },
