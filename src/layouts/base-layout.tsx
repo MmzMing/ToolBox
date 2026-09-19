@@ -32,15 +32,20 @@ export default function BaseLayout() {
 
   return (
     <div className="flex min-h-svh w-full">
-      <aside className="sticky top-0 hidden h-svh w-64 shrink-0 flex-col border-r bg-sidebar md:flex">
+      <aside className="bg-sidebar sticky top-0 hidden h-svh w-64 shrink-0 flex-col overflow-hidden border-r md:flex">
         <SidebarContent />
       </aside>
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="sticky top-0 z-20 flex h-14 items-center gap-2 border-b bg-background/95 px-3 backdrop-blur md:px-4">
+        <header className="bg-background/95 sticky top-0 z-20 flex h-14 items-center gap-2 border-b px-3 backdrop-blur md:px-4">
           <Sheet open={mobileNavOpen} onOpenChange={setMobileNavOpen}>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon-sm" className="md:hidden" aria-label={t('openMenu')}>
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                className="md:hidden"
+                aria-label={t('openMenu')}
+              >
                 <Menu />
               </Button>
             </SheetTrigger>
@@ -54,7 +59,7 @@ export default function BaseLayout() {
           </Sheet>
 
           <Link to="/" className="flex items-center gap-2 md:hidden">
-            <span className="flex size-7 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+            <span className="bg-primary text-primary-foreground flex size-7 items-center justify-center rounded-lg">
               <Wrench className="size-4" />
             </span>
             <span className="text-base font-semibold">ToolBox</span>
@@ -63,11 +68,11 @@ export default function BaseLayout() {
           <button
             type="button"
             onClick={() => openPalette(true)}
-            className="flex h-8 min-w-0 flex-1 items-center gap-2 rounded-md border bg-muted/40 px-3 text-sm text-muted-foreground transition-colors hover:bg-muted md:mx-2 md:max-w-md"
+            className="bg-muted/40 text-muted-foreground hover:bg-muted flex h-8 min-w-0 flex-1 items-center gap-2 rounded-md border px-3 text-sm transition-colors md:mx-2 md:max-w-md"
           >
             <Search className="size-4 shrink-0" />
             <span className="truncate">{t('searchPlaceholder')}</span>
-            <kbd className="ml-auto hidden shrink-0 rounded border bg-background px-1.5 font-mono text-[10px] text-muted-foreground sm:inline">
+            <kbd className="bg-background text-muted-foreground ml-auto hidden shrink-0 rounded border px-1.5 font-mono text-[10px] sm:inline">
               Ctrl K
             </kbd>
           </button>
@@ -87,7 +92,7 @@ export default function BaseLayout() {
           <Outlet />
         </main>
 
-        <footer className="border-t px-4 py-4 text-center text-xs text-muted-foreground">
+        <footer className="text-muted-foreground border-t px-4 py-4 text-center text-xs">
           ToolBox · {t('footerNote')}
         </footer>
       </div>

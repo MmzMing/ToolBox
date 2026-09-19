@@ -12,21 +12,21 @@
 
 ## 2. 目录结构与职责（禁止越界存放）
 
-| 目录 | 职责 | 禁止 |
-| --- | --- | --- |
-| `src/components/` | 跨页面/跨工具复用的通用组件（ PascalCase 文件夹或单文件） | 放页面专属组件、业务逻辑 |
-| `src/composable/` | React Hooks（`useXxx.ts`），可复用的有状态逻辑 | 放 UI 渲染、放纯函数 |
-| `src/layouts/` | 布局壳：BaseLayout（侧栏+顶栏+内容区）、ToolLayout（工具页头） | 放业务组件 |
-| `src/modules/` | 横切功能模块：`command-palette/`、`i18n/`、`seo/` 等，各自内聚 | 相互 import 造成循环依赖 |
-| `src/pages/` | 路由页面级组件（首页、404、关于页） | 放可复用组件 |
-| `src/plugins/` | 应用初始化装配：router、i18n 注册、Provider 组合 | 放业务逻辑 |
-| `src/stores/` | zustand 全局 store（`xxx.store.ts`） | 放组件局部状态 |
-| `src/tools/` | 工具实现，按分类分目录，每工具一个目录 | 工具之间相互 import |
-| `src/utils/` | 零依赖/仅依赖第三方的纯函数 | 有 React 状态、有副作用 |
-| `src/lib/` | shadcn 基础设施（`utils.ts` 的 `cn` 等） | 业务代码 |
-| `src/components/ui/` | shadcn CLI 生成的组件，**不手改**（除非升级） | 直接改生成代码 |
-| `scripts/` | Node 脚本（脚手架、sitemap 生成） | 引入浏览器 API |
-| `docs/` | 中文文档（deployment/design/development + INDEX.md） | 放代码 |
+| 目录                 | 职责                                                           | 禁止                     |
+| -------------------- | -------------------------------------------------------------- | ------------------------ |
+| `src/components/`    | 跨页面/跨工具复用的通用组件（ PascalCase 文件夹或单文件）      | 放页面专属组件、业务逻辑 |
+| `src/composable/`    | React Hooks（`useXxx.ts`），可复用的有状态逻辑                 | 放 UI 渲染、放纯函数     |
+| `src/layouts/`       | 布局壳：BaseLayout（侧栏+顶栏+内容区）、ToolLayout（工具页头） | 放业务组件               |
+| `src/modules/`       | 横切功能模块：`command-palette/`、`i18n/`、`seo/` 等，各自内聚 | 相互 import 造成循环依赖 |
+| `src/pages/`         | 路由页面级组件（首页、404、关于页）                            | 放可复用组件             |
+| `src/plugins/`       | 应用初始化装配：router、i18n 注册、Provider 组合               | 放业务逻辑               |
+| `src/stores/`        | zustand 全局 store（`xxx.store.ts`）                           | 放组件局部状态           |
+| `src/tools/`         | 工具实现，按分类分目录，每工具一个目录                         | 工具之间相互 import      |
+| `src/utils/`         | 零依赖/仅依赖第三方的纯函数                                    | 有 React 状态、有副作用  |
+| `src/lib/`           | shadcn 基础设施（`utils.ts` 的 `cn` 等）                       | 业务代码                 |
+| `src/components/ui/` | shadcn CLI 生成的组件，**不手改**（除非升级）                  | 直接改生成代码           |
+| `scripts/`           | Node 脚本（脚手架、sitemap 生成）                              | 引入浏览器 API           |
+| `docs/`              | 中文文档（deployment/design/development + INDEX.md）           | 放代码                   |
 
 ## 3. 命名规范
 
@@ -64,6 +64,8 @@
 - 间距体系遵循 4 的倍数（`p-2/3/4/6`…）；页面内容区容器 `mx-auto w-full max-w-6xl px-4`。
 - 响应式断点（与 `composable/use-breakpoint.ts` 一致）：
   手机 `<720`、平板 `720–1279`、PC `>=1280`。布局在三种断点下都必须可用。
+- flex 容器内的滚动区（ScrollArea/overflow 容器）必须加 `min-h-0`（或 `min-w-0`），
+  否则 flex 子元素默认 `min-size:auto` 会撑开父容器导致无法滚动与内容溢出。
 
 ## 7. 工具开发 SOP（最重要）
 
@@ -84,12 +86,12 @@ import { Hash } from 'lucide-react'
 import { defineTool } from '../../define-tool'
 
 export const tool = defineTool({
-  name: 'hash-text',                    // = 目录名 = path 去斜杠
+  name: 'hash-text', // = 目录名 = path 去斜杠
   path: '/hash-text',
-  keywords: ['hash', 'md5', 'sha'],     // 英文搜索关键词 + 中文别名
+  keywords: ['hash', 'md5', 'sha'], // 英文搜索关键词 + 中文别名
   icon: Hash,
   component: () => import('./HashText'), // lazy
-  createdAt: '2026-09-19',              // ISO 日期，两周内自动标记 isNew
+  createdAt: '2026-09-19', // ISO 日期，两周内自动标记 isNew
 })
 ```
 
