@@ -1,7 +1,7 @@
-import { Wrench } from 'lucide-react'
 import { Link, NavLink } from 'react-router'
 import { useTranslation } from 'react-i18next'
 
+import { BrandLogo } from '@/components/brand-logo'
 import {
   Accordion,
   AccordionContent,
@@ -10,6 +10,7 @@ import {
 } from '@/components/ui/accordion'
 import { Badge } from '@/components/ui/badge'
 import { ScrollArea } from '@/components/ui/scroll-area'
+import { siteConfig } from '@/config/site'
 import { usePreferencesStore } from '@/stores/preferences.store'
 import { categoryIcons } from '@/tools/categories'
 import { toolsByCategory } from '@/tools'
@@ -48,12 +49,9 @@ export function SidebarContent({ onNavigate }: SidebarContentProps) {
           to="/"
           onClick={onNavigate}
           className="focus-visible:ring-ring flex items-center gap-2 rounded-md outline-none focus-visible:ring-2"
-          aria-label="ToolBox"
+          aria-label={siteConfig.name}
         >
-          <span className="bg-primary text-primary-foreground flex size-7 items-center justify-center rounded-lg">
-            <Wrench className="size-4" />
-          </span>
-          <span className="text-base font-semibold">ToolBox</span>
+          <BrandLogo />
         </Link>
       </div>
 

@@ -52,16 +52,6 @@
     "requiredSecret": "Please enter a secret key",
     "decryptFailed": "Decryption failed: wrong key or invalid ciphertext"
   },
-  "bip39-generator": {
-    "title": "BIP39 Mnemonic",
-    "description": "Generate BIP39 mnemonic phrases",
-    "language": "Language",
-    "wordCount": "Word count",
-    "wordlistEnglish": "English",
-    "wordlistSimplifiedChinese": "Chinese (Simplified)",
-    "wordlistTraditionalChinese": "Chinese (Traditional)",
-    "offlineNote": "Mnemonics are generated locally in your browser; never expose large-wallet phrases on shared devices"
-  },
   "hmac-generator": {
     "title": "HMAC Generator",
     "description": "Compute HMAC-MD5/SHA message authentication codes",

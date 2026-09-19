@@ -1,8 +1,9 @@
-import { BookOpen, ChevronRight, Info, Menu, PanelLeft, Search, Wrench } from 'lucide-react'
+import { BookOpen, ChevronRight, Info, Menu, PanelLeft, Search } from 'lucide-react'
 import { useState } from 'react'
 import { Link, Outlet, useLocation } from 'react-router'
 import { useTranslation } from 'react-i18next'
 
+import { BrandLogo, BrandMark } from '@/components/brand-logo'
 import { LocaleSwitcher } from '@/components/locale-switcher'
 import { GithubIcon } from '@/components/icons/github-icon'
 import { ThemeToggle } from '@/components/theme-toggle'
@@ -79,7 +80,7 @@ export default function BaseLayout() {
               </SheetTrigger>
               <SheetContent side="left" className="w-72 p-0">
                 <SheetHeader className="sr-only">
-                  <SheetTitle>ToolBox</SheetTitle>
+                  <SheetTitle>{siteConfig.name}</SheetTitle>
                   <SheetDescription>{t('openMenu')}</SheetDescription>
                 </SheetHeader>
                 <SidebarContent onNavigate={() => setMobileNavOpen(false)} />
@@ -105,11 +106,8 @@ export default function BaseLayout() {
             </Tooltip>
 
             {/* 移动端 Logo */}
-            <Link to="/" className="flex items-center gap-2 md:hidden">
-              <span className="bg-primary text-primary-foreground flex size-7 items-center justify-center rounded-lg">
-                <Wrench className="size-4" />
-              </span>
-              <span className="text-base font-semibold">ToolBox</span>
+            <Link to="/" className="md:hidden" aria-label={siteConfig.name}>
+              <BrandLogo />
             </Link>
 
             {/* 面包屑 */}
@@ -118,7 +116,7 @@ export default function BaseLayout() {
                 <BreadcrumbItem>
                   <BreadcrumbLink asChild>
                     <Link to="/" className="flex items-center gap-1.5">
-                      <Wrench className="size-3.5" />
+                      <BrandMark className="size-3.5" />
                       {t('breadcrumbHome')}
                     </Link>
                   </BreadcrumbLink>
@@ -232,7 +230,7 @@ export default function BaseLayout() {
           </main>
 
           <footer className="text-muted-foreground border-t px-4 py-4 text-center text-xs">
-            ToolBox · {t('footerNote')}
+            {siteConfig.name} · {t('footerNote')}
           </footer>
         </div>
 

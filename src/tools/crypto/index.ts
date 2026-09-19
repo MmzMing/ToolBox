@@ -1,7 +1,6 @@
 import type { DefinedTool } from '../define-tool'
 
 import { tool as bcrypt } from './bcrypt'
-import { tool as bip39Generator } from './bip39-generator'
 import { tool as encryption } from './encryption'
 import { tool as hashText } from './hash-text'
 import { tool as hmacGenerator } from './hmac-generator'
@@ -19,7 +18,6 @@ export const cryptoTools: readonly DefinedTool[] = [
   bcrypt,
   ulidGenerator,
   encryption,
-  bip39Generator,
   hmacGenerator,
   rsaKeyPairGenerator,
   passwordStrengthAnalyser,

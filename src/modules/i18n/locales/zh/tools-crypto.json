@@ -52,16 +52,6 @@
     "requiredSecret": "请输入密钥",
     "decryptFailed": "解密失败：密钥错误或密文无效"
   },
-  "bip39-generator": {
-    "title": "BIP39 助记词",
-    "description": "生成 BIP39 助记词（比特币钱包）",
-    "language": "语种",
-    "wordCount": "词数",
-    "wordlistEnglish": "英语 English",
-    "wordlistSimplifiedChinese": "简体中文",
-    "wordlistTraditionalChinese": "繁體中文",
-    "offlineNote": "助记词完全在浏览器本地生成，请勿在联网设备上暴露大额钱包助记词"
-  },
   "hmac-generator": {
     "title": "HMAC 生成器",
     "description": "计算 HMAC-MD5/SHA 系列消息认证码",
