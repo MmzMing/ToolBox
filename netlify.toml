@@ -1,0 +1,12 @@
+[build]
+  command = "pnpm build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "22"
+
+# SPA fallback：所有路径回退 index.html（sitemap/robots 等静态文件优先命中）
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

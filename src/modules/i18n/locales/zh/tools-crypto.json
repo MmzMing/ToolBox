@@ -6,5 +6,121 @@
   "uuid-generator": {
     "title": "UUID 生成器",
     "description": "批量生成随机 UUID v4，可一键复制"
+  },
+  "token-generator": {
+    "title": "令牌生成器",
+    "description": "生成随机安全令牌，可自定义字符集与长度",
+    "length": "长度",
+    "characterSets": "字符集",
+    "uppercase": "大写字母 (A-Z)",
+    "lowercase": "小写字母 (a-z)",
+    "numbers": "数字 (0-9)",
+    "symbols": "符号 (!@#$…)",
+    "errorCharset": "请至少选择一个字符集"
+  },
+  "bcrypt": {
+    "title": "Bcrypt 哈希",
+    "description": "Bcrypt 密码哈希与校验",
+    "tabHash": "加密",
+    "tabVerify": "校验",
+    "password": "密码",
+    "saltRounds": "Salt 轮数",
+    "hash": "计算哈希",
+    "hashResult": "哈希结果",
+    "hashToVerify": "待校验哈希",
+    "verify": "校验",
+    "emptyPassword": "密码不能为空",
+    "match": "密码与哈希匹配",
+    "mismatch": "密码与哈希不匹配",
+    "invalidHash": "哈希格式无效"
+  },
+  "ulid-generator": {
+    "title": "ULID 生成器",
+    "description": "批量生成有序唯一标识符（ULID）"
+  },
+  "encryption": {
+    "title": "文本加密",
+    "description": "使用 AES 对称加密解密文本",
+    "algorithm": "算法",
+    "secretKey": "密钥",
+    "showKey": "显示密钥",
+    "hideKey": "隐藏密钥",
+    "plaintext": "明文",
+    "ciphertext": "密文",
+    "encrypt": "加密",
+    "decrypt": "解密",
+    "requiredSecret": "请输入密钥",
+    "decryptFailed": "解密失败：密钥错误或密文无效"
+  },
+  "bip39-generator": {
+    "title": "BIP39 助记词",
+    "description": "生成 BIP39 助记词（比特币钱包）",
+    "language": "语种",
+    "wordCount": "词数",
+    "wordlistEnglish": "英语 English",
+    "wordlistSimplifiedChinese": "简体中文",
+    "wordlistTraditionalChinese": "繁體中文",
+    "offlineNote": "助记词完全在浏览器本地生成，请勿在联网设备上暴露大额钱包助记词"
+  },
+  "hmac-generator": {
+    "title": "HMAC 生成器",
+    "description": "计算 HMAC-MD5/SHA 系列消息认证码",
+    "secretKey": "密钥",
+    "message": "消息",
+    "algorithm": "算法"
+  },
+  "rsa-key-pair-generator": {
+    "title": "RSA 密钥对生成",
+    "description": "生成 RSA 公私钥对（PEM 格式）",
+    "keySize": "密钥位数",
+    "bits": "位",
+    "generating": "生成中…",
+    "publicKey": "公钥 (PEM)",
+    "privateKey": "私钥 (PEM)"
+  },
+  "password-strength-analyser": {
+    "title": "密码强度分析",
+    "description": "分析密码强度、熵值与破解时间",
+    "password": "密码",
+    "showPassword": "显示密码",
+    "hidePassword": "隐藏密码",
+    "strength": "强度",
+    "strength0": "极弱",
+    "strength1": "弱",
+    "strength2": "一般",
+    "strength3": "强",
+    "strength4": "极强",
+    "length": "长度",
+    "entropyBits": "熵值 (bit)",
+    "crackTime": "破解时间（10¹⁰ 次/秒）",
+    "checks": {
+      "minLength12": "长度至少 12 个字符",
+      "lowercase": "包含小写字母 (a-z)",
+      "uppercase": "包含大写字母 (A-Z)",
+      "digit": "包含数字 (0-9)",
+      "symbol": "包含符号 (!@#$…)",
+      "noRepeatedChars": "无连续重复字符"
+    },
+    "disclaimer": "估算基于 10¹⁰ 次/秒的暴力破解假设，仅供强度参考"
+  },
+  "pdf-signature-checker": {
+    "title": "PDF 签名校验",
+    "description": "检查 PDF 文件中的数字签名信息",
+    "pickFile": "选择 PDF 文件",
+    "dropHint": "拖入 PDF 文件，或点击选择",
+    "hasAcroForm": "包含 AcroForm 表单字典",
+    "hasSignatureField": "包含签名字段 (/FT /Sig)",
+    "signatureCount": "数字签名数量 (/ByteRange)",
+    "byteRanges": "ByteRange 区间",
+    "yes": "是",
+    "no": "否",
+    "notPdf": "不是有效的 PDF 文件",
+    "warning": {
+      "no-signature": "未检测到数字签名",
+      "unsigned-signature-field": "存在签名字段，但 ByteRange 为占位符或无效（未完成签名）",
+      "invalid-byte-range": "ByteRange 字典无效或超出文件范围",
+      "modified-after-signing": "签名区间未覆盖整个文件，签名后文件可能被修改"
+    },
+    "disclaimer": "仅为基础字节级检查，不构成法律效力验证"
   }
 }

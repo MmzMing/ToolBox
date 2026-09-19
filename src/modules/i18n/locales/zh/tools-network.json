@@ -1,0 +1,63 @@
+{
+  "ipv4-subnet-calculator": {
+    "title": "IPv4 子网计算",
+    "description": "计算子网掩码、网络地址与可用主机",
+    "modeLabel": "输入模式",
+    "mode-prefix": "CIDR（IP/前缀长度）",
+    "mode-netmask": "IP/子网掩码",
+    "field-networkAddress": "网络地址",
+    "field-broadcastAddress": "广播地址",
+    "field-netmask": "子网掩码",
+    "field-wildcardMask": "通配符掩码",
+    "field-totalHosts": "地址总数",
+    "field-usableHosts": "可用主机数",
+    "field-firstUsableHost": "首个可用 IP",
+    "field-lastUsableHost": "末个可用 IP",
+    "field-addressClass": "地址类别",
+    "field-isPrivate": "私有地址",
+    "privateYes": "是（RFC 1918）",
+    "privateNo": "否"
+  },
+  "ipv4-address-converter": {
+    "title": "IPv4 地址转换",
+    "description": "点分十进制、十六进制、二进制等互转",
+    "field-decimal": "十进制整数",
+    "field-hexadecimal": "十六进制",
+    "field-binary": "二进制（点分 8 位）",
+    "field-octal": "八进制（点分）",
+    "field-dottedHexadecimal": "点分十六进制"
+  },
+  "ipv4-range-expander": {
+    "title": "IPv4 范围扩展",
+    "description": "将 IP 范围展开为 CIDR 列表",
+    "startLabel": "起始 IP",
+    "endLabel": "结束 IP",
+    "cidrList": "CIDR 列表",
+    "cidrCount": "共 {{count}} 个 CIDR 块"
+  },
+  "mac-address-lookup": {
+    "title": "MAC 厂商查询",
+    "description": "通过 OUI 前缀查询设备厂商",
+    "normalizedLabel": "归一化格式",
+    "ouiLabel": "OUI 前缀",
+    "vendorLabel": "厂商",
+    "unknownVendor": "未知厂商（OUI 数据库未收录）"
+  },
+  "mac-address-generator": {
+    "title": "MAC 地址生成",
+    "description": "批量生成随机 MAC 地址",
+    "prefixLabel": "前缀（可选）",
+    "prefixPlaceholder": "如 00:1A:2B",
+    "separatorLabel": "分隔符",
+    "separator-colon": "冒号（:）",
+    "separator-dash": "连字符（-）",
+    "separator-none": "无",
+    "uppercaseLabel": "大写字母",
+    "generatedList": "生成结果"
+  },
+  "ipv6-ula-generator": {
+    "title": "IPv6 ULA 生成",
+    "description": "生成 RFC 4193 私有 IPv6 前缀",
+    "hint": "按 RFC 4193 生成 fd00::/8 内的随机 /48 前缀"
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "math-evaluator": {
+    "title": "Math Evaluator",
+    "description": "Evaluate math expressions with mathjs",
+    "expressionLabel": "Expression",
+    "expressionPlaceholder": "2 + 3 * 4\nsqrt(16)\nx = 2\nx + 1",
+    "resultLabel": "Result"
+  },
+  "eta-calculator": {
+    "title": "ETA Calculator",
+    "description": "Estimate remaining time from progress",
+    "doneLabel": "Completed",
+    "totalLabel": "Total",
+    "elapsedLabel": "Elapsed time (seconds)",
+    "percentLabel": "Progress",
+    "remainingLabel": "Remaining",
+    "remainingTimeLabel": "Estimated remaining time",
+    "etaTimestampLabel": "Estimated finish time",
+    "etaTextLong": "{{h}}h {{m}}m {{s}}s",
+    "etaTextShort": "{{m}}m {{s}}s",
+    "unknownEta": "Cannot estimate yet"
+  },
+  "percentage-calculator": {
+    "title": "Percentage Calculator",
+    "description": "Common percentage calculations",
+    "card1Title": "What percent of Y is X",
+    "card2Title": "Y% of X",
+    "card3Title": "Percentage change from X to Y",
+    "card4Title": "X after a Y% increase/decrease",
+    "valueX": "Value X",
+    "valueY": "Value Y",
+    "fromValue": "From X",
+    "toValue": "To Y",
+    "percentLabel": "Percent (%)",
+    "directionLabel": "Direction",
+    "direction-increase": "Increase",
+    "direction-decrease": "Decrease"
+  }
+}

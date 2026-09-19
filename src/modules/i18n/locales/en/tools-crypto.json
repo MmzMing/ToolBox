@@ -6,5 +6,121 @@
   "uuid-generator": {
     "title": "UUID Generator",
     "description": "Generate random UUID v4 in bulk, one click to copy"
+  },
+  "token-generator": {
+    "title": "Token Generator",
+    "description": "Generate random secure tokens with custom charset and length",
+    "length": "Length",
+    "characterSets": "Character sets",
+    "uppercase": "Uppercase (A-Z)",
+    "lowercase": "Lowercase (a-z)",
+    "numbers": "Digits (0-9)",
+    "symbols": "Symbols (!@#$…)",
+    "errorCharset": "Select at least one character set"
+  },
+  "bcrypt": {
+    "title": "Bcrypt Hash",
+    "description": "Hash and check passwords with bcrypt",
+    "tabHash": "Hash",
+    "tabVerify": "Verify",
+    "password": "Password",
+    "saltRounds": "Salt rounds",
+    "hash": "Compute hash",
+    "hashResult": "Hash result",
+    "hashToVerify": "Hash to verify",
+    "verify": "Verify",
+    "emptyPassword": "Password must not be empty",
+    "match": "The password matches the hash",
+    "mismatch": "The password does not match the hash",
+    "invalidHash": "Invalid hash format"
+  },
+  "ulid-generator": {
+    "title": "ULID Generator",
+    "description": "Generate ULID (Universally Unique Lexicographically Sortable Identifier) in bulk"
+  },
+  "encryption": {
+    "title": "Text Encryption",
+    "description": "Encrypt and decrypt text with AES symmetric cipher",
+    "algorithm": "Algorithm",
+    "secretKey": "Secret key",
+    "showKey": "Show key",
+    "hideKey": "Hide key",
+    "plaintext": "Plaintext",
+    "ciphertext": "Ciphertext",
+    "encrypt": "Encrypt",
+    "decrypt": "Decrypt",
+    "requiredSecret": "Please enter a secret key",
+    "decryptFailed": "Decryption failed: wrong key or invalid ciphertext"
+  },
+  "bip39-generator": {
+    "title": "BIP39 Mnemonic",
+    "description": "Generate BIP39 mnemonic phrases",
+    "language": "Language",
+    "wordCount": "Word count",
+    "wordlistEnglish": "English",
+    "wordlistSimplifiedChinese": "Chinese (Simplified)",
+    "wordlistTraditionalChinese": "Chinese (Traditional)",
+    "offlineNote": "Mnemonics are generated locally in your browser; never expose large-wallet phrases on shared devices"
+  },
+  "hmac-generator": {
+    "title": "HMAC Generator",
+    "description": "Compute HMAC-MD5/SHA message authentication codes",
+    "secretKey": "Secret key",
+    "message": "Message",
+    "algorithm": "Algorithm"
+  },
+  "rsa-key-pair-generator": {
+    "title": "RSA Key Pair Generator",
+    "description": "Generate RSA public/private key pairs in PEM format",
+    "keySize": "Key size",
+    "bits": "bits",
+    "generating": "Generating…",
+    "publicKey": "Public key (PEM)",
+    "privateKey": "Private key (PEM)"
+  },
+  "password-strength-analyser": {
+    "title": "Password Strength Analyser",
+    "description": "Analyse password strength, entropy and crack time",
+    "password": "Password",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password",
+    "strength": "Strength",
+    "strength0": "Very weak",
+    "strength1": "Weak",
+    "strength2": "Fair",
+    "strength3": "Strong",
+    "strength4": "Very strong",
+    "length": "Length",
+    "entropyBits": "Entropy (bit)",
+    "crackTime": "Crack time (10^10 guesses/s)",
+    "checks": {
+      "minLength12": "At least 12 characters",
+      "lowercase": "Contains lowercase letters (a-z)",
+      "uppercase": "Contains uppercase letters (A-Z)",
+      "digit": "Contains digits (0-9)",
+      "symbol": "Contains symbols (!@#$…)",
+      "noRepeatedChars": "No consecutive repeated characters"
+    },
+    "disclaimer": "Estimates assume 10^10 brute-force guesses per second, for strength reference only"
+  },
+  "pdf-signature-checker": {
+    "title": "PDF Signature Checker",
+    "description": "Inspect digital signatures inside a PDF file",
+    "pickFile": "Choose a PDF file",
+    "dropHint": "Drag a PDF file here, or click to browse",
+    "hasAcroForm": "Contains AcroForm dictionary",
+    "hasSignatureField": "Contains signature field (/FT /Sig)",
+    "signatureCount": "Digital signature count (/ByteRange)",
+    "byteRanges": "ByteRange ranges",
+    "yes": "Yes",
+    "no": "No",
+    "notPdf": "Not a valid PDF file",
+    "warning": {
+      "no-signature": "No digital signature detected",
+      "unsigned-signature-field": "A signature field exists, but its ByteRange is a placeholder or invalid (signature not completed)",
+      "invalid-byte-range": "Invalid ByteRange dictionary or out of file range",
+      "modified-after-signing": "Signed ranges do not cover the whole file; it may have been modified after signing"
+    },
+    "disclaimer": "Basic byte-level check only; it does not constitute legal verification"
   }
 }

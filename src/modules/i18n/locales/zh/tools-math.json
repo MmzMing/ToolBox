@@ -1,0 +1,39 @@
+{
+  "math-evaluator": {
+    "title": "数学表达式求值",
+    "description": "使用 mathjs 求值数学表达式",
+    "expressionLabel": "表达式",
+    "expressionPlaceholder": "2 + 3 * 4\nsqrt(16)\nx = 2\nx + 1",
+    "resultLabel": "结果"
+  },
+  "eta-calculator": {
+    "title": "ETA 计算",
+    "description": "根据进度计算剩余时间与完成时间",
+    "doneLabel": "已完成数量",
+    "totalLabel": "总量",
+    "elapsedLabel": "已用时间（秒）",
+    "percentLabel": "进度",
+    "remainingLabel": "剩余数量",
+    "remainingTimeLabel": "预计剩余时间",
+    "etaTimestampLabel": "预计完成时间",
+    "etaTextLong": "{{h}} 时 {{m}} 分 {{s}} 秒",
+    "etaTextShort": "{{m}} 分 {{s}} 秒",
+    "unknownEta": "无法估算"
+  },
+  "percentage-calculator": {
+    "title": "百分比计算",
+    "description": "常用百分比计算合集",
+    "card1Title": "X 是 Y 的百分之几",
+    "card2Title": "X 的 Y% 是多少",
+    "card3Title": "从 X 到 Y 的百分比变化",
+    "card4Title": "X 增加/减少 Y% 后",
+    "valueX": "数值 X",
+    "valueY": "数值 Y",
+    "fromValue": "起始值 X",
+    "toValue": "目标值 Y",
+    "percentLabel": "百分比（%）",
+    "directionLabel": "方向",
+    "direction-increase": "增加",
+    "direction-decrease": "减少"
+  }
+}

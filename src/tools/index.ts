@@ -4,6 +4,12 @@ import type { RecentToolEntry } from '@/stores/tools.store'
 
 import { cryptoTools } from './crypto'
 import { converterTools } from './converter'
+import { developmentTools } from './development'
+import { imagesTools } from './images'
+import { mathTools } from './math'
+import { measurementTools } from './measurement'
+import { networkTools } from './network'
+import { webTools } from './web'
 
 export interface ToolCategory {
   readonly category: CategoryKey
@@ -21,6 +27,12 @@ function attachCategory(category: CategoryKey, rawTools: readonly DefinedTool[])
 export const toolsByCategory: readonly ToolCategory[] = [
   { category: 'crypto', tools: attachCategory('crypto', cryptoTools) },
   { category: 'converter', tools: attachCategory('converter', converterTools) },
+  { category: 'web', tools: attachCategory('web', webTools) },
+  { category: 'development', tools: attachCategory('development', developmentTools) },
+  { category: 'images', tools: attachCategory('images', imagesTools) },
+  { category: 'network', tools: attachCategory('network', networkTools) },
+  { category: 'math', tools: attachCategory('math', mathTools) },
+  { category: 'measurement', tools: attachCategory('measurement', measurementTools) },
 ]
 
 export const tools: readonly Tool[] = toolsByCategory.flatMap((group) => group.tools)
