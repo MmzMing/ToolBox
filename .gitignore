@@ -27,3 +27,7 @@ coverage
 # sitemap generated at build time
 public/sitemap.xml
 public/robots.txt
+
+# wasm codecs copied by scripts/prepare-codecs.mjs
+public/codecs
+public/wasm

@@ -67,5 +67,93 @@
     "previewLabel": "Click \"Start camera\" to begin the preview",
     "permissionError": "Cannot access the camera or microphone, please check browser permissions",
     "recordingUnsupported": "Video recording is not supported in this browser"
+  },
+  "image-compressor": {
+    "title": "Image Compressor",
+    "description": "Batch-compress JPEG/PNG/WebP/GIF/SVG/AVIF/HEIC with resize and format conversion, fully local",
+    "workspace": {
+      "dropTitle": "Drop images here — files and folders are supported",
+      "dropSubtitle": "Open-source batch image compression for JPG/JPEG/PNG/WebP/GIF/SVG/AVIF/HEIC/HEIF",
+      "pasteHint": "Tip: copy an image and press Ctrl+V (Cmd+V) to paste",
+      "addFiles": "Add files",
+      "addFolder": "Add folder",
+      "summary": " images · {{origin}} → {{output}}",
+      "pendingHint": "(done {{done}}/{{total}})",
+      "downloadAll": "Download all",
+      "downloadAllDone": "Downloaded {{count}} images as a zip",
+      "zipFailed": "Failed to build the zip, please retry",
+      "clear": "Clear list",
+      "autoApplyHint": "Adjust options then press Apply to re-compress, or",
+      "reapplyNow": "apply current options now"
+    },
+    "list": {
+      "preview": "Preview",
+      "name": "Name",
+      "dimension": "Dimension",
+      "size": "Size",
+      "decrease": "Saved",
+      "action": "Actions",
+      "downloadOne": "Download",
+      "reCompress": "Re-compress",
+      "removeOne": "Remove",
+      "preservedOriginal": "Browser cannot encode this format, original kept"
+    },
+    "status": {
+      "processing": "Processing",
+      "done": "Done",
+      "error": "Failed"
+    },
+    "errors": {
+      "animated-unsupported": "Animated transcoding is not supported, disable format conversion and retry"
+    },
+    "compare": {
+      "title": "Before / after comparison",
+      "original": "Original",
+      "compressed": "Compressed",
+      "swap": "Swap sides",
+      "dragHint": "Drag the divider to compare"
+    },
+    "panel": {
+      "title": "Options",
+      "resizeLabel": "Resize",
+      "resizePlaceholder": "Pick a resize mode",
+      "resizeOriginal": "Keep original size",
+      "resizeMethod": {
+        "fitWidth": "Fit width",
+        "fitHeight": "Fit height",
+        "setShort": "Set short side",
+        "setLong": "Set long side",
+        "setCropRatio": "Crop by ratio",
+        "setCropSize": "Crop by size",
+        "presetCrop": "Crop by paper preset"
+      },
+      "width": "Width",
+      "height": "Height",
+      "shortSide": "Short side",
+      "longSide": "Long side",
+      "heightRatio": "Height / width ratio",
+      "paperSize": "Paper",
+      "orientation": "Orientation",
+      "portrait": "Portrait",
+      "landscape": "Landscape",
+      "cropPx": "Crop px",
+      "offsetPx": "Offset px",
+      "formatLabel": "Output format",
+      "formatKeep": "Keep original",
+      "transparentFill": "Transparent fill",
+      "jpegLabel": "JPEG/WebP options",
+      "quality": "Quality (0-1)",
+      "extreme": "Extreme mode (slower)",
+      "pngLabel": "PNG options",
+      "colors": "Colors (2-256)",
+      "dithering": "Dithering (0-1)",
+      "gifLabel": "GIF options",
+      "gifDithering": "Dithering (Floyd-Steinberg)",
+      "avifLabel": "AVIF options",
+      "avifQuality": "Quality (1-100)",
+      "avifSpeed": "Speed (1-10)",
+      "reset": "Reset options",
+      "apply": "Apply options"
+    }
   }
 }

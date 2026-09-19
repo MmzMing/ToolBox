@@ -67,5 +67,93 @@
     "previewLabel": "点击“开启摄像头”开始预览",
     "permissionError": "无法访问摄像头或麦克风，请检查浏览器权限设置",
     "recordingUnsupported": "当前浏览器不支持视频录制"
+  },
+  "image-compressor": {
+    "title": "图片压缩",
+    "description": "批量压缩 JPEG/PNG/WebP/GIF/SVG/AVIF/HEIC，支持调整尺寸与格式转换，全部本地处理",
+    "workspace": {
+      "dropTitle": "选取图片到这里，支持拖拽图片和文件夹",
+      "dropSubtitle": "开源的批量图片压缩工具，支持 JPG/JPEG/PNG/WebP/GIF/SVG/AVIF/HEIC/HEIF 格式",
+      "pasteHint": "提示：您也可以复制图片后按 Ctrl+V (Cmd+V) 粘贴",
+      "addFiles": "选择文件",
+      "addFolder": "选择文件夹",
+      "summary": "张图片 · {{origin}} → {{output}}",
+      "pendingHint": "（已完成 {{done}}/{{total}}）",
+      "downloadAll": "全部下载",
+      "downloadAllDone": "已打包下载 {{count}} 张图片",
+      "zipFailed": "打包失败，请重试",
+      "clear": "清空列表",
+      "autoApplyHint": "修改参数后点击「应用选项」重新压缩，或",
+      "reapplyNow": "立即应用当前参数"
+    },
+    "list": {
+      "preview": "预览",
+      "name": "名称",
+      "dimension": "尺寸",
+      "size": "大小",
+      "decrease": "节省",
+      "action": "操作",
+      "downloadOne": "下载",
+      "reCompress": "重新压缩",
+      "removeOne": "移除",
+      "preservedOriginal": "浏览器不支持此格式编码，保留原图"
+    },
+    "status": {
+      "processing": "处理中",
+      "done": "完成",
+      "error": "失败"
+    },
+    "errors": {
+      "animated-unsupported": "暂不支持动图转码，请关闭格式转换后重试"
+    },
+    "compare": {
+      "title": "压缩前后对比",
+      "original": "原图",
+      "compressed": "压缩后",
+      "swap": "交换左右",
+      "dragHint": "拖动分割线对比前后效果"
+    },
+    "panel": {
+      "title": "压缩选项",
+      "resizeLabel": "调整图片尺寸",
+      "resizePlaceholder": "选择调整模式",
+      "resizeOriginal": "保持原始尺寸",
+      "resizeMethod": {
+        "fitWidth": "按宽度适配",
+        "fitHeight": "按高度适配",
+        "setShort": "指定短边",
+        "setLong": "指定长边",
+        "setCropRatio": "按宽高比裁剪",
+        "setCropSize": "按尺寸裁剪",
+        "presetCrop": "按纸张预设裁剪"
+      },
+      "width": "宽度",
+      "height": "高度",
+      "shortSide": "短边",
+      "longSide": "长边",
+      "heightRatio": "高宽比",
+      "paperSize": "纸张",
+      "orientation": "方向",
+      "portrait": "纵向",
+      "landscape": "横向",
+      "cropPx": "裁剪像素",
+      "offsetPx": "偏移像素",
+      "formatLabel": "设置输出格式",
+      "formatKeep": "保持原格式",
+      "transparentFill": "透明填充色",
+      "jpegLabel": "JPEG/WebP 参数",
+      "quality": "输出质量（0-1）",
+      "extreme": "极致压缩（较慢）",
+      "pngLabel": "PNG 参数",
+      "colors": "颜色数量（2-256）",
+      "dithering": "抖动强度（0-1）",
+      "gifLabel": "GIF 参数",
+      "gifDithering": "抖动（Floyd-Steinberg）",
+      "avifLabel": "AVIF 参数",
+      "avifQuality": "质量（1-100）",
+      "avifSpeed": "速度（1-10）",
+      "reset": "重置选项",
+      "apply": "应用选项"
+    }
   }
 }
