@@ -153,7 +153,8 @@
       "avifQuality": "Quality (1-100)",
       "avifSpeed": "Speed (1-10)",
       "reset": "Reset options",
-      "apply": "Apply options"
+      "apply": "Apply options",
+      "resizeParamsHint": "Fill in the size parameters for this mode to take effect; empty keeps the original size"
     }
   }
 }

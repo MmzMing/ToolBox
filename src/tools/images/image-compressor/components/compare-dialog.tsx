@@ -56,11 +56,17 @@ export function CompareDialog({ item, onClose }: CompareDialogProps) {
     return null
   }
 
-  const original = { src: item.src, label: t('compare.original'), size: item.blob.size }
+  const original = {
+    src: item.src,
+    label: t('compare.original'),
+    size: item.blob.size,
+    dim: `${item.width}×${item.height}`,
+  }
   const compressed = {
     src: item.compress.src,
     label: t('compare.compressed'),
     size: item.compress.blob.size,
+    dim: `${item.compress.width}×${item.compress.height}`,
   }
   const left = showCompressedRight ? original : compressed
   const right = showCompressedRight ? compressed : original
@@ -117,10 +123,10 @@ export function CompareDialog({ item, onClose }: CompareDialogProps) {
 
           {/* 左右标签 */}
           <span className="bg-background/80 absolute top-4 left-4 rounded-md px-2.5 py-1 text-xs font-medium backdrop-blur">
-            {left.label} · {formatFileSize(left.size)}
+            {left.label} · {left.dim} · {formatFileSize(left.size)}
           </span>
           <span className="bg-background/80 absolute top-4 right-4 rounded-md px-2.5 py-1 text-xs font-medium backdrop-blur">
-            {right.label} · {formatFileSize(right.size)}
+            {right.label} · {right.dim} · {formatFileSize(right.size)}
           </span>
 
           {/* 右上角操作 */}

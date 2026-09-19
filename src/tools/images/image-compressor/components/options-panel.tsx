@@ -54,6 +54,17 @@ export function OptionsPanel() {
 
   const resize = option.resize
 
+  // 所选模式必需的参数未填写时提醒（留空时引擎按原始尺寸处理）
+  const methodNeedsValue = Boolean(
+    resize.method &&
+    ((resize.method === 'fitWidth' && !resize.width) ||
+      (resize.method === 'fitHeight' && !resize.height) ||
+      (resize.method === 'setShort' && !resize.short) ||
+      (resize.method === 'setLong' && !resize.long) ||
+      (resize.method === 'setCropRatio' && (!resize.cropWidthRatio || !resize.cropHeightRatio)) ||
+      (resize.method === 'setCropSize' && (!resize.cropWidthSize || !resize.cropHeightSize))),
+  )
+
   return (
     <div className="flex h-full flex-col overflow-hidden rounded-lg border">
       <div className="flex h-11 shrink-0 items-center gap-2 border-b px-4">
@@ -87,6 +98,10 @@ export function OptionsPanel() {
                 ))}
               </SelectContent>
             </Select>
+
+            {methodNeedsValue && (
+              <p className="text-xs text-amber-500">{t('panel.resizeParamsHint')}</p>
+            )}
 
             {(resize.method === 'fitWidth' || resize.method === 'setCropRatio') && (
               <NumberField
