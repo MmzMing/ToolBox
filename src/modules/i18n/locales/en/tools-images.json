@@ -69,7 +69,7 @@
     "recordingUnsupported": "Video recording is not supported in this browser"
   },
   "image-compressor": {
-    "title": "Image Compressor",
+    "title": "Image Compress & Convert",
     "description": "Batch-compress JPEG/PNG/WebP/GIF/SVG/AVIF/HEIC with resize and format conversion, fully local",
     "workspace": {
       "dropTitle": "Drop images here — files and folders are supported",
