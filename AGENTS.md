@@ -69,14 +69,16 @@
 
 ## 7. 工具开发 SOP（最重要）
 
-每个工具 = `src/tools/<分类>/<工具名>/` 下**四件套**：
+每个工具 = `src/tools/<分类>/<工具名>/` 下**三件套**，测试统一放 `src/test/`（镜像源码目录）：
 
 ```
-uuid-generator/
+src/tools/crypto/uuid-generator/
 ├── index.ts              # 定义并导出 tool（唯一入口）
 ├── UuidGenerator.tsx     # UI 组件（default export，供 lazy 加载）
-├── service.ts            # 纯逻辑：零 DOM/React 依赖，全部导出纯函数
-└── service.test.ts       # Vitest 单测，覆盖 service 全部导出与边界
+└── uuid-generator.service.ts  # 纯逻辑：零 DOM/React 依赖，全部导出纯函数
+
+src/test/tools/crypto/uuid-generator/
+└── uuid-generator.service.test.ts  # Vitest 单测，覆盖 service 全部导出与边界
 ```
 
 - `index.ts` 固定写法：
@@ -122,7 +124,9 @@ export const tool = defineTool({
 
 ## 10. 测试规范（Vitest）
 
-- `service.test.ts` 必须：覆盖正常路径 + 空输入 + 非法输入边界；断言用 `expect`，一个行为一个用例。
+- 测试文件命名为 `<工具名>.service.test.ts`，放在 `src/test/` 下与源码镜像的目录；
+  被测模块用 `@/tools/...` 别名导入。必须：覆盖正常路径 + 空输入 + 非法输入边界；
+  断言用 `expect`，一个行为一个用例。
 - 只测纯逻辑（service/utils/stores），UI 组件不强制测试。
 - 测试文件与被测文件同目录；`describe` 描述模块，`it` 描述行为（英文）。
 

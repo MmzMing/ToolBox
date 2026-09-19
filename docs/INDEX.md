@@ -1,6 +1,6 @@
 # ToolBox 文档索引
 
-> 本目录是 ToolBox 项目的全部文档归档。代码规范见根目录 [agent.md](../agent.md)。
+> 本目录是 ToolBox 项目的全部文档归档。代码规范见根目录 [AGENTS.md](../AGENTS.md)。
 
 ## 目录结构
 
@@ -19,8 +19,8 @@ docs/
 
 ## 阅读路径
 
-- **新人上手**：根目录 [agent.md](../agent.md) → `design/技术栈文档.md` → `design/详细设计文档.md`
-- **新增一个工具**：`agent.md` §7（工具开发 SOP）→ `design/详细设计文档.md` §2 → 样板 `src/tools/crypto/hash-text/`
+- **新人上手**：根目录 [AGENTS.md](../AGENTS.md) → `design/技术栈文档.md` → `design/详细设计文档.md`
+- **新增一个工具**：`AGENTS.md` §7（工具开发 SOP）→ `design/详细设计文档.md` §2 → 样板 `src/tools/crypto/hash-text/`
 - **部署上线**：`deployment/部署方案.md`（含发布检查清单）
 - **查工具**：`design/功能介绍文档.md`（全 86 个工具一览）
 

@@ -16,7 +16,7 @@ pnpm build      # 构建产物 + 生成 sitemap.xml
 ## 文档
 
 - [docs/INDEX.md](docs/INDEX.md) — 文档总索引
-- [agent.md](agent.md) — 代码规范（AI 与人的共同守则）
+- [AGENTS.md](AGENTS.md) — 代码规范（AI 与人的共同守则）
 
 ## 技术栈
 
