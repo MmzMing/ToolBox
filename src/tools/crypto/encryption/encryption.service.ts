@@ -25,7 +25,15 @@ export function decryptAES(cipherText: string, secret: string): string {
   if (decrypted.sigBytes < 0) {
     throw new Error('Decryption failed: wrong secret or invalid cipher text')
   }
-  const plainText = decrypted.toString(CryptoJS.enc.Utf8)
+  // 注意：OpenSSL 加盐格式没有完整性校验（MAC），错误密钥存在小概率解出
+  // "恰好合法" 的乱码字节（无法根除）；此处把可检测的失败归一化为同一错误
+  let plainText: string
+  try {
+    plainText = decrypted.toString(CryptoJS.enc.Utf8)
+  } catch {
+    // 错误密钥解出的字节偶发恰好通过填充校验但不是合法 UTF-8
+    throw new Error('Decryption failed: wrong secret or invalid cipher text')
+  }
   if (decrypted.sigBytes > 0 && plainText === '') {
     throw new Error('Decryption failed: wrong secret or invalid cipher text')
   }

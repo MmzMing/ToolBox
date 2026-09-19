@@ -78,7 +78,7 @@ export function SidebarContent({ onNavigate }: SidebarContentProps) {
                 </AccordionTrigger>
                 {/* 覆盖生成组件默认的 [&_a]:underline：侧栏导航链接不需要下划线 */}
                 <AccordionContent className="pb-1 [&_a]:no-underline">
-                  <nav className="flex flex-col gap-0.5">
+                  <nav className="ml-5 flex flex-col gap-0.5 border-l pl-2">
                     {tools.map((tool) => (
                       <NavLink
                         key={tool.path}

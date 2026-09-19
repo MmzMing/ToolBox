@@ -28,6 +28,8 @@ coverage
 public/sitemap.xml
 public/robots.txt
 
-# wasm codecs copied by scripts/prepare-codecs.mjs
-public/codecs
-public/wasm
+# wasm codecs copied by scripts/prepare-codecs.mjs（gif 产物为提交文件，保留）
+public/codecs/*
+!public/codecs/gif
+public/wasm/*
+!public/wasm/gif.wasm
