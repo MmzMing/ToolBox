@@ -1,5 +1,7 @@
 # ToolBox — 开发者在线工具箱
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](./LICENSE)
+
 基于 **React 19 + Vite 8 + TypeScript + shadcn/ui + Tailwind CSS v4** 的开源开发者工具站，
 全量复刻 [it-tools](https://github.com/CorentinTh/it-tools) 的 86 个工具，全部纯前端本地运行，数据不上传。
 

@@ -8,6 +8,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { changeLocale } from '@/modules/i18n'
 import { supportedLocales } from '@/stores/preferences.store'
 
@@ -19,11 +20,16 @@ export function LocaleSwitcher() {
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon-sm" aria-label={t('language')}>
-          <Languages />
-        </Button>
-      </DropdownMenuTrigger>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="icon-sm" aria-label={t('language')}>
+              <Languages />
+            </Button>
+          </DropdownMenuTrigger>
+        </TooltipTrigger>
+        <TooltipContent side="bottom">{t('language')}</TooltipContent>
+      </Tooltip>
       <DropdownMenuContent align="end">
         {supportedLocales.map((value) => (
           <DropdownMenuItem
@@ -33,7 +39,7 @@ export function LocaleSwitcher() {
           >
             {localeLabels[value]}
             {value === i18n.resolvedLanguage && (
-              <span className="ml-auto text-xs text-primary">✓</span>
+              <span className="text-primary ml-auto text-xs">✓</span>
             )}
           </DropdownMenuItem>
         ))}

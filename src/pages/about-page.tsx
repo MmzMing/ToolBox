@@ -83,7 +83,20 @@ export default function AboutPage() {
       </div>
 
       <h2 className="mt-10 mb-3 text-lg font-semibold">{t('linksTitle')}</h2>
-      <div className="flex gap-5">
+      <p className="text-muted-foreground mt-2 text-xs">
+        {t('licenseNote')}（
+        <a
+          className="text-primary underline underline-offset-4"
+          href="./LICENSE"
+          target="_blank"
+          rel="noreferrer"
+        >
+          MIT
+        </a>
+        ）
+      </p>
+
+      <div className="mt-3 flex gap-5">
         <a
           href={siteConfig.blogUrl}
           target="_blank"

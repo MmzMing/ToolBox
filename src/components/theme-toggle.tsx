@@ -9,6 +9,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 
 /** 亮/暗/跟随系统 三态切换（next-themes 持久化，class 策略驱动 shadcn 令牌） */
 export function ThemeToggle() {
@@ -23,18 +24,23 @@ export function ThemeToggle() {
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon-sm" aria-label={t('theme')}>
-          <Sun className="hidden dark:block" />
-          <Moon className="block dark:hidden" />
-        </Button>
-      </DropdownMenuTrigger>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="icon-sm" aria-label={t('theme')}>
+              <Sun className="hidden dark:block" />
+              <Moon className="block dark:hidden" />
+            </Button>
+          </DropdownMenuTrigger>
+        </TooltipTrigger>
+        <TooltipContent side="bottom">{t('theme')}</TooltipContent>
+      </Tooltip>
       <DropdownMenuContent align="end">
         {options.map(({ value, label, icon: Icon }) => (
           <DropdownMenuItem key={value} onClick={() => setTheme(value)}>
             <Icon className="size-4" />
             {label}
-            {theme === value && <span className="ml-auto text-xs text-primary">✓</span>}
+            {theme === value && <span className="text-primary ml-auto text-xs">✓</span>}
           </DropdownMenuItem>
         ))}
       </DropdownMenuContent>

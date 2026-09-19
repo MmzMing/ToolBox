@@ -7,6 +7,7 @@ import { LocaleSwitcher } from '@/components/locale-switcher'
 import { GithubIcon } from '@/components/icons/github-icon'
 import { ThemeToggle } from '@/components/theme-toggle'
 import { Button } from '@/components/ui/button'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -83,15 +84,22 @@ export default function BaseLayout() {
           </Sheet>
 
           {/* 桌面端：侧栏展开/收缩 */}
-          <Button
-            variant="ghost"
-            size="icon-sm"
-            className="hidden md:inline-flex"
-            aria-label={sidebarCollapsed ? t('openSidebar') : t('collapseSidebar')}
-            onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-          >
-            <PanelLeft className={sidebarCollapsed ? '' : 'text-primary'} />
-          </Button>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                className="hidden md:inline-flex"
+                aria-label={sidebarCollapsed ? t('openSidebar') : t('collapseSidebar')}
+                onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+              >
+                <PanelLeft className={sidebarCollapsed ? '' : 'text-primary'} />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="bottom">
+              {sidebarCollapsed ? t('openSidebar') : t('collapseSidebar')}
+            </TooltipContent>
+          </Tooltip>
 
           {/* 移动端 Logo */}
           <Link to="/" className="flex items-center gap-2 md:hidden">
@@ -149,38 +157,63 @@ export default function BaseLayout() {
           </Breadcrumb>
           <div className="hidden flex-1 md:block" aria-hidden="true" />
 
-          {/* 右侧：搜索 + 语言 + 主题 + GitHub */}
-          <div className="ml-auto flex shrink-0 items-center gap-1">
-            <button
-              type="button"
-              onClick={() => openPalette(true)}
-              className="text-muted-foreground hover:bg-muted aria-expanded:bg-muted flex h-8 items-center gap-2 rounded-md border px-2.5 text-sm transition-colors md:mr-1 md:px-3"
-              title={`${t('searchPlaceholder')} (Ctrl K)`}
-            >
-              <Search className="size-4 shrink-0" />
-              <span className="hidden min-w-24 text-left md:inline">{t('searchPlaceholder')}</span>
-              <kbd className="bg-background text-muted-foreground hidden shrink-0 rounded border px-1.5 font-mono text-[10px] lg:inline">
-                Ctrl K
-              </kbd>
-            </button>
-            <LocaleSwitcher />
-            <ThemeToggle />
-            <Button variant="ghost" size="icon-sm" asChild>
-              <a href={siteConfig.blogUrl} target="_blank" rel="noreferrer" aria-label={t('blog')}>
-                <BookOpen className="size-4" />
-              </a>
-            </Button>
-            <Button variant="ghost" size="icon-sm" asChild>
-              <a
-                href={siteConfig.githubUrl}
-                target="_blank"
-                rel="noreferrer"
-                aria-label={t('github')}
-              >
-                <GithubIcon className="size-4" />
-              </a>
-            </Button>
-          </div>
+          {/* 右侧：搜索 + 语言 + 主题 + 博客 + GitHub */}
+          <TooltipProvider delayDuration={200}>
+            <div className="ml-auto flex shrink-0 items-center gap-1">
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    type="button"
+                    onClick={() => openPalette(true)}
+                    className="text-muted-foreground hover:bg-muted aria-expanded:bg-muted flex h-8 items-center gap-2 rounded-md border px-2.5 text-sm transition-colors md:mr-1 md:px-3"
+                  >
+                    <Search className="size-4 shrink-0" />
+                    <span className="hidden min-w-24 text-left md:inline">
+                      {t('searchPlaceholder')}
+                    </span>
+                    <kbd className="bg-background text-muted-foreground hidden shrink-0 rounded border px-1.5 font-mono text-[10px] lg:inline">
+                      Ctrl K
+                    </kbd>
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent side="bottom" className="md:hidden">
+                  {t('searchPlaceholder')}
+                </TooltipContent>
+              </Tooltip>
+              <LocaleSwitcher />
+              <ThemeToggle />
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button variant="ghost" size="icon-sm" asChild>
+                    <a
+                      href={siteConfig.blogUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      aria-label={t('blog')}
+                    >
+                      <BookOpen className="size-4" />
+                    </a>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="bottom">{t('blog')}</TooltipContent>
+              </Tooltip>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button variant="ghost" size="icon-sm" asChild>
+                    <a
+                      href={siteConfig.githubUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      aria-label={t('github')}
+                    >
+                      <GithubIcon className="size-4" />
+                    </a>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="bottom">{t('github')}</TooltipContent>
+              </Tooltip>
+            </div>
+          </TooltipProvider>
         </header>
 
         <main className="flex-1">

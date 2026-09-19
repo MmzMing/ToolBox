@@ -1,6 +1,7 @@
 {
   "name": "toolbox",
-  "private": true,
+  "private": false,
+  "license": "MIT",
   "version": "0.1.0",
   "type": "module",
   "description": "ToolBox - 开发者在线工具箱（React 19 + Vite 8 + shadcn/ui）",
