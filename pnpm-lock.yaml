@@ -119,9 +119,6 @@ importers:
       mathjs:
         specifier: ^15.2.0
         version: 15.2.0
-      mime-types:
-        specifier: ^3.0.2
-        version: 3.0.2
       qrcode:
         specifier: ^1.5.4
         version: 1.5.4
@@ -198,9 +195,6 @@ importers:
       '@types/figlet':
         specifier: ^1.7.0
         version: 1.7.0
-      '@types/mime-types':
-        specifier: ^3.0.1
-        version: 3.0.1
       '@types/node':
         specifier: ^26.6.1
         version: 26.6.1
@@ -1512,9 +1506,6 @@ packages:
 
   '@types/json-schema@7.0.15':
     resolution: {integrity: sha512-5+fP8P8MFNC+AyZCDxrB2pkZFPGzqQWUzpSeuuVLvm8VMcorNYavBqoFcxK8bQz4Qsbn4oUEEem4wDLfcysGHA==}
-
-  '@types/mime-types@3.0.1':
-    resolution: {integrity: sha512-xRMsfuQbnRq1Ef+C+RKaENOxXX87Ygl38W1vDfPHRku02TgQr+Qd8iivLtAMcR0KF5/29xlnFihkTlbqFrGOVQ==}
 
   '@types/node@26.6.1':
     resolution: {integrity: sha512-VqGJBMCtdhqkBUCcBLvywI0NJ+KLuVzgNnlBUNFOQjqVxzo2lxLUNg1DSey8+u2u6ktswSAxg+s68QLzWHNOuA==}
@@ -5179,8 +5170,6 @@ snapshots:
   '@types/figlet@1.7.0': {}
 
   '@types/json-schema@7.0.15': {}
-
-  '@types/mime-types@3.0.1': {}
 
   '@types/node@26.6.1':
     dependencies:

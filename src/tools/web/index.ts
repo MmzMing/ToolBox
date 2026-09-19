@@ -7,14 +7,11 @@ import { tool as deviceInformation } from './device-information'
 import { tool as basicAuthGenerator } from './basic-auth-generator'
 import { tool as metaTagGenerator } from './meta-tag-generator'
 import { tool as otpCodeGeneratorAndValidator } from './otp-code-generator-and-validator'
-import { tool as mimeTypes } from './mime-types'
 import { tool as jwtParser } from './jwt-parser'
-import { tool as keycodeInfo } from './keycode-info'
 import { tool as slugifyString } from './slugify-string'
 import { tool as htmlWysiwygEditor } from './html-wysiwyg-editor'
 import { tool as userAgentParser } from './user-agent-parser'
 import { tool as httpStatusCodes } from './http-status-codes'
-import { tool as jsonDiff } from './json-diff'
 import { tool as safelinkDecoder } from './safelink-decoder'
 
 export const webTools: readonly DefinedTool[] = [
@@ -25,13 +22,10 @@ export const webTools: readonly DefinedTool[] = [
   basicAuthGenerator,
   metaTagGenerator,
   otpCodeGeneratorAndValidator,
-  mimeTypes,
   jwtParser,
-  keycodeInfo,
   slugifyString,
   htmlWysiwygEditor,
   userAgentParser,
   httpStatusCodes,
-  jsonDiff,
   safelinkDecoder,
 ]

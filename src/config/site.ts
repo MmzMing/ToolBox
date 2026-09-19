@@ -9,6 +9,4 @@ export const siteConfig = {
   githubUrl: 'https://github.com/your-org/toolbox',
   /** 博客地址 */
   blogUrl: 'https://tblog.mmzhiku.xyz',
-  /** 上游参考项目（关于页致谢用） */
-  itToolsUrl: 'https://github.com/CorentinTh/it-tools',
 } as const

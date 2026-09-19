@@ -75,16 +75,6 @@
     "verifyMatch": "验证码正确",
     "verifyMismatch": "验证码不匹配"
   },
-  "mime-types": {
-    "title": "MIME 类型表",
-    "description": "扩展名与 MIME 类型互相查询",
-    "extensionToMime": "扩展名 → MIME",
-    "mimeToExtensions": "MIME → 扩展名",
-    "noResult": "未找到匹配结果",
-    "commonTableTitle": "常见 MIME 类型",
-    "extensionColumn": "扩展名",
-    "mimeColumn": "MIME 类型"
-  },
   "jwt-parser": {
     "title": "JWT 解析",
     "description": "解码 JWT 的 Header 与 Payload",
@@ -101,24 +91,6 @@
     "expiryExpired": "已过期",
     "expiryNoExp": "无 exp 声明，无法判断",
     "signaturePart": "签名（signature）"
-  },
-  "keycode-info": {
-    "title": "按键信息",
-    "description": "查询键盘按键的 code 与 keyCode",
-    "captureTitle": "按键捕获区",
-    "captureEmpty": "点击此处，然后按下任意键",
-    "captureHint": "捕获区监听 keydown 事件，展示 event.key / event.code / keyCode 与修饰键状态",
-    "modifiersLabel": "修饰键",
-    "noModifiers": "未按下修饰键",
-    "mod-alt": "Alt",
-    "mod-ctrl": "Ctrl",
-    "mod-meta": "Meta",
-    "mod-shift": "Shift",
-    "spaceKey": "Space（空格）",
-    "commonTableTitle": "常见按键速查",
-    "keyColumn": "key",
-    "codeColumn": "code",
-    "keyCodeColumn": "keyCode"
   },
   "slugify-string": {
     "title": "Slug 生成",
@@ -280,17 +252,6 @@
     "desc-insufficientStorage": "服务器存储空间不足，无法完成请求（WebDAV）",
     "status-networkAuthenticationRequired": "需要网络认证",
     "desc-networkAuthenticationRequired": "客户端需先完成网络接入认证"
-  },
-  "json-diff": {
-    "title": "JSON 对比",
-    "description": "比较两个 JSON 的结构差异",
-    "jsonALabel": "JSON A",
-    "jsonBLabel": "JSON B",
-    "resultLabel": "差异结果",
-    "noDiff": "两个 JSON 没有差异",
-    "type-added": "新增",
-    "type-removed": "删除",
-    "type-changed": "修改"
   },
   "safelink-decoder": {
     "title": "跳转链接解码",

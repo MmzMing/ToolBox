@@ -1,4 +1,4 @@
-import { BookOpen, ChevronRight, Menu, PanelLeft, Search, Wrench } from 'lucide-react'
+import { BookOpen, ChevronRight, Info, Menu, PanelLeft, Search, Wrench } from 'lucide-react'
 import { useState } from 'react'
 import { Link, Outlet, useLocation } from 'react-router'
 import { useTranslation } from 'react-i18next'
@@ -160,7 +160,7 @@ export default function BaseLayout() {
             </Breadcrumb>
             <div className="hidden flex-1 md:block" aria-hidden="true" />
 
-            {/* 右侧：搜索 + 语言 + 主题 + 博客 + GitHub */}
+            {/* 右侧：搜索 + 语言 + 主题 + 博客 + 关于 + GitHub */}
             <div className="ml-auto flex shrink-0 items-center gap-1">
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -198,6 +198,16 @@ export default function BaseLayout() {
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent side="bottom">{t('blog')}</TooltipContent>
+              </Tooltip>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button variant="ghost" size="icon-sm" asChild>
+                    <Link to="/about" aria-label={t('about')}>
+                      <Info className="size-4" />
+                    </Link>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="bottom">{t('about')}</TooltipContent>
               </Tooltip>
               <Tooltip>
                 <TooltipTrigger asChild>

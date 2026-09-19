@@ -75,16 +75,6 @@
     "verifyMatch": "The code is valid",
     "verifyMismatch": "The code does not match"
   },
-  "mime-types": {
-    "title": "MIME Types",
-    "description": "Look up MIME types and file extensions",
-    "extensionToMime": "Extension → MIME",
-    "mimeToExtensions": "MIME → Extensions",
-    "noResult": "No matching result",
-    "commonTableTitle": "Common MIME types",
-    "extensionColumn": "Extension",
-    "mimeColumn": "MIME type"
-  },
   "jwt-parser": {
     "title": "JWT Parser",
     "description": "Decode the header and payload of a JWT",
@@ -101,24 +91,6 @@
     "expiryExpired": "Expired",
     "expiryNoExp": "No exp claim, cannot tell",
     "signaturePart": "Signature"
-  },
-  "keycode-info": {
-    "title": "Keycode Info",
-    "description": "Look up the code and keyCode of keyboard keys",
-    "captureTitle": "Key capture area",
-    "captureEmpty": "Click here, then press any key",
-    "captureHint": "The capture area listens to keydown and shows event.key / event.code / keyCode plus modifier states",
-    "modifiersLabel": "Modifiers",
-    "noModifiers": "No modifier pressed",
-    "mod-alt": "Alt",
-    "mod-ctrl": "Ctrl",
-    "mod-meta": "Meta",
-    "mod-shift": "Shift",
-    "spaceKey": "Space",
-    "commonTableTitle": "Common keys",
-    "keyColumn": "key",
-    "codeColumn": "code",
-    "keyCodeColumn": "keyCode"
   },
   "slugify-string": {
     "title": "Slugify String",
@@ -280,17 +252,6 @@
     "desc-insufficientStorage": "The server ran out of storage to complete the request (WebDAV)",
     "status-networkAuthenticationRequired": "Network Authentication Required",
     "desc-networkAuthenticationRequired": "The client must authenticate to gain network access"
-  },
-  "json-diff": {
-    "title": "JSON Diff",
-    "description": "Compare the structure of two JSON documents",
-    "jsonALabel": "JSON A",
-    "jsonBLabel": "JSON B",
-    "resultLabel": "Differences",
-    "noDiff": "The two JSON documents are identical",
-    "type-added": "Added",
-    "type-removed": "Removed",
-    "type-changed": "Changed"
   },
   "safelink-decoder": {
     "title": "Safelink Decoder",

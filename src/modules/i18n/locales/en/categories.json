@@ -6,5 +6,6 @@
   "development": "Development",
   "network": "Network",
   "math": "Calculation",
-  "text": "Text"
+  "text": "Text",
+  "life": "Life"
 }

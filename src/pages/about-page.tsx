@@ -63,11 +63,11 @@ export default function AboutPage() {
             {t('openSourceBody')}{' '}
             <a
               className="text-primary underline underline-offset-4"
-              href={siteConfig.itToolsUrl}
+              href={siteConfig.githubUrl}
               target="_blank"
               rel="noreferrer"
             >
-              it-tools
+              tools
             </a>
           </CardContent>
         </Card>

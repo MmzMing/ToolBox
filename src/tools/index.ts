@@ -9,6 +9,7 @@ import { imagesTools } from './images'
 import { mathTools } from './math'
 import { networkTools } from './network'
 import { textTools } from './text'
+import { lifeTools } from './life'
 import { webTools } from './web'
 
 export interface ToolCategory {
@@ -33,6 +34,7 @@ export const toolsByCategory: readonly ToolCategory[] = [
   { category: 'network', tools: attachCategory('network', networkTools) },
   { category: 'math', tools: attachCategory('math', mathTools) },
   { category: 'text', tools: attachCategory('text', textTools) },
+  { category: 'life', tools: attachCategory('life', lifeTools) },
 ]
 
 export const tools: readonly Tool[] = toolsByCategory.flatMap((group) => group.tools)
