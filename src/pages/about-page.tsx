@@ -1,13 +1,11 @@
-import { Heart, ShieldCheck, Zap } from 'lucide-react'
+import { BookOpen, Heart, ShieldCheck, Zap } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
 import { DocumentMeta } from '@/modules/seo/document-meta'
 import { GithubIcon } from '@/components/icons/github-icon'
+import { siteConfig } from '@/config/site'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-
-const GITHUB_URL = 'https://github.com/your-org/toolbox'
-const IT_TOOLS_URL = 'https://github.com/CorentinTh/it-tools'
 
 const techStack = [
   'React 19',
@@ -24,43 +22,51 @@ const techStack = [
 
 export default function AboutPage() {
   const { t } = useTranslation('about')
+  const { t: tCommon } = useTranslation('common')
 
   return (
     <div className="mx-auto w-full max-w-4xl px-4 py-8">
       <DocumentMeta title={`${t('title')} · ToolBox`} description={t('intro')} />
 
       <h1 className="text-2xl font-bold md:text-3xl">{t('title')}</h1>
-      <p className="mt-3 text-sm leading-relaxed text-muted-foreground md:text-base">{t('intro')}</p>
+      <p className="text-muted-foreground mt-3 text-sm leading-relaxed md:text-base">
+        {t('intro')}
+      </p>
 
       <div className="mt-8 grid gap-4 md:grid-cols-3">
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base">
-              <ShieldCheck className="size-4 text-primary" />
+              <ShieldCheck className="text-primary size-4" />
               {t('privacyTitle')}
             </CardTitle>
           </CardHeader>
-          <CardContent className="text-sm text-muted-foreground">{t('privacyBody')}</CardContent>
+          <CardContent className="text-muted-foreground text-sm">{t('privacyBody')}</CardContent>
         </Card>
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base">
-              <Zap className="size-4 text-primary" />
+              <Zap className="text-primary size-4" />
               {t('fastTitle')}
             </CardTitle>
           </CardHeader>
-          <CardContent className="text-sm text-muted-foreground">{t('fastBody')}</CardContent>
+          <CardContent className="text-muted-foreground text-sm">{t('fastBody')}</CardContent>
         </Card>
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base">
-              <Heart className="size-4 text-primary" />
+              <Heart className="text-primary size-4" />
               {t('openSourceTitle')}
             </CardTitle>
           </CardHeader>
-          <CardContent className="text-sm text-muted-foreground">
+          <CardContent className="text-muted-foreground text-sm">
             {t('openSourceBody')}{' '}
-            <a className="text-primary underline underline-offset-4" href={IT_TOOLS_URL} target="_blank" rel="noreferrer">
+            <a
+              className="text-primary underline underline-offset-4"
+              href={siteConfig.itToolsUrl}
+              target="_blank"
+              rel="noreferrer"
+            >
               it-tools
             </a>
           </CardContent>
@@ -77,12 +83,21 @@ export default function AboutPage() {
       </div>
 
       <h2 className="mt-10 mb-3 text-lg font-semibold">{t('linksTitle')}</h2>
-      <div className="flex gap-3">
+      <div className="flex gap-5">
         <a
-          href={GITHUB_URL}
+          href={siteConfig.blogUrl}
           target="_blank"
           rel="noreferrer"
-          className="inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
+          className="text-muted-foreground hover:text-foreground inline-flex items-center gap-2 text-sm transition-colors"
+        >
+          <BookOpen className="size-4" />
+          {tCommon('blog')}
+        </a>
+        <a
+          href={siteConfig.githubUrl}
+          target="_blank"
+          rel="noreferrer"
+          className="text-muted-foreground hover:text-foreground inline-flex items-center gap-2 text-sm transition-colors"
         >
           <GithubIcon className="size-4" />
           GitHub

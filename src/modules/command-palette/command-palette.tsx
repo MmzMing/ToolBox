@@ -1,4 +1,4 @@
-import { History, Heart, Info, Moon, Shuffle } from 'lucide-react'
+import { BookOpen, History, Heart, Info, Moon, Shuffle } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
@@ -24,8 +24,7 @@ import { createToolsFuse, useToolSearchItems } from '@/composable/use-tools-sear
 import { useSearchStore } from '@/stores/search.store'
 import { useToolsStore } from '@/stores/tools.store'
 import { getFavoriteTools, getRecentTools, tools, toolsByCategory } from '@/tools'
-
-const GITHUB_URL = 'https://github.com/your-org/toolbox'
+import { siteConfig } from '@/config/site'
 
 interface GroupedMatch {
   path: string
@@ -74,10 +73,12 @@ export function CommandPalette() {
   const matched = useMemo<GroupedMatch[]>(() => {
     const trimmed = query.trim()
     if (!trimmed) {
-      return toolsByCategory.map(({ category, tools: categoryTools }) => ({
-        path: categoryTools.map((tool) => tool.path),
-        category,
-      })).flatMap(({ category, path }) => path.map((p) => ({ path: p, category })))
+      return toolsByCategory
+        .map(({ category, tools: categoryTools }) => ({
+          path: categoryTools.map((tool) => tool.path),
+          category,
+        }))
+        .flatMap(({ category, path }) => path.map((p) => ({ path: p, category })))
     }
     return fuse.search(trimmed).map(({ item }) => ({
       path: item.tool.path,
@@ -99,7 +100,11 @@ export function CommandPalette() {
         </DialogHeader>
 
         <Command shouldFilter={false}>
-          <CommandInput value={query} onValueChange={setQuery} placeholder={t('searchPlaceholder')} />
+          <CommandInput
+            value={query}
+            onValueChange={setQuery}
+            placeholder={t('searchPlaceholder')}
+          />
           <CommandList>
             <ActionGroups goTo={goTo} />
             {!query.trim() && <PinnedGroups goTo={goTo} />}
@@ -121,7 +126,7 @@ export function CommandPalette() {
             })}
 
             {matched.length === 0 && query.trim() !== '' && (
-              <div className="py-6 text-center text-sm text-muted-foreground">{t('noResults')}</div>
+              <div className="text-muted-foreground py-6 text-center text-sm">{t('noResults')}</div>
             )}
           </CommandList>
         </Command>
@@ -148,7 +153,16 @@ function ActionGroups({ goTo }: { goTo: GoTo }) {
       label: t('toggleTheme'),
       run: () => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark'),
     },
-    { icon: GithubIcon, label: t('github'), run: () => window.open(GITHUB_URL, '_blank', 'noopener') },
+    {
+      icon: BookOpen,
+      label: t('blog'),
+      run: () => window.open(siteConfig.blogUrl, '_blank', 'noopener'),
+    },
+    {
+      icon: GithubIcon,
+      label: t('github'),
+      run: () => window.open(siteConfig.githubUrl, '_blank', 'noopener'),
+    },
     { icon: Info, label: t('about'), run: () => goTo('/about') },
   ]
 
@@ -211,7 +225,7 @@ function PinnedGroups({ goTo }: { goTo: GoTo }) {
               value={`recent:${tool.path}`}
               onSelect={() => goTo(tool.path)}
             >
-              <History className="size-4 text-muted-foreground" />
+              <History className="text-muted-foreground size-4" />
               {t(`tools-${tool.category}:${tool.name}.title`)}
             </CommandItem>
           ))}

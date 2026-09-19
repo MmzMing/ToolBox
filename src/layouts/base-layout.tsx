@@ -1,4 +1,4 @@
-import { ChevronRight, Menu, PanelLeft, Search, Wrench } from 'lucide-react'
+import { BookOpen, ChevronRight, Menu, PanelLeft, Search, Wrench } from 'lucide-react'
 import { useState } from 'react'
 import { Link, Outlet, useLocation } from 'react-router'
 import { useTranslation } from 'react-i18next'
@@ -29,8 +29,7 @@ import { usePreferencesStore } from '@/stores/preferences.store'
 import { SidebarContent } from '@/layouts/sidebar-content'
 import { getToolByPath } from '@/tools'
 import { categoryIcons } from '@/tools/categories'
-
-const GITHUB_URL = 'https://github.com/your-org/toolbox'
+import { siteConfig } from '@/config/site'
 
 /**
  * 全局布局：左侧手风琴分类导航（桌面可折叠，平板与手机为抽屉）+ 顶栏 + 内容区。
@@ -167,7 +166,17 @@ export default function BaseLayout() {
             <LocaleSwitcher />
             <ThemeToggle />
             <Button variant="ghost" size="icon-sm" asChild>
-              <a href={GITHUB_URL} target="_blank" rel="noreferrer" aria-label={t('github')}>
+              <a href={siteConfig.blogUrl} target="_blank" rel="noreferrer" aria-label={t('blog')}>
+                <BookOpen className="size-4" />
+              </a>
+            </Button>
+            <Button variant="ghost" size="icon-sm" asChild>
+              <a
+                href={siteConfig.githubUrl}
+                target="_blank"
+                rel="noreferrer"
+                aria-label={t('github')}
+              >
                 <GithubIcon className="size-4" />
               </a>
             </Button>
