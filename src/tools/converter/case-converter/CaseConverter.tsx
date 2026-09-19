@@ -13,8 +13,8 @@ const CASE_KEYS = [
   'constant',
   'kebab',
   'train',
-  'title',
-  'sentence',
+  'titleCase',
+  'sentenceCase',
 ] as const
 
 export default function CaseConverter() {

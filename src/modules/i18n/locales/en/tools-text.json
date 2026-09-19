@@ -1,0 +1,75 @@
+{
+  "lorem-ipsum-generator": {
+    "title": "Lorem Ipsum Generator",
+    "description": "Generate Lorem Ipsum placeholder text",
+    "typeLabel": "Generate",
+    "type-paragraphs": "Paragraphs",
+    "type-sentences": "Sentences",
+    "type-words": "Words"
+  },
+  "text-statistics": {
+    "title": "Text Statistics",
+    "description": "Character, word and reading time statistics",
+    "stat-chars": "Characters",
+    "stat-charsNoSpaces": "Characters (no spaces)",
+    "stat-words": "Words",
+    "stat-lines": "Lines",
+    "stat-sentences": "Sentences",
+    "stat-paragraphs": "Paragraphs",
+    "stat-avgWordLength": "Avg word length",
+    "stat-readingMinutes": "Reading time",
+    "readingMinutesValue": "{{minutes}} min"
+  },
+  "emoji-picker": {
+    "title": "Emoji Picker",
+    "description": "Browse and copy emojis by group",
+    "searchPlaceholder": "Search emojis…",
+    "noResults": "No matching emojis found",
+    "group-smileys_emotion": "Smileys & Emotion",
+    "group-people_body": "People & Body",
+    "group-animals_nature": "Animals & Nature",
+    "group-food_drink": "Food & Drink",
+    "group-travel_places": "Travel & Places",
+    "group-activities": "Activities",
+    "group-objects": "Objects",
+    "group-symbols": "Symbols",
+    "group-flags": "Flags"
+  },
+  "string-obfuscator": {
+    "title": "String Obfuscator",
+    "description": "Obfuscate strings with zero-width chars and entities",
+    "optionsLabel": "Obfuscation options",
+    "opt-zeroWidth": "Zero-width characters (U+200B)",
+    "opt-htmlEntities": "HTML entities",
+    "opt-base64": "Base64 encode",
+    "opt-reverse": "Reverse order"
+  },
+  "text-diff": {
+    "title": "Text Diff",
+    "description": "Compare two texts line by line",
+    "originalLabel": "Original",
+    "modifiedLabel": "Modified",
+    "type-added": "Added",
+    "type-removed": "Removed",
+    "type-unchanged": "Unchanged",
+    "statsSummary": "+{{added}} −{{removed}} lines",
+    "noDiff": "The two texts are identical"
+  },
+  "numeronym-generator": {
+    "title": "Numeronym Generator",
+    "description": "Generate i18n-style numeronyms",
+    "inputLabel": "Word list",
+    "inputPlaceholder": "Space or newline separated, e.g. internationalization accessibility",
+    "wordColumn": "Word",
+    "numeronymColumn": "Numeronym"
+  },
+  "ascii-text-drawer": {
+    "title": "ASCII Text Drawer",
+    "description": "Turn text into ASCII art",
+    "textLabel": "Text",
+    "fontLabel": "Font",
+    "errorEmpty": "Enter some text to draw",
+    "errorCharset": "Only letters, digits, spaces and common symbols are supported",
+    "errorFont": "Unsupported font"
+  }
+}

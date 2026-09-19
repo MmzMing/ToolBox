@@ -18,7 +18,10 @@ async function loadLocale(locale: Locale): Promise<void> {
   const loaders = localeLoaders[locale] ?? {}
   await Promise.all(
     Object.entries(loaders).map(async ([file, load]) => {
-      const namespace = file.split('/').pop()?.replace(/\.json$/, '')
+      const namespace = file
+        .split('/')
+        .pop()
+        ?.replace(/\.json$/, '')
       if (!namespace || i18next.hasResourceBundle(locale, namespace)) {
         return
       }
@@ -36,6 +39,11 @@ export async function initI18n(locale: Locale): Promise<void> {
     react: { useSuspense: false },
     returnObjects: true,
     partialBundledLanguages: true,
+    // 开发期暴露缺失键（命名空间=文件名约定：如 'not-found'，不是 'notFound'）
+    saveMissing: import.meta.env.DEV,
+    missingKeyHandler: (lngs, ns, key) => {
+      console.warn(`[i18n] missing key: ${ns}:${key} (${lngs.join(',')})`)
+    },
   })
   await loadLocale(locale)
   // 后台预载另一语言：跨语言搜索与切换零等待

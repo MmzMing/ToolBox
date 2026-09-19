@@ -71,8 +71,8 @@
     "constant": "CONSTANT_CASE",
     "kebab": "kebab-case",
     "train": "Train-Case",
-    "title": "Title Case",
-    "sentence": "Sentence case"
+    "titleCase": "Title Case",
+    "sentenceCase": "Sentence case"
   },
   "text-to-nato-alphabet": {
     "title": "Text to NATO Alphabet",

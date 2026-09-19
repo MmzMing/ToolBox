@@ -3,7 +3,12 @@ import { useMemo } from 'react'
 import { NavLink } from 'react-router'
 import { useTranslation } from 'react-i18next'
 
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '@/components/ui/accordion'
 import { Badge } from '@/components/ui/badge'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { usePreferencesStore } from '@/stores/preferences.store'
@@ -14,7 +19,7 @@ import { cn } from '@/lib/utils'
 
 const navLinkClass = ({ isActive }: { isActive: boolean }) =>
   cn(
-    'block rounded-md px-2 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground',
+    'block rounded-md px-2 py-1.5 text-sm no-underline text-muted-foreground transition-colors hover:bg-accent hover:text-foreground hover:no-underline',
     isActive && 'bg-accent font-medium text-accent-foreground',
   )
 
@@ -43,7 +48,7 @@ export function SidebarContent({ onNavigate }: SidebarContentProps) {
   return (
     <div className="flex h-full flex-col">
       <div className="flex h-14 shrink-0 items-center gap-2 border-b px-4">
-        <span className="flex size-7 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+        <span className="bg-primary text-primary-foreground flex size-7 items-center justify-center rounded-lg">
           <Wrench className="size-4" />
         </span>
         <span className="text-base font-semibold">ToolBox</span>
@@ -51,13 +56,17 @@ export function SidebarContent({ onNavigate }: SidebarContentProps) {
 
       <ScrollArea className="flex-1 px-2 py-2">
         <nav className="flex flex-col gap-0.5" aria-label={t('favorites')}>
-          <div className="flex items-center gap-2 px-2 pt-1 pb-1.5 text-xs font-medium text-muted-foreground">
+          <div className="text-muted-foreground flex items-center gap-2 px-2 pt-1 pb-1.5 text-xs font-medium">
             <Heart className="size-3.5" />
             {t('favorites')}
-            {favoriteTools.length > 0 && <Badge variant="secondary" className="ml-auto">{favoriteTools.length}</Badge>}
+            {favoriteTools.length > 0 && (
+              <Badge variant="secondary" className="ml-auto">
+                {favoriteTools.length}
+              </Badge>
+            )}
           </div>
           {favoriteTools.length === 0 ? (
-            <p className="px-2 pb-1 text-xs text-muted-foreground/70">{t('favoritesEmpty')}</p>
+            <p className="text-muted-foreground/70 px-2 pb-1 text-xs">{t('favoritesEmpty')}</p>
           ) : (
             favoriteTools.map((tool) => (
               <NavLink key={tool.path} to={tool.path} onClick={onNavigate} className={navLinkClass}>
@@ -70,7 +79,7 @@ export function SidebarContent({ onNavigate }: SidebarContentProps) {
 
         {recentTools.length > 0 && (
           <nav className="mt-2 flex flex-col gap-0.5" aria-label={t('recent')}>
-            <div className="flex items-center gap-2 px-2 pt-1 pb-1.5 text-xs font-medium text-muted-foreground">
+            <div className="text-muted-foreground flex items-center gap-2 px-2 pt-1 pb-1.5 text-xs font-medium">
               <History className="size-3.5" />
               {t('recent')}
             </div>
@@ -93,19 +102,27 @@ export function SidebarContent({ onNavigate }: SidebarContentProps) {
             const Icon = categoryIcons[category]
             return (
               <AccordionItem key={category} value={category} className="border-none">
-                <AccordionTrigger className="rounded-md px-2 py-2 text-sm hover:no-underline [&[data-state=open]]:bg-accent/50">
+                <AccordionTrigger className="[&[data-state=open]]:bg-accent/50 rounded-md px-2 py-2 text-sm hover:no-underline">
                   <span className="flex items-center gap-2">
-                    <Icon className="size-4 text-muted-foreground" />
+                    <Icon className="text-muted-foreground size-4" />
                     {tCategory(category)}
-                    <Badge variant="secondary" className="ml-auto mr-1">{tools.length}</Badge>
+                    <Badge variant="secondary" className="mr-1 ml-auto">
+                      {tools.length}
+                    </Badge>
                   </span>
                 </AccordionTrigger>
-                <AccordionContent className="pb-1">
+                {/* 覆盖生成组件默认的 [&_a]:underline：侧栏导航链接不需要下划线 */}
+                <AccordionContent className="pb-1 [&_a]:no-underline">
                   <nav className="flex flex-col gap-0.5">
                     {tools.map((tool) => (
-                      <NavLink key={tool.path} to={tool.path} onClick={onNavigate} className={navLinkClass}>
+                      <NavLink
+                        key={tool.path}
+                        to={tool.path}
+                        onClick={onNavigate}
+                        className={navLinkClass}
+                      >
                         {tool.isNew && (
-                          <span className="mr-1.5 inline-block size-1.5 rounded-full bg-primary align-middle" />
+                          <span className="bg-primary mr-1.5 inline-block size-1.5 rounded-full align-middle" />
                         )}
                         {t(`tools-${tool.category}:${tool.name}.title`)}
                       </NavLink>
