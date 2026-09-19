@@ -36,22 +36,6 @@
     "emptyPreview": "填写网络信息后将生成二维码",
     "download": "下载 PNG"
   },
-  "camera-recorder": {
-    "title": "摄像头录制",
-    "description": "调用摄像头拍照与录制",
-    "start": "开启摄像头",
-    "stop": "关闭摄像头",
-    "takePhoto": "拍照",
-    "startRecording": "开始录制",
-    "stopRecording": "停止录制",
-    "photoLabel": "最近照片",
-    "downloadPhoto": "下载照片",
-    "recordingLabel": "最近录像",
-    "downloadRecording": "下载录像",
-    "previewLabel": "点击“开启摄像头”开始预览",
-    "permissionError": "无法访问摄像头或麦克风，请检查浏览器权限设置",
-    "recordingUnsupported": "当前浏览器不支持视频录制"
-  },
   "image-compressor": {
     "title": "图片压缩转换",
     "description": "批量压缩 JPEG/PNG/WebP/GIF/SVG/AVIF/HEIC，支持调整尺寸与格式转换，全部本地处理",

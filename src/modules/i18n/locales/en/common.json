@@ -4,6 +4,8 @@
   "copied": "Copied to clipboard",
   "copyFailed": "Copy failed, please copy manually",
   "copy": "Copy",
+  "paste": "Paste",
+  "pasteFailed": "Clipboard unavailable, paste manually",
   "input": "Input",
   "output": "Output",
   "error": "Something went wrong",

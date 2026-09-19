@@ -1,21 +1,22 @@
 #!/usr/bin/env node
 // 工具脚手架：生成四件套并提示后续两步手工动作
 // 用法: pnpm create:tool -- <category> <tool-name>
-import { existsSync, mkdirSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
 
-const CATEGORIES = [
-  'crypto',
-  'converter',
-  'web',
-  'images',
-  'development',
-  'cheatsheet',
-  'math',
-  'text',
-  'life',
-]
+const repoRoot = path.resolve(import.meta.dirname, '..')
+
+/** 分类清单直接读注册表，避免脚手架与 src/tools/categories.ts 漂移 */
+const categoryKeysSource = readFileSync(path.join(repoRoot, 'src/tools/categories.ts'), 'utf8')
+const categoryKeysBlock = categoryKeysSource.match(
+  /export const categoryKeys = \[([\s\S]*?)\]/,
+)?.[1]
+if (!categoryKeysBlock) {
+  console.error('无法从 src/tools/categories.ts 解析 categoryKeys')
+  process.exit(1)
+}
+const CATEGORIES = [...categoryKeysBlock.matchAll(/'([^']+)'/g)].map((match) => match[1])
 
 const [category, rawName] = process.argv.slice(2)
 
@@ -60,6 +61,7 @@ mkdirSync(toolDir, { recursive: true })
 
 const files = {
   'index.ts': `import { Wrench } from 'lucide-react'
+
 import { defineTool } from '../../define-tool'
 
 export const tool = defineTool({
@@ -73,17 +75,6 @@ export const tool = defineTool({
 `,
   [`${name}.service.ts`]: `/** TODO: ${name} 的纯逻辑层 —— 零 DOM/React 依赖，函数命名动词开头 */
 `,
-  [`${name}.service.test.ts`]: `import { describe, expect, it } from 'vitest'
-
-// import { } from './${name}.service'
-
-// TODO: 覆盖正常路径 + 空输入 + 非法输入（agent.md §10）
-describe('TODO ${name} service', () => {
-  it('is not implemented yet', () => {
-    expect(true).toBe(true)
-  })
-})
-`,
   [`${componentName}.tsx`]: `export default function ${componentName}() {
   // TODO: 实现 UI，复用 components/copyable/* 与 format-transformer
   return <div>TODO: ${componentName}</div>
@@ -95,7 +86,25 @@ for (const [file, content] of Object.entries(files)) {
   writeFileSync(path.join(toolDir, file), content, 'utf8')
 }
 
-console.log(`✔ 已生成 ${category}/${name} 四件套`)
+const testDir = path.resolve(repoRoot, 'src/test/tools', category, name)
+mkdirSync(testDir, { recursive: true })
+writeFileSync(
+  path.join(testDir, `${name}.service.test.ts`),
+  `import { describe, expect, it } from 'vitest'
+
+// import { } from '@/tools/${category}/${name}/${name}.service'
+
+// TODO: 覆盖正常路径 + 空输入 + 非法输入（agent.md §10）
+describe('TODO ${name} service', () => {
+  it('is not implemented yet', () => {
+    expect(true).toBe(true)
+  })
+})
+`,
+  'utf8',
+)
+
+console.log(`✔ 已生成 ${category}/${name} 四件套（单测在 src/test 镜像目录）`)
 console.log(`接下来（两步手工动作）:`)
 console.log(
   `  1. 在 src/tools/${category}/index.ts 注册: import { tool as ${name} } from './${name}' 并加入数组`,

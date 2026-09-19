@@ -113,7 +113,7 @@
     "desc-networkAuthenticationRequired": "客户端需先完成网络接入认证"
   },
   "regex-memo": {
-    "title": "正则备忘单",
+    "title": "正则速查表",
     "description": "常用正则语法与示例速查",
     "patternColumn": "语法",
     "descriptionColumn": "说明",
@@ -160,7 +160,7 @@
     "item-example-hex-color": "十六进制颜色（#fff / #ffffff）"
   },
   "git-memo": {
-    "title": "Git 备忘单",
+    "title": "Git 速查表",
     "description": "常用 Git 命令速查",
     "group-create": "新建仓库",
     "group-snapshot": "基础快照",
@@ -233,5 +233,11 @@
     "item-stash-apply": "恢复最近的暂存（保留记录）",
     "item-stash-drop": "删除最近的暂存记录",
     "item-stash-branch": "从暂存记录创建新分支并恢复"
+  },
+  "photo-cheatsheet": {
+    "title": "拍照速查表",
+    "description": "手机拍照九类常见翻车场景对照图：距离、角度、遮挡、光线、手抖与对焦",
+    "imageAlt": "拍照避坑速查图，九宫格依次为：01 过近糊了、02 角度奇怪、03 被挡住了、04 只拍到背影、05 太暗了、06 手抖了、07 逆光拍黑了、08 手指入镜、09 对焦错了，底部写着「拍100张 总有一张能用的…吧？」",
+    "zoomHint": "点击图片可放大查看"
   }
 }

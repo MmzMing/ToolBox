@@ -3,11 +3,9 @@ import type { CategoryKey } from './categories'
 import type { RecentToolEntry } from '@/stores/tools.store'
 
 import { cryptoTools } from './crypto'
-import { converterTools } from './converter'
 import { cheatsheetTools } from './cheatsheet'
 import { developmentTools } from './development'
 import { imagesTools } from './images'
-import { mathTools } from './math'
 import { textTools } from './text'
 import { lifeTools } from './life'
 import { webTools } from './web'
@@ -27,12 +25,10 @@ function attachCategory(category: CategoryKey, rawTools: readonly DefinedTool[])
  */
 export const toolsByCategory: readonly ToolCategory[] = [
   { category: 'crypto', tools: attachCategory('crypto', cryptoTools) },
-  { category: 'converter', tools: attachCategory('converter', converterTools) },
   { category: 'web', tools: attachCategory('web', webTools) },
   { category: 'development', tools: attachCategory('development', developmentTools) },
   { category: 'cheatsheet', tools: attachCategory('cheatsheet', cheatsheetTools) },
   { category: 'images', tools: attachCategory('images', imagesTools) },
-  { category: 'math', tools: attachCategory('math', mathTools) },
   { category: 'text', tools: attachCategory('text', textTools) },
   { category: 'life', tools: attachCategory('life', lifeTools) },
 ]

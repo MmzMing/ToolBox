@@ -113,7 +113,7 @@
     "desc-networkAuthenticationRequired": "The client must authenticate to gain network access"
   },
   "regex-memo": {
-    "title": "Regex Memo",
+    "title": "Regex Cheatsheet",
     "description": "Regex syntax cheatsheet",
     "patternColumn": "Syntax",
     "descriptionColumn": "Description",
@@ -160,7 +160,7 @@
     "item-example-hex-color": "Hex color (#fff / #ffffff)"
   },
   "git-memo": {
-    "title": "Git Memo",
+    "title": "Git Cheatsheet",
     "description": "Git command cheatsheet",
     "group-create": "Create a repository",
     "group-snapshot": "Basic snapshot",
@@ -233,5 +233,11 @@
     "item-stash-apply": "Apply the latest stash and keep it",
     "item-stash-drop": "Drop the latest stash entry",
     "item-stash-branch": "Create a branch from a stash entry and restore it"
+  },
+  "photo-cheatsheet": {
+    "title": "Photography Cheat Sheet",
+    "description": "Reference image of nine common phone-photo mistakes: distance, angle, obstruction, lighting, shake and focus",
+    "imageAlt": "Photo pitfall cheat sheet, nine panels: 01 too close and blurry, 02 odd angle, 03 blocked, 04 only the back of the head, 05 too dark, 06 camera shake, 07 silhouette from backlight, 08 finger in the frame, 09 focus on the wrong subject, with a caption at the bottom",
+    "zoomHint": "Click the image to enlarge"
   }
 }

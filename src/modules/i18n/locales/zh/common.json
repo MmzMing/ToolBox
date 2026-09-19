@@ -4,6 +4,8 @@
   "copied": "已复制到剪贴板",
   "copyFailed": "复制失败，请手动复制",
   "copy": "复制",
+  "paste": "粘贴",
+  "pasteFailed": "无法读取剪贴板，请手动粘贴",
   "input": "输入",
   "output": "输出",
   "error": "处理出错",

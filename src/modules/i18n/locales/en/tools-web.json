@@ -1,13 +1,4 @@
 {
-  "url-encoder": {
-    "title": "URL Encoder/Decoder",
-    "description": "Encode and decode URLs, whole URL or component mode",
-    "encodeTab": "Encode",
-    "decodeTab": "Decode",
-    "modeLabel": "Encoding mode",
-    "mode-component": "Component (encodeURIComponent)",
-    "mode-uri": "Whole URL (encodeURI)"
-  },
   "html-entities": {
     "title": "HTML Entities",
     "description": "Encode and decode HTML entities",
@@ -74,23 +65,6 @@
     "verifyButton": "Validate",
     "verifyMatch": "The code is valid",
     "verifyMismatch": "The code does not match"
-  },
-  "jwt-parser": {
-    "title": "JWT Parser",
-    "description": "Decode the header and payload of a JWT",
-    "tokenLabel": "JWT token",
-    "headerLabel": "Header",
-    "payloadLabel": "Payload",
-    "claimsLabel": "Claims",
-    "dateClaim": "timestamp",
-    "signatureLabel": "Signature & status",
-    "algorithmLabel": "Algorithm (alg)",
-    "algorithmUnknown": "Not declared",
-    "expiryLabel": "Expiry status",
-    "expiryValid": "Not expired",
-    "expiryExpired": "Expired",
-    "expiryNoExp": "No exp claim, cannot tell",
-    "signaturePart": "Signature"
   },
   "slugify-string": {
     "title": "Slugify String",

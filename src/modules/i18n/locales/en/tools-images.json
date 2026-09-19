@@ -36,22 +36,6 @@
     "emptyPreview": "Fill in the network details to generate the QR code",
     "download": "Download PNG"
   },
-  "camera-recorder": {
-    "title": "Camera Recorder",
-    "description": "Take photos and record from your camera",
-    "start": "Start camera",
-    "stop": "Stop camera",
-    "takePhoto": "Take photo",
-    "startRecording": "Start recording",
-    "stopRecording": "Stop recording",
-    "photoLabel": "Latest photo",
-    "downloadPhoto": "Download photo",
-    "recordingLabel": "Latest recording",
-    "downloadRecording": "Download recording",
-    "previewLabel": "Click \"Start camera\" to begin the preview",
-    "permissionError": "Cannot access the camera or microphone, please check browser permissions",
-    "recordingUnsupported": "Video recording is not supported in this browser"
-  },
   "image-compressor": {
     "title": "Image Compress & Convert",
     "description": "Batch-compress JPEG/PNG/WebP/GIF/SVG/AVIF/HEIC with resize and format conversion, fully local",

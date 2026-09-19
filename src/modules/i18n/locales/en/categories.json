@@ -1,11 +1,9 @@
 {
   "crypto": "Crypto",
-  "converter": "Converter",
   "web": "Web",
   "images": "Images and videos",
   "development": "Development",
   "cheatsheet": "Cheatsheets",
-  "math": "Calculation",
   "text": "Text",
   "life": "Life"
 }

@@ -62,3 +62,70 @@ export const cronPresets: readonly CronPreset[] = [
     parts: { minute: '0', hour: '0', dayOfMonth: '*', month: '*', dayOfWeek: '1' },
   },
 ]
+
+export interface CronReferenceItem {
+  /** 复制用文本：字段取值、特殊字符或完整表达式 */
+  value: string
+  /** i18n 键：tools-development 命名空间下 crontab-generator.<descriptionKey> */
+  descriptionKey: string
+}
+
+export interface CronReferenceGroup {
+  id: string
+  items: CronReferenceItem[]
+}
+
+function ref(value: string, key: string): CronReferenceItem {
+  return { value, descriptionKey: `ref-${key}` }
+}
+
+/** cron 速查静态数据：字段顺序 / 特殊字符 / 系统快捷字面量 / 常用表达式 */
+export const cronReferenceGroups: readonly CronReferenceGroup[] = [
+  {
+    id: 'fields',
+    items: [
+      ref('0-59', 'minute'),
+      ref('0-23', 'hour'),
+      ref('1-31', 'dayOfMonth'),
+      ref('1-12', 'month'),
+      ref('0-7', 'dayOfWeek'),
+    ],
+  },
+  {
+    id: 'syntax',
+    items: [
+      ref('*', 'star'),
+      ref('*/5', 'step'),
+      ref('1-5', 'range'),
+      ref('1,3,5', 'list'),
+      ref('1-5/2', 'rangeStep'),
+      ref('MON-FRI', 'names'),
+    ],
+  },
+  {
+    id: 'shortcuts',
+    items: [
+      ref('@reboot', 'reboot'),
+      ref('@yearly', 'yearly'),
+      ref('@monthly', 'monthly'),
+      ref('@weekly', 'weekly'),
+      ref('@daily', 'daily'),
+      ref('@hourly', 'hourlyShortcut'),
+    ],
+  },
+  {
+    id: 'examples',
+    items: [
+      ref('* * * * *', 'everyMinute'),
+      ref('*/5 * * * *', 'everyFiveMinutes'),
+      ref('0 */2 * * *', 'everyTwoHours'),
+      ref('0 * * * *', 'everyHour'),
+      ref('0 9 * * *', 'everyDayNine'),
+      ref('30 8 * * 1-5', 'workdayMorning'),
+      ref('*/10 9-18 * * 1-5', 'workdayHoursTenth'),
+      ref('0 0 * * 0', 'sundayMidnight'),
+      ref('0 0 1 * *', 'monthFirstMidnight'),
+      ref('0 0 1 1 *', 'newYearMidnight'),
+    ],
+  },
+]

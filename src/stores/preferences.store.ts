@@ -11,9 +11,12 @@ interface PreferencesState {
   expandedCategories: string[] | null
   /** 桌面端侧栏是否折叠隐藏 */
   sidebarCollapsed: boolean
+  /** GitHub 加速工具的自定义节点前缀（内置节点见 config/github-accelerator.ts，不入库） */
+  customAcceleratorNodes: string[]
   setLocale: (locale: Locale) => void
   setExpandedCategories: (keys: string[] | null) => void
   setSidebarCollapsed: (collapsed: boolean) => void
+  setCustomAcceleratorNodes: (nodes: string[]) => void
 }
 
 function normalizeLocale(value: unknown, fallback: Locale): Locale {
@@ -26,20 +29,33 @@ function normalizeStringArray(value: unknown): string[] | null {
     : null
 }
 
+/** 自定义节点：只保留非空字符串并去重，脏数据回退为空数组 */
+function normalizeNodeList(value: unknown): string[] {
+  if (!Array.isArray(value)) {
+    return []
+  }
+  return [
+    ...new Set(value.filter((item): item is string => typeof item === 'string' && item !== '')),
+  ]
+}
+
 export const usePreferencesStore = create<PreferencesState>()(
   persist(
     (set) => ({
       locale: 'zh',
       expandedCategories: null,
       sidebarCollapsed: false,
+      customAcceleratorNodes: [],
       setLocale: (locale) => set({ locale }),
       setExpandedCategories: (expandedCategories) => set({ expandedCategories }),
       setSidebarCollapsed: (sidebarCollapsed) => set({ sidebarCollapsed }),
+      setCustomAcceleratorNodes: (customAcceleratorNodes) => set({ customAcceleratorNodes }),
     }),
     {
       name: 'toolbox.preferences',
-      version: 2,
+      version: 3,
       // v1 -> v2：手风琴改为默认收起，丢弃旧会话遗留的展开状态（语言与侧栏折叠偏好保留）
+      // v2 -> v3：新增自定义加速节点，旧数据缺字段时由 merge 兜底为空数组
       migrate: (persisted) => {
         const saved = (persisted ?? {}) as Partial<PreferencesState>
         return { ...saved, expandedCategories: null }
@@ -55,6 +71,7 @@ export const usePreferencesStore = create<PreferencesState>()(
             typeof saved.sidebarCollapsed === 'boolean'
               ? saved.sidebarCollapsed
               : current.sidebarCollapsed,
+          customAcceleratorNodes: normalizeNodeList(saved.customAcceleratorNodes),
         }
       },
     },

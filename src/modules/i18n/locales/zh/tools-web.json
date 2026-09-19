@@ -1,13 +1,4 @@
 {
-  "url-encoder": {
-    "title": "URL 编码/解码",
-    "description": "URL 编码与解码，支持整 URL 与组件模式",
-    "encodeTab": "编码",
-    "decodeTab": "解码",
-    "modeLabel": "编码模式",
-    "mode-component": "组件模式（encodeURIComponent）",
-    "mode-uri": "整 URL 模式（encodeURI）"
-  },
   "html-entities": {
     "title": "HTML 实体",
     "description": "HTML 实体编码与解码",
@@ -74,23 +65,6 @@
     "verifyButton": "校验",
     "verifyMatch": "验证码正确",
     "verifyMismatch": "验证码不匹配"
-  },
-  "jwt-parser": {
-    "title": "JWT 解析",
-    "description": "解码 JWT 的 Header 与 Payload",
-    "tokenLabel": "JWT 令牌",
-    "headerLabel": "Header（头部）",
-    "payloadLabel": "Payload（负载）",
-    "claimsLabel": "声明（Claims）",
-    "dateClaim": "时间戳",
-    "signatureLabel": "签名与状态",
-    "algorithmLabel": "算法（alg）",
-    "algorithmUnknown": "未声明",
-    "expiryLabel": "过期状态",
-    "expiryValid": "未过期",
-    "expiryExpired": "已过期",
-    "expiryNoExp": "无 exp 声明，无法判断",
-    "signaturePart": "签名（signature）"
   },
   "slugify-string": {
     "title": "Slug 生成",
