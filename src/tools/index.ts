@@ -6,6 +6,7 @@ import { cryptoTools } from './crypto'
 import { cheatsheetTools } from './cheatsheet'
 import { developmentTools } from './development'
 import { imagesTools } from './images'
+import { resumeTools } from './resume'
 import { textTools } from './text'
 import { lifeTools } from './life'
 import { webTools } from './web'
@@ -24,6 +25,7 @@ function attachCategory(category: CategoryKey, rawTools: readonly DefinedTool[])
  * 并把 import 加入该分类的 index.ts（或用 `pnpm create:tool` 脚手架）。
  */
 export const toolsByCategory: readonly ToolCategory[] = [
+  { category: 'resume', tools: attachCategory('resume', resumeTools) },
   { category: 'crypto', tools: attachCategory('crypto', cryptoTools) },
   { category: 'web', tools: attachCategory('web', webTools) },
   { category: 'development', tools: attachCategory('development', developmentTools) },

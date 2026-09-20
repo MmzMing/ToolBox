@@ -1,8 +1,9 @@
-import { BookOpen, Code2, Earth, Images, LifeBuoy, Lock, Type } from 'lucide-react'
+import { BookOpen, Code2, Earth, IdCard, Images, LifeBuoy, Lock, Type } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 
 /** 分类 key 顺序即侧栏/首页展示顺序，展示名走 i18n：`categories.<key>` */
 export const categoryKeys = [
+  'resume',
   'crypto',
   'web',
   'images',
@@ -15,6 +16,7 @@ export const categoryKeys = [
 export type CategoryKey = (typeof categoryKeys)[number]
 
 export const categoryIcons: Record<CategoryKey, LucideIcon> = {
+  resume: IdCard,
   crypto: Lock,
   web: Earth,
   images: Images,

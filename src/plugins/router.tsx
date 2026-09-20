@@ -7,6 +7,7 @@ import NotFoundPage from '@/pages/not-found-page'
 import ToolPage from '@/pages/tool-page'
 import { tools } from '@/tools'
 import { RouteError } from '@/plugins/route-error'
+import { ResumeEditorRoute } from '@/plugins/resume-editor-route'
 
 /**
  * 路由注册中心：工具路由由 tools 注册表自动生成（注册表即路由表），
@@ -34,5 +35,11 @@ export const router = createBrowserRouter([
       ),
       { path: '*', element: <NotFoundPage /> },
     ],
+  },
+  // 简历编辑器：满屏三栏工作台，刻意不套 BaseLayout（侧栏+顶栏会吃掉两栏的宽度）
+  {
+    path: '/resume/:id',
+    errorElement: <RouteError />,
+    element: <ResumeEditorRoute />,
   },
 ])

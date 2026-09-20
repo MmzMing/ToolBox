@@ -3,6 +3,9 @@
 @import 'shadcn/tailwind.css';
 @import '@fontsource-variable/geist';
 
+/* editorial 模板的富文本区块用 prose/prose-sm 恢复列表与段落节奏 */
+@plugin '@tailwindcss/typography';
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
@@ -188,4 +191,147 @@
 .dark .hljs-name,
 .dark .hljs-type {
   color: oklch(0.75 0.12 255);
+}
+
+/* ---------------------------------------------------------------------------
+ * 简历纸张层（#resume-preview 子树）
+ *
+ * 这一层刻意不接用语义令牌：纸张必须恒为白底黑字（暗色主题下也是），
+ * 且 html2canvas 解析不了 oklch 计算值。因此颜色只允许十六进制与内联 style。
+ * ------------------------------------------------------------------------- */
+@theme {
+  --color-paper-ink: #212529;
+  --color-paper-muted: #4b5563;
+}
+
+/* 每个字族只声明一个 family，用 weight 区间选文件，避免旧版"每档一个字族名"的错配 */
+@font-face {
+  font-family: 'Alibaba PuHuiTi 3.0';
+  src: url('/fonts/AlibabaPuHuiTi-3-55-Regular.ttf') format('truetype');
+  font-weight: 100 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Alibaba PuHuiTi 3.0';
+  src: url('/fonts/AlibabaPuHuiTi-3-85-Bold.ttf') format('truetype');
+  font-weight: 500 900;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'MiSans';
+  src: url('/fonts/MiSans-Normal.ttf') format('truetype');
+  font-weight: 100 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'MiSans';
+  src: url('/fonts/MiSans-Medium.ttf') format('truetype');
+  font-weight: 500 900;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Noto Sans SC';
+  src: url('/fonts/NotoSansSC-Regular.otf') format('opentype');
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Noto Sans SC';
+  src: url('/fonts/NotoSansSC-Medium.otf') format('opentype');
+  font-weight: 500;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Noto Sans SC';
+  src: url('/fonts/NotoSansSC-Bold.otf') format('opentype');
+  font-weight: 600 900;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Source Han Serif SC';
+  src: url('/fonts/SourceHanSerifSC-Regular.otf') format('opentype');
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Source Han Serif SC';
+  src: url('/fonts/SourceHanSerifSC-Medium.otf') format('opentype');
+  font-weight: 500;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Source Han Serif SC';
+  src: url('/fonts/SourceHanSerifSC-Bold.otf') format('opentype');
+  font-weight: 600 900;
+  font-display: swap;
+}
+
+.resume-paper,
+.tiptap {
+  /* Tailwind 预置把 img/svg 设成了 block，纸张里与文字同行的图标需要回到行内 */
+  & img,
+  & svg {
+    display: inline-block;
+  }
+
+  /* 富文本（Tiptap 产出的裸 ul/ol）在预置下会丢掉圆点与缩进，这里按层级补回 */
+  & ul {
+    list-style: disc outside;
+    padding-left: 1.3em;
+    margin: 0.4em 0;
+  }
+  & ol {
+    list-style: decimal outside;
+    padding-left: 1.3em;
+    margin: 0.4em 0;
+  }
+  & ul ul {
+    list-style-type: circle;
+  }
+  & ul ul ul {
+    list-style-type: square;
+  }
+  & ol ol {
+    list-style-type: lower-alpha;
+  }
+  & ol ol ol {
+    list-style-type: lower-roman;
+  }
+  & li {
+    margin: 0.25em 0;
+  }
+  & p {
+    margin: 0.35em 0;
+  }
+  & blockquote {
+    border-left: 2px solid #d1d5db;
+    padding-left: 0.9em;
+    margin: 0.5em 0;
+    color: #4b5563;
+  }
+  & hr {
+    border: 0;
+    border-top: 1px solid #e5e7eb;
+    margin: 0.8em 0;
+  }
+  & code {
+    font-family: ui-monospace, monospace;
+    font-size: 0.92em;
+    background: #f3f4f6;
+    border-radius: 3px;
+    padding: 0 0.25em;
+  }
+  & a {
+    color: inherit;
+    text-decoration: underline;
+  }
+}
+
+/* Tiptap 空文档时的占位文案（data-placeholder 由 editorProps 写入） */
+.tiptap p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+  color: var(--muted-foreground);
 }

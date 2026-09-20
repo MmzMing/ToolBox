@@ -1,0 +1,477 @@
+{
+  "resume": {
+    "title": "Resume Studio",
+    "description": "Visual resume editor with 9 templates, live A4 preview and local export — data never leaves your browser",
+    "templates": {
+      "hint": "Pick a template to start; you can switch at any time inside the editor",
+      "list": {
+        "classic": {
+          "name": "Classic",
+          "description": "Traditional, minimal layout that suits most job applications"
+        },
+        "modern": {
+          "name": "Two Column",
+          "description": "Classic two-column layout that highlights your profile"
+        },
+        "left-right": {
+          "name": "Tinted Section Titles",
+          "description": "Bold section headers for a distinctive look"
+        },
+        "timeline": {
+          "name": "Timeline",
+          "description": "Timeline layout that emphasises chronological order"
+        },
+        "minimalist": {
+          "name": "Minimalist",
+          "description": "Generous white space with a clean, pure typographic style"
+        },
+        "elegant": {
+          "name": "Elegant",
+          "description": "Centred single column with refined dividers"
+        },
+        "creative": {
+          "name": "Creative",
+          "description": "Playful staggered composition with personality"
+        },
+        "editorial": {
+          "name": "Editorial",
+          "description": "High-end magazine layout mixing serif and sans faces, with a side timeline"
+        },
+        "swiss": {
+          "name": "Swiss",
+          "description": "Bauhaus grid with heavy weight contrast and geometric accents"
+        }
+      },
+      "switch": "Switch template"
+    },
+    "mine": {
+      "heading": "My resumes",
+      "count": "{{n}} total",
+      "new": "New resume",
+      "newBlank": "Blank resume",
+      "newDescription": "Create a new resume to get started.",
+      "import": "Import JSON",
+      "importOk": "Imported “{{title}}”",
+      "importFailed": "That file is not a valid resume JSON",
+      "open": "Continue editing",
+      "edit": "Edit",
+      "meta": "{{template}} · {{time}}",
+      "duplicate": "Duplicate",
+      "rename": "Rename",
+      "renamePrompt": "Resume name",
+      "delete": "Delete",
+      "duplicated": "Duplicated as “{{title}}”",
+      "deleted": "Deleted “{{title}}”",
+      "legacyImported": "Imported {{n}} resume(s) from the legacy tool"
+    },
+    "create": {
+      "blankHeading": "Start from scratch",
+      "blankDescription": "Create an empty resume from the built-in default template",
+      "now": "Create now",
+      "templateHeading": "Start from a template"
+    },
+    "confirm": {
+      "deleteTitle": "Delete this resume?",
+      "deleteDescription": "“{{title}}” will be removed permanently. This cannot be undone.",
+      "confirm": "Delete",
+      "cancel": "Cancel"
+    },
+    "basicPanel": {
+      "basicFields": {
+        "name": "Name",
+        "title": "Title",
+        "employementStatus": "Status",
+        "birthDate": "Birthdate",
+        "email": "Email",
+        "phone": "Phone",
+        "location": "Location"
+      },
+      "layout": "Layout",
+      "profile": "Profile",
+      "avatar": "Photo",
+      "basicField": "Basic fields",
+      "customField": "Custom fields",
+      "displayLabel": "Show label",
+      "addCustomField": "Add custom field",
+      "deleteField": "Delete field",
+      "customLabelPlaceholder": "Label",
+      "customValuePlaceholder": "Value",
+      "align": {
+        "left": "Left",
+        "center": "Centre",
+        "right": "Right"
+      }
+    },
+    "increase": "Increase",
+    "decrease": "Decrease",
+    "layout": {
+      "drag": "Drag to reorder",
+      "show": "Show in resume",
+      "hide": "Hide in resume",
+      "delete": "Delete section",
+      "deleteTitle": "Delete “{{title}}”?",
+      "deleteDescription": "The section and its content will be removed from the resume."
+    },
+    "sidePanel": {
+      "layout": {
+        "title": "Sections",
+        "addSection": "Add section",
+        "addCustomSectionOption": "Blank custom section",
+        "customSectionTitle": "Custom section",
+        "standardSections": {
+          "skills": "Skills",
+          "experience": "Experience",
+          "projects": "Projects",
+          "education": "Education",
+          "selfEvaluation": "Self assessment",
+          "certificates": "Certificates"
+        }
+      },
+      "theme": {
+        "title": "Accent colour",
+        "custom": "Custom"
+      },
+      "typography": {
+        "title": "Typography",
+        "font": {
+          "title": "Font",
+          "note": "Font files are served locally with the site; exports render in the selected face",
+          "family": {
+            "alibaba": "Alibaba PuHuiTi",
+            "misans": "MiSans",
+            "noto": "Noto Sans SC",
+            "serif": "Source Han Serif SC"
+          }
+        },
+        "lineHeight": {
+          "title": "Line height"
+        },
+        "baseFontSize": {
+          "title": "Body size"
+        },
+        "headerSize": {
+          "title": "Section title size"
+        },
+        "subheaderSize": {
+          "title": "Subheading size"
+        }
+      },
+      "spacing": {
+        "title": "Spacing",
+        "pagePadding": {
+          "title": "Page padding"
+        },
+        "sectionSpacing": {
+          "title": "Section spacing"
+        },
+        "paragraphSpacing": {
+          "title": "Paragraph spacing"
+        }
+      },
+      "mode": {
+        "title": "Display mode",
+        "useIconMode": {
+          "title": "Icons for contacts",
+          "hint": "Turn off to show text labels instead"
+        },
+        "centerSubtitle": {
+          "title": "Centred subtitle",
+          "hint": "Title and contacts follow the heading to the centre"
+        },
+        "flexibleHeaderLayout": {
+          "title": "Fluid header",
+          "hint": "Keep subheadings next to the heading instead of on their own line"
+        }
+      }
+    },
+    "export": {
+      "pdf": "Export PDF",
+      "done": "PDF generated",
+      "failed": "Export failed, check the console",
+      "title": "Export resume",
+      "description": "Everything runs locally; nothing is uploaded",
+      "tooltip": "Export",
+      "footnote": "Long-image exports rasterise the resume, so text is not selectable — use browser print for selectable text.",
+      "tiles": {
+        "pdf": "Long-page PDF",
+        "image": "Long-page PNG",
+        "print": "Browser print",
+        "json": "Resume JSON",
+        "markdown": "Markdown",
+        "pdfHint": "A single tall page",
+        "imageHint": "Good for pasting into docs",
+        "printHint": "Selectable text, saves to PDF",
+        "jsonHint": "Backup and re-import",
+        "markdownHint": "Plain-text version",
+        "pagedPdf": "Export PDF",
+        "pagedPdfHint": "One A4 page each"
+      }
+    },
+    "preview": {
+      "pageEnds": "End of page {{page}}",
+      "autoOnePageCannotFit": "Too much content — it still does not fit at the minimum scale"
+    },
+    "editor": {
+      "back": "Back to resumes",
+      "undo": "Undo",
+      "redo": "Redo",
+      "panelContent": "Content",
+      "unknownSection": "Unsupported section",
+      "rename": "Rename resume",
+      "untitled": "Untitled resume"
+    },
+    "present": "Present",
+    "clearDate": "Clear date",
+    "section": {
+      "rename": "Rename section"
+    },
+    "item": {
+      "untitled": "Untitled entry",
+      "delete": "Delete entry",
+      "deleteTitle": "Delete this entry?",
+      "deleteDescription": "The entry is removed from the resume; undo will bring it back."
+    },
+    "richEditor": {
+      "bold": "Bold",
+      "italic": "Italic",
+      "underline": "Underline",
+      "strike": "Strikethrough",
+      "bulletList": "Bullet list",
+      "orderedList": "Numbered list",
+      "alignLeft": "Align left",
+      "alignCenter": "Align centre",
+      "alignRight": "Align right",
+      "alignJustify": "Justify",
+      "textColor": "Text colour",
+      "resetColor": "Reset colour",
+      "highlight": "Highlight",
+      "link": "Insert link",
+      "linkPlaceholder": "URL",
+      "apply": "Apply",
+      "remove": "Remove",
+      "undo": "Undo",
+      "redo": "Redo"
+    },
+    "experience": {
+      "add": "Add a role",
+      "empty": "No roles yet",
+      "company": "Company",
+      "position": "Position",
+      "date": "Period",
+      "details": "Description",
+      "detailsPlaceholder": "One responsibility or achievement per line"
+    },
+    "education": {
+      "add": "Add a degree",
+      "empty": "No education yet",
+      "school": "School",
+      "major": "Major",
+      "degree": "Degree",
+      "date": "Period",
+      "description": "Description"
+    },
+    "projects": {
+      "add": "Add a project",
+      "empty": "No projects yet",
+      "name": "Project",
+      "role": "Role",
+      "date": "Period",
+      "description": "Description",
+      "link": "Project link",
+      "linkLabel": "Link label"
+    },
+    "custom": {
+      "add": "Add an entry",
+      "empty": "Nothing here yet",
+      "title": "Title",
+      "subtitle": "Subtitle",
+      "date": "Period",
+      "description": "Description"
+    },
+    "skills": {
+      "placeholder": "List your skills"
+    },
+    "selfEvaluation": {
+      "placeholder": "A short self assessment"
+    },
+    "iconSelector": {
+      "title": "Pick an icon",
+      "all": "All",
+      "searchPlaceholder": "Search icons",
+      "empty": "No matching icons",
+      "categories": {
+        "personal": "Personal",
+        "education": "Education",
+        "work": "Work",
+        "skills": "Skills",
+        "languages": "Languages",
+        "projects": "Projects",
+        "achievements": "Achievements",
+        "hobbies": "Hobbies",
+        "social": "Social",
+        "others": "Others"
+      },
+      "icons": {
+        "User": "User",
+        "Mail": "Email",
+        "Phone": "Phone",
+        "MapPin": "Location",
+        "Globe": "Website",
+        "Smartphone": "Mobile",
+        "AtSign": "Social",
+        "Contact": "Contact",
+        "GraduationCap": "Education",
+        "School": "School",
+        "Book": "Book",
+        "BookOpen": "Reading",
+        "Library": "Library",
+        "Award": "Award",
+        "Briefcase": "Work",
+        "Landmark": "Institution",
+        "Building": "Company",
+        "CalendarRange": "Date range",
+        "Clock": "Time",
+        "Code": "Code",
+        "Cpu": "Hardware",
+        "Database": "Database",
+        "Terminal": "Terminal",
+        "Layers": "Layers",
+        "Languages": "Languages",
+        "MessageSquare": "Message",
+        "MessagesSquare": "Chat",
+        "FolderGit2": "Repository",
+        "GitBranch": "Branch",
+        "Rocket": "Launch",
+        "Target": "Target",
+        "Trophy": "Trophy",
+        "Medal": "Medal",
+        "Star": "Star",
+        "Heart": "Passion",
+        "Music": "Music",
+        "Palette": "Design",
+        "Camera": "Camera",
+        "Gamepad2": "Gaming",
+        "Plane": "Travel",
+        "Coffee": "Coffee",
+        "Dumbbell": "Fitness",
+        "Rss": "Feed",
+        "Share2": "Share",
+        "MessageCircle": "Chat",
+        "Newspaper": "News",
+        "Hash": "Hashtag",
+        "FileText": "Document",
+        "FileCheck": "Reviewed",
+        "Funnel": "Filter",
+        "Link": "Link",
+        "Wallet": "Salary",
+        "Lightbulb": "Idea",
+        "Send": "Send",
+        "Settings": "Settings",
+        "Search": "Search",
+        "Flag": "Flag",
+        "Bookmark": "Bookmark",
+        "ThumbsUp": "Approved",
+        "Zap": "Performance"
+      }
+    },
+    "photoConfig": {
+      "title": "Photo settings",
+      "dragHint": "Click, drop or paste an image here",
+      "remove": "Remove photo",
+      "urlTitle": "Image URL",
+      "urlPlaceholder": "https://…",
+      "size": "Size",
+      "width": "Width",
+      "height": "Height",
+      "aspectRatio": "Aspect ratio",
+      "ratios": {
+        "custom": "Custom"
+      },
+      "borderRadius": "Corner radius",
+      "borderRadiusOptions": {
+        "none": "None",
+        "medium": "Rounded",
+        "full": "Circle",
+        "custom": "Custom"
+      },
+      "done": "Done",
+      "typeLimit": "Only image files are supported",
+      "compressFailed": "Could not process that image"
+    },
+    "certificates": {
+      "empty": "No certificates yet — upload or paste an image",
+      "add": "Add certificate",
+      "width": "Width",
+      "remove": "Remove",
+      "item": "Certificate {{index}}",
+      "compressFailed": "Skipped an image that could not be processed"
+    },
+    "dock": {
+      "switchTemplate": "Switch template",
+      "autoOnePage": "Fit to one page",
+      "autoOnePageOn": "Fit-to-one-page enabled",
+      "autoOnePageOff": "Fit-to-one-page disabled",
+      "pageBreakLines": "Page break guides",
+      "pageBreakShown": "Page break guides shown",
+      "pageBreakHidden": "Page break guides hidden",
+      "export": "Export",
+      "copy": "Duplicate resume",
+      "copied": "Resume duplicated",
+      "collapseSide": "Collapse settings",
+      "expandSide": "Expand settings",
+      "collapseEdit": "Collapse editor",
+      "expandEdit": "Expand editor",
+      "collapsePreview": "Collapse preview",
+      "expandPreview": "Expand preview",
+      "home": "Back to resumes"
+    },
+    "sync": {
+      "title": "Local backup",
+      "description": "Write resumes into a folder you choose. The browser reads and writes it directly — no server involved.",
+      "pending": "Saving",
+      "backedUp": "Backed up {{time}}",
+      "none": "Not backed up",
+      "unsupported": "This browser has no folder access (needs Chrome / Edge). Resumes stay in local storage.",
+      "noDirectory": "No folder chosen",
+      "choose": "Choose folder",
+      "change": "Change folder",
+      "picked": "Linked folder “{{name}}”",
+      "denied": "Folder permission was not granted",
+      "push": "Back up {{n}} now",
+      "pushed": "Backed up {{n}} resume(s)",
+      "pull": "Import from folder",
+      "pulled": "Imported {{imported}}, skipped {{skipped}}",
+      "forget": "Unlink folder",
+      "forgotten": "Folder unlinked",
+      "autosaveHint": "Once linked, every edit is written to a JSON file of the same name within 1.5s; renaming deletes the old file.",
+      "footnote": "Folder permission has to be re-granted after the browser restarts."
+    },
+    "faq": {
+      "title": "Questions",
+      "description": "A few common questions about storage and export.",
+      "items": {
+        "storage": {
+          "q": "Where are my resumes stored?",
+          "a": "In this browser’s localStorage under toolbox.resume. A linked folder adds one JSON file per resume. Clearing browser data deletes them — keep your own backup."
+        },
+        "pagedExport": {
+          "q": "How is Export PDF different from browser print?",
+          "a": "Both PDF exports rasterise the resume, so text is not selectable. Browser print uses the system layout engine: text stays selectable and can still be saved as PDF."
+        },
+        "templateSwitch": {
+          "q": "Does switching templates change my styling?",
+          "a": "Yes. A template applies its own accent colour and section/paragraph/page spacing so the design stays intact. Re-adjust them in the left panel afterwards."
+        },
+        "remotePhoto": {
+          "q": "Why is my linked photo missing from the export?",
+          "a": "Without a backend proxy the browser cannot read pixels of a cross-origin image, so export skips it (it still displays on screen). Upload the image as a file instead."
+        }
+      }
+    },
+    "mobile": {
+      "content": "Content",
+      "style": "Style",
+      "preview": "Preview"
+    }
+  }
+}

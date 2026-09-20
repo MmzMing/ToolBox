@@ -1,0 +1,477 @@
+{
+  "resume": {
+    "title": "简历工坊",
+    "description": "可视化编辑简历，9 套模板、实时 A4 预览与本地导出，数据全程留在浏览器",
+    "templates": {
+      "hint": "选一个模板开始，进入编辑器后仍可随时切换",
+      "list": {
+        "classic": {
+          "name": "经典模板",
+          "description": "传统简约的简历布局，适合大多数求职场景"
+        },
+        "modern": {
+          "name": "两栏布局",
+          "description": "经典两栏，突出个人特色"
+        },
+        "left-right": {
+          "name": "模块标题背景色",
+          "description": "模块标题背景鲜明，突出美观特色"
+        },
+        "timeline": {
+          "name": "时间线风格",
+          "description": "时间线布局，突出经历的时间顺序"
+        },
+        "minimalist": {
+          "name": "极简模板",
+          "description": "大面积留白，干净纯粹的排版风格"
+        },
+        "elegant": {
+          "name": "优雅模板",
+          "description": "居中标题单列设计，具有高级感的分隔线"
+        },
+        "creative": {
+          "name": "创意模板",
+          "description": "视觉错落设计，灵动活泼展现个性"
+        },
+        "editorial": {
+          "name": "Editorial",
+          "description": "高端画报风模板，衬线体与无衬线体混排，附带侧边时光轴"
+        },
+        "swiss": {
+          "name": "瑞士美学",
+          "description": "包豪斯国际排版，超粗字重对比与几何色块点缀"
+        }
+      },
+      "switch": "切换模板"
+    },
+    "mine": {
+      "heading": "我的简历",
+      "count": "共 {{n}} 份",
+      "new": "新建简历",
+      "newBlank": "空白简历",
+      "newDescription": "创建一个新简历以开始。",
+      "import": "导入 JSON",
+      "importOk": "已导入《{{title}}》",
+      "importFailed": "文件不是有效的简历 JSON",
+      "open": "继续编辑",
+      "edit": "编辑",
+      "meta": "{{template}} · {{time}}",
+      "duplicate": "复制",
+      "rename": "重命名",
+      "renamePrompt": "简历名称",
+      "delete": "删除",
+      "duplicated": "已复制为《{{title}}》",
+      "deleted": "已删除《{{title}}》",
+      "legacyImported": "已从旧版工具导入 {{n}} 份简历"
+    },
+    "create": {
+      "blankHeading": "从空白开始",
+      "blankDescription": "从内置默认模板创建，空白开始",
+      "now": "立即创建",
+      "templateHeading": "从模板开始"
+    },
+    "confirm": {
+      "deleteTitle": "删除这份简历？",
+      "deleteDescription": "《{{title}}》将被永久删除，此操作无法撤销。",
+      "confirm": "删除",
+      "cancel": "取消"
+    },
+    "basicPanel": {
+      "basicFields": {
+        "name": "姓名",
+        "title": "职位",
+        "employementStatus": "状态",
+        "birthDate": "生日",
+        "email": "邮箱",
+        "phone": "电话",
+        "location": "所在地"
+      },
+      "layout": "布局",
+      "profile": "资料",
+      "avatar": "头像",
+      "basicField": "基础字段",
+      "customField": "自定义字段",
+      "displayLabel": "显示标签",
+      "addCustomField": "添加自定义字段",
+      "deleteField": "删除字段",
+      "customLabelPlaceholder": "标签",
+      "customValuePlaceholder": "内容",
+      "align": {
+        "left": "左对齐",
+        "center": "居中",
+        "right": "右对齐"
+      }
+    },
+    "increase": "增加",
+    "decrease": "减少",
+    "layout": {
+      "drag": "拖动排序",
+      "show": "在简历中显示",
+      "hide": "在简历中隐藏",
+      "delete": "删除章节",
+      "deleteTitle": "删除「{{title}}」？",
+      "deleteDescription": "该章节及其内容会从简历中移除。"
+    },
+    "sidePanel": {
+      "layout": {
+        "title": "章节布局",
+        "addSection": "添加章节",
+        "addCustomSectionOption": "空白自定义章节",
+        "customSectionTitle": "自定义模块",
+        "standardSections": {
+          "skills": "专业技能",
+          "experience": "工作经历",
+          "projects": "项目经历",
+          "education": "教育经历",
+          "selfEvaluation": "自我评价",
+          "certificates": "证书附图"
+        }
+      },
+      "theme": {
+        "title": "主题色",
+        "custom": "自定义"
+      },
+      "typography": {
+        "title": "排版",
+        "font": {
+          "title": "字体",
+          "note": "字体文件随站点本地提供，导出时按所选字体渲染",
+          "family": {
+            "alibaba": "阿里巴巴普惠体",
+            "misans": "小米无界",
+            "noto": "思源黑体",
+            "serif": "思源宋体"
+          }
+        },
+        "lineHeight": {
+          "title": "行高"
+        },
+        "baseFontSize": {
+          "title": "正文字号"
+        },
+        "headerSize": {
+          "title": "章节标题字号"
+        },
+        "subheaderSize": {
+          "title": "小标题字号"
+        }
+      },
+      "spacing": {
+        "title": "间距",
+        "pagePadding": {
+          "title": "页边距"
+        },
+        "sectionSpacing": {
+          "title": "章节间距"
+        },
+        "paragraphSpacing": {
+          "title": "段间距"
+        }
+      },
+      "mode": {
+        "title": "显示模式",
+        "useIconMode": {
+          "title": "联系方式用图标",
+          "hint": "关闭后改为显示文字标签"
+        },
+        "centerSubtitle": {
+          "title": "副标题居中",
+          "hint": "职位与联系方式跟随标题居中"
+        },
+        "flexibleHeaderLayout": {
+          "title": "弹性表头",
+          "hint": "小标题紧随主标题排布，不换行占位"
+        }
+      }
+    },
+    "export": {
+      "pdf": "导出 PDF",
+      "done": "已生成 PDF",
+      "failed": "导出失败，请查看控制台",
+      "title": "导出简历",
+      "description": "全部在本地完成，不会上传任何数据",
+      "tooltip": "导出",
+      "footnote": "长图导出会把简历渲染为图片，文字不可选中；需要可复制文字请用浏览器打印。",
+      "tiles": {
+        "pdf": "长图 PDF",
+        "image": "长图 PNG",
+        "print": "浏览器打印",
+        "json": "简历数据",
+        "markdown": "Markdown",
+        "pdfHint": "整页一张长图",
+        "imageHint": "适合插入文档",
+        "printHint": "文字可选中、可存 PDF",
+        "jsonHint": "用于备份与再次导入",
+        "markdownHint": "纯文本版本",
+        "pagedPdf": "导出 PDF",
+        "pagedPdfHint": "按 A4 逐页切分"
+      }
+    },
+    "preview": {
+      "pageEnds": "第 {{page}} 页结束",
+      "autoOnePageCannotFit": "内容过多，已缩到最小仍无法放进一页"
+    },
+    "editor": {
+      "back": "返回简历列表",
+      "undo": "撤销",
+      "redo": "重做",
+      "panelContent": "内容编辑",
+      "unknownSection": "未支持的章节",
+      "rename": "重命名简历",
+      "untitled": "未命名简历"
+    },
+    "present": "至今",
+    "clearDate": "清除日期",
+    "section": {
+      "rename": "重命名章节"
+    },
+    "item": {
+      "untitled": "未命名条目",
+      "delete": "删除条目",
+      "deleteTitle": "删除这个条目？",
+      "deleteDescription": "该条目会从简历中移除，可用撤销恢复。"
+    },
+    "richEditor": {
+      "bold": "加粗",
+      "italic": "斜体",
+      "underline": "下划线",
+      "strike": "删除线",
+      "bulletList": "无序列表",
+      "orderedList": "有序列表",
+      "alignLeft": "左对齐",
+      "alignCenter": "居中",
+      "alignRight": "右对齐",
+      "alignJustify": "两端对齐",
+      "textColor": "文字颜色",
+      "resetColor": "恢复默认颜色",
+      "highlight": "高亮",
+      "link": "插入链接",
+      "linkPlaceholder": "链接地址",
+      "apply": "应用",
+      "remove": "移除",
+      "undo": "撤销",
+      "redo": "重做"
+    },
+    "experience": {
+      "add": "添加一段工作经历",
+      "empty": "还没有工作经历",
+      "company": "公司",
+      "position": "职位",
+      "date": "起止时间",
+      "details": "工作描述",
+      "detailsPlaceholder": "用一行一条列出你的职责与产出"
+    },
+    "education": {
+      "add": "添加一段教育经历",
+      "empty": "还没有教育经历",
+      "school": "学校",
+      "major": "专业",
+      "degree": "学位",
+      "date": "起止时间",
+      "description": "描述"
+    },
+    "projects": {
+      "add": "添加一个项目",
+      "empty": "还没有项目",
+      "name": "项目名称",
+      "role": "担任角色",
+      "date": "起止时间",
+      "description": "项目描述",
+      "link": "项目链接",
+      "linkLabel": "链接显示文字"
+    },
+    "custom": {
+      "add": "添加一条",
+      "empty": "还没有内容",
+      "title": "标题",
+      "subtitle": "副标题",
+      "date": "起止时间",
+      "description": "描述"
+    },
+    "skills": {
+      "placeholder": "列出你的专业技能"
+    },
+    "selfEvaluation": {
+      "placeholder": "一段简要的自我评价"
+    },
+    "iconSelector": {
+      "title": "选择图标",
+      "all": "全部",
+      "searchPlaceholder": "搜索图标",
+      "empty": "没有匹配的图标",
+      "categories": {
+        "personal": "个人信息",
+        "education": "教育背景",
+        "work": "工作经历",
+        "skills": "技能",
+        "languages": "语言",
+        "projects": "项目",
+        "achievements": "成就荣誉",
+        "hobbies": "兴趣爱好",
+        "social": "社交媒体",
+        "others": "其他"
+      },
+      "icons": {
+        "User": "用户",
+        "Mail": "邮箱",
+        "Phone": "电话",
+        "MapPin": "位置",
+        "Globe": "网站",
+        "Smartphone": "手机",
+        "AtSign": "社交账号",
+        "Contact": "名片",
+        "GraduationCap": "学历",
+        "School": "学校",
+        "Book": "书籍",
+        "BookOpen": "阅读",
+        "Library": "图书馆",
+        "Award": "证书",
+        "Briefcase": "工作",
+        "Landmark": "机构",
+        "Building": "公司",
+        "CalendarRange": "时间段",
+        "Clock": "时间",
+        "Code": "代码",
+        "Cpu": "硬件",
+        "Database": "数据库",
+        "Terminal": "命令行",
+        "Layers": "分层",
+        "Languages": "语言",
+        "MessageSquare": "消息",
+        "MessagesSquare": "对话",
+        "FolderGit2": "仓库",
+        "GitBranch": "分支",
+        "Rocket": "项目启动",
+        "Target": "目标",
+        "Trophy": "奖杯",
+        "Medal": "奖牌",
+        "Star": "星标",
+        "Heart": "热爱",
+        "Music": "音乐",
+        "Palette": "设计",
+        "Camera": "摄影",
+        "Gamepad2": "游戏",
+        "Plane": "旅行",
+        "Coffee": "咖啡",
+        "Dumbbell": "健身",
+        "Rss": "订阅",
+        "Share2": "分享",
+        "MessageCircle": "聊天",
+        "Newspaper": "资讯",
+        "Hash": "话题",
+        "FileText": "文档",
+        "FileCheck": "审核",
+        "Funnel": "筛选",
+        "Link": "链接",
+        "Wallet": "薪资",
+        "Lightbulb": "想法",
+        "Send": "投递",
+        "Settings": "设置",
+        "Search": "搜索",
+        "Flag": "标记",
+        "Bookmark": "收藏",
+        "ThumbsUp": "好评",
+        "Zap": "效率"
+      }
+    },
+    "photoConfig": {
+      "title": "头像设置",
+      "dragHint": "点击、拖拽或粘贴图片到此处",
+      "remove": "移除头像",
+      "urlTitle": "图片链接",
+      "urlPlaceholder": "https://…",
+      "size": "尺寸",
+      "width": "宽",
+      "height": "高",
+      "aspectRatio": "比例",
+      "ratios": {
+        "custom": "自定义"
+      },
+      "borderRadius": "圆角",
+      "borderRadiusOptions": {
+        "none": "直角",
+        "medium": "圆角",
+        "full": "圆形",
+        "custom": "自定义"
+      },
+      "done": "完成",
+      "typeLimit": "只能选择图片文件",
+      "compressFailed": "图片处理失败，请换一张"
+    },
+    "certificates": {
+      "empty": "还没有证书图片，点击上传或粘贴到此处",
+      "add": "添加证书",
+      "width": "宽度",
+      "remove": "删除",
+      "item": "证书 {{index}}",
+      "compressFailed": "图片处理失败，已跳过"
+    },
+    "dock": {
+      "switchTemplate": "切换模板",
+      "autoOnePage": "自动一页纸",
+      "autoOnePageOn": "已开启自动一页纸",
+      "autoOnePageOff": "已关闭自动一页纸",
+      "pageBreakLines": "分页参考线",
+      "pageBreakShown": "已显示分页参考线",
+      "pageBreakHidden": "已隐藏分页参考线",
+      "export": "导出",
+      "copy": "复制简历",
+      "copied": "已复制简历",
+      "collapseSide": "收起设置栏",
+      "expandSide": "展开设置栏",
+      "collapseEdit": "收起编辑栏",
+      "expandEdit": "展开编辑栏",
+      "collapsePreview": "收起预览",
+      "expandPreview": "展开预览",
+      "home": "返回简历列表"
+    },
+    "sync": {
+      "title": "本地备份",
+      "description": "把简历写到你选择的本地文件夹，浏览器直接读写，不经过任何服务器。",
+      "pending": "保存中",
+      "backedUp": "已备份 {{time}}",
+      "none": "未备份",
+      "unsupported": "当前浏览器不支持文件夹访问（需要 Chrome / Edge），简历仍会保存在浏览器本地。",
+      "noDirectory": "尚未选择文件夹",
+      "choose": "选择文件夹",
+      "change": "更换文件夹",
+      "picked": "已绑定文件夹「{{name}}」",
+      "denied": "没有获得文件夹权限",
+      "push": "立即备份 {{n}} 份",
+      "pushed": "已备份 {{n}} 份简历",
+      "pull": "从文件夹导入",
+      "pulled": "导入 {{imported}} 份，跳过 {{skipped}} 份",
+      "forget": "解除绑定",
+      "forgotten": "已解除文件夹绑定",
+      "autosaveHint": "绑定后每次编辑都会在 1.5 秒内自动写入同名 JSON 文件；重命名会删掉旧文件。",
+      "footnote": "浏览器关闭后再次进入需要重新授权文件夹权限。"
+    },
+    "faq": {
+      "title": "使用问答",
+      "description": "关于数据存储与导出的几个常见问题。",
+      "items": {
+        "storage": {
+          "q": "我的简历存在哪里？",
+          "a": "全部存在浏览器的 localStorage 里，键名 toolbox.resume。绑定本地文件夹后会额外写成每份一个 JSON 文件；清除浏览器数据会一并删除，重要简历请自行备份。"
+        },
+        "pagedExport": {
+          "q": "导出 PDF 和浏览器打印有什么区别？",
+          "a": "导出 PDF 与长图都是把简历渲染成图片再拼页，文字不可选中；浏览器打印走系统排版引擎，文字可选中复制、也能存成 PDF，需要可复制文字时用它。"
+        },
+        "templateSwitch": {
+          "q": "切换模板会改动我的样式设置吗？",
+          "a": "会。切模板时会用该模板自带的主题色与章节/段间距、页边距覆盖当前设置，这是为了还原模板设计。切换后在左侧「主题色 / 间距」里再调即可。"
+        },
+        "remotePhoto": {
+          "q": "为什么头像填了图片链接，导出却没有？",
+          "a": "跨域图片在没有后端代理的情况下浏览器读不到像素，导出时会被跳过（屏幕上仍能显示）。把图片下载后作为文件上传即可。"
+        }
+      }
+    },
+    "mobile": {
+      "content": "内容",
+      "style": "样式",
+      "preview": "预览"
+    }
+  }
+}

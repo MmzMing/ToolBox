@@ -1,0 +1,56 @@
+import type { GlobalSettings } from '../../../types'
+import { useTemplateContext } from '../../TemplateContext'
+
+interface SectionTitleProps {
+  globalSettings?: GlobalSettings
+  type: string
+  title?: string
+  showTitle?: boolean
+}
+
+const SectionTitle = ({ type, title, globalSettings, showTitle = true }: SectionTitleProps) => {
+  const templateContext = useTemplateContext()
+  const menuSections = templateContext?.menuSections ?? []
+  const renderTitle = type === 'custom' ? title : menuSections.find((s) => s.id === type)?.title
+
+  const themeColor = globalSettings?.themeColor || '#E31C24' // 默认瑞士红
+  if (!showTitle) return null
+
+  return (
+    <div
+      className="flex w-full flex-col"
+      style={{
+        marginBottom: `${globalSettings?.paragraphSpacing || 12}px`,
+      }}
+    >
+      <div className="flex items-center gap-2.5">
+        {/* 瑞士风格高亮色块 */}
+        <div
+          className="w-[6px] shrink-0 rounded-sm"
+          style={{
+            height: `${(globalSettings?.headerSize || 18) * 1.1}px`,
+            backgroundColor: themeColor,
+          }}
+        />
+        <h3
+          className="font-black tracking-wider uppercase"
+          style={{
+            fontSize: `${globalSettings?.headerSize || 18}px`,
+            color: '#0f172a',
+          }}
+        >
+          {renderTitle}
+        </h3>
+      </div>
+      {/* 不对称的分隔线 */}
+      <div
+        className="mt-2 h-[1px] w-full opacity-15"
+        style={{
+          backgroundColor: '#0f172a',
+        }}
+      />
+    </div>
+  )
+}
+
+export default SectionTitle
