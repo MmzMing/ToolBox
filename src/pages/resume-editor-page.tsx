@@ -15,8 +15,7 @@ import { EditPanel } from '@/tools/resume/resume/components/EditPanel'
 import { MobileWorkbench } from '@/tools/resume/resume/components/MobileWorkbench'
 import { PreviewDock } from '@/tools/resume/resume/components/PreviewDock'
 import { PreviewPanel } from '@/tools/resume/resume/components/PreviewPanel'
-import { SidePanel } from '@/tools/resume/resume/components/SidePanel'
-import { LAYOUT_CONFIG, SIDEBAR_AUTO_COLLAPSE_BELOW } from '@/tools/resume/resume/constants'
+import { LAYOUT_CONFIG } from '@/tools/resume/resume/constants'
 import { exportPaperToLongPagePdf } from '@/tools/resume/resume/export/pdf'
 import { useResumeStore } from '@/tools/resume/resume/store'
 import { useBreakpoint } from '@/composable/use-breakpoint'
@@ -57,10 +56,10 @@ function ResumeTitleInput({
 }
 
 /**
- * 简历编辑器：满屏三栏工作台（设置 / 表单 / A4 预览）。
+ * 简历编辑器：满屏两栏工作台（表单 / A4 预览）+ 右侧 dock。
  *
- * 挂在 BaseLayout 之外的顶层路由——站内侧栏与顶栏会吃掉两栏宽度，
- * 而编辑过程本来就不该被站内导航打断。
+ * 挂在 BaseLayout 之外的顶层路由——站内侧栏与顶栏会吃掉栏宽，
+ * 而编辑过程本来就不该被站内导航打断。设置项以浮层形式挂在 dock 上。
  */
 export default function ResumeEditorPage() {
   const { id } = useParams<{ id: string }>()
@@ -79,11 +78,9 @@ export default function ResumeEditorPage() {
   const updateResumeTitle = useResumeStore((state) => state.updateResumeTitle)
 
   const [exporting, setExporting] = useState(false)
-  const sideRef = useRef<PanelImperativeHandle | null>(null)
   const editRef = useRef<PanelImperativeHandle | null>(null)
   const previewRef = useRef<PanelImperativeHandle | null>(null)
   const [collapsed, setCollapsed] = useState<Record<PanelKey, boolean>>({
-    side: false,
     edit: false,
     preview: false,
   })
@@ -100,15 +97,7 @@ export default function ResumeEditorPage() {
     useResumeStore.getState().setActiveResume(id)
   }, [id, navigate])
 
-  // 窄于该宽度三栏会挤到不可用，默认收起左侧设置栏
-  useEffect(() => {
-    if (window.innerWidth < SIDEBAR_AUTO_COLLAPSE_BELOW) {
-      sideRef.current?.collapse()
-    }
-  }, [])
-
   const handles: Record<PanelKey, React.RefObject<PanelImperativeHandle | null>> = {
-    side: sideRef,
     edit: editRef,
     preview: previewRef,
   }
@@ -128,7 +117,7 @@ export default function ResumeEditorPage() {
     return null
   }
 
-  const { sidePanel, editPanel, previewPanel } = LAYOUT_CONFIG
+  const { editPanel, previewPanel } = LAYOUT_CONFIG
 
   const handleExport = async () => {
     setExporting(true)
@@ -191,20 +180,6 @@ export default function ResumeEditorPage() {
       ) : (
         <div className="relative min-h-0 flex-1">
           <ResizablePanelGroup orientation="horizontal" className="h-full">
-            <ResizablePanel
-              panelRef={sideRef}
-              defaultSize={sidePanel.defaultSize}
-              minSize={sidePanel.minSize}
-              collapsible
-            >
-              <SidePanel />
-            </ResizablePanel>
-
-            <ResizableHandle
-              className="hover:bg-primary bg-border mx-1 w-1"
-              hidden={collapsed.side}
-            />
-
             <ResizablePanel
               panelRef={editRef}
               defaultSize={editPanel.defaultSize}

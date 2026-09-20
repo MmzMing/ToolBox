@@ -14,7 +14,9 @@ docs/
 ├── development/        # 开发过程文档
 │   └── 开发计划.md      # 阶段拆分、批次安排、进度看板
 ├── plans/              # 单次功能的设计稿（按日期命名，实现前先评审）
-│   └── 2026-09-19-github-accelerator-design.md
+│   ├── 2026-09-19-github-accelerator-design.md
+│   ├── 2026-09-19-resume-builder-design.md
+│   └── 2026-09-20-resume-dock-workbench-design.md
 └── deployment/         # 部署文档
     └── 部署方案.md      # Vercel/Netlify/Cloudflare Pages/Docker+Nginx
 ```

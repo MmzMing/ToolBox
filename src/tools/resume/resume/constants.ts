@@ -70,13 +70,10 @@ export const HISTORY_LIMIT = 50
 /** 同一字段在合并窗口内的连续输入只留一条撤销记录 */
 export const HISTORY_GROUP_WINDOW_MS = 1000
 export const FILE_SYNC_DEBOUNCE_MS = 1500
-/** 视口窄于此值时自动折叠左侧设置栏 */
-export const SIDEBAR_AUTO_COLLAPSE_BELOW = 1440
-
+/** 桌面端两栏：设置项已并入右侧 dock 浮层，预览拿最大宽度 */
 export const LAYOUT_CONFIG = {
-  sidePanel: { defaultSize: 20, minSize: 15 },
-  editPanel: { defaultSize: 32, minSize: 25 },
-  previewPanel: { defaultSize: 48, minSize: 30 },
+  editPanel: { defaultSize: 38, minSize: 28 },
+  previewPanel: { defaultSize: 62, minSize: 40 },
 } as const
 
 /** 证书图片压缩阶梯：逐级降质直到 base64 体积达标 */

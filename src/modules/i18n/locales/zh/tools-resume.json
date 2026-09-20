@@ -407,6 +407,11 @@
       "compressFailed": "图片处理失败，已跳过"
     },
     "dock": {
+      "sections": "章节布局",
+      "theme": "主题色",
+      "typography": "排版",
+      "spacing": "间距",
+      "mode": "显示模式",
       "switchTemplate": "切换模板",
       "autoOnePage": "自动一页纸",
       "autoOnePageOn": "已开启自动一页纸",
@@ -417,8 +422,6 @@
       "export": "导出",
       "copy": "复制简历",
       "copied": "已复制简历",
-      "collapseSide": "收起设置栏",
-      "expandSide": "展开设置栏",
       "collapseEdit": "收起编辑栏",
       "expandEdit": "展开编辑栏",
       "collapsePreview": "收起预览",

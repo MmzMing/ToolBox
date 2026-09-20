@@ -37,10 +37,24 @@ import type {
   MenuSection,
   Project,
   ResumeData,
+  ResumeTemplate,
 } from './types'
 import type { UpdateResumeOptions } from './history'
 
 export type ResumeLocale = 'zh' | 'en'
+
+/**
+ * 模板自带的设计参数。
+ *
+ * 新建与切换模板必须应用同一份：只在切换时应用的话，从模板墙新建出来的简历
+ * 就得在编辑器里再切一次模板才长得对（两栏布局的侧栏本该贴住纸边就是这么露馅的）。
+ */
+const templateDesign = (template: ResumeTemplate) => ({
+  themeColor: template.colorScheme.primary,
+  sectionSpacing: template.spacing.sectionGap,
+  paragraphSpacing: template.spacing.itemGap,
+  pagePadding: template.spacing.contentPadding,
+})
 
 type HistoryMap = Record<string, ResumeData[]>
 
@@ -209,7 +223,12 @@ export const useResumeStore = create<ResumeState>()(
           templateId: template.id,
           draggingProjectId: null,
           // 种子只写了它关心的几项设置，整体覆盖会让 fontFamily / autoOnePage 等缺省为 undefined
-          globalSettings: { ...DEFAULT_GLOBAL_SETTINGS, ...seed.globalSettings },
+          globalSettings: {
+            ...DEFAULT_GLOBAL_SETTINGS,
+            ...seed.globalSettings,
+            ...templateDesign(template),
+          },
+          basic: { ...seed.basic, layout: template.basic.layout },
           title: `${locale === 'en' ? 'New Resume' : '新建简历'} ${id.slice(0, 6)}`,
         }
 
@@ -681,10 +700,7 @@ export const useResumeStore = create<ResumeState>()(
           templateId,
           globalSettings: {
             ...current.globalSettings,
-            themeColor: template.colorScheme.primary,
-            sectionSpacing: template.spacing.sectionGap,
-            paragraphSpacing: template.spacing.itemGap,
-            pagePadding: template.spacing.contentPadding,
+            ...templateDesign(template),
           },
           basic: { ...current.basic, layout: template.basic.layout },
         })

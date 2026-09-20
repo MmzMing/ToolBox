@@ -91,20 +91,25 @@ export function Field({
       <div className={className}>
         {renderLabel()}
         <div className="flex items-center gap-2">
-          <DateField
-            value={start}
-            ariaLabel={label}
-            placeholder={placeholder}
-            onChange={(next) => onChange(joinDateRange(next, isPresent ? present : end))}
-          />
+          {/* DateField 的触发按钮是 w-full + shrink-0，不包一层就会各占满整行把结束日期挤出可视区 */}
+          <div className="min-w-0 flex-1">
+            <DateField
+              value={start}
+              ariaLabel={label}
+              placeholder={placeholder}
+              onChange={(next) => onChange(joinDateRange(next, isPresent ? present : end))}
+            />
+          </div>
           <span className="text-muted-foreground shrink-0">-</span>
-          <DateField
-            value={isPresent ? '' : end}
-            disabled={isPresent}
-            ariaLabel={label}
-            placeholder={placeholder}
-            onChange={(next) => onChange(joinDateRange(start, next))}
-          />
+          <div className="min-w-0 flex-1">
+            <DateField
+              value={isPresent ? '' : end}
+              disabled={isPresent}
+              ariaLabel={label}
+              placeholder={placeholder}
+              onChange={(next) => onChange(joinDateRange(start, next))}
+            />
+          </div>
         </div>
       </div>
     )

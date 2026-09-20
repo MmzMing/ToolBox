@@ -1,10 +1,8 @@
-import { Check, Layout, Palette, Plus, Rows3, Type, Zap } from 'lucide-react'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
+import { Check, Layout, Palette, Rows3, Type, Zap } from 'lucide-react'
 
-import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import {
   Select,
   SelectContent,
@@ -12,13 +10,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Separator } from '@/components/ui/separator'
 import { Slider } from '@/components/ui/slider'
 import { Switch } from '@/components/ui/switch'
 import { cn } from '@/lib/utils'
 
 import {
-  DEFAULT_SECTION_ICONS,
   LINE_HEIGHT_MAX,
   LINE_HEIGHT_MIN,
   LINE_HEIGHT_STEP,
@@ -26,60 +22,33 @@ import {
   PARAGRAPH_SPACING_RANGE,
   SECTION_SPACING_RANGE,
   THEME_COLORS,
-  fontSizeOptions,
   resumeFontOptions,
 } from '../constants'
-import { nextCustomSectionId } from '../resume.service'
-import { STANDARD_MODULE_IDS } from '../types'
 import { useResumeStore } from '../store'
-import { getTemplateForResume } from '../templates/registry'
+import { AddSectionButton } from './AddSectionButton'
 import { ColorPicker } from './ColorPicker'
+import { FontSizeSelect } from './FontSizeSelect'
 import { LayoutSetting } from './layout/LayoutSetting'
 import { NumberField } from './NumberField'
-import { SectionIcon } from './SectionIcon'
 import { SettingCard } from './SettingCard'
 
 const THEME_COLOR_PRESETS = THEME_COLORS as readonly string[]
 
-/** 字号选择：基础字号 / 主标题 / 副标题三处共用 */
-function FontSizeSelect({
-  value,
-  onValueChange,
-}: {
-  value: number | undefined
-  onValueChange: (size: number) => void
-}) {
-  return (
-    <Select value={String(value ?? '')} onValueChange={(next) => onValueChange(Number(next))}>
-      <SelectTrigger className="border-input bg-background">
-        <SelectValue />
-      </SelectTrigger>
-      <SelectContent>
-        {fontSizeOptions.map((size) => (
-          <SelectItem key={size} value={String(size)}>
-            {size}px
-          </SelectItem>
-        ))}
-      </SelectContent>
-    </Select>
-  )
-}
-
-/** 左栏：章节、主题色、排版、间距、显示模式 */
+/**
+ * 左栏：章节、主题色、排版、间距、显示模式。
+ *
+ * **仅移动端使用**——桌面端（`>=768px`）已改为右侧 dock 的浮层面板
+ * （`components/dock-panels/*`）。加设置项时两处都要改。
+ */
 export function SidePanel() {
   const { t } = useTranslation('tools-resume')
   const resume = useResumeStore((state) => state.activeResume)
-  const setActiveSection = useResumeStore((state) => state.setActiveSection)
   const updateGlobalSettings = useResumeStore((state) => state.updateGlobalSettings)
-  const updateMenuSections = useResumeStore((state) => state.updateMenuSections)
   const setThemeColor = useResumeStore((state) => state.setThemeColor)
-  const createCustomSection = useResumeStore((state) => state.createCustomSection)
-  const [sectionPickerOpen, setSectionPickerOpen] = useState(false)
 
   const settings = resume?.globalSettings ?? {}
   const menuSections = resume?.menuSections ?? []
   const themeColor = settings.themeColor ?? THEME_COLORS[0]
-  const template = getTemplateForResume(resume?.templateId)
 
   // 取色器每动一像素都会入一条撤销记录，节流到 100ms
   const colorTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -97,27 +66,8 @@ export function SidePanel() {
     colorTimer.current = setTimeout(() => setThemeColor(color), 100)
   }
 
-  // 模板的 availableSections 决定能加哪些标准章节；已存在的不再列出，避免重复 id
-  const allowed = template.availableSections ?? [...STANDARD_MODULE_IDS]
-  const existingIds = new Set(menuSections.map((section) => section.id))
-  const addableModules = STANDARD_MODULE_IDS.filter(
-    (id) => allowed.includes(id) && !existingIds.has(id),
-  )
-
   if (!resume) {
     return null
-  }
-
-  const addCustomSection = () => {
-    const id = nextCustomSectionId(menuSections)
-    createCustomSection({
-      id,
-      title: t('resume.sidePanel.layout.customSectionTitle'),
-      icon: 'Plus',
-      enabled: true,
-      order: menuSections.length,
-    })
-    setSectionPickerOpen(false)
   }
 
   return (
@@ -125,54 +75,7 @@ export function SidePanel() {
       <SettingCard icon={Layout} title={t('resume.sidePanel.layout.title')}>
         <LayoutSetting menuSections={menuSections} activeSection={resume.activeSection} />
 
-        <Popover open={sectionPickerOpen} onOpenChange={setSectionPickerOpen}>
-          <PopoverTrigger asChild>
-            <Button variant="outline" size="sm" className="mt-4 w-full gap-1.5 border-dashed">
-              <Plus className="size-4" />
-              {t('resume.sidePanel.layout.addSection')}
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent align="center" className="w-[var(--radix-popover-trigger-width)] p-1">
-            <div className="flex flex-col gap-1">
-              {addableModules.length > 0 &&
-                addableModules.map((id) => (
-                  <button
-                    key={id}
-                    type="button"
-                    className="hover:bg-accent flex items-center gap-2 rounded-md px-3 py-2 text-left text-sm"
-                    onClick={() => {
-                      updateMenuSections([
-                        ...menuSections,
-                        {
-                          id,
-                          title: t(`resume.sidePanel.layout.standardSections.${id}`),
-                          icon: DEFAULT_SECTION_ICONS[id] ?? '',
-                          enabled: true,
-                          order: menuSections.length,
-                        },
-                      ])
-                      setActiveSection(id)
-                      setSectionPickerOpen(false)
-                    }}
-                  >
-                    <SectionIcon name={DEFAULT_SECTION_ICONS[id] ?? ''} className="size-4" />
-                    {t(`resume.sidePanel.layout.standardSections.${id}`)}
-                  </button>
-                ))}
-
-              {addableModules.length > 0 && <Separator className="my-1" />}
-
-              <button
-                type="button"
-                className="text-muted-foreground hover:bg-accent flex items-center gap-2 rounded-md px-3 py-2 text-left text-sm italic"
-                onClick={addCustomSection}
-              >
-                <Plus className="size-4" />
-                {t('resume.sidePanel.layout.addCustomSectionOption')}
-              </button>
-            </div>
-          </PopoverContent>
-        </Popover>
+        <AddSectionButton className="mt-4" />
       </SettingCard>
 
       <SettingCard

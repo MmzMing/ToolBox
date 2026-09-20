@@ -24,9 +24,16 @@ type LayoutItemProps = {
   activeSection: string
   /** 基本信息章节钉在首位：不可拖动、不可删除 */
   pinned?: boolean
+  /** 选中章节后的附加动作：dock 浮层用它收起自己 */
+  onSectionSelect?: (sectionId: string) => void
 }
 
-export function LayoutItem({ item, activeSection, pinned = false }: LayoutItemProps) {
+export function LayoutItem({
+  item,
+  activeSection,
+  pinned = false,
+  onSectionSelect,
+}: LayoutItemProps) {
   const { t } = useTranslation('tools-resume')
   const dragControls = useDragControls()
   const setActiveSection = useResumeStore((state) => state.setActiveSection)
@@ -35,6 +42,10 @@ export function LayoutItem({ item, activeSection, pinned = false }: LayoutItemPr
   const removeCustomData = useResumeStore((state) => state.removeCustomData)
 
   const active = activeSection === item.id
+  const select = () => {
+    setActiveSection(item.id)
+    onSectionSelect?.(item.id)
+  }
   const rowClass = cn(
     'group border-border bg-card flex rounded-lg border',
     'hover:border-primary/50 transition-colors',
@@ -75,7 +86,7 @@ export function LayoutItem({ item, activeSection, pinned = false }: LayoutItemPr
     return (
       <div
         className={cn(rowClass, 'mb-2 cursor-pointer items-center gap-3 p-3 pl-5')}
-        onClick={() => setActiveSection(item.id)}
+        onClick={select}
       >
         {label}
       </div>
@@ -101,7 +112,7 @@ export function LayoutItem({ item, activeSection, pinned = false }: LayoutItemPr
 
       <div
         className="flex min-w-0 flex-1 cursor-pointer items-center gap-2 p-3 select-none"
-        onClick={() => setActiveSection(item.id)}
+        onClick={select}
       >
         {label}
 
