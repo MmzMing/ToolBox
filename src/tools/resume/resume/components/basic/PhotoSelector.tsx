@@ -300,7 +300,7 @@ function PhotoConfigDrawer({ open, onOpenChange, photo, config: initialConfig }:
                           ? t('resume.photoConfig.width')
                           : t('resume.photoConfig.height')
                       }
-                      className="pr-7"
+                      className="no-spinner pr-7"
                       onChange={(event) => {
                         const raw = Number(event.target.value)
                         if (!Number.isFinite(raw)) {
@@ -369,7 +369,7 @@ function PhotoConfigDrawer({ open, onOpenChange, photo, config: initialConfig }:
                     max={Math.min(config.width, config.height) / 2}
                     value={config.customBorderRadius}
                     aria-label={t('resume.photoConfig.borderRadiusOptions.custom')}
-                    className="w-20"
+                    className="no-spinner w-20"
                     onChange={(event) =>
                       setConfig({ ...config, customBorderRadius: Number(event.target.value) || 0 })
                     }

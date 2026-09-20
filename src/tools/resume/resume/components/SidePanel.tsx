@@ -141,7 +141,7 @@ export function SidePanel() {
               <SelectTrigger className="border-input bg-background">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent position="popper" align="start">
                 {resumeFontOptions.map((font) => (
                   <SelectItem key={font.id} value={font.family}>
                     {t(`resume.sidePanel.typography.font.family.${font.id}`)}

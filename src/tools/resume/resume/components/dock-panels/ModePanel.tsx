@@ -9,7 +9,8 @@ import { PanelShell } from './PanelShell'
 /** 显示模式浮层：三个影响纸张排版的开关 */
 export function ModePanel() {
   const { t } = useTranslation('tools-resume')
-  const settings = useResumeStore((state) => state.activeResume?.globalSettings ?? {})
+  const stored = useResumeStore((state) => state.activeResume?.globalSettings)
+  const settings = stored ?? {}
   const updateGlobalSettings = useResumeStore((state) => state.updateGlobalSettings)
 
   return (

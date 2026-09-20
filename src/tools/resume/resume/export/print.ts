@@ -31,6 +31,10 @@ function stripPreviewOnlyArtifacts(root: HTMLElement): void {
   for (const line of Array.from(root.querySelectorAll<HTMLElement>('.page-break-line'))) {
     line.remove()
   }
+  // 校对高亮是直接改在预览 DOM 上的，导出时还原成纯文本
+  for (const mark of Array.from(root.querySelectorAll<HTMLElement>('mark[data-grammar-mark]'))) {
+    mark.replaceWith(...Array.from(mark.childNodes))
+  }
   root.style.removeProperty('transform')
   root.style.removeProperty('width')
   for (const el of Array.from(root.querySelectorAll<HTMLElement>('[class*="min-h-"]'))) {

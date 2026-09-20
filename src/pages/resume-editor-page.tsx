@@ -12,6 +12,7 @@ import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/componen
 import type { PanelKey } from '@/tools/resume/resume/components/PreviewDock'
 import { BackupBadge } from '@/tools/resume/resume/components/BackupBadge'
 import { EditPanel } from '@/tools/resume/resume/components/EditPanel'
+import { LayoutToolbar } from '@/tools/resume/resume/components/LayoutToolbar'
 import { MobileWorkbench } from '@/tools/resume/resume/components/MobileWorkbench'
 import { PreviewDock } from '@/tools/resume/resume/components/PreviewDock'
 import { PreviewPanel } from '@/tools/resume/resume/components/PreviewPanel'
@@ -147,6 +148,7 @@ export default function ResumeEditorPage() {
         </Button>
         <ResumeTitleInput key={resume.id} title={resume.title} onCommit={updateResumeTitle} />
         <BackupBadge className="hidden sm:inline-flex" />
+        <LayoutToolbar />
         <div className="ml-auto flex items-center gap-1">
           <Button size="sm" disabled={exporting} onClick={() => void handleExport()}>
             <Download className="size-4" />

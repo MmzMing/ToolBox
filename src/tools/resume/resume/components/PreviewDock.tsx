@@ -1,37 +1,19 @@
-import {
-  Copy,
-  Eye,
-  EyeOff,
-  FileText,
-  Home,
-  LayoutList,
-  Palette,
-  Pencil,
-  Rows3,
-  SlidersHorizontal,
-  Type,
-} from 'lucide-react'
-import { useState } from 'react'
+import { Copy, Eye, EyeOff, FileText, Home, Pencil, SpellCheck2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
 import { toast } from 'sonner'
 
-import { Dock, DockDivider, DockIcon, DockPopoverKey } from './Dock'
+import { Dock, DockDivider, DockIcon } from './Dock'
 import { FaqDialog } from './FaqDialog'
 import { ExportDialog } from './ExportDialog'
 import { TemplateSheet } from './TemplateSheet'
-import { ModePanel } from './dock-panels/ModePanel'
-import { SectionsPanel } from './dock-panels/SectionsPanel'
-import { SpacingPanel } from './dock-panels/SpacingPanel'
-import { ThemePanel } from './dock-panels/ThemePanel'
-import { TypographyPanel } from './dock-panels/TypographyPanel'
+import { GrammarCheckDrawer } from './ai/GrammarCheckDrawer'
+import { useGrammarCheck } from './ai/useGrammarCheck'
+import { useAIEnabled, useTaskModel } from './ai/useAIGate'
 import { useResumeStore } from '../store'
 import type { ResumeLocale } from '../store'
 
 export type PanelKey = 'edit' | 'preview'
-
-/** dock 上会展开浮层的键位，对应原左栏的五组设置 */
-type DockPanelKey = 'sections' | 'theme' | 'typography' | 'spacing' | 'mode'
 
 type PreviewDockProps = {
   collapsed: Record<PanelKey, boolean>
@@ -41,8 +23,8 @@ type PreviewDockProps = {
 /**
  * 预览区右侧的悬浮工具条。
  *
- * 桌面端没有左栏，五组设置以浮层形式挂在这里。旧版另有「AI 语法检查」与
- * 「仓库外链」两键：前者需要后端，后者指向旧项目，都不在本项目范围内。
+ * 五组设置挂在顶栏的 LayoutToolbar 上：放这里时 dock 高 555px，矮屏笔记本会顶出视口。
+ * 旧版另有「AI 润色」与「仓库外链」两键：前者需要后端，后者指向旧项目，都不在本项目范围内。
  */
 export function PreviewDock({ collapsed, onToggle }: PreviewDockProps) {
   const { t, i18n } = useTranslation('tools-resume')
@@ -54,48 +36,15 @@ export function PreviewDock({ collapsed, onToggle }: PreviewDockProps) {
   const updateGlobalSettings = useResumeStore((state) => state.updateGlobalSettings)
   const duplicateResume = useResumeStore((state) => state.duplicateResume)
   const activeResumeId = useResumeStore((state) => state.activeResumeId)
-  const [openPanel, setOpenPanel] = useState<DockPanelKey | null>(null)
+  const aiEnabled = useAIEnabled()
+  const textModel = useTaskModel('text')
+  const grammar = useGrammarCheck(aiEnabled ? textModel : null)
 
   const locale: ResumeLocale = i18n.language.startsWith('en') ? 'en' : 'zh'
-
-  /** 同一时刻只开一个浮层：开新的就顶掉旧的 */
-  const handleOpenChange = (key: DockPanelKey) => (next: boolean) =>
-    setOpenPanel((prev) => (next ? key : prev === key ? null : prev))
-
-  const panelKeys: Array<{ key: DockPanelKey; label: string; icon: typeof LayoutList }> = [
-    { key: 'sections', label: t('resume.dock.sections'), icon: LayoutList },
-    { key: 'theme', label: t('resume.dock.theme'), icon: Palette },
-    { key: 'typography', label: t('resume.dock.typography'), icon: Type },
-    { key: 'spacing', label: t('resume.dock.spacing'), icon: Rows3 },
-    { key: 'mode', label: t('resume.dock.mode'), icon: SlidersHorizontal },
-  ]
-
-  // 用函数调用而不是内联组件类型：内联箭头组件每次渲染都是新类型，会让浮层内容整树重挂载
-  const panelContent: Record<DockPanelKey, () => React.ReactNode> = {
-    sections: () => <SectionsPanel onSectionSelect={() => setOpenPanel(null)} />,
-    theme: () => <ThemePanel />,
-    typography: () => <TypographyPanel />,
-    spacing: () => <SpacingPanel />,
-    mode: () => <ModePanel />,
-  }
 
   return (
     <div className="fixed top-1/2 right-3 z-50 hidden max-h-[calc(100svh-1.5rem)] -translate-y-1/2 flex-col items-center gap-3 md:flex">
       <Dock>
-        {panelKeys.map(({ key, label, icon }) => (
-          <DockPopoverKey
-            key={key}
-            label={label}
-            icon={icon}
-            open={openPanel === key}
-            onOpenChange={handleOpenChange(key)}
-          >
-            {openPanel === key ? panelContent[key]() : null}
-          </DockPopoverKey>
-        ))}
-
-        <DockDivider />
-
         <DockIcon label={t('resume.dock.switchTemplate')}>
           <TemplateSheet />
         </DockIcon>
@@ -127,6 +76,27 @@ export function PreviewDock({ collapsed, onToggle }: PreviewDockProps) {
         >
           {pageBreakLinesVisible ? <Eye className="size-4" /> : <EyeOff className="size-4" />}
         </DockIcon>
+
+        {aiEnabled && (
+          <DockIcon
+            label={
+              grammar.items.length
+                ? t('resume.dock.grammarResults', { count: grammar.items.length })
+                : t('resume.dock.grammar')
+            }
+            active={grammar.items.length > 0}
+            disabled={grammar.checking}
+            onClick={() => {
+              if (grammar.items.length && !grammar.drawerOpen) {
+                grammar.setDrawerOpen(true)
+                return
+              }
+              void grammar.run()
+            }}
+          >
+            <SpellCheck2 className="size-4" />
+          </DockIcon>
+        )}
 
         <DockDivider />
 
@@ -178,6 +148,8 @@ export function PreviewDock({ collapsed, onToggle }: PreviewDockProps) {
       </Dock>
 
       <FaqDialog />
+
+      {aiEnabled && <GrammarCheckDrawer check={grammar} />}
     </div>
   )
 }

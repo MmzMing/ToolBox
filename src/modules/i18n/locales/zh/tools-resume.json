@@ -1,7 +1,7 @@
 {
   "resume": {
     "title": "简历工坊",
-    "description": "可视化编辑简历，9 套模板、实时 A4 预览与本地导出，数据全程留在浏览器",
+    "description": "可视化编辑简历，9 套模板、实时 A4 预览与本地导出；可选 AI 润色与校对，直连你配置的服务商",
     "templates": {
       "hint": "选一个模板开始，进入编辑器后仍可随时切换",
       "list": {
@@ -426,7 +426,9 @@
       "expandEdit": "展开编辑栏",
       "collapsePreview": "收起预览",
       "expandPreview": "展开预览",
-      "home": "返回简历列表"
+      "home": "返回简历列表",
+      "grammar": "AI 语法检查",
+      "grammarResults": "查看 {{count}} 处校对结果"
     },
     "sync": {
       "title": "本地备份",
@@ -475,6 +477,135 @@
       "content": "内容",
       "style": "样式",
       "preview": "预览"
+    },
+    "ai": {
+      "entry": "AI 辅助",
+      "entryHint": "关闭时润色与校对入口隐藏、导入 PDF 置灰；开启后内容直连你在此配置的服务商。",
+      "notConfigured": "尚未配置可用的 AI 模型，请先在「AI 服务商」里填写 Key 并选择模型。",
+      "direct": {
+        "reachable": "通常可浏览器直连",
+        "blocked": "通常需自备可跨域地址",
+        "unknown": "直连可用性未验证"
+      },
+      "config": {
+        "entry": "AI 服务商",
+        "title": "AI 服务商设置",
+        "pickTitle": "模型厂商",
+        "pickHint": "可分别配置多家，点选即在右侧编辑",
+        "ready": "已配置",
+        "incomplete": "待完善配置",
+        "notice": "Key 只保存在这台浏览器的本地存储里，请求由浏览器直接发往你填写的地址，本站不经手、不留存。",
+        "connected": "已配置 {{count}}/{{total}} 家",
+        "getKey": "获取密钥",
+        "keyPlaceholder": "粘贴该服务商的 API Key",
+        "showKey": "显示密钥",
+        "hideKey": "隐藏密钥",
+        "baseUrl": "服务地址（Base URL）",
+        "baseUrlHint": "可改成自建或中转地址；填错会导致请求发不出去。",
+        "models": "模型",
+        "textModel": "文本模型（润色与校对）",
+        "pdfModel": "视觉模型（PDF 导入）",
+        "modelPlaceholder": "手输模型名，例如 deepseek-chat",
+        "textHint": "每家各记一个文本型号与视觉型号，互不覆盖；实际生效的是顶部「使用厂商」选中的那家。视觉槽供导入 PDF 使用，填的型号自己要能读图，否则导入会失败。",
+        "fetchModels": "获取模型列表",
+        "fetchOk": "已获取 {{count}} 个模型",
+        "fetchEmpty": "这个地址没有返回模型列表，改用「手动输入模型名」直接填。",
+        "unassigned": "未选择",
+        "manual": "手动输入模型名…",
+        "fromList": "从列表选择",
+        "listEmpty": "先点右上角「获取模型列表」把该凭证下的模型拉进来；地址不支持这个接口时，用「手动输入模型名」直接填。",
+        "useProvider": "使用厂商",
+        "active": "使用中"
+      },
+      "test": {
+        "button": "检测连接",
+        "ok": "连接正常",
+        "mismatch": "返回内容与预期不一致",
+        "canvasUnavailable": "当前浏览器不支持画布，无法做视觉自检"
+      },
+      "polish": {
+        "entry": "AI 润色",
+        "title": "AI 润色",
+        "original": "原始内容",
+        "result": "润色后",
+        "instructions": "额外要求（选填）",
+        "instructionsPlaceholder": "例如：语气更正式、突出量化结果",
+        "start": "开始润色",
+        "regenerate": "重新生成",
+        "stop": "停止生成",
+        "apply": "应用内容",
+        "applied": "已应用润色结果",
+        "empty": "这段内容还是空的，没有可润色的文本。",
+        "status": {
+          "ready": "将把该字段的文本发给模型，返回后可整段替换。",
+          "polishing": "生成中…",
+          "finished": "生成完成，确认无误后应用。"
+        }
+      },
+      "pdf": {
+        "entry": "导入 PDF",
+        "needVisionModel": "导入 PDF 需要一个支持图片的模型，请先配置。",
+        "previewTitle": "导入预览",
+        "previewHint": "以下为模型读出的内容，确认后会新建一份简历。",
+        "confirm": "导入为简历",
+        "counts": "条目数",
+        "countsValue": "教育 {{education}} · 工作 {{experience}} · 项目 {{projects}}",
+        "field": {
+          "name": "姓名",
+          "title": "职位",
+          "email": "邮箱"
+        },
+        "warnings": {
+          "missingName": "没有读到姓名，记得手动补上。"
+        }
+      },
+      "consent": {
+        "title": "开启 AI 辅助？",
+        "body": "开启后，润色、校对与 PDF 导入会把你的简历内容直接发送给你配置的服务商（不会经过本站服务器）。简历正文属于个人信息，请确认你接受这一点。",
+        "accept": "我已了解，开启"
+      },
+      "errors": {
+        "invalidProvider": "不支持的服务商，请检查配置。",
+        "configRequired": "缺少 API Key 或模型名。",
+        "invalidEndpoint": "服务地址不合法。",
+        "corsBlocked": "请求没能发出：该地址可能不允许浏览器直连，或本机无法访问。可改用支持跨域的中转地址。",
+        "networkError": "网络请求失败。",
+        "timeout": "请求超时（120 秒）。",
+        "aborted": "已取消。",
+        "authenticationFailed": "API Key 无效或已过期。",
+        "modelAccessDenied": "当前 Key 没有该模型的访问权限。",
+        "rateLimited": "请求过于频繁，稍后再试。",
+        "requestTooLarge": "内容超出请求体上限。",
+        "modelOrEndpointError": "模型名或接口地址不存在。",
+        "upstreamError": "服务商返回错误。",
+        "truncatedOutput": "模型输出被长度截断，请缩短内容后重试。",
+        "refused": "模型拒绝处理这段内容。",
+        "emptyOutput": "模型没有返回任何内容。",
+        "invalidOutput": "模型返回的内容无法解析，请重试。",
+        "renderFailed": "页面渲染失败。",
+        "pdfUnreadable": "无法读取这个 PDF 文件。",
+        "tooManyPages": "最多支持 10 页。",
+        "fileTooLarge": "文件超过 20MB。",
+        "encryptedPdf": "PDF 已加密，无法导入。",
+        "unknown": "发生未知错误。"
+      }
+    },
+    "grammar": {
+      "title": "校对结果",
+      "found": "发现 {{count}} 处问题",
+      "clean": "没有发现问题",
+      "apply": "应用",
+      "appliedCount": "已应用 {{count}} 处",
+      "ignore": "忽略",
+      "applyAll": "全部采纳",
+      "clearAll": "清空结果",
+      "applyFailed": "没能在原文里定位到这段文本",
+      "nothingToCheck": "预览是空的，先写点内容再检查。",
+      "types": {
+        "spelling": "错别字",
+        "punctuation": "标点符号",
+        "grammar": "语法"
+      }
     }
   }
 }

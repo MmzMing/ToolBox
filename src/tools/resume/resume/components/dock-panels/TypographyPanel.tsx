@@ -23,7 +23,8 @@ import { PanelShell } from './PanelShell'
 /** 排版浮层：字体、行高、正文 / 章节 / 小标题字号 */
 export function TypographyPanel() {
   const { t } = useTranslation('tools-resume')
-  const settings = useResumeStore((state) => state.activeResume?.globalSettings ?? {})
+  const stored = useResumeStore((state) => state.activeResume?.globalSettings)
+  const settings = stored ?? {}
   const updateGlobalSettings = useResumeStore((state) => state.updateGlobalSettings)
 
   return (
@@ -39,7 +40,7 @@ export function TypographyPanel() {
           <SelectTrigger className="border-input bg-background">
             <SelectValue />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent position="popper" align="start">
             {resumeFontOptions.map((font) => (
               <SelectItem key={font.id} value={font.family}>
                 {t(`resume.sidePanel.typography.font.family.${font.id}`)}

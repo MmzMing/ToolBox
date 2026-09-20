@@ -34,5 +34,5 @@
   "collapseSidebar": "Collapse sidebar",
   "openMenu": "Open navigation menu",
   "backHome": "Back to home",
-  "footerNote": "All tools run locally in your browser, no data leaves your device"
+  "footerNote": "All tools run locally in your browser and no data leaves your device; the optional AI features in Resume Studio send content straight to the provider you configure"
 }

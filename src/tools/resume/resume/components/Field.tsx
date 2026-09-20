@@ -1,5 +1,8 @@
 import { useTranslation } from 'react-i18next'
+import { Wand2 } from 'lucide-react'
+import { useState } from 'react'
 
+import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
@@ -8,6 +11,8 @@ import { cn } from '@/lib/utils'
 
 import { DateField } from './DateField'
 import { RichEditor } from './rich-editor/RichEditor'
+import { AIPolishDialog } from './ai/AIPolishDialog'
+import { useAIGate } from './ai/useAIGate'
 import { isPresentValue, joinDateRange, splitDateRange } from '../resume.service'
 
 export type FieldType = 'text' | 'textarea' | 'date' | 'date-range' | 'editor'
@@ -40,6 +45,24 @@ export function Field({
   const { t } = useTranslation('tools-resume')
   const present = t('resume.present')
   const isPresent = isPresentValue(value)
+  const { model: textModel } = useAIGate('text')
+  const [polishOpen, setPolishOpen] = useState(false)
+
+  /** 总开关关掉时连按钮都不渲染；开了但没配模型时点了是把配置弹窗拉起来 */
+  const polish = textModel ? (
+    <div className="mb-1.5 flex justify-end">
+      <Button
+        type="button"
+        variant="ghost"
+        size="sm"
+        onClick={() => setPolishOpen(true)}
+        className="gap-1.5"
+      >
+        <Wand2 className="size-4" />
+        {t('resume.ai.polish.entry')}
+      </Button>
+    </div>
+  ) : null
 
   const renderLabel = () => {
     if (!label) {
@@ -135,7 +158,17 @@ export function Field({
     return (
       <div className={className}>
         {renderLabel()}
+        {polish}
         <RichEditor content={value} placeholder={placeholder} onChange={onChange} />
+        {textModel && (
+          <AIPolishDialog
+            open={polishOpen}
+            onOpenChange={setPolishOpen}
+            content={value}
+            model={textModel}
+            onApply={onChange}
+          />
+        )}
       </div>
     )
   }

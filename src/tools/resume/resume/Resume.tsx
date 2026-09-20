@@ -1,4 +1,4 @@
-import { FolderSync, Plus, Upload } from 'lucide-react'
+import { FolderSync, Plus, Settings2, Upload } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
@@ -18,6 +18,9 @@ import {
 import { CreateResumeDialog } from './components/CreateResumeDialog'
 import { ResumeCard } from './components/ResumeCard'
 import { SyncSettingsDialog } from './components/BackupBadge'
+import { AIConfigDialog } from './components/ai/AIConfigDialog'
+import { useAIDialogStore } from './components/ai/useAIGate'
+import { PDFImportButton } from './components/ai/PDFImportButton'
 import { useResumeStore } from './store'
 import type { ResumeLocale } from './store'
 import { migrateLegacyResumes } from './legacy-import'
@@ -41,6 +44,7 @@ export default function Resume() {
   const [pendingDelete, setPendingDelete] = useState<ResumeData | null>(null)
   const [createOpen, setCreateOpen] = useState(false)
   const [syncOpen, setSyncOpen] = useState(false)
+  const setConfigOpen = useAIDialogStore((state) => state.setConfigOpen)
   const fileInput = useRef<HTMLInputElement>(null)
 
   // 旧项目把数据存在同一个 origin 的 'resume-storage' 下，进页面搬一次即可
@@ -89,6 +93,11 @@ export default function Resume() {
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
+          <Button variant="outline" size="sm" onClick={() => setConfigOpen(true)}>
+            <Settings2 className="size-4" />
+            {t('resume.ai.config.entry')}
+          </Button>
+          <PDFImportButton />
           <input
             ref={fileInput}
             type="file"
@@ -147,6 +156,8 @@ export default function Resume() {
       <CreateResumeDialog open={createOpen} onOpenChange={setCreateOpen} onCreate={createAndOpen} />
 
       <SyncSettingsDialog open={syncOpen} onOpenChange={setSyncOpen} />
+
+      <AIConfigDialog />
 
       <AlertDialog open={!!pendingDelete} onOpenChange={(open) => !open && setPendingDelete(null)}>
         <AlertDialogContent>

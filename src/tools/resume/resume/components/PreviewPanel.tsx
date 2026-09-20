@@ -135,7 +135,11 @@ export function PreviewPanel() {
   const fontFamily = resume.globalSettings.fontFamily || DEFAULT_FONT_FAMILY
 
   return (
-    <div className="bg-muted/40 relative h-full w-full overflow-auto" style={{ fontFamily }}>
+    <div
+      className="bg-muted/40 relative h-full w-full overflow-auto"
+      data-preview-scroll-container="true"
+      style={{ fontFamily }}
+    >
       <div className="from-background/40 flex min-h-full origin-top scale-[58%] justify-center bg-linear-to-br to-transparent p-4 md:origin-top-left md:scale-90">
         <div className="relative mx-auto min-h-[297mm] w-[210mm] min-w-[210mm] bg-white shadow-lg">
           <div

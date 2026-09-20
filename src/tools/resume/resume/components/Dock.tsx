@@ -83,9 +83,11 @@ export function DockIcon({ label, active, disabled, onClick, children }: DockIco
 type DockPopoverKeyProps = {
   label: string
   icon: ComponentType<{ className?: string }>
-  /** 受控：dock 用同一个 state 管所有键位，保证同一时刻只开一个浮层 */
+  /** 受控：同一时刻只开一个浮层，由持有 openKey 的父组件管 */
   open: boolean
   onOpenChange: (open: boolean) => void
+  /** dock 在右侧要往左开，顶栏要往下开 */
+  side?: 'left' | 'bottom'
   children: ReactNode
 }
 
@@ -101,6 +103,7 @@ export function DockPopoverKey({
   icon: Icon,
   open,
   onOpenChange,
+  side = 'left',
   children,
 }: DockPopoverKeyProps) {
   const [tooltipOpen, setTooltipOpen] = useState(false)
@@ -123,13 +126,13 @@ export function DockPopoverKey({
             </Button>
           </PopoverTrigger>
         </TooltipTrigger>
-        <TooltipContent side="left" sideOffset={10}>
+        <TooltipContent side={side === 'left' ? 'left' : 'bottom'} sideOffset={10}>
           {label}
         </TooltipContent>
       </Tooltip>
       <PopoverContent
-        side="left"
-        align="end"
+        side={side}
+        align={side === 'left' ? 'end' : 'start'}
         sideOffset={10}
         className="flex w-80 flex-col gap-3 p-4"
       >

@@ -51,7 +51,7 @@ export function NumberField({
           step={step}
           onValueChange={([next]) => onValueChange(next)}
         />
-        <div className="border-input bg-background flex h-8 w-20 shrink-0 overflow-hidden rounded-md border">
+        <div className="border-input bg-background flex h-8 w-24 shrink-0 overflow-hidden rounded-md border">
           <Input
             type="number"
             aria-label={String(label)}
@@ -60,7 +60,8 @@ export function NumberField({
             step={step}
             value={value}
             onChange={(event) => commit(Number(event.target.value))}
-            className="no-spinner h-full w-12 border-0 text-center focus-visible:ring-0 focus-visible:ring-offset-0"
+            // 原生步进按钮与右侧自绘的 ▲▼ 重复，且会挤掉数字：一律藏掉，只留自绘那组
+            className="no-spinner h-full min-w-0 flex-1 border-0 px-1 text-center tabular-nums focus-visible:ring-0 focus-visible:ring-offset-0"
           />
           <div className="border-input flex flex-col border-l">
             <button

@@ -1,7 +1,7 @@
 {
   "resume": {
     "title": "Resume Studio",
-    "description": "Visual resume editor with 9 templates, live A4 preview and local export — data never leaves your browser",
+    "description": "Visual resume editor with 9 templates, live A4 preview and local export; optional AI polish and proofreading talk directly to your own provider",
     "templates": {
       "hint": "Pick a template to start; you can switch at any time inside the editor",
       "list": {
@@ -426,7 +426,9 @@
       "expandEdit": "Expand editor",
       "collapsePreview": "Collapse preview",
       "expandPreview": "Expand preview",
-      "home": "Back to resumes"
+      "home": "Back to resumes",
+      "grammar": "AI proofreading",
+      "grammarResults": "Show {{count}} proofreading results"
     },
     "sync": {
       "title": "Local backup",
@@ -475,6 +477,135 @@
       "content": "Content",
       "style": "Style",
       "preview": "Preview"
+    },
+    "ai": {
+      "entry": "AI assist",
+      "entryHint": "When off, the polish and proofreading entries are hidden and Import PDF is greyed out. When on, content goes straight to the provider you configure here.",
+      "notConfigured": "No usable AI model yet. Add a key and pick a model under AI providers first.",
+      "direct": {
+        "reachable": "Usually direct from browser",
+        "blocked": "Usually needs a CORS-enabled address",
+        "unknown": "Direct access unverified"
+      },
+      "config": {
+        "entry": "AI providers",
+        "title": "AI provider settings",
+        "pickTitle": "Providers",
+        "pickHint": "Configure several providers; pick one to edit it here.",
+        "ready": "Configured",
+        "incomplete": "Needs setup",
+        "notice": "The key stays in this browser local storage and requests go straight from your browser to the address you set. This site neither proxies nor stores it.",
+        "connected": "{{count}}/{{total}} configured",
+        "getKey": "Get a key",
+        "keyPlaceholder": "Paste this provider API key",
+        "showKey": "Show key",
+        "hideKey": "Hide key",
+        "baseUrl": "Base URL",
+        "baseUrlHint": "You can point this at your own relay. A wrong address means the request never lands.",
+        "models": "Models",
+        "textModel": "Text model (polish and proofread)",
+        "pdfModel": "Vision model (PDF import)",
+        "modelPlaceholder": "Type a model name, e.g. deepseek-chat",
+        "textHint": "Each provider keeps its own text and vision pick, so configuring one never overwrites another. The provider that actually runs is the one chosen at the top. The vision slot feeds PDF import, so the model you name there has to read images on its own or the import fails.",
+        "fetchModels": "Fetch models",
+        "fetchOk": "Fetched {{count}} models",
+        "fetchEmpty": "That endpoint returned no models. Use \"Type a model name\" and fill it in.",
+        "unassigned": "Not selected",
+        "manual": "Type a model name...",
+        "fromList": "Pick from list",
+        "listEmpty": "Start with \"Fetch models\" at the top right. If that endpoint is unsupported, choose \"Type a model name\" and fill it in.",
+        "useProvider": "In use",
+        "active": "In use"
+      },
+      "test": {
+        "button": "Test connection",
+        "ok": "Connection works",
+        "mismatch": "The reply did not match what was expected",
+        "canvasUnavailable": "This browser cannot create a canvas, so the vision check is unavailable"
+      },
+      "polish": {
+        "entry": "AI polish",
+        "title": "AI polish",
+        "original": "Original",
+        "result": "Polished",
+        "instructions": "Extra instructions (optional)",
+        "instructionsPlaceholder": "e.g. more formal tone, highlight measurable results",
+        "start": "Start polishing",
+        "regenerate": "Regenerate",
+        "stop": "Stop generating",
+        "apply": "Apply",
+        "applied": "Polished text applied",
+        "empty": "This field is empty, so there is nothing to polish.",
+        "status": {
+          "ready": "The text in this field is sent to the model; you can replace it wholesale afterwards.",
+          "polishing": "Generating...",
+          "finished": "Done. Apply once you have checked it."
+        }
+      },
+      "pdf": {
+        "entry": "Import PDF",
+        "needVisionModel": "PDF import needs a vision-capable model. Configure one first.",
+        "previewTitle": "Import preview",
+        "previewHint": "This is what the model read. Confirming creates a new resume.",
+        "confirm": "Import as resume",
+        "counts": "Entries",
+        "countsValue": "education {{education}} / work {{experience}} / projects {{projects}}",
+        "field": {
+          "name": "Name",
+          "title": "Title",
+          "email": "Email"
+        },
+        "warnings": {
+          "missingName": "No name was found - add it manually."
+        }
+      },
+      "consent": {
+        "title": "Turn on AI assist?",
+        "body": "Once on, polishing, proofreading and PDF import send your resume content directly to the provider you configured, never through this site. Resume text is personal information; make sure you accept that.",
+        "accept": "I understand, turn it on"
+      },
+      "errors": {
+        "invalidProvider": "Unsupported provider; check the configuration.",
+        "configRequired": "Missing API key or model name.",
+        "invalidEndpoint": "The endpoint URL is not valid.",
+        "corsBlocked": "The request never left the browser: this endpoint likely blocks cross-origin calls, or is unreachable from here. Use a CORS-enabled relay address instead.",
+        "networkError": "The network request failed.",
+        "timeout": "The request timed out (120s).",
+        "aborted": "Cancelled.",
+        "authenticationFailed": "The API key is invalid or expired.",
+        "modelAccessDenied": "This key has no access to that model.",
+        "rateLimited": "Rate limited; try again shortly.",
+        "requestTooLarge": "The payload exceeds the request size limit.",
+        "modelOrEndpointError": "The model name or endpoint does not exist.",
+        "upstreamError": "The provider returned an error.",
+        "truncatedOutput": "The model output was cut off by the length limit; shorten the input and retry.",
+        "refused": "The model refused to process this content.",
+        "emptyOutput": "The model returned nothing.",
+        "invalidOutput": "The model response could not be parsed; try again.",
+        "renderFailed": "Failed to render the page.",
+        "pdfUnreadable": "This PDF could not be read.",
+        "tooManyPages": "At most 10 pages are supported.",
+        "fileTooLarge": "The file is over 20MB.",
+        "encryptedPdf": "The PDF is encrypted and cannot be imported.",
+        "unknown": "An unknown error occurred."
+      }
+    },
+    "grammar": {
+      "title": "Proofreading results",
+      "found": "{{count}} issues found",
+      "clean": "No issues found",
+      "apply": "Apply",
+      "appliedCount": "Applied {{count}} fixes",
+      "ignore": "Ignore",
+      "applyAll": "Apply all",
+      "clearAll": "Clear results",
+      "applyFailed": "That text could not be located in the original",
+      "nothingToCheck": "The preview is empty - add some content first.",
+      "types": {
+        "spelling": "Typo",
+        "punctuation": "Punctuation",
+        "grammar": "Grammar"
+      }
     }
   }
 }

@@ -134,6 +134,17 @@
   }
 }
 
+/* 数字框自带的小箭头由浏览器绘制，吃不进主题还会挤掉数字；需要时统一挂这个类关掉 */
+@utility no-spinner {
+  appearance: textfield;
+
+  &::-webkit-outer-spin-button,
+  &::-webkit-inner-spin-button {
+    appearance: none;
+    margin: 0;
+  }
+}
+
 /* highlight.js 极简双主题令牌（配合 TextareaCopyable，随 .dark 自动切换） */
 .hljs {
   color: var(--foreground);
@@ -334,4 +345,40 @@
   height: 0;
   pointer-events: none;
   color: var(--muted-foreground);
+}
+
+/* AI 语法检查高亮：改在 #resume-preview 的 DOM 上，导出前由 export/* 还原成纯文本 */
+.grammar-error {
+  background: transparent;
+  color: inherit;
+  text-decoration-line: underline;
+  text-decoration-style: wavy;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+}
+.grammar-error-spelling {
+  text-decoration-color: var(--destructive);
+}
+.grammar-error-punctuation,
+.grammar-error-grammar {
+  text-decoration-color: oklch(0.72 0.16 70);
+}
+.grammar-error:hover {
+  background-color: color-mix(in oklch, var(--destructive) 14%, transparent);
+}
+.grammar-error-active {
+  animation: grammar-flash 2s ease-out;
+}
+@keyframes grammar-flash {
+  0%,
+  100% {
+    background-color: transparent;
+  }
+  30% {
+    background-color: color-mix(in oklch, var(--primary) 28%, transparent);
+  }
+}
+.grammar-error-text {
+  text-decoration-line: line-through;
+  text-decoration-color: var(--destructive);
 }

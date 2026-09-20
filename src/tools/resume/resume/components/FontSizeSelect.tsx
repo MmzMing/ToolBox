@@ -20,7 +20,7 @@ export function FontSizeSelect({
       <SelectTrigger className="border-input bg-background">
         <SelectValue />
       </SelectTrigger>
-      <SelectContent>
+      <SelectContent position="popper" align="start">
         {fontSizeOptions.map((size) => (
           <SelectItem key={size} value={String(size)}>
             {size}px

@@ -1,10 +1,10 @@
 {
   "title": "About ToolBox",
-  "intro": "ToolBox is a free, open-source toolbox with {{count}} everyday tools: crypto, format converters, encoders, web utilities, text and image tools. Everything runs locally in your browser — no data is collected or uploaded.",
+  "intro": "ToolBox is a free, open-source toolbox with {{count}} everyday tools: crypto, format converters, encoders, web utilities, text and image tools. Everything runs locally in your browser — no data is collected or uploaded. The AI features in Resume Studio are opt-in and talk directly to the provider you configure.",
   "whyTitle": "Why this exists",
   "whyBody": "AI can certainly do these jobs — hash a string, convert a format, decode a JWT. But that means maintaining a skill or a workflow, re-describing the task every time, waiting for it to think, and correcting the occasional improvisation. The inputs and outputs were already deterministic, so there is no reason to rebuild the wheel on every run while burning tokens. So these became fixed pages: open it, get the same result, no quota spent, no improvisation.",
   "privacyTitle": "Privacy first",
-  "privacyBody": "All computations happen in your browser. Nothing you type is ever uploaded to a server.",
+  "privacyBody": "All computations happen in your browser. Nothing you type is ever uploaded to a server. The one exception is the opt-in AI in Resume Studio: once enabled, requests go directly from your browser to the provider you configure, never through this site.",
   "fastTitle": "Fast and lightweight",
   "fastBody": "Static site, lazily loaded modules, no backend, no tracking, no ads.",
   "openSourceTitle": "Open source",

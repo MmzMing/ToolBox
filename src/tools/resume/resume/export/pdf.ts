@@ -42,6 +42,10 @@ function hidePageBreakLines(root: HTMLElement): void {
 
 /** 预览用的 transform/min-height 会把纸张钉在视口尺度，离屏克隆要按内容自然撑开 */
 function removePreviewConstraints(root: HTMLElement): void {
+  // 校对高亮是直接改在预览 DOM 上的，导出时还原成纯文本
+  for (const mark of Array.from(root.querySelectorAll<HTMLElement>('mark[data-grammar-mark]'))) {
+    mark.replaceWith(...Array.from(mark.childNodes))
+  }
   root.style.removeProperty('transform')
   root.style.removeProperty('width')
 

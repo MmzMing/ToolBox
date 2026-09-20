@@ -8,7 +8,8 @@ import { PanelShell } from './PanelShell'
 /** 间距浮层：页边距、章节间距、段间距 */
 export function SpacingPanel() {
   const { t } = useTranslation('tools-resume')
-  const settings = useResumeStore((state) => state.activeResume?.globalSettings ?? {})
+  const stored = useResumeStore((state) => state.activeResume?.globalSettings)
+  const settings = stored ?? {}
   const updateGlobalSettings = useResumeStore((state) => state.updateGlobalSettings)
 
   return (
