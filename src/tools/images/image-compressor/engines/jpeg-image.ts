@@ -30,7 +30,7 @@ let encoderReady: Promise<ReturnType<MozJpegModule['createMozjpegEncoder']>> | n
 
 function getEncoder() {
   if (!encoderReady) {
-    encoderReady = importCodec<MozJpegModule>('/codecs/mozjpeg/index.browser.mjs').then((module) =>
+    encoderReady = importCodec<MozJpegModule>('/codecs/mozjpeg/index.browser.js').then((module) =>
       module.createMozjpegEncoder('client'),
     )
   }

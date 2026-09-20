@@ -79,7 +79,7 @@ const servePublicCodecs = {
       }
       const ext = path.extname(filePath)
       const mime =
-        ext === '.mjs' || ext === '.js'
+        ext === '.js'
           ? 'text/javascript; charset=utf-8'
           : ext === '.wasm'
             ? 'application/wasm'

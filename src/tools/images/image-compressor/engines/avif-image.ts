@@ -17,7 +17,7 @@ async function importCodec<T>(path: string): Promise<T> {
   return (await import(/* @vite-ignore */ path)) as T
 }
 
-const encoderReady = importCodec<AvifModule>('/codecs/avif/index.browser.mjs').then((module) =>
+const encoderReady = importCodec<AvifModule>('/codecs/avif/index.browser.js').then((module) =>
   module.createAvifEncoder('client'),
 )
 

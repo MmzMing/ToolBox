@@ -17,7 +17,7 @@ let _gifsicle: GifsicleModule['gifsicle'] | null = null
 
 async function getGifsicle() {
   if (!_gifsicle) {
-    const path = '/codecs/gif/index.browser.mjs'
+    const path = '/codecs/gif/index.browser.js'
     const mod = (await import(/* @vite-ignore */ path)) as GifsicleModule
     _gifsicle = mod.gifsicle
   }

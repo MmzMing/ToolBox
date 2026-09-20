@@ -24,8 +24,8 @@ async function importCodec<T>(path: string): Promise<T> {
 }
 
 const codecsReady = Promise.all([
-  importCodec<ImageQuantModule>('/codecs/imagequant/index.browser.mjs'),
-  importCodec<OxiPngModule>('/codecs/oxipng/index.browser.mjs'),
+  importCodec<ImageQuantModule>('/codecs/imagequant/index.browser.js'),
+  importCodec<OxiPngModule>('/codecs/oxipng/index.browser.js'),
 ]).then(([imageQuant, oxiPng]) => ({
   quantize: imageQuant.createImagequantQuantizer('client'),
   optimize: oxiPng.createOxipngOptimizer('client'),
