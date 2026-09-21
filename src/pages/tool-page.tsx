@@ -1,6 +1,6 @@
 import { Suspense, useEffect, useRef } from 'react'
 
-import { Skeleton } from '@/components/ui/skeleton'
+import { RingLoader } from '@/components/ring-loader'
 import { ToolLayout } from '@/layouts/tool-layout'
 import { useToolsStore } from '@/stores/tools.store'
 import type { Tool } from '@/tools/define-tool'
@@ -21,18 +21,17 @@ export default function ToolPage({ tool }: { tool: Tool }) {
 
   return (
     <ToolLayout tool={tool}>
-      <Suspense fallback={<ToolSkeleton />}>
+      <Suspense fallback={<ToolLoading />}>
         <ToolComponent />
       </Suspense>
     </ToolLayout>
   )
 }
 
-function ToolSkeleton() {
+function ToolLoading() {
   return (
-    <div className="flex flex-col gap-4">
-      <Skeleton className="h-40 w-full" />
-      <Skeleton className="h-40 w-full" />
+    <div className="flex min-h-64 items-center justify-center">
+      <RingLoader />
     </div>
   )
 }

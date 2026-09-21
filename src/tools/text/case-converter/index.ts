@@ -7,11 +7,13 @@ export const tool = defineTool({
   path: '/case-converter',
   keywords: [
     'case',
+    'naming',
     'camelcase',
     'pascalcase',
     'snake-case',
     'kebab-case',
     '命名',
+    '命名转换',
     '大小写',
     '驼峰',
   ],

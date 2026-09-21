@@ -18,7 +18,7 @@ const CASE_KEYS = [
 ] as const
 
 export default function CaseConverter() {
-  const { t } = useTranslation('tools-development')
+  const { t } = useTranslation('tools-text')
 
   const [input, setInput] = useState('')
 

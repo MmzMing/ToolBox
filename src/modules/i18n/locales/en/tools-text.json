@@ -20,6 +20,19 @@
     "stat-readingMinutes": "Reading time",
     "readingMinutesValue": "{{minutes}} min"
   },
+  "case-converter": {
+    "title": "Naming Converter",
+    "description": "Convert between camelCase, snake_case, kebab-case and more",
+    "inputLabel": "Input",
+    "camel": "camelCase",
+    "pascal": "PascalCase",
+    "snake": "snake_case",
+    "constant": "CONSTANT_CASE",
+    "kebab": "kebab-case",
+    "train": "Train-Case",
+    "titleCase": "Title Case",
+    "sentenceCase": "Sentence case"
+  },
   "emoji-picker": {
     "title": "Emoji Picker",
     "description": "Browse and copy emojis by group",
@@ -35,33 +48,20 @@
     "group-symbols": "Symbols",
     "group-flags": "Flags"
   },
-  "string-obfuscator": {
-    "title": "String Obfuscator",
-    "description": "Obfuscate strings with zero-width chars and entities",
-    "optionsLabel": "Obfuscation options",
-    "opt-zeroWidth": "Zero-width characters (U+200B)",
-    "opt-htmlEntities": "HTML entities",
-    "opt-base64": "Base64 encode",
-    "opt-reverse": "Reverse order"
-  },
   "text-diff": {
     "title": "Text Diff",
-    "description": "Compare two texts line by line",
+    "description": "Edit and compare two texts side by side",
     "originalLabel": "Original",
     "modifiedLabel": "Modified",
     "type-added": "Added",
     "type-removed": "Removed",
-    "type-unchanged": "Unchanged",
-    "statsSummary": "+{{added}} −{{removed}} lines",
+    "statsSummary": "{{added}} added, {{removed}} removed",
+    "changesCount_one": "{{count}} difference",
+    "changesCount_other": "{{count}} differences",
+    "prevChange": "Previous difference",
+    "nextChange": "Next difference",
+    "resultLabel": "Result",
     "noDiff": "The two texts are identical"
-  },
-  "numeronym-generator": {
-    "title": "Numeronym Generator",
-    "description": "Generate i18n-style numeronyms",
-    "inputLabel": "Word list",
-    "inputPlaceholder": "Space or newline separated, e.g. internationalization accessibility",
-    "wordColumn": "Word",
-    "numeronymColumn": "Numeronym"
   },
   "ascii-text-drawer": {
     "title": "ASCII Text Drawer",

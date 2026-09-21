@@ -1,5 +1,6 @@
 import { lazy, Suspense } from 'react'
 
+import { RingLoader } from '@/components/ring-loader'
 import { TooltipProvider } from '@/components/ui/tooltip'
 
 // lazy 必须在模块作用域创建：放进渲染期会让每次重渲染换掉组件类型，导致整树重挂载
@@ -18,8 +19,8 @@ export function ResumeEditorRoute() {
     <TooltipProvider delayDuration={200}>
       <Suspense
         fallback={
-          <div className="text-muted-foreground flex h-svh items-center justify-center text-sm">
-            …
+          <div className="flex h-svh items-center justify-center">
+            <RingLoader />
           </div>
         }
       >

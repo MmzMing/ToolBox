@@ -9,6 +9,7 @@
   "input": "输入",
   "output": "输出",
   "error": "处理出错",
+  "loading": "加载中…",
   "generate": "生成",
   "generateCount": "生成数量",
   "clear": "清空",

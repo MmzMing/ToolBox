@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { toCaseAll } from '@/tools/development/case-converter/service'
+import { toCaseAll } from '@/tools/text/case-converter/service'
 
 describe('toCaseAll', () => {
   it('converts space-separated words', () => {

@@ -1,7 +1,8 @@
 /**
  * IP 查询服务：本机公网 IP + 任意 IP 归属地查询。
  * 这两个能力依赖免费公共服务（需联网），是全站唯一的联网工具，
- * 其余工具仍 100% 本地运行。查询服务：ipwho.is（HTTPS、免费、无需密钥）、ipify。
+ * 其余工具仍 100% 本地运行。查询服务：ipwho.is（HTTPS、免费、无需密钥），
+ * 本机出口 IP 走多源回退（见 publicIpSources）。
  */
 
 export interface IpInfo {
@@ -68,17 +69,58 @@ export function formatUtcOffset(seconds: number | undefined): string {
   return `${sign}${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`
 }
 
-/** 获取本机公网 IP（ipify，HTTPS 免费） */
+/** 获取本机公网 IP：按顺序尝试的公共回显源 */
+export type PublicIpSource = {
+  readonly url: string
+  /** 响应体 → IP，解析不出来返回 null */
+  readonly parse: (body: string) => string | null
+}
+
+function parseJsonIp(body: string): string | null {
+  try {
+    const data = JSON.parse(body) as { ip?: unknown }
+    return typeof data.ip === 'string' && isPlausibleIp(data.ip) ? data.ip.trim() : null
+  } catch {
+    return null
+  }
+}
+
+function parsePlainIp(body: string): string | null {
+  const ip = body.trim()
+  return isPlausibleIp(ip) ? ip : null
+}
+
+/**
+ * api.ipify.org 在部分网络（实测广东广电）会被按 SNI 重置 TLS 而不是超时，
+ * 单一源就查不到本机 IP，故按顺序回退；四个源均带 CORS，前两个回 JSON。
+ */
+export const publicIpSources: readonly PublicIpSource[] = [
+  { url: 'https://api64.ipify.org?format=json', parse: parseJsonIp },
+  { url: 'https://api.ipify.org?format=json', parse: parseJsonIp },
+  { url: 'https://ipv4.icanhazip.com', parse: parsePlainIp },
+  { url: 'https://ipinfo.io/ip', parse: parsePlainIp },
+]
+
+/** 依次尝试各回显源，返回第一个可用 IP；全部失败时抛错并列出各源状态 */
 export async function fetchPublicIp(): Promise<string> {
-  const response = await fetch('https://api.ipify.org?format=json')
-  if (!response.ok) {
-    throw new Error(`ipify responded ${response.status}`)
+  const failures: string[] = []
+  for (const source of publicIpSources) {
+    try {
+      const response = await fetch(source.url, { cache: 'no-store' })
+      if (!response.ok) {
+        failures.push(`${source.url} ${response.status}`)
+        continue
+      }
+      const ip = source.parse(await response.text())
+      if (ip !== null) {
+        return ip
+      }
+      failures.push(`${source.url} 无法解析响应体`)
+    } catch {
+      failures.push(`${source.url} 请求失败`)
+    }
   }
-  const data = (await response.json()) as { ip?: string }
-  if (!data.ip) {
-    throw new Error('ipify response missing ip')
-  }
-  return data.ip
+  throw new Error(`Public IP lookup failed: ${failures.join('; ')}`)
 }
 
 /** 查询任意 IP 的归属地信息（ipwho.is） */

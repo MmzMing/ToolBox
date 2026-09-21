@@ -20,7 +20,7 @@ const toMessage = (err: unknown) => (err instanceof Error ? err.message : String
 
 /**
  * IP 查询：输入任意 IP 查归属地，或用「获取本机公网 IP」按钮回填并查询。
- * 需联网，数据来自 ipify / ipwho.is 免费服务。
+ * 需联网，数据来自 ipwho.is 与多个 IP 回显服务（逐个回退）。
  */
 export default function IpLookup() {
   const { t } = useTranslation('tools-web', { keyPrefix: 'ip-lookup' })

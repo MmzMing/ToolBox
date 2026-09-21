@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import {
   fetchPublicIp,
@@ -8,6 +8,7 @@ import {
   locationSummary,
   lookupIp,
   mapMarkerUrl,
+  publicIpSources,
   type IpInfo,
 } from '@/tools/web/ip-lookup/ip-lookup.service'
 
@@ -60,19 +61,54 @@ describe('formatUtcOffset', () => {
 })
 
 describe('fetchPublicIp', () => {
-  it('returns the ip from ipify', async () => {
+  /** 按 publicIpSources 的次序安排每个源的行为：null=连接被重置，number=非 200，字符串=响应体 */
+  const stubSources = (behaviour: (string | number | null)[]) => {
+    const calledUrls: string[] = []
     vi.stubGlobal(
       'fetch',
-      vi.fn().mockResolvedValue({ ok: true, json: async () => ({ ip: '1.2.3.4' }) }),
+      vi.fn((url: string) => {
+        calledUrls.push(url)
+        const index = publicIpSources.findIndex((source) => source.url === url)
+        const result = behaviour[index]
+        if (result === null || result === undefined) {
+          return Promise.reject(new TypeError('Failed to fetch'))
+        }
+        if (typeof result === 'number') {
+          return Promise.resolve({ ok: false, status: result, text: async () => '' })
+        }
+        return Promise.resolve({ ok: true, text: async () => result })
+      }),
     )
-    expect(await fetchPublicIp()).toBe('1.2.3.4')
-    vi.unstubAllGlobals()
+    return calledUrls
+  }
+
+  afterEach(() => vi.unstubAllGlobals())
+
+  it('skips a source whose connection is reset and takes the next one', async () => {
+    const calledUrls = stubSources([null, '{"ip":"1.2.3.4"}'])
+    await expect(fetchPublicIp()).resolves.toBe('1.2.3.4')
+    expect(calledUrls).toEqual([publicIpSources[0].url, publicIpSources[1].url])
   })
 
-  it('throws when service responds non-ok', async () => {
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: false, status: 503 }))
-    await expect(fetchPublicIp()).rejects.toThrowError(/503/)
-    vi.unstubAllGlobals()
+  it('reads plain text payloads once the json sources are gone', async () => {
+    stubSources([null, null, '5.6.7.8 \n'])
+    await expect(fetchPublicIp()).resolves.toBe('5.6.7.8')
+  })
+
+  it('tries every source and reports their status when none answers', async () => {
+    const calledUrls = stubSources([503, 503, 403, 'not an ip'])
+    const message = await fetchPublicIp().then(
+      () => '',
+      (error: unknown) => String(error),
+    )
+    expect(message).toMatch(/503/)
+    expect(message).toMatch(/403/)
+    expect(calledUrls).toEqual(publicIpSources.map((source) => source.url))
+  })
+
+  it('rejects a payload whose ip field is not an address', async () => {
+    stubSources(['{"ip":"n/a"}'])
+    await expect(fetchPublicIp()).rejects.toThrowError(Error)
   })
 })
 

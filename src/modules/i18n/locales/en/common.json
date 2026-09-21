@@ -9,6 +9,7 @@
   "input": "Input",
   "output": "Output",
   "error": "Something went wrong",
+  "loading": "Loading…",
   "generate": "Generate",
   "generateCount": "Count",
   "clear": "Clear",

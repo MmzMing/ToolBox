@@ -175,19 +175,6 @@
     "inputPlaceholder": "粘贴内容，例如 name: ToolBox",
     "outputPlaceholder": "转换结果会显示在这里"
   },
-  "case-converter": {
-    "title": "命名风格转换",
-    "description": "camelCase、snake_case、kebab-case 等互转",
-    "inputLabel": "输入",
-    "camel": "camelCase",
-    "pascal": "PascalCase",
-    "snake": "snake_case",
-    "constant": "CONSTANT_CASE",
-    "kebab": "kebab-case",
-    "train": "Train-Case",
-    "titleCase": "Title Case",
-    "sentenceCase": "Sentence case"
-  },
   "color-converter": {
     "title": "颜色格式转换",
     "description": "HEX、RGB、HSL、HWB、LCH、CMYK 与颜色名互转，带取色器",

@@ -1,3 +1,4 @@
+import jsQR from 'jsqr'
 import QRCode from 'qrcode'
 
 export const qrErrorCorrectionLevels = ['L', 'M', 'Q', 'H'] as const
@@ -46,4 +47,22 @@ export async function generateQrSvg(text: string, options: QrCodeStyleOptions): 
     throw new Error('Text is required to generate a QR code')
   }
   return QRCode.toString(text, { ...toQrCodeOptions(options), type: 'svg' })
+}
+
+/** 识别用到的最长边上限：再大的图先等比缩小，避免 canvas 与逐像素扫描吃满内存 */
+export const QR_DECODE_MAX_SIDE = 2000
+
+/**
+ * 从 RGBA 像素里识别二维码，读不出内容时返回 null。
+ * jsQR 自带反色重试（attemptBoth），深色底二维码同样能读。
+ */
+export function decodeQrFromPixels(
+  pixels: Uint8ClampedArray,
+  width: number,
+  height: number,
+): string | null {
+  if (pixels.length !== width * height * 4) {
+    throw new Error(`Expected ${width * height * 4} bytes of RGBA data, got ${pixels.length}`)
+  }
+  return jsQR(pixels, width, height)?.data ?? null
 }

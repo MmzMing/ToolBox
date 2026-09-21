@@ -5,10 +5,13 @@ import { useTranslation } from 'react-i18next'
 import { InputCopyable } from '@/components/copyable/input-copyable'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
+import { ParamField } from '@/components/param-field'
+import { Separator } from '@/components/ui/separator'
 import { Switch } from '@/components/ui/switch'
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import {
   buildWifiString,
   generateWifiQrDataUrl,
@@ -16,8 +19,11 @@ import {
   type WifiEncryption,
 } from './wifi-qr-code-generator.service'
 
+const WIFI_STRING_PLACEHOLDER = 'WIFI:T:WPA;S:My-WiFi;P:pass;;'
+
+/** WiFi 二维码：左侧预览与配置字符串，右侧参数卡片 */
 export default function WifiQrCodeGenerator() {
-  const { t } = useTranslation('tools-images')
+  const { t } = useTranslation('tools-images', { keyPrefix: 'wifi-qr-code-generator' })
 
   const [ssid, setSsid] = useState('')
   const [password, setPassword] = useState('')
@@ -29,24 +35,24 @@ export default function WifiQrCodeGenerator() {
 
   const wifiString = useMemo(() => {
     if (ssid === '') {
-      return { value: '', error: false }
+      return ''
     }
     try {
-      return { value: buildWifiString({ ssid, password, encryption, hidden }), error: false }
+      return buildWifiString({ ssid, password, encryption, hidden })
     } catch {
-      return { value: '', error: true }
+      return ''
     }
   }, [ssid, password, encryption, hidden])
 
   useEffect(() => {
     let cancelled = false
     const timer = window.setTimeout(() => {
-      if (wifiString.value === '') {
+      if (wifiString === '') {
         setDataUrl('')
         setHasRenderError(false)
         return
       }
-      void generateWifiQrDataUrl(wifiString.value)
+      void generateWifiQrDataUrl(wifiString)
         .then((url) => {
           if (!cancelled) {
             setDataUrl(url)
@@ -63,108 +69,105 @@ export default function WifiQrCodeGenerator() {
       cancelled = true
       window.clearTimeout(timer)
     }
-  }, [wifiString.value])
-
-  const activeDataUrl = wifiString.value === '' ? '' : dataUrl
+  }, [wifiString])
 
   const handleDownload = () => {
-    if (activeDataUrl === '') {
+    if (dataUrl === '') {
       return
     }
     const anchor = document.createElement('a')
-    anchor.href = activeDataUrl
+    anchor.href = dataUrl
     anchor.download = 'wifi-qr-code.png'
     anchor.click()
   }
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="grid gap-4 sm:grid-cols-2">
-        <div className="flex flex-col gap-2">
-          <Label htmlFor="wifi-ssid">{t('wifi-qr-code-generator.ssidLabel')}</Label>
-          <Input
-            id="wifi-ssid"
-            value={ssid}
-            onChange={(event) => setSsid(event.target.value)}
-            placeholder="My-WiFi"
-          />
+    <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_20rem]">
+      <div className="flex flex-col gap-3">
+        <div className="flex min-h-64 items-center justify-center rounded-xl border border-dashed p-4 md:min-h-80">
+          {dataUrl === '' ? (
+            <p className="text-muted-foreground text-sm">{t('emptyPreview')}</p>
+          ) : (
+            <img src={dataUrl} alt="WiFi QR code preview" className="max-h-64 w-auto max-w-full" />
+          )}
         </div>
         <div className="flex flex-col gap-2">
-          <Label htmlFor="wifi-password">{t('wifi-qr-code-generator.passwordLabel')}</Label>
-          <Input
-            id="wifi-password"
-            type="password"
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
-            placeholder="••••••••"
-            disabled={encryption === 'nopass'}
-          />
+          <Label className="text-muted-foreground text-xs">{t('stringLabel')}</Label>
+          <InputCopyable value={wifiString} readOnly placeholder={WIFI_STRING_PLACEHOLDER} />
         </div>
-      </div>
-
-      <div className="flex flex-col gap-2">
-        <Label>{t('wifi-qr-code-generator.encryptionLabel')}</Label>
-        <RadioGroup
-          value={encryption}
-          onValueChange={(value) => setEncryption(value as WifiEncryption)}
-          className="flex flex-wrap gap-x-6 gap-y-2"
-        >
-          {wifiEncryptionTypes.map((type) => (
-            <Label key={type} className="flex items-center gap-2 font-normal">
-              <RadioGroupItem value={type} />
-              {t(`wifi-qr-code-generator.encryption-${type}`)}
-            </Label>
-          ))}
-        </RadioGroup>
-      </div>
-
-      <Label className="flex w-fit items-center gap-2 font-normal">
-        <Switch checked={hidden} onCheckedChange={setHidden} />
-        {t('wifi-qr-code-generator.hiddenLabel')}
-      </Label>
-
-      <div className="flex flex-col gap-2">
-        <Label>{t('wifi-qr-code-generator.stringLabel')}</Label>
-        <InputCopyable
-          value={wifiString.value}
-          readOnly
-          placeholder="WIFI:T:WPA;S:My-WiFi;P:pass;;"
-        />
-        {wifiString.error && (
+        {hasRenderError && (
           <Alert variant="destructive">
-            <AlertDescription>{t('wifi-qr-code-generator.emptySsid')}</AlertDescription>
+            <AlertDescription>{t('renderError')}</AlertDescription>
           </Alert>
         )}
       </div>
 
-      {hasRenderError && (
-        <Alert variant="destructive">
-          <AlertDescription>{t('wifi-qr-code-generator.renderError')}</AlertDescription>
-        </Alert>
-      )}
-
-      <div className="flex flex-col gap-2">
-        <Label>{t('wifi-qr-code-generator.previewLabel')}</Label>
-        {activeDataUrl === '' ? (
-          <div className="text-muted-foreground flex min-h-40 items-center justify-center rounded-lg border border-dashed text-sm">
-            {t('wifi-qr-code-generator.emptyPreview')}
-          </div>
-        ) : (
-          <div className="flex flex-col items-start gap-3">
-            <img
-              src={dataUrl}
-              alt="WiFi QR code preview"
-              width={256}
-              height={256}
-              className="max-w-full rounded-lg border"
+      <Card className="gap-4">
+        <CardHeader className="border-b pb-0">
+          <CardTitle className="text-sm">{t('paramsTitle')}</CardTitle>
+        </CardHeader>
+        <CardContent className="flex flex-col gap-4">
+          <ParamField label={t('ssidLabel')} htmlFor="wifi-ssid">
+            <Input
+              id="wifi-ssid"
+              value={ssid}
+              onChange={(event) => setSsid(event.target.value)}
+              placeholder="My-WiFi"
             />
-            <Button onClick={handleDownload}>
-              <Download data-icon="inline-start" />
-              {t('wifi-qr-code-generator.download')}
-            </Button>
+          </ParamField>
+
+          <ParamField
+            label={t('passwordLabel')}
+            htmlFor="wifi-password"
+            hint={encryption === 'nopass' ? t('passwordSkipped') : undefined}
+          >
+            <Input
+              id="wifi-password"
+              type="password"
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+              placeholder="••••••••"
+              disabled={encryption === 'nopass'}
+            />
+          </ParamField>
+
+          <Separator />
+
+          <ParamField label={t('encryptionLabel')} hint={t(`encryption-${encryption}`)}>
+            <ToggleGroup
+              type="single"
+              variant="outline"
+              spacing={0}
+              value={encryption}
+              onValueChange={(value) => {
+                if (value) {
+                  setEncryption(value as WifiEncryption)
+                }
+              }}
+              className="w-full"
+            >
+              {wifiEncryptionTypes.map((type) => (
+                <ToggleGroupItem key={type} value={type} className="flex-1">
+                  {t(`enc-${type}`)}
+                </ToggleGroupItem>
+              ))}
+            </ToggleGroup>
+          </ParamField>
+
+          <div className="flex items-center justify-between gap-2">
+            <Label htmlFor="wifi-hidden" className="text-muted-foreground text-xs">
+              {t('hiddenLabel')}
+            </Label>
+            <Switch id="wifi-hidden" checked={hidden} onCheckedChange={setHidden} />
           </div>
-        )}
-      </div>
+        </CardContent>
+        <CardFooter className="border-t pt-4">
+          <Button className="w-full" disabled={dataUrl === ''} onClick={handleDownload}>
+            <Download data-icon="inline-start" />
+            {t('download')}
+          </Button>
+        </CardFooter>
+      </Card>
     </div>
   )
 }

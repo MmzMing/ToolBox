@@ -175,19 +175,6 @@
     "inputPlaceholder": "Paste content, e.g. name: ToolBox",
     "outputPlaceholder": "Converted output appears here"
   },
-  "case-converter": {
-    "title": "Case Converter",
-    "description": "Convert between camelCase, snake_case, kebab-case and more",
-    "inputLabel": "Input",
-    "camel": "camelCase",
-    "pascal": "PascalCase",
-    "snake": "snake_case",
-    "constant": "CONSTANT_CASE",
-    "kebab": "kebab-case",
-    "train": "Train-Case",
-    "titleCase": "Title Case",
-    "sentenceCase": "Sentence case"
-  },
   "color-converter": {
     "title": "Color Converter",
     "description": "Convert between HEX, RGB, HSL, HWB, LCH, CMYK and color names, with a picker",

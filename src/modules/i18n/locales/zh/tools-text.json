@@ -20,6 +20,19 @@
     "stat-readingMinutes": "阅读时长",
     "readingMinutesValue": "{{minutes}} 分钟"
   },
+  "case-converter": {
+    "title": "命名转换",
+    "description": "camelCase、snake_case、kebab-case 等互转",
+    "inputLabel": "输入",
+    "camel": "camelCase",
+    "pascal": "PascalCase",
+    "snake": "snake_case",
+    "constant": "CONSTANT_CASE",
+    "kebab": "kebab-case",
+    "train": "Train-Case",
+    "titleCase": "Title Case",
+    "sentenceCase": "Sentence case"
+  },
   "emoji-picker": {
     "title": "Emoji 选择器",
     "description": "按分组浏览并复制 Emoji",
@@ -35,33 +48,20 @@
     "group-symbols": "符号",
     "group-flags": "旗帜"
   },
-  "string-obfuscator": {
-    "title": "字符串混淆",
-    "description": "零宽字符、实体与编码混淆",
-    "optionsLabel": "混淆方式",
-    "opt-zeroWidth": "零宽字符（U+200B）",
-    "opt-htmlEntities": "HTML 实体",
-    "opt-base64": "Base64 编码",
-    "opt-reverse": "颠倒顺序"
-  },
   "text-diff": {
     "title": "文本对比",
-    "description": "对比两段文本的行级差异",
+    "description": "左右分栏编辑并对比文本差异",
     "originalLabel": "原文",
     "modifiedLabel": "新文",
     "type-added": "新增",
     "type-removed": "删除",
-    "type-unchanged": "相同",
     "statsSummary": "新增 {{added}} 行，删除 {{removed}} 行",
+    "changesCount_one": "{{count}} 处差异",
+    "changesCount_other": "{{count}} 处差异",
+    "prevChange": "上一处差异",
+    "nextChange": "下一处差异",
+    "resultLabel": "对比结果",
     "noDiff": "两段文本没有差异"
-  },
-  "numeronym-generator": {
-    "title": "首字母缩写",
-    "description": "生成 i18n 风格的 numeronym",
-    "inputLabel": "单词列表",
-    "inputPlaceholder": "用空格或换行分隔，如 internationalization accessibility",
-    "wordColumn": "原词",
-    "numeronymColumn": "Numeronym"
   },
   "ascii-text-drawer": {
     "title": "ASCII 艺术字",
