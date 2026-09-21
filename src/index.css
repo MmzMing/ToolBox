@@ -42,6 +42,8 @@
   --color-card: var(--card);
   --color-foreground: var(--foreground);
   --color-background: var(--background);
+  --color-fortune-good: var(--fortune-good);
+  --color-fortune-normal: var(--fortune-normal);
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -568,4 +570,173 @@
 .grammar-error-text {
   text-decoration-line: line-through;
   text-decoration-color: var(--destructive);
+}
+
+/* ---------------------------------------------------------------------------
+   今日运势抽签（tools/life/fortune-draw）
+   档位色为语义令牌（吉=中国红、平=金色），凶复用 muted-foreground；
+   动效只负责几何与透明度，颜色一律引用令牌，亮暗主题自动生效。
+--------------------------------------------------------------------------- */
+:root {
+  --fortune-good: oklch(0.58 0.22 27);
+  --fortune-normal: oklch(0.6 0.14 70);
+}
+.dark {
+  --fortune-good: oklch(0.7 0.19 24);
+  --fortune-normal: oklch(0.8 0.13 85);
+}
+
+/* 签筒：静置时轻摆，抽签时先快摇、再猛抖、最后缓出，像真在晃签筒 */
+.fortune-tube {
+  transform-origin: 50% 92%;
+}
+.fortune-tube--idle {
+  animation: fortune-sway 3.2s ease-in-out infinite;
+}
+.fortune-tube--shaking {
+  animation: fortune-shake 1.2s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+@keyframes fortune-sway {
+  0%,
+  100% {
+    transform: rotate(-2deg);
+  }
+  50% {
+    transform: rotate(2deg);
+  }
+}
+@keyframes fortune-shake {
+  0% {
+    transform: rotate(0deg) translateY(0);
+  }
+  10% {
+    transform: rotate(-5deg) translateY(-2px);
+  }
+  20% {
+    transform: rotate(5deg) translateY(0);
+  }
+  30% {
+    transform: rotate(-8deg) translateY(-4px);
+  }
+  40% {
+    transform: rotate(9deg) translateY(-1px);
+  }
+  50% {
+    transform: rotate(-10deg) translateY(-6px);
+  }
+  60% {
+    transform: rotate(10deg) translateY(-2px);
+  }
+  70% {
+    transform: rotate(-7deg) translateY(-4px);
+  }
+  80% {
+    transform: rotate(5deg) translateY(-1px);
+  }
+  90% {
+    transform: rotate(-3deg) translateY(0);
+  }
+  100% {
+    transform: rotate(0deg) translateY(0);
+  }
+}
+
+/* 签条：rotate 由组件内联样式给出（每根角度不同），动画只动 translate/opacity
+   以免覆盖。--rattle 控制各签抖动幅度，错峰延迟在组件内联设置 */
+.fortune-tube--shaking .fortune-stick {
+  animation: fortune-stick-rattle 0.16s ease-in-out infinite;
+}
+.fortune-stick--chosen {
+  animation: fortune-stick-fly 0.55s cubic-bezier(0.5, 0, 0.8, 0.4) forwards;
+}
+@keyframes fortune-stick-rattle {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+  50% {
+    translate: 0 calc(var(--rattle, 7px) * -1);
+  }
+}
+@keyframes fortune-stick-fly {
+  0% {
+    translate: 0 0;
+    rotate: 0deg;
+    opacity: 1;
+  }
+  55% {
+    translate: 8px -130px;
+    rotate: 12deg;
+    opacity: 1;
+  }
+  100% {
+    translate: 20px -190px;
+    rotate: 24deg;
+    opacity: 0;
+  }
+}
+
+/* 摇签时筒口喷出的小粒子 */
+.fortune-puff {
+  animation: fortune-puff 0.6s ease-out infinite;
+}
+@keyframes fortune-puff {
+  0% {
+    opacity: 0;
+    translate: 0 0;
+    scale: 0.5;
+  }
+  30% {
+    opacity: 0.9;
+  }
+  100% {
+    opacity: 0;
+    translate: var(--puff-x, 6px) -26px;
+    scale: 1.2;
+  }
+}
+
+/* 结果卡：中签条飞出后整张卡直接淡入上浮，不做翻面 —— 翻面要依赖 preserve-3d，
+   而带 opacity 动画的 3D 容器会被浏览器压平，正反两面会同时不绘制。 */
+.fortune-card {
+  animation: fortune-card-in 0.45s ease-out both;
+}
+@keyframes fortune-card-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* 吉签标题周围的浮动光点 */
+.fortune-sparkle {
+  animation: fortune-sparkle 1.8s ease-in-out infinite;
+}
+@keyframes fortune-sparkle {
+  0%,
+  100% {
+    opacity: 0;
+    transform: translateY(4px) scale(0.6);
+  }
+  50% {
+    opacity: 1;
+    transform: translateY(-6px) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fortune-tube--idle,
+  .fortune-tube--shaking,
+  .fortune-tube--shaking .fortune-stick,
+  .fortune-stick--chosen,
+  .fortune-puff,
+  .fortune-card,
+  .fortune-sparkle {
+    animation-duration: 0.01s;
+    animation-iteration-count: 1;
+  }
 }

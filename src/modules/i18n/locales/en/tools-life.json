@@ -48,6 +48,29 @@
     "laneBelow": "{{n}} gen below",
     "laneBaseHint": "baseline"
   },
+  "fortune-draw": {
+    "title": "Daily Fortune Draw",
+    "description": "Shake the tube and draw your daily fortune — boosted luck on holidays, same name same result per day, all computed locally",
+    "namePlaceholder": "Your name or nickname",
+    "drawDaily": "Draw Today's Lot",
+    "drawRandom": "Random Draw",
+    "drawing": "Shaking the tube…",
+    "fixedHint": "\"Draw Today's Lot\" stays fixed for the same name on the same day; \"Random Draw\" redraws every time, no limits",
+    "tubeLabel": "签",
+    "emptyHint": "Enter a name and draw your fortune for today",
+    "level": {
+      "good": "Lucky",
+      "normal": "Fair",
+      "bad": "Rough"
+    },
+    "luckyStarLabel": "Lucky stars ",
+    "luckValueLabel": "Luck",
+    "signLabel": "Lot: ",
+    "unsignLabel": "Reading: ",
+    "holidayBoost": "Holiday luck boost",
+    "copy": "Copy fortune",
+    "disclaimer": "For fun only | Trust science | No superstition"
+  },
   "social-insurance-calculator": {
     "title": "Five Insurances & Housing Fund",
     "description": "Calculate employee/employer contributions and take-home pay from a base salary",

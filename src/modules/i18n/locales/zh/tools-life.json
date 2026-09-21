@@ -48,6 +48,29 @@
     "laneBelow": "下{{n}}辈",
     "laneBaseHint": "同辈基准"
   },
+  "fortune-draw": {
+    "title": "今日运势抽签",
+    "description": "摇一摇签筒抽取今日运势，节假日吉签爆率提升，同名同日结果固定，数据全部本地计算",
+    "namePlaceholder": "输入你的名字或昵称",
+    "drawDaily": "今日一签",
+    "drawRandom": "随机一签",
+    "drawing": "诚心摇签中…",
+    "fixedHint": "「今日一签」同一天同一名字结果固定；「随机一签」每次重新抽取，不限次数",
+    "tubeLabel": "签",
+    "emptyHint": "输入名字，点「今日一签」摇出你的今日运势",
+    "level": {
+      "good": "吉",
+      "normal": "平",
+      "bad": "凶"
+    },
+    "luckyStarLabel": "幸运星 ",
+    "luckValueLabel": "运势值",
+    "signLabel": "签文：",
+    "unsignLabel": "解签：",
+    "holidayBoost": "节假日吉运加成",
+    "copy": "复制签文",
+    "disclaimer": "仅供娱乐 | 相信科学 | 请勿迷信"
+  },
   "social-insurance-calculator": {
     "title": "五险一金计算",
     "description": "按缴费基数与比例计算五险一金个人/公司缴纳明细与到手工资",
