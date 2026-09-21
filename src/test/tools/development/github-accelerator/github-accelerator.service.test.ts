@@ -64,6 +64,28 @@ describe('parseGithubTarget', () => {
     ])
   })
 
+  it('strips the .git suffix clone URLs put on the repository segment', () => {
+    expect(urls('https://github.com/o/r.git')).toStrictEqual([
+      'https://github.com/o/r/archive/HEAD.zip',
+      'https://github.com/o/r/archive/HEAD.tar.gz',
+    ])
+    expect(urls('https://github.com/o/r.git/archive/HEAD.zip')).toStrictEqual([
+      'https://github.com/o/r/archive/HEAD.zip',
+    ])
+    expect(urls('https://github.com/o/r.git/blob/main/src/a.ts')).toStrictEqual([
+      'https://raw.githubusercontent.com/o/r/main/src/a.ts',
+    ])
+    expect(urls('https://github.com/o/r.git/releases/download/v1/app.zip')).toStrictEqual([
+      'https://github.com/o/r/releases/download/v1/app.zip',
+    ])
+  })
+
+  it('keeps a .git suffix that belongs to the file name itself', () => {
+    const [target] = parseGithubTarget('https://github.com/o/r/blob/main/remotes.git').targets
+    expect(target?.url).toBe('https://raw.githubusercontent.com/o/r/main/remotes.git')
+    expect(target?.name).toBe('remotes.git')
+  })
+
   it('offers a jsDelivr alternative for repository files only', () => {
     const [blob] = parseGithubTarget('https://github.com/o/r/blob/main/docs/a.md').targets
     expect(blob?.jsdelivrUrl).toBe('https://cdn.jsdelivr.net/gh/o/r@main/docs/a.md')

@@ -1,4 +1,4 @@
-import { ExternalLink, Plus, RotateCcw, Trash2, X } from 'lucide-react'
+import { ChevronDown, Download, Plus, RotateCcw, Trash2, X } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -7,8 +7,16 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { githubAcceleratorNodes } from '@/config/github-accelerator'
 import { usePreferencesStore } from '@/stores/preferences.store'
 import {
@@ -29,8 +37,8 @@ function nodeLabel(prefix: string): string {
 }
 
 /**
- * GitHub 加速下载：解析链接为原始直链，再逐节点生成加速链接。
- * 纯字符串处理，不发起任何请求；节点清单见 config，自定义节点存 preferences store。
+ * GitHub 加速下载：解析链接为原始直链，选一个节点后给出单个下载入口。
+ * 纯字符串处理，不发起任何请求；下载由浏览器按节点返回的 Content-Disposition 接管。
  */
 export default function GithubAccelerator() {
   const { t } = useTranslation('tools-development', { keyPrefix: 'github-accelerator' })
@@ -41,6 +49,8 @@ export default function GithubAccelerator() {
 
   const customNodes = usePreferencesStore((state) => state.customAcceleratorNodes)
   const setCustomNodes = usePreferencesStore((state) => state.setCustomAcceleratorNodes)
+  const selectedPrefix = usePreferencesStore((state) => state.acceleratorNode)
+  const setSelectedPrefix = usePreferencesStore((state) => state.setAcceleratorNode)
 
   const parsed = useMemo(() => parseGithubTarget(input), [input])
 
@@ -51,6 +61,9 @@ export default function GithubAccelerator() {
     ],
     [customNodes],
   )
+
+  // 选中的节点可能已被删除，回退到列表第一个
+  const activeNode = nodes.find((node) => node.prefix === selectedPrefix) ?? nodes[0]
 
   const handleAddNode = () => {
     const normalized = normalizeNodePrefix(draftNode)
@@ -102,58 +115,84 @@ export default function GithubAccelerator() {
         )}
       </Card>
 
-      {parsed.targets.map((target) => (
-        <Card key={target.url} className="flex flex-col gap-3 p-4">
-          <div className="flex min-w-0 flex-wrap items-center gap-2">
-            <Badge variant="secondary">{t(`kinds.${target.kind}`)}</Badge>
-            <span className="min-w-0 flex-1 truncate text-sm font-medium">{target.name}</span>
-          </div>
+      {parsed.targets.map((target) => {
+        const spareLinks = [
+          { label: t('originalLabel'), value: target.url },
+          ...(target.jsdelivrUrl ? [{ label: t('jsdelivrLabel'), value: target.jsdelivrUrl }] : []),
+          ...nodes
+            .filter((node) => node.prefix !== activeNode.prefix)
+            .map((node) => ({
+              label: node.label,
+              value: buildAcceleratedUrl(node.prefix, target.url),
+            })),
+        ]
 
-          <ul className="flex flex-col gap-2">
-            {nodes.map((node) => (
-              <li
-                key={`${node.prefix}|${target.url}`}
-                className="flex min-w-0 flex-wrap items-center gap-2"
-              >
-                <span className="text-muted-foreground w-32 shrink-0 truncate text-xs">
-                  {node.label}
-                </span>
-                <SpanCopyable
-                  value={buildAcceleratedUrl(node.prefix, target.url)}
-                  className="min-w-0 flex-1"
-                />
-                <Button variant="outline" size="sm" asChild className="ml-auto shrink-0 gap-1.5">
-                  <a
-                    href={buildAcceleratedUrl(node.prefix, target.url)}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    <ExternalLink className="size-4" />
-                    {t('open')}
-                  </a>
-                </Button>
-              </li>
-            ))}
-          </ul>
-
-          <div className="flex flex-col gap-2 border-t pt-3">
-            <div className="flex min-w-0 items-center gap-2">
-              <span className="text-muted-foreground w-32 shrink-0 text-xs">
-                {t('originalLabel')}
-              </span>
-              <SpanCopyable value={target.url} className="min-w-0 flex-1" />
+        return (
+          <Card key={target.url} className="flex flex-col gap-3 p-4">
+            <div className="flex min-w-0 flex-wrap items-center gap-2">
+              <Badge variant="secondary">{t(`kinds.${target.kind}`)}</Badge>
+              <span className="min-w-0 flex-1 truncate text-sm font-medium">{target.name}</span>
             </div>
-            {target.jsdelivrUrl && (
-              <div className="flex min-w-0 items-center gap-2">
-                <span className="text-muted-foreground w-32 shrink-0 text-xs">
-                  {t('jsdelivrLabel')}
-                </span>
-                <SpanCopyable value={target.jsdelivrUrl} className="min-w-0 flex-1" />
-              </div>
-            )}
-          </div>
-        </Card>
-      ))}
+
+            <div className="flex flex-col gap-2">
+              <Label className="text-muted-foreground text-xs">{t('nodeLabel')}</Label>
+              <Select value={activeNode.prefix} onValueChange={setSelectedPrefix}>
+                <SelectTrigger className="w-full font-mono">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {nodes.map((node) => (
+                    <SelectItem key={node.prefix} value={node.prefix}>
+                      {node.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="flex min-w-0 items-center gap-2">
+              <span className="text-muted-foreground w-20 shrink-0 text-xs">
+                {t('acceleratedLabel')}
+              </span>
+              <SpanCopyable
+                value={buildAcceleratedUrl(activeNode.prefix, target.url)}
+                className="min-w-0 flex-1"
+              />
+            </div>
+
+            <Button asChild className="w-full">
+              <a
+                href={buildAcceleratedUrl(activeNode.prefix, target.url)}
+                download={target.name}
+                target="_blank"
+                rel="noreferrer"
+              >
+                <Download data-icon="inline-start" />
+                {t('download')}
+              </a>
+            </Button>
+
+            <Collapsible className="border-t pt-3">
+              <CollapsibleTrigger className="group/collapsible text-muted-foreground hover:text-foreground flex items-center gap-1.5 text-xs">
+                <ChevronDown className="size-4 transition-transform group-data-[state=open]/collapsible:rotate-180" />
+                {t('moreLinks')}
+              </CollapsibleTrigger>
+              <CollapsibleContent>
+                <ul className="mt-2 flex flex-col gap-2">
+                  {spareLinks.map((link) => (
+                    <li key={link.value} className="flex min-w-0 items-center gap-2">
+                      <span className="text-muted-foreground w-20 shrink-0 truncate text-xs">
+                        {link.label}
+                      </span>
+                      <SpanCopyable value={link.value} className="min-w-0 flex-1" />
+                    </li>
+                  ))}
+                </ul>
+              </CollapsibleContent>
+            </Collapsible>
+          </Card>
+        )
+      })}
 
       <Card className="flex flex-col gap-3 p-4">
         <div className="flex items-center justify-between gap-2">

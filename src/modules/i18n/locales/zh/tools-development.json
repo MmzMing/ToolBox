@@ -96,7 +96,9 @@
     "originalLabel": "原始直链",
     "acceleratedLabel": "加速链接",
     "jsdelivrLabel": "jsDelivr CDN（备选）",
-    "open": "打开",
+    "nodeLabel": "加速节点",
+    "download": "下载",
+    "moreLinks": "备用链接",
     "hints": {
       "emptyInput": "粘贴链接后自动解析",
       "invalidUrl": "链接格式不正确",

@@ -94,9 +94,11 @@
       "sourceArchive": "Source archive"
     },
     "originalLabel": "Original direct link",
-    "acceleratedLabel": "Accelerated links",
+    "acceleratedLabel": "Accelerated link",
     "jsdelivrLabel": "jsDelivr CDN (fallback)",
-    "open": "Open",
+    "nodeLabel": "Accelerator node",
+    "download": "Download",
+    "moreLinks": "Alternative links",
     "hints": {
       "emptyInput": "Paste a link to parse it",
       "invalidUrl": "Malformed link",

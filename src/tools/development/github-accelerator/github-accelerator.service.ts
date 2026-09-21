@@ -106,7 +106,8 @@ export function parseGithubTarget(input: string): ParseResult {
     return unsupported('unsupportedPath')
   }
 
-  const [owner, repo, ...rest] = segments
+  const [owner, repoSegment, ...rest] = segments
+  const repo = repoSegment?.endsWith('.git') ? repoSegment.slice(0, -'.git'.length) : repoSegment
   if (!owner || !repo) {
     return unsupported('unsupportedPath')
   }

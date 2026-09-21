@@ -13,10 +13,13 @@ interface PreferencesState {
   sidebarCollapsed: boolean
   /** GitHub 加速工具的自定义节点前缀（内置节点见 config/github-accelerator.ts，不入库） */
   customAcceleratorNodes: string[]
+  /** GitHub 加速工具当前选中的节点前缀；null 表示用列表第一个 */
+  acceleratorNode: string | null
   setLocale: (locale: Locale) => void
   setExpandedCategories: (keys: string[] | null) => void
   setSidebarCollapsed: (collapsed: boolean) => void
   setCustomAcceleratorNodes: (nodes: string[]) => void
+  setAcceleratorNode: (prefix: string | null) => void
 }
 
 function normalizeLocale(value: unknown, fallback: Locale): Locale {
@@ -46,16 +49,19 @@ export const usePreferencesStore = create<PreferencesState>()(
       expandedCategories: null,
       sidebarCollapsed: false,
       customAcceleratorNodes: [],
+      acceleratorNode: null,
       setLocale: (locale) => set({ locale }),
       setExpandedCategories: (expandedCategories) => set({ expandedCategories }),
       setSidebarCollapsed: (sidebarCollapsed) => set({ sidebarCollapsed }),
       setCustomAcceleratorNodes: (customAcceleratorNodes) => set({ customAcceleratorNodes }),
+      setAcceleratorNode: (acceleratorNode) => set({ acceleratorNode }),
     }),
     {
       name: 'toolbox.preferences',
-      version: 3,
+      version: 4,
       // v1 -> v2：手风琴改为默认收起，丢弃旧会话遗留的展开状态（语言与侧栏折叠偏好保留）
       // v2 -> v3：新增自定义加速节点，旧数据缺字段时由 merge 兜底为空数组
+      // v3 -> v4：新增当前选中的加速节点，旧数据缺字段时由 merge 兜底为 null
       migrate: (persisted) => {
         const saved = (persisted ?? {}) as Partial<PreferencesState>
         return { ...saved, expandedCategories: null }
@@ -72,6 +78,10 @@ export const usePreferencesStore = create<PreferencesState>()(
               ? saved.sidebarCollapsed
               : current.sidebarCollapsed,
           customAcceleratorNodes: normalizeNodeList(saved.customAcceleratorNodes),
+          acceleratorNode:
+            typeof saved.acceleratorNode === 'string' && saved.acceleratorNode !== ''
+              ? saved.acceleratorNode
+              : null,
         }
       },
     },
