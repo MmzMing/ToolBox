@@ -11,6 +11,11 @@ const ICON_DIR = '/images/favicon'
 export const siteConfig = {
   /** 站点名称 */
   name: 'ToolBox',
+  /**
+   * 站点正式域名（不带结尾斜杠）。sitemap.xml / robots.txt 的绝对地址以此为准，
+   * 构建时可用环境变量 SITE_URL 临时覆盖（预览环境等）。
+   */
+  siteUrl: 'https://tool.mmzhiku.xyz',
   /** GitHub 仓库地址 */
   githubUrl: 'https://github.com/MmzMing/ToolBox',
   /** 博客地址 */

@@ -12,7 +12,7 @@
   "scripts": {
     "predev": "node scripts/prepare-codecs.mjs",
     "dev": "vite",
-    "prebuild": "node scripts/prepare-codecs.mjs",
+    "prebuild": "node scripts/prepare-codecs.mjs && node scripts/generate-sitemap.mjs",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
     "test": "node scripts/check-i18n-duplicate-keys.mjs && vitest run",
@@ -23,7 +23,6 @@
     "typecheck": "tsc -b",
     "create:tool": "node scripts/create-tool.mjs",
     "generate:sitemap": "node scripts/generate-sitemap.mjs",
-    "postbuild": "node scripts/generate-sitemap.mjs",
     "prepare": "husky",
     "lint-staged": "lint-staged"
   },
