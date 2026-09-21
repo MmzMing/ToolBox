@@ -142,5 +142,82 @@
       "apply": "应用选项",
       "resizeParamsHint": "当前模式需要填写尺寸参数才会生效，留空则保持原始尺寸"
     }
+  },
+  "image-to-beads": {
+    "title": "图片转拼豆",
+    "description": "在整图上圈出有效范围，按颗粒度生成豆板网格并映射到 Hama、Perler、Artkal、Mard 等真实色卡，输出图纸与用色清单，全程本地计算",
+    "stage": {
+      "badge": "{{cols}} × {{rows}} 颗 · {{boardsX}} × {{boardsY}} 板",
+      "tabStage": "圈选原图",
+      "tabPreview": "成品预览",
+      "ratio": "选区比例",
+      "ratioFree": "自由",
+      "resetAll": "重置全图",
+      "change": "换一张",
+      "remove": "移除",
+      "capped": "选区已超过 {{max}} 格，网格按上限截断，请缩小选区或调粗颗粒度",
+      "dropTitle": "选取图片到这里，支持拖拽",
+      "dropSubtitle": "支持 JPG/JPEG/PNG/WebP/GIF 等格式，解码与配色全在浏览器本地完成",
+      "browse": "选择图片",
+      "paste": "提示：您也可以复制图片后按 Ctrl+V (Cmd+V) 粘贴",
+      "decoding": "正在解码图片…",
+      "error": {
+        "unsupported": "请选择图片文件（PNG / JPEG / WebP / GIF 等）",
+        "decode": "这张图片解码失败，可能格式不受浏览器支持"
+      }
+    },
+    "lightbox": {
+      "trigger": "放大查看",
+      "title": "灯箱查看",
+      "source": "选区原图",
+      "chart": "成品图纸",
+      "zoomIn": "放大",
+      "zoomOut": "缩小",
+      "fit": "适应窗口",
+      "close": "关闭",
+      "hint": "滚轮缩放 · 拖动平移 · 双击放大 · ← / → 切换两页"
+    },
+    "panel": {
+      "title": "豆板设置",
+      "brand": "色卡品牌",
+      "brandHint": "共 {{count}} 色",
+      "width": "图纸宽度（颗）",
+      "widthValue": "{{cols}} 颗 · {{spanX}}×{{spanY}} 板",
+      "grain": "颗粒度",
+      "grainValue": "每颗 {{px}} px",
+      "colors": "限色",
+      "unlimited": "不限",
+      "colorsValue": "最多 {{count}} 色，实到 {{used}} 色",
+      "dither": "误差抖动",
+      "alpha": "透明阈值",
+      "refs": "格内印色号",
+      "background": "图纸底色",
+      "white": "白底",
+      "transparent": "透明"
+    },
+    "preview": {
+      "ariaLabel": "{{cols}} 乘 {{rows}} 的拼豆图纸预览",
+      "colorsUsed": "用色 {{count}} 种"
+    },
+    "usage": {
+      "title": "用色清单",
+      "total": "共 {{count}} 颗",
+      "empty": "选区内没有需要用的豆色",
+      "ref": "色号",
+      "name": "色名",
+      "rgb": "RGB",
+      "count": "颗数",
+      "ratio": "占比",
+      "stock": "建议备货 +10%"
+    },
+    "export": {
+      "png": "导出图纸 PNG",
+      "preview": "导出成品预览 PNG",
+      "csv": "导出清单 CSV"
+    },
+    "notes": {
+      "source": "色卡数据来自开源项目",
+      "repo": "maxcleme/beadcolors（MIT）"
+    }
   }
 }

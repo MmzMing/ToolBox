@@ -73,7 +73,7 @@ export function CompareDialog({ item, onClose }: CompareDialogProps) {
 
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="h-svh max-w-none rounded-none border-none bg-black/90 p-0 sm:rounded-none [&>button]:hidden">
+      <DialogContent className="h-svh max-w-none rounded-none border-none bg-black/90 p-0 sm:max-w-none sm:rounded-none [&>button]:hidden">
         <DialogTitle className="sr-only">{t('compare.title')}</DialogTitle>
 
         <div

@@ -142,5 +142,82 @@
       "apply": "Apply options",
       "resizeParamsHint": "Fill in the size parameters for this mode to take effect; empty keeps the original size"
     }
+  },
+  "image-to-beads": {
+    "title": "Image to Perler Beads",
+    "description": "Frame the working area on the full image, turn it into a bead grid mapped to real Hama, Perler, Artkal or Mard colors, and export the chart plus a shopping list — all local",
+    "stage": {
+      "badge": "{{cols}} × {{rows}} beads · {{boardsX}} × {{boardsY}} boards",
+      "tabStage": "Frame source",
+      "tabPreview": "Bead preview",
+      "ratio": "Selection ratio",
+      "ratioFree": "Free",
+      "resetAll": "Reset to full image",
+      "change": "Replace",
+      "remove": "Remove",
+      "capped": "The selection exceeds {{max}} cells; the grid is capped. Shrink the selection or coarsen the grain.",
+      "dropTitle": "Drop an image here",
+      "dropSubtitle": "JPG/JPEG/PNG/WebP/GIF and more — decoding and colour-matching all happen locally",
+      "browse": "Choose image",
+      "paste": "Tip: copy an image and press Ctrl+V (Cmd+V) to paste",
+      "decoding": "Decoding image…",
+      "error": {
+        "unsupported": "Pick an image file (PNG / JPEG / WebP / GIF and so on)",
+        "decode": "This image could not be decoded — the format may be unsupported by your browser"
+      }
+    },
+    "lightbox": {
+      "trigger": "Zoom view",
+      "title": "Lightbox view",
+      "source": "Cropped source",
+      "chart": "Bead chart",
+      "zoomIn": "Zoom in",
+      "zoomOut": "Zoom out",
+      "fit": "Fit to window",
+      "close": "Close",
+      "hint": "Scroll to zoom · drag to pan · double-click to magnify · ← / → switch page"
+    },
+    "panel": {
+      "title": "Bead board",
+      "brand": "Palette brand",
+      "brandHint": "{{count}} colors",
+      "width": "Chart width (beads)",
+      "widthValue": "{{cols}} beads · {{spanX}}×{{spanY}} boards",
+      "grain": "Grain",
+      "grainValue": "{{px}} px per bead",
+      "colors": "Color limit",
+      "unlimited": "Unlimited",
+      "colorsValue": "up to {{count}} colors, {{used}} in use",
+      "dither": "Error dithering",
+      "alpha": "Transparency cutoff",
+      "refs": "Print color codes",
+      "background": "Chart background",
+      "white": "White",
+      "transparent": "Transparent"
+    },
+    "preview": {
+      "ariaLabel": "Perler bead chart preview, {{cols}} by {{rows}}",
+      "colorsUsed": "{{count}} colors"
+    },
+    "usage": {
+      "title": "Bead list",
+      "total": "{{count}} beads",
+      "empty": "The selection needs no beads",
+      "ref": "Code",
+      "name": "Name",
+      "rgb": "RGB",
+      "count": "Beads",
+      "ratio": "Share",
+      "stock": "Buy (+10%)"
+    },
+    "export": {
+      "png": "Export chart PNG",
+      "preview": "Export preview PNG",
+      "csv": "Export list CSV"
+    },
+    "notes": {
+      "source": "Palette data comes from the open-source project",
+      "repo": "maxcleme/beadcolors (MIT)"
+    }
   }
 }

@@ -712,6 +712,36 @@
   }
 }
 
+/* 图片转拼豆：有效范围上的豆格线（background-size 由组件按当前格数内联给出） */
+.bead-grid-lines {
+  background-image:
+    repeating-linear-gradient(
+      to right,
+      color-mix(in srgb, var(--foreground) 45%, transparent) 0 1px,
+      transparent 1px 100%
+    ),
+    repeating-linear-gradient(
+      to bottom,
+      color-mix(in srgb, var(--foreground) 45%, transparent) 0 1px,
+      transparent 1px 100%
+    );
+}
+
+/* 每 10 格一条分界粗线，对应实体豆板的拼缝 */
+.bead-grid-rulers {
+  background-image:
+    repeating-linear-gradient(
+      to right,
+      color-mix(in srgb, var(--foreground) 80%, transparent) 0 2px,
+      transparent 2px 100%
+    ),
+    repeating-linear-gradient(
+      to bottom,
+      color-mix(in srgb, var(--foreground) 80%, transparent) 0 2px,
+      transparent 2px 100%
+    );
+}
+
 /* 吉签标题周围的浮动光点 */
 .fortune-sparkle {
   animation: fortune-sparkle 1.8s ease-in-out infinite;
