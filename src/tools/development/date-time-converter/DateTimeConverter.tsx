@@ -45,7 +45,12 @@ export default function DateTimeConverter() {
     if (trimmed === '' || !/^\d+$/.test(trimmed)) {
       return null
     }
-    return tsToDate(Number(trimmed), unit)
+    /* 几百位数字会溢出成 Infinity，service 按契约抛错；渲染期抛错会整页白屏 */
+    try {
+      return tsToDate(Number(trimmed), unit)
+    } catch {
+      return null
+    }
   }, [tsInput, unit])
 
   const parsedDate = useMemo(() => {

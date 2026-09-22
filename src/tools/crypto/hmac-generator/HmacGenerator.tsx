@@ -20,10 +20,17 @@ export default function HmacGenerator() {
   const [secret, setSecret] = useState('')
   const [message, setMessage] = useState('')
 
-  const output = useMemo(
-    () => (secret === '' ? '' : computeHmac(algorithm, message, secret)),
-    [algorithm, message, secret],
-  )
+  /** 同 hash-text：crypto-js 遇到孤立代理字符会抛 URIError，渲染期抛错会整页白屏 */
+  const signed = useMemo(() => {
+    if (secret === '') {
+      return { output: '', error: null }
+    }
+    try {
+      return { output: computeHmac(algorithm, message, secret), error: null }
+    } catch {
+      return { output: '', error: t('common:error') }
+    }
+  }, [algorithm, message, secret, t])
 
   return (
     <div className="flex flex-col gap-4">
@@ -65,7 +72,11 @@ export default function HmacGenerator() {
 
       <div className="flex flex-col gap-2">
         <Label>{t('common:output')}</Label>
-        <TextareaCopyable value={output} rows={2} />
+        {signed.error ? (
+          <p className="text-destructive text-sm">{signed.error}</p>
+        ) : (
+          <TextareaCopyable value={signed.output} rows={2} />
+        )}
       </div>
     </div>
   )

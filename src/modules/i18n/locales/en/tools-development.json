@@ -97,7 +97,8 @@
     "acceleratedLabel": "Accelerated link",
     "jsdelivrLabel": "jsDelivr CDN (fallback)",
     "nodeLabel": "Accelerator node",
-    "download": "Download",
+    "download": "Accelerated download",
+    "directDownload": "GitHub direct",
     "moreLinks": "Alternative links",
     "hints": {
       "emptyInput": "Paste a link to parse it",
@@ -118,7 +119,7 @@
     "resetNodes": "Restore default nodes",
     "nodeInvalid": "Invalid node: it must be a resolvable https URL",
     "nodeExists": "This node is already in the list",
-    "privacyNote": "Public third-party nodes see the requested link and your IP. Avoid private or sensitive files, and replace or add nodes above when one goes down."
+    "privacyNote": "Public third-party nodes see the requested link and your IP, so avoid private or sensitive files. A relayed file cannot be checked for integrity — use “GitHub direct” or compare hashes yourself for anything important, and replace or add nodes above when one goes down."
   },
   "encoder-decoder": {
     "title": "Encoder / Decoder",

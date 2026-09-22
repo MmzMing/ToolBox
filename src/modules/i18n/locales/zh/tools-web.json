@@ -129,7 +129,8 @@
     "loading": "查询中…",
     "lookupBtn": "查询",
     "mapLink": "在高德地图中查看",
-    "onlineNote": "归属地数据来自 ipwho.is 免费公共服务，结果仅供参考",
+    "networkNote": "本工具需要联网：归属地查询会请求 ipwho.is；点「获取本机公网 IP」时依次请求 api64.ipify.org、api.ipify.org、ipv4.icanhazip.com、ipinfo.io 直到有一个成功。这些第三方服务会看到你的 IP 与 User-Agent。",
+    "onlineNote": "归属地结果仅供参考",
     "fields": {
       "ip": "IP 地址",
       "country": "国家 / 地区",

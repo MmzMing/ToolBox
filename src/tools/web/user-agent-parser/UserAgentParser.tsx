@@ -16,7 +16,16 @@ export default function UserAgentParser() {
 
   const [ua, setUa] = useState(defaultUserAgent)
 
-  const parsed = useMemo(() => parseUserAgent(ua), [ua])
+  /** ua-parser-js 对畸形 UA 会抛错，而这里是渲染期——抛出去就是整页白屏 */
+  const parsed = useMemo(() => {
+    try {
+      return parseUserAgent(ua)
+    } catch {
+      return Object.fromEntries(
+        userAgentFields.map((field) => [field, t('common:error')]),
+      ) as Record<UserAgentField, string>
+    }
+  }, [ua, t])
 
   return (
     <div className="flex flex-col gap-4">

@@ -18,7 +18,17 @@ export default function HashText() {
   const [algorithm, setAlgorithm] = useState<HashAlgorithm>('SHA256')
   const [input, setInput] = useState('')
 
-  const output = useMemo(() => (input === '' ? '' : hashText(algorithm, input)), [algorithm, input])
+  /** 单个代理字符（截断的 emoji）会让 crypto-js 抛 URIError，渲染期抛错会整页白屏，必须就地降级 */
+  const hashed = useMemo(() => {
+    if (input === '') {
+      return { output: '', error: null }
+    }
+    try {
+      return { output: hashText(algorithm, input), error: null }
+    } catch {
+      return { output: '', error: t('error') }
+    }
+  }, [algorithm, input, t])
 
   return (
     <div className="flex flex-col gap-4">
@@ -50,7 +60,11 @@ export default function HashText() {
 
       <div className="flex flex-col gap-2">
         <Label>{t('output')}</Label>
-        <TextareaCopyable value={output} rows={4} />
+        {hashed.error ? (
+          <p className="text-destructive text-sm">{hashed.error}</p>
+        ) : (
+          <TextareaCopyable value={hashed.output} rows={4} />
+        )}
       </div>
     </div>
   )

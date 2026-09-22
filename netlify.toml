@@ -10,3 +10,24 @@
   from = "/*"
   to = "/index.html"
   status = 200
+
+# 与 nginx.conf 保持一致的安全响应头（CSP 各项目的取舍见 nginx.conf 内注释）
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    X-Frame-Options = "SAMEORIGIN"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Content-Security-Policy = """
+      default-src 'self'; \
+      script-src 'self' 'wasm-unsafe-eval'; \
+      style-src 'self' 'unsafe-inline'; \
+      img-src 'self' data: blob:; \
+      font-src 'self' data:; \
+      connect-src 'self' https:; \
+      worker-src 'self' blob:; \
+      frame-src 'self' blob:; \
+      object-src 'none'; \
+      base-uri 'none'; \
+      form-action 'self'; \
+      frame-ancestors 'self'"""

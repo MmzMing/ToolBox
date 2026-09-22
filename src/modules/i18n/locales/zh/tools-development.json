@@ -97,7 +97,8 @@
     "acceleratedLabel": "加速链接",
     "jsdelivrLabel": "jsDelivr CDN（备选）",
     "nodeLabel": "加速节点",
-    "download": "下载",
+    "download": "加速下载",
+    "directDownload": "GitHub 直连",
     "moreLinks": "备用链接",
     "hints": {
       "emptyInput": "粘贴链接后自动解析",
@@ -118,7 +119,7 @@
     "resetNodes": "恢复默认节点",
     "nodeInvalid": "节点无效：需是可解析的 https 地址",
     "nodeExists": "该节点已在列表中",
-    "privacyNote": "第三方公共节点会看到所请求的链接与你的 IP，私有或敏感文件请勿使用；节点失效时在上方替换或新增。"
+    "privacyNote": "第三方公共节点会看到所请求的链接与你的 IP，私有或敏感文件请勿使用；中转节点返回的文件无法校验完整性，重要文件请改用「GitHub 直连」或自行比对哈希。节点失效时在上方替换或新增。"
   },
   "encoder-decoder": {
     "title": "编解码",

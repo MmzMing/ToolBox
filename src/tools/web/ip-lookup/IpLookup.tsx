@@ -104,6 +104,8 @@ export default function IpLookup() {
             </Button>
           </div>
         </div>
+        {/* 数据流向必须在点之前就看到，所以放在输入区而不是结果区 */}
+        <p className="text-muted-foreground text-xs">{t('networkNote')}</p>
         {error && (
           <Alert variant="destructive">
             <AlertDescription>{error}</AlertDescription>

@@ -32,13 +32,35 @@ function normalizeStringArray(value: unknown): string[] | null {
     : null
 }
 
-/** 自定义节点：只保留非空字符串并去重，脏数据回退为空数组 */
+/**
+ * 自定义节点前缀的水合门槛：只认无凭证的 https 主机。
+ *
+ * 权威校验在工具的 normalizeNodePrefix / buildAcceleratedUrl，这里只负责不把明显垃圾
+ * 留在状态里——localStorage 可能被同页脚本或浏览器扩展改坏（AGENTS.md §8）。
+ */
+function isHttpsNodePrefix(value: string): boolean {
+  try {
+    const url = new URL(value)
+    return (
+      url.protocol === 'https:' &&
+      url.hostname.includes('.') &&
+      url.username === '' &&
+      url.password === ''
+    )
+  } catch {
+    return false
+  }
+}
+
+/** 自定义节点：只保留合法 https 前缀并去重，脏数据回退为空数组 */
 function normalizeNodeList(value: unknown): string[] {
   if (!Array.isArray(value)) {
     return []
   }
   return [
-    ...new Set(value.filter((item): item is string => typeof item === 'string' && item !== '')),
+    ...new Set(
+      value.filter((item): item is string => typeof item === 'string' && isHttpsNodePrefix(item)),
+    ),
   ]
 }
 
@@ -79,7 +101,7 @@ export const usePreferencesStore = create<PreferencesState>()(
               : current.sidebarCollapsed,
           customAcceleratorNodes: normalizeNodeList(saved.customAcceleratorNodes),
           acceleratorNode:
-            typeof saved.acceleratorNode === 'string' && saved.acceleratorNode !== ''
+            typeof saved.acceleratorNode === 'string' && isHttpsNodePrefix(saved.acceleratorNode)
               ? saved.acceleratorNode
               : null,
         }

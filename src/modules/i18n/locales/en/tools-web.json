@@ -129,7 +129,8 @@
     "loading": "Looking up…",
     "lookupBtn": "Lookup",
     "mapLink": "View in Amap",
-    "onlineNote": "Geolocation data comes from the free ipwho.is service, for reference only",
+    "networkNote": "This tool needs the network: geolocation comes from ipwho.is, and “Get my public IP” requests api64.ipify.org, api.ipify.org, ipv4.icanhazip.com and ipinfo.io until one succeeds. Those third-party services see your IP and User-Agent.",
+    "onlineNote": "Geolocation results are for reference only",
     "fields": {
       "ip": "IP address",
       "country": "Country",

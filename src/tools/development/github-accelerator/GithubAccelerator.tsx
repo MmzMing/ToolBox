@@ -160,17 +160,32 @@ export default function GithubAccelerator() {
               />
             </div>
 
-            <Button asChild className="w-full">
-              <a
-                href={buildAcceleratedUrl(activeNode.prefix, target.url)}
-                download={target.name}
-                target="_blank"
-                rel="noreferrer"
-              >
-                <Download data-icon="inline-start" />
-                {t('download')}
-              </a>
-            </Button>
+            {/* 两条链路并列而不是把直连藏进折叠区：走中转节点意味着放弃完整性校验，
+                用户要能在点之前看见「原始直链」这个选项 */}
+            <div className="flex flex-wrap gap-2">
+              <Button asChild className="min-w-0 flex-1">
+                <a
+                  href={buildAcceleratedUrl(activeNode.prefix, target.url)}
+                  download={target.name}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  <Download data-icon="inline-start" />
+                  {t('download')}
+                </a>
+              </Button>
+              <Button asChild variant="outline">
+                <a
+                  href={target.url}
+                  download={target.name}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="min-w-0"
+                >
+                  {t('directDownload')}
+                </a>
+              </Button>
+            </div>
 
             <Collapsible className="border-t pt-3">
               <CollapsibleTrigger className="group/collapsible text-muted-foreground hover:text-foreground flex items-center gap-1.5 text-xs">

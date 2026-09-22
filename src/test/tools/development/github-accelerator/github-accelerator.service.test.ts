@@ -168,4 +168,15 @@ describe('buildAcceleratedUrl', () => {
       buildAcceleratedUrl('https://ghfast.top', 'https://raw.githubusercontent.com/o/r/a'),
     ).toBe('https://ghfast.top/https://raw.githubusercontent.com/o/r/a')
   })
+
+  /* 前缀可能是被改坏的 localStorage 值，拼进 <a href> 前必须过白名单 */
+  it('falls back to the direct url for a non-https prefix', () => {
+    expect(buildAcceleratedUrl('javascript:alert(1)//', 'https://github.com/o/r')).toBe(
+      'https://github.com/o/r',
+    )
+    expect(buildAcceleratedUrl('', 'https://github.com/o/r')).toBe('https://github.com/o/r')
+    expect(buildAcceleratedUrl('http://insecure.example.com/', 'https://github.com/o/r')).toBe(
+      'https://github.com/o/r',
+    )
+  })
 })

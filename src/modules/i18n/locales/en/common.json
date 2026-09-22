@@ -35,5 +35,8 @@
   "collapseSidebar": "Collapse sidebar",
   "openMenu": "Open navigation menu",
   "backHome": "Back to home",
-  "footerNote": "All tools run locally in your browser and no data leaves your device; the optional AI features in Resume Studio send content straight to the provider you configure"
+  "crashTitle": "Something went wrong",
+  "crashDescription": "The app hit an unexpected error. Your data lives on this device and is not lost — reloading usually fixes it.",
+  "reload": "Reload",
+  "footerNote": "All tools run locally in your browser and no data leaves your device. Two exceptions: IP lookup sends requests to third-party public services, and the optional AI features in Resume Studio send content straight to the provider you configure"
 }

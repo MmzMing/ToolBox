@@ -215,8 +215,17 @@ export function normalizeNodePrefix(input: string): string | null {
   return `${url.origin}${pathname}`
 }
 
-/** 加速链接 = 节点前缀 + 完整原始直链 */
+/**
+ * 加速链接 = 节点前缀 + 完整原始直链。
+ *
+ * 前缀要再过一次白名单：它可能是被改坏的 localStorage 恢复出来的任意字符串，
+ * 直接拼接会把 `javascript:` 之类送进 <a href>。非法前缀退回 GitHub 直连。
+ */
 export function buildAcceleratedUrl(prefix: string, targetUrl: string): string {
-  const normalized = prefix.endsWith('/') ? prefix : `${prefix}/`
+  const normalized = normalizeNodePrefix(prefix)
+  if (!normalized) {
+    return targetUrl
+  }
+
   return `${normalized}${targetUrl}`
 }

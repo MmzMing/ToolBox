@@ -50,7 +50,10 @@
     "encrypt": "Encrypt",
     "decrypt": "Decrypt",
     "requiredSecret": "Please enter a secret key",
-    "decryptFailed": "Decryption failed: wrong key or invalid ciphertext"
+    "decryptFailed": "Decryption failed: wrong key or invalid ciphertext",
+    "encryptFailed": "Encryption failed, please try again",
+    "legacyNotice": "This cipher text uses the legacy AES-CBC format and was opened for you. Re-encrypt it once with the current version: the new format is authenticated, so any tampering makes decryption fail outright.",
+    "insecureContext": "This page is not a secure context (https or localhost is required), so the browser has disabled WebCrypto and the new format is unavailable. Legacy AES-CBC cipher text can still be decrypted here."
   },
   "hmac-generator": {
     "title": "HMAC Generator",

@@ -20,10 +20,12 @@ import {
   decryptAES,
   encryptAES,
   encryptionAlgorithms,
+  isEncryptionAvailable,
+  isLegacyCipherText,
   type EncryptionAlgorithm,
 } from './encryption.service'
 
-type ErrorKey = 'requiredSecret' | 'decryptFailed' | null
+type ErrorKey = 'requiredSecret' | 'decryptFailed' | 'encryptFailed' | null
 
 export default function Encryption() {
   const { t } = useTranslation('tools-crypto')
@@ -35,31 +37,54 @@ export default function Encryption() {
   const [cipherText, setCipherText] = useState('')
   const [output, setOutput] = useState('')
   const [errorKey, setErrorKey] = useState<ErrorKey>(null)
+  const [legacyNotice, setLegacyNotice] = useState(false)
+  /** PBKDF2 要故意算上半秒，期间禁用按钮，避免用户连点排队一堆派生 */
+  const [busy, setBusy] = useState(false)
 
-  const handleEncrypt = () => {
+  const handleEncrypt = async () => {
     if (secret === '') {
       setErrorKey('requiredSecret')
       return
     }
+    setBusy(true)
     setErrorKey(null)
-    setOutput(encryptAES(plainText, secret))
+    setLegacyNotice(false)
+    try {
+      setOutput(await encryptAES(plainText, secret))
+    } catch {
+      setErrorKey('encryptFailed')
+    } finally {
+      setBusy(false)
+    }
   }
 
-  const handleDecrypt = () => {
+  const handleDecrypt = async () => {
     if (secret === '') {
       setErrorKey('requiredSecret')
       return
     }
+    setBusy(true)
+    setErrorKey(null)
+    setLegacyNotice(false)
     try {
-      setErrorKey(null)
-      setOutput(decryptAES(cipherText, secret))
+      setOutput(await decryptAES(cipherText, secret))
+      setLegacyNotice(isLegacyCipherText(cipherText))
     } catch {
       setErrorKey('decryptFailed')
+    } finally {
+      setBusy(false)
     }
   }
 
   return (
     <div className="flex flex-col gap-4">
+      {!isEncryptionAvailable && (
+        <Alert variant="destructive">
+          <AlertTriangle />
+          <AlertDescription>{t('encryption.insecureContext')}</AlertDescription>
+        </Alert>
+      )}
+
       <div className="flex flex-col gap-4 sm:flex-row">
         <div className="flex flex-col gap-2">
           <Label>{t('encryption.algorithm')}</Label>
@@ -121,16 +146,25 @@ export default function Encryption() {
           value={cipherText}
           onChange={(event) => setCipherText(event.target.value)}
           className="min-h-24 font-mono text-sm"
-          placeholder="U2FsdGVkX1..."
+          placeholder="v2:..."
         />
       </div>
 
       <div className="flex gap-2">
-        <Button onClick={handleEncrypt} className="gap-2">
+        <Button
+          onClick={() => void handleEncrypt()}
+          disabled={busy || !isEncryptionAvailable}
+          className="gap-2"
+        >
           <Lock className="size-4" />
           {t('encryption.encrypt')}
         </Button>
-        <Button variant="outline" onClick={handleDecrypt} className="gap-2">
+        <Button
+          variant="outline"
+          onClick={() => void handleDecrypt()}
+          disabled={busy || !isEncryptionAvailable}
+          className="gap-2"
+        >
           <LockOpen className="size-4" />
           {t('encryption.decrypt')}
         </Button>
@@ -140,6 +174,13 @@ export default function Encryption() {
         <Alert variant="destructive">
           <AlertTriangle />
           <AlertDescription>{t(`encryption.${errorKey}`)}</AlertDescription>
+        </Alert>
+      )}
+
+      {legacyNotice && (
+        <Alert>
+          <AlertTriangle />
+          <AlertDescription>{t('encryption.legacyNotice')}</AlertDescription>
         </Alert>
       )}
 
