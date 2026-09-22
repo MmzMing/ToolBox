@@ -3,8 +3,8 @@ import { Marked } from 'marked'
 
 import { normalizeLinkHref, sanitizeRichTextHtml } from '../resume/rich-text'
 import { polishSystemPrompt } from './prompts'
-import { requestAIStream, requestAIText } from './transport'
-import type { AIConnection } from './providers'
+import { requestAIStream, requestAIText } from '@/modules/ai/transport'
+import type { AIConnection } from '@/modules/ai/providers'
 
 const escapeHtml = (text: string) =>
   text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')

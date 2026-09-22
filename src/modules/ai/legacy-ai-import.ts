@@ -159,7 +159,7 @@ function applyPicks(settings: AISettingsData, value: unknown) {
   for (const provider of AI_PROVIDERS) {
     const entry = record(source[provider])
     const pick = settings.picks[provider]
-    for (const task of ['text', 'pdf'] as const) {
+    for (const task of ['text', 'pdf', 'image', 'vision'] as const) {
       const model = text(entry[task]).trim()
       if (model) {
         pick[task] = model
@@ -253,6 +253,38 @@ export function readLegacyAISettings(storage?: Pick<Storage, 'getItem'>): AISett
     const envelope = JSON.parse(raw)
     const settings = migrateAISettings(record(envelope).state ?? envelope)
     return AI_PROVIDERS.some((provider) => settings.credentials[provider].apiKey) ? settings : null
+  } catch {
+    return null
+  }
+}
+
+/** 连接层上移 modules/ai 之前的 persist 键；改名时一次性折入，不删旧键 */
+export const PREVIOUS_AI_STORAGE_KEY = 'toolbox.resume-ai'
+
+export function readPreviousAISettings(
+  storage?: Pick<Storage, 'getItem'>,
+): { settings: AISettingsData; enabled: boolean; consentSeen: boolean } | null {
+  const target = storage ?? (typeof localStorage === 'undefined' ? undefined : localStorage)
+  if (!target) {
+    return null
+  }
+  let raw: string | null
+  try {
+    raw = target.getItem(PREVIOUS_AI_STORAGE_KEY)
+  } catch {
+    return null
+  }
+  if (!raw) {
+    return null
+  }
+  try {
+    const envelope = record(JSON.parse(raw))
+    const state = record(envelope.state ?? envelope)
+    return {
+      settings: migrateAISettings(state),
+      enabled: state.enabled === true,
+      consentSeen: state.consentSeen === true,
+    }
   } catch {
     return null
   }

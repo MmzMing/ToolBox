@@ -38,5 +38,81 @@
   "crashTitle": "页面出错了",
   "crashDescription": "应用遇到了意外错误。你的数据都存在本机，没有丢失；重新加载通常就能恢复。",
   "reload": "重新加载",
-  "footerNote": "全部工具在浏览器本地运行，数据不上传服务器；例外只有两处：IP 查询会向第三方公共查询服务发请求，简历工坊的可选 AI 功能会把内容直接发往你配置的服务商"
+  "ai": {
+    "entry": "AI 辅助",
+    "entryHint": "关闭时润色与校对入口隐藏、导入 PDF 置灰；开启后内容直连你在此配置的服务商。",
+    "direct": {
+      "reachable": "通常可浏览器直连",
+      "blocked": "通常需自备可跨域地址",
+      "unknown": "直连可用性未验证"
+    },
+    "config": {
+      "entry": "AI 服务商",
+      "title": "AI 服务商设置",
+      "pickTitle": "模型厂商",
+      "pickHint": "可分别配置多家，点选即在右侧编辑",
+      "ready": "已配置",
+      "incomplete": "待完善配置",
+      "notice": "Key 只保存在这台浏览器的本地存储里，请求由浏览器直接发往你填写的地址，本站不经手、不留存。",
+      "connected": "已配置 {{count}}/{{total}} 家",
+      "getKey": "获取密钥",
+      "keyPlaceholder": "粘贴该服务商的 API Key",
+      "showKey": "显示密钥",
+      "hideKey": "隐藏密钥",
+      "baseUrl": "服务地址（Base URL）",
+      "baseUrlHint": "可改成自建或中转地址；仅支持 https（本机回环地址可用 http），填错会导致请求发不出去。",
+      "models": "模型",
+      "textModel": "文本模型（润色与校对）",
+      "pdfModel": "视觉模型（PDF 导入）",
+      "imageModel": "出图模型（AI 生图）",
+      "visionModel": "识图模型（反推提示词）",
+      "modelPlaceholder": "手输模型名，例如 deepseek-chat",
+      "textHint": "每家各记一个文本、视觉、出图与识图型号，互不覆盖；实际生效的是顶部「使用厂商」选中的那家。视觉槽供导入 PDF 使用，识图槽供生图工具反推提示词使用，出图槽仅 OpenAI / Gemini 生效。",
+      "fetchModels": "获取模型列表",
+      "fetchOk": "已获取 {{count}} 个模型",
+      "fetchEmpty": "这个地址没有返回模型列表，改用「手动输入模型名」直接填。",
+      "unassigned": "未选择",
+      "manual": "手动输入模型名…",
+      "fromList": "从列表选择",
+      "listEmpty": "先点右上角「获取模型列表」把该凭证下的模型拉进来；地址不支持这个接口时，用「手动输入模型名」直接填。",
+      "useProvider": "使用厂商",
+      "active": "使用中"
+    },
+    "test": {
+      "button": "检测连接",
+      "ok": "连接正常",
+      "mismatch": "返回内容与预期不一致",
+      "canvasUnavailable": "当前浏览器不支持画布，无法做视觉自检"
+    },
+    "consent": {
+      "title": "开启 AI 辅助？",
+      "body": "开启后，润色、校对与 PDF 导入会把你的简历内容直接发送给你配置的服务商（不会经过本站服务器）。简历正文属于个人信息，请确认你接受这一点。",
+      "accept": "我已了解，开启"
+    },
+    "errors": {
+      "invalidProvider": "不支持的服务商，请检查配置。",
+      "configRequired": "缺少 API Key 或模型名。",
+      "invalidEndpoint": "服务地址不合法。",
+      "corsBlocked": "请求没能发出：该地址可能不允许浏览器直连，或本机无法访问。可改用支持跨域的中转地址。",
+      "networkError": "网络请求失败。",
+      "timeout": "请求超时（120 秒）。",
+      "aborted": "已取消。",
+      "authenticationFailed": "API Key 无效或已过期。",
+      "modelAccessDenied": "当前 Key 没有该模型的访问权限。",
+      "rateLimited": "请求过于频繁，稍后再试。",
+      "requestTooLarge": "内容超出请求体上限。",
+      "modelOrEndpointError": "模型名或接口地址不存在。",
+      "upstreamError": "服务商返回错误。",
+      "truncatedOutput": "模型输出被长度截断，请缩短内容后重试。",
+      "refused": "模型拒绝处理这段内容。",
+      "emptyOutput": "模型没有返回任何内容。",
+      "invalidOutput": "模型返回的内容无法解析，请重试。",
+      "renderFailed": "页面渲染失败。",
+      "pdfUnreadable": "无法读取这个 PDF 文件。",
+      "tooManyPages": "最多支持 10 页。",
+      "fileTooLarge": "文件超过 20MB。",
+      "encryptedPdf": "PDF 已加密，无法导入。",
+      "unknown": "发生未知错误。"
+    }
+  }
 }

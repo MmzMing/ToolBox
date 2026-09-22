@@ -219,5 +219,184 @@
       "source": "Palette data comes from the open-source project",
       "repo": "maxcleme/beadcolors (MIT)"
     }
+  },
+  "ai-image-gen": {
+    "title": "AI Image Gen",
+    "description": "Bring your own key to generate images via OpenAI / Gemini, manage results in a masonry gallery, reverse-engineer prompts with skill templates and export zips",
+    "toolbar": {
+      "select": "Select",
+      "exitSelect": "Exit select",
+      "exportZip": "Export zip",
+      "exportSelected": "Export selected",
+      "clear": "Clear",
+      "clearConfirmTitle": "Clear all generated images?",
+      "clearConfirmDesc": "Deletes every cached image from IndexedDB. The prompt library is untouched. This cannot be undone.",
+      "clearConfirmAction": "Clear",
+      "cancel": "Cancel",
+      "settings": "AI settings",
+      "library": "Prompt library",
+      "skills": "Skill manager"
+    },
+    "gate": {
+      "title": "AI image generation is off",
+      "body": "Once enabled, your prompts and uploaded images are sent to the provider you configure. API keys stay in this browser's localStorage; there is no relay on our side.",
+      "cta": "Enable and configure"
+    },
+    "composer": {
+      "placeholder": "Describe the image you want… (Enter to send, Shift+Enter for newline)",
+      "send": "Send",
+      "addReference": "Reference",
+      "removeReference": "Remove reference",
+      "enableHint": "AI image gen is off: click here to configure a provider and enable it (content goes straight to your API; the key stays local).",
+      "configHint": "No usable credentials or model for this provider: open AI settings to fill in a key and pick an image model (only OpenAI and Gemini generate images)."
+    },
+    "params": {
+      "model": "Model",
+      "provider": "Provider",
+      "aspect": "Aspect",
+      "quality": "Quality",
+      "count": "Count",
+      "aspectAuto": "Auto",
+      "advanced": "Advanced",
+      "imageSize": "Resolution",
+      "seed": "Seed",
+      "seedPlaceholder": "Empty = random",
+      "background": "Background",
+      "outputFormat": "Output format",
+      "compression": "Compression",
+      "fidelity": "Reference fidelity",
+      "seedUnsupported": "The OpenAI image protocol has no seed; this only applies to Gemini."
+    },
+    "card": {
+      "queued": "Queued",
+      "generating": "Generating",
+      "cancelled": "Cancelled",
+      "retry": "Retry",
+      "cancel": "Cancel",
+      "download": "Download",
+      "reference": "Use as reference",
+      "remix": "Reuse params",
+      "details": "Details",
+      "delete": "Delete"
+    },
+    "errors": {
+      "configRequired": "Missing API key or model: complete them in AI settings",
+      "unsupportedProvider": "This provider cannot generate images: switch to OpenAI or Gemini",
+      "invalidProvider": "Unsupported provider or protocol",
+      "invalidEndpoint": "Invalid endpoint (https only; http allowed for loopback)",
+      "corsBlocked": "Request never landed: CORS block or unreachable host; try a compatible gateway URL",
+      "networkError": "Network error: check your connection and retry",
+      "timeout": "Timed out (180s cap for images): lower resolution or count and retry",
+      "aborted": "Cancelled",
+      "authenticationFailed": "Auth failed: check your API key",
+      "modelAccessDenied": "Model access denied: check entitlements or model name",
+      "rateLimited": "Rate limited: wait a moment and retry",
+      "requestTooLarge": "Request too large: fewer references or lower resolution",
+      "modelOrEndpointError": "Model or endpoint error: check model name and path",
+      "upstreamError": "Upstream error after retries: try again later",
+      "noImageInResponse": "No image in the response: the model replied with text only",
+      "imageRefused": "Refused by the provider's safety policy: adjust the prompt",
+      "refused": "Refused by the provider's safety policy: adjust the prompt",
+      "emptyOutput": "Empty model output",
+      "invalidOutput": "Unparseable model output",
+      "truncatedOutput": "Model output truncated",
+      "unknown": "Unknown error"
+    },
+    "details": {
+      "title": "Image details",
+      "prompt": "Prompt",
+      "revised": "Revised prompt",
+      "model": "Model",
+      "params": "Parameters",
+      "usage": "Usage",
+      "created": "Created at"
+    },
+    "lightbox": {
+      "download": "Download"
+    },
+    "zip": {
+      "preparing": "Packing…",
+      "done": "Export finished",
+      "none": "Nothing to export"
+    },
+    "settings": {
+      "title": "AI image settings",
+      "genApi": "Image API",
+      "visionApi": "Vision API",
+      "provider": "Provider",
+      "enable": "Enable AI image gen",
+      "apiKey": "API key",
+      "showKey": "Show key",
+      "hideKey": "Hide key",
+      "keyLink": "Get a key",
+      "baseUrl": "Base URL",
+      "baseUrlHint": "https only; http allowed for loopback. Compatible gateways work too.",
+      "imageModel": "Image model",
+      "visionModel": "Vision model",
+      "fetchModels": "Fetch models",
+      "fetchOk": "Fetched {{count}} models",
+      "test": "Test connection",
+      "unassigned": "Not selected",
+      "manual": "Type a model name…",
+      "modelPlaceholder": "Model name",
+      "consentTitle": "Enable AI image gen?",
+      "consentBody": "Once enabled, your prompts and uploaded images go straight to the provider you configure (never through this site). The API key stays in this browser's localStorage.",
+      "consentAccept": "I understand, enable"
+    },
+    "mode": {
+      "gen": "Generate",
+      "reverse": "Reverse prompt"
+    },
+    "workspace": {
+      "new": "New generation",
+      "empty": "Nothing generated yet — open the card above to start",
+      "count": "{{count}} images"
+    },
+    "dock": {
+      "back": "Back to workspace"
+    },
+    "reverse": {
+      "badFile": "PNG / JPEG / WebP only, up to 20MB",
+      "dropzone": "Click or drag an image here",
+      "dropHint": "PNG / JPEG / WebP, up to 20MB; pasting also works",
+      "replace": "Re-upload",
+      "skill": "Reverse skill",
+      "visionModel": "Vision model",
+      "start": "Reverse",
+      "candidates": "Candidate prompts (auto-saved to the library)",
+      "insert": "Use in composer",
+      "copy": "Copy"
+    },
+    "library": {
+      "title": "Prompt library",
+      "search": "Search prompts…",
+      "empty": "No cached prompts yet",
+      "insert": "Insert",
+      "delete": "Delete",
+      "source": {
+        "reverse": "reverse",
+        "gen": "gen",
+        "manual": "manual"
+      }
+    },
+    "skillManager": {
+      "title": "Skill manager",
+      "add": "New",
+      "edit": "Edit",
+      "delete": "Delete",
+      "export": "Export",
+      "import": "Import",
+      "importOk": "Imported {{count}} skills",
+      "importError": "Import failed: not a valid SKILL.md package",
+      "name": "Name (kebab-case)",
+      "description": "Description",
+      "markdown": "Instructions (Markdown body)",
+      "invalidName": "Name must be lowercase letters, digits and hyphens (max 64)",
+      "format": "Output format",
+      "builtin": "builtin",
+      "empty": "No enabled skills",
+      "save": "Save",
+      "cancel": "Cancel"
+    }
   }
 }

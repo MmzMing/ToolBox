@@ -1,4 +1,4 @@
-import { AIRequestError } from '../../../ai/transport'
+import { AIRequestError } from '@/modules/ai/transport'
 
 /**
  * 把 AI 链路的异常翻成 i18n 键。
@@ -8,15 +8,15 @@ import { AIRequestError } from '../../../ai/transport'
  */
 export function aiErrorKey(error: unknown): string {
   if (error instanceof AIRequestError) {
-    return `resume.ai.errors.${error.code}`
+    return `common:ai.errors.${error.code}`
   }
   if (error instanceof Error) {
     if (error.name === 'AbortError') {
-      return 'resume.ai.errors.aborted'
+      return 'common:ai.errors.aborted'
     }
     if (error.name === 'TimeoutError') {
-      return 'resume.ai.errors.timeout'
+      return 'common:ai.errors.timeout'
     }
   }
-  return 'resume.ai.errors.unknown'
+  return 'common:ai.errors.unknown'
 }

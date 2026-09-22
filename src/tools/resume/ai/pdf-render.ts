@@ -1,7 +1,7 @@
 import * as pdfjs from 'pdfjs-dist'
 import PdfWorker from 'pdfjs-dist/build/pdf.worker.min.mjs?worker'
 
-import { AIRequestError } from './transport'
+import { AIRequestError } from '@/modules/ai/transport'
 import { MAX_PDF_FILE_BYTES, MAX_PDF_IMPORT_PAGES } from './pdf-import'
 
 // pdf.js 的 worker 必须显式接线；?worker 让 Vite 打成同源的 module worker，

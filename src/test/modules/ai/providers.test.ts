@@ -12,8 +12,8 @@ import {
   modelSupportsPdf,
   resolveSlot,
   toAIConnection,
-} from '@/tools/resume/ai/providers'
-import type { AIModelProfile } from '@/tools/resume/ai/providers'
+} from '@/modules/ai/providers'
+import type { AIModelProfile } from '@/modules/ai/providers'
 
 const profile = (overrides: Partial<AIModelProfile> = {}): AIModelProfile => ({
   id: 'slot:text',
@@ -43,7 +43,12 @@ describe('provider presets', () => {
     expect(Object.keys(settings.credentials)).toHaveLength(AI_PROVIDERS.length)
     expect(Object.keys(settings.picks)).toHaveLength(AI_PROVIDERS.length)
     expect(settings.modelLists).toEqual({})
-    expect(settings.picks.deepseek).toEqual({ text: null, pdf: null })
+    expect(settings.picks.deepseek).toEqual({
+      text: null,
+      pdf: null,
+      image: null,
+      vision: null,
+    })
     expect(settings.activeProvider).toBe('deepseek')
   })
 })
@@ -162,8 +167,13 @@ describe('activeSlot', () => {
     ...emptyAISettings(),
     picks: {
       ...emptyAISettings().picks,
-      qwen: { text: 'qwen3-vl-plus', pdf: null },
-      deepseek: { text: 'deepseek-chat', pdf: 'deepseek-v4-vision' },
+      qwen: { text: 'qwen3-vl-plus', pdf: null, image: null, vision: null },
+      deepseek: {
+        text: 'deepseek-chat',
+        pdf: 'deepseek-v4-vision',
+        image: null,
+        vision: null,
+      },
     },
     activeProvider: 'qwen' as const,
   }

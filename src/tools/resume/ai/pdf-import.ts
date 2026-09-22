@@ -1,6 +1,6 @@
 import { v4 as uuidv4 } from 'uuid'
 
-import { AIRequestError } from './transport'
+import { AIRequestError } from '@/modules/ai/transport'
 import type { ResumeSeed } from '../resume/initial-resume-data'
 import type { Education, Experience, Project, ResumeData } from '../resume/types'
 

@@ -2,7 +2,11 @@ export const AI_PROVIDERS = ['openai', 'gemini', 'deepseek', 'anthropic', 'qwen'
 
 export type AIProvider = (typeof AI_PROVIDERS)[number]
 
-export type AIProtocol = 'chat-completions' | 'responses' | 'gemini' | 'anthropic'
+export type AIProtocol =
+  'chat-completions' | 'responses' | 'gemini' | 'anthropic' | 'images-openai' | 'images-gemini'
+
+/** 任务槽类型：文本润色/校对、PDF 视觉导入、生图出图、视觉反推提示词 */
+export type AIModelTask = 'text' | 'pdf' | 'image' | 'vision'
 
 export type AIConnection = {
   provider: AIProvider
@@ -25,7 +29,12 @@ export type ProviderCredentials = { apiKey: string; baseUrl: string }
 export type SlotModel = { provider: AIProvider; model: string }
 
 /** 每个厂商记住自己选过的型号，切换使用厂商时不会互相覆盖 */
-export type ProviderPicks = { text: string | null; pdf: string | null }
+export type ProviderPicks = {
+  text: string | null
+  pdf: string | null
+  image: string | null
+  vision: string | null
+}
 
 /** 持久化的 AI 设置：凭证与型号选择都按厂商存一份，activeProvider 决定实际用哪家 */
 export type AISettingsData = {
@@ -52,7 +61,7 @@ export const AI_PROVIDER_DEFINITIONS: Record<AIProvider, ProviderDefinition> = {
     name: 'OpenAI',
     baseUrl: 'https://api.openai.com/v1',
     protocol: 'chat-completions',
-    protocols: ['chat-completions', 'responses'],
+    protocols: ['chat-completions', 'responses', 'images-openai'],
     keyUrl: 'https://platform.openai.com/api-keys',
     // 官方端点不对任意浏览器源返回 CORS 头
     browserDirect: 'blocked',
@@ -85,7 +94,7 @@ export const AI_PROVIDER_DEFINITIONS: Record<AIProvider, ProviderDefinition> = {
     name: 'Gemini',
     baseUrl: 'https://generativelanguage.googleapis.com',
     protocol: 'gemini',
-    protocols: ['gemini'],
+    protocols: ['gemini', 'images-gemini'],
     keyUrl: 'https://aistudio.google.com/app/apikey',
     browserDirect: 'blocked',
   },
@@ -104,7 +113,23 @@ export const defaultCredentials = (provider: AIProvider): ProviderCredentials =>
   baseUrl: AI_PROVIDER_DEFINITIONS[provider].baseUrl,
 })
 
-export const emptyPicks = (): ProviderPicks => ({ text: null, pdf: null })
+export const emptyPicks = (): ProviderPicks => ({
+  text: null,
+  pdf: null,
+  image: null,
+  vision: null,
+})
+
+/** 出图模型目录：只作下拉候选，界面始终允许手输；dall-e-3 已退役，gpt-image-1-mini/1.5 于 2026-12 下线 */
+export const IMAGE_MODEL_CATALOG: Record<'openai' | 'gemini', readonly string[]> = {
+  openai: ['gpt-image-2', 'gpt-image-2.5-sunburst', 'gpt-image-2.5-flare', 'gpt-image-1'],
+  gemini: ['gemini-2.5-flash-image', 'gemini-3-pro-image-preview'],
+}
+
+export const DEFAULT_IMAGE_MODEL: Record<'openai' | 'gemini', string> = {
+  openai: 'gpt-image-2',
+  gemini: 'gemini-2.5-flash-image',
+}
 
 export const emptyAISettings = (): AISettingsData => ({
   credentials: Object.fromEntries(
@@ -203,7 +228,7 @@ export function toAIConnection(profile: AIConnection): AIConnection {
 export function resolveSlot(
   slot: SlotModel | null | undefined,
   credentials: ProviderCredentials,
-  task: 'text' | 'pdf',
+  task: AIModelTask,
 ): AIModelProfile | null {
   if (!slot || !slot.model.trim()) {
     return null
@@ -223,7 +248,7 @@ export function resolveSlot(
 }
 
 /** 当前生效的任务槽：只认 activeProvider 那一家 */
-export function activeSlot(settings: AISettingsData, task: 'text' | 'pdf'): SlotModel | null {
+export function activeSlot(settings: AISettingsData, task: AIModelTask): SlotModel | null {
   const model = settings.picks[settings.activeProvider]?.[task]
   return model ? { provider: settings.activeProvider, model } : null
 }

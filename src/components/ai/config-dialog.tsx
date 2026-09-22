@@ -38,22 +38,23 @@ import { cn } from '@/lib/utils'
 import {
   AI_PROVIDERS,
   AI_PROVIDER_DEFINITIONS,
+  IMAGE_MODEL_CATALOG,
   isValidBaseUrl,
   resolveSlot,
   type AIProvider,
   type ProviderCredentials,
-} from '../../../ai/providers'
-import { useAIConfigStore } from '../../../ai/store'
-import { useAIDialogStore } from './useAIGate'
-import { ProviderMark } from './ProviderMark'
-import { useModelList } from './useModelList'
-import { useModelTest } from './useModelTest'
+} from '@/modules/ai/providers'
+import { useAIConfigStore } from '@/modules/ai/store'
+import { useAIDialogStore } from './dialog-store'
+import { ProviderMark } from './provider-mark'
+import { useModelList } from './use-model-list'
+import { useModelTest } from './use-model-test'
 import { aiErrorKey } from './error-copy'
 
 const DIRECT_BADGE: Record<string, { key: string; className: string }> = {
-  reachable: { key: 'resume.ai.direct.reachable', className: 'text-primary border-primary/40' },
-  blocked: { key: 'resume.ai.direct.blocked', className: 'text-destructive border-destructive/40' },
-  unknown: { key: 'resume.ai.direct.unknown', className: 'text-muted-foreground' },
+  reachable: { key: 'common:ai.direct.reachable', className: 'text-primary border-primary/40' },
+  blocked: { key: 'common:ai.direct.blocked', className: 'text-destructive border-destructive/40' },
+  unknown: { key: 'common:ai.direct.unknown', className: 'text-muted-foreground' },
 }
 
 const NONE = '__none__'
@@ -94,7 +95,7 @@ function ModelSlotRow({
             value={value ?? ''}
             spellCheck={false}
             autoComplete="off"
-            placeholder={t('resume.ai.config.modelPlaceholder')}
+            placeholder={t('common:ai.config.modelPlaceholder')}
             onChange={(event) => onChange(event.target.value || null)}
           />
           <Button
@@ -104,7 +105,7 @@ function ModelSlotRow({
             className={options.length ? 'shrink-0' : 'hidden'}
             onClick={() => setManual(false)}
           >
-            {t('resume.ai.config.fromList')}
+            {t('common:ai.config.fromList')}
           </Button>
         </div>
       ) : (
@@ -122,14 +123,14 @@ function ModelSlotRow({
             <SelectValue />
           </SelectTrigger>
           <SelectContent position="popper" align="start">
-            <SelectItem value={NONE}>{t('resume.ai.config.unassigned')}</SelectItem>
+            <SelectItem value={NONE}>{t('common:ai.config.unassigned')}</SelectItem>
             {options.map((model) => (
               <SelectItem key={model} value={model}>
                 {model}
               </SelectItem>
             ))}
             <SelectSeparator />
-            <SelectItem value={MANUAL}>{t('resume.ai.config.manual')}</SelectItem>
+            <SelectItem value={MANUAL}>{t('common:ai.config.manual')}</SelectItem>
           </SelectContent>
         </Select>
       )}
@@ -173,15 +174,15 @@ function ModelSection({
     setModelList(provider, list)
     toast.success(
       list.length
-        ? t('resume.ai.config.fetchOk', { count: list.length })
-        : t('resume.ai.config.fetchEmpty'),
+        ? t('common:ai.config.fetchOk', { count: list.length })
+        : t('common:ai.config.fetchEmpty'),
     )
   }
 
   return (
     <div className="flex flex-col gap-3">
       <div className="flex items-center justify-between gap-2">
-        <Label>{t('resume.ai.config.models')}</Label>
+        <Label>{t('common:ai.config.models')}</Label>
         <div className="flex items-center gap-2">
           <Button
             type="button"
@@ -195,7 +196,7 @@ function ModelSection({
             ) : (
               <Download className="size-4" />
             )}
-            {t('resume.ai.config.fetchModels')}
+            {t('common:ai.config.fetchModels')}
           </Button>
           <Button
             type="button"
@@ -205,7 +206,7 @@ function ModelSection({
             onClick={() => testTarget && void runTest(testTarget)}
           >
             {test.status === 'running' && <Loader2 className="size-4 animate-spin" />}
-            {t('resume.ai.test.button')}
+            {t('common:ai.test.button')}
           </Button>
         </div>
       </div>
@@ -225,23 +226,39 @@ function ModelSection({
 
       <ModelSlotRow
         id="ai-text-model"
-        label={t('resume.ai.config.textModel')}
+        label={t('common:ai.config.textModel')}
         models={models}
         value={picks.text}
         onChange={(model) => setPick(provider, 'text', model)}
       />
       <ModelSlotRow
         id="ai-pdf-model"
-        label={t('resume.ai.config.pdfModel')}
+        label={t('common:ai.config.pdfModel')}
         models={models}
         value={picks.pdf}
         onChange={(model) => setPick(provider, 'pdf', model)}
       />
+      {(provider === 'openai' || provider === 'gemini') && (
+        <ModelSlotRow
+          id="ai-image-model"
+          label={t('common:ai.config.imageModel')}
+          models={[...new Set([...IMAGE_MODEL_CATALOG[provider], ...models])]}
+          value={picks.image}
+          onChange={(model) => setPick(provider, 'image', model)}
+        />
+      )}
+      <ModelSlotRow
+        id="ai-vision-model"
+        label={t('common:ai.config.visionModel')}
+        models={models}
+        value={picks.vision}
+        onChange={(model) => setPick(provider, 'vision', model)}
+      />
 
       <p className="text-muted-foreground text-xs">
         {models.length
-          ? t('resume.ai.config.textHint')
-          : t('resume.ai.config.listEmpty', { name: AI_PROVIDER_DEFINITIONS[provider].name })}
+          ? t('common:ai.config.textHint')
+          : t('common:ai.config.listEmpty', { name: AI_PROVIDER_DEFINITIONS[provider].name })}
       </p>
     </div>
   )
@@ -300,25 +317,25 @@ export function AIConfigDialog() {
         <div className="border-border shrink-0 border-b px-5 py-4">
           <DialogHeader className="pr-8">
             <DialogTitle className="flex items-center gap-2">
-              {t('resume.ai.config.title')}
+              {t('common:ai.config.title')}
               <Badge variant="outline">
-                {t('resume.ai.config.connected', { count: configured, total: AI_PROVIDERS.length })}
+                {t('common:ai.config.connected', { count: configured, total: AI_PROVIDERS.length })}
               </Badge>
             </DialogTitle>
-            <DialogDescription>{t('resume.ai.config.notice')}</DialogDescription>
+            <DialogDescription>{t('common:ai.config.notice')}</DialogDescription>
           </DialogHeader>
 
           <div className="border-border mt-3 flex flex-wrap items-center justify-between gap-3 rounded-lg border p-3">
             <div className="min-w-0">
               <Label htmlFor="ai-enabled" className="flex cursor-pointer items-center gap-1.5">
                 <Sparkles className="text-muted-foreground size-4" />
-                {t('resume.ai.entry')}
+                {t('common:ai.entry')}
               </Label>
-              <p className="text-muted-foreground mt-0.5 text-xs">{t('resume.ai.entryHint')}</p>
+              <p className="text-muted-foreground mt-0.5 text-xs">{t('common:ai.entryHint')}</p>
             </div>
             <div className="flex shrink-0 items-center gap-2">
               <Label htmlFor="ai-active-provider" className="text-muted-foreground text-xs">
-                {t('resume.ai.config.useProvider')}
+                {t('common:ai.config.useProvider')}
               </Label>
               <Select
                 value={activeProvider}
@@ -343,9 +360,9 @@ export function AIConfigDialog() {
 
         <div className="flex min-h-0 flex-1 flex-col overflow-y-auto sm:flex-row sm:overflow-hidden">
           <div className="border-border shrink-0 p-3 sm:w-60 sm:overflow-y-auto sm:border-r">
-            <p className="px-2 pt-1 pb-1 text-sm font-medium">{t('resume.ai.config.pickTitle')}</p>
+            <p className="px-2 pt-1 pb-1 text-sm font-medium">{t('common:ai.config.pickTitle')}</p>
             <p className="text-muted-foreground px-2 pb-2 text-xs">
-              {t('resume.ai.config.pickHint')}
+              {t('common:ai.config.pickHint')}
             </p>
             <div className="flex flex-col gap-1">
               {AI_PROVIDERS.map((item) => {
@@ -380,8 +397,8 @@ export function AIConfigDialog() {
                             ready ? 'bg-primary' : 'bg-muted-foreground/40',
                           )}
                         />
-                        {t(ready ? 'resume.ai.config.ready' : 'resume.ai.config.incomplete')}
-                        {used && <span>· {t('resume.ai.config.active')}</span>}
+                        {t(ready ? 'common:ai.config.ready' : 'common:ai.config.incomplete')}
+                        {used && <span>· {t('common:ai.config.active')}</span>}
                       </span>
                     </span>
                     {editing && <Check className="text-muted-foreground size-4 shrink-0" />}
@@ -408,7 +425,7 @@ export function AIConfigDialog() {
                       'text-muted-foreground gap-1',
                     )}
                   >
-                    {t('resume.ai.config.getKey')}
+                    {t('common:ai.config.getKey')}
                     <ExternalLink className="size-3" />
                   </a>
                 </div>
@@ -419,7 +436,7 @@ export function AIConfigDialog() {
                     value={current.apiKey}
                     autoComplete="off"
                     spellCheck={false}
-                    placeholder={t('resume.ai.config.keyPlaceholder')}
+                    placeholder={t('common:ai.config.keyPlaceholder')}
                     onChange={(event) => setProviderApiKey(provider, event.target.value)}
                   />
                   <Button
@@ -427,7 +444,7 @@ export function AIConfigDialog() {
                     variant="ghost"
                     size="icon-sm"
                     aria-label={t(
-                      revealKey ? 'resume.ai.config.hideKey' : 'resume.ai.config.showKey',
+                      revealKey ? 'common:ai.config.hideKey' : 'common:ai.config.showKey',
                     )}
                     onClick={() => setRevealKey((prev) => !prev)}
                   >
@@ -437,7 +454,7 @@ export function AIConfigDialog() {
               </div>
 
               <div className="flex flex-col gap-2">
-                <Label htmlFor="ai-base-url">{t('resume.ai.config.baseUrl')}</Label>
+                <Label htmlFor="ai-base-url">{t('common:ai.config.baseUrl')}</Label>
                 <Input
                   id="ai-base-url"
                   value={current.baseUrl}
@@ -445,7 +462,7 @@ export function AIConfigDialog() {
                   onChange={(event) => setProviderBaseUrl(provider, event.target.value)}
                   aria-invalid={!isValidBaseUrl(current.baseUrl)}
                 />
-                <p className="text-muted-foreground text-xs">{t('resume.ai.config.baseUrlHint')}</p>
+                <p className="text-muted-foreground text-xs">{t('common:ai.config.baseUrlHint')}</p>
               </div>
 
               {/* 凭证一改就重挂模型区：旧的检测结论与在飞请求随之作废 */}
@@ -462,8 +479,8 @@ export function AIConfigDialog() {
       <AlertDialog open={consentOpen} onOpenChange={setConsentOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>{t('resume.ai.consent.title')}</AlertDialogTitle>
-            <AlertDialogDescription>{t('resume.ai.consent.body')}</AlertDialogDescription>
+            <AlertDialogTitle>{t('common:ai.consent.title')}</AlertDialogTitle>
+            <AlertDialogDescription>{t('common:ai.consent.body')}</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>{t('resume.confirm.cancel')}</AlertDialogCancel>
@@ -474,7 +491,7 @@ export function AIConfigDialog() {
                 setConsentOpen(false)
               }}
             >
-              {t('resume.ai.consent.accept')}
+              {t('common:ai.consent.accept')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

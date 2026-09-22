@@ -219,5 +219,184 @@
       "source": "色卡数据来自开源项目",
       "repo": "maxcleme/beadcolors（MIT）"
     }
+  },
+  "ai-image-gen": {
+    "title": "AI 生图",
+    "description": "自带 key 直连 OpenAI / Gemini 出图，瀑布流管理生成结果，支持反推提示词、skill 模板与 zip 导出",
+    "toolbar": {
+      "select": "选择",
+      "exitSelect": "退出选择",
+      "exportZip": "导出 zip",
+      "exportSelected": "导出所选",
+      "clear": "清空",
+      "clearConfirmTitle": "清空全部生成图？",
+      "clearConfirmDesc": "将删除本地缓存的所有生成图（IndexedDB），提示词库不受影响。此操作不可撤销。",
+      "clearConfirmAction": "清空",
+      "cancel": "取消",
+      "settings": "AI 设置",
+      "library": "提示词库",
+      "skills": "Skill 管理"
+    },
+    "gate": {
+      "title": "AI 生图尚未开启",
+      "body": "启用 AI 后，你的提示词与上传图片将发送到你配置的服务商；API key 仅存储在本浏览器 localStorage，本站不设中转。",
+      "cta": "去开启并配置"
+    },
+    "composer": {
+      "placeholder": "描述你想生成的画面……（Enter 发送，Shift+Enter 换行）",
+      "send": "发送",
+      "addReference": "参考图",
+      "removeReference": "移除参考图",
+      "enableHint": "AI 生图未开启：点击这里配置服务商并开启（内容直连你配置的 API，key 只存本地）。",
+      "configHint": "当前厂商缺少可用凭证或模型：请到 AI 设置填写 key / 选择出图模型（仅 OpenAI 与 Gemini 支持出图）。"
+    },
+    "params": {
+      "model": "模型",
+      "provider": "服务商",
+      "aspect": "比例",
+      "quality": "质量",
+      "count": "张数",
+      "aspectAuto": "自动",
+      "advanced": "高级",
+      "imageSize": "分辨率",
+      "seed": "Seed",
+      "seedPlaceholder": "留空随机",
+      "background": "背景",
+      "outputFormat": "输出格式",
+      "compression": "压缩率",
+      "fidelity": "参考保真度",
+      "seedUnsupported": "OpenAI 图像协议不支持固定 seed；该参数仅 Gemini 生效。"
+    },
+    "card": {
+      "queued": "排队中",
+      "generating": "生成中",
+      "cancelled": "已取消",
+      "retry": "重试",
+      "cancel": "取消",
+      "download": "下载",
+      "reference": "以此为参考图",
+      "remix": "复用参数",
+      "details": "详情",
+      "delete": "删除"
+    },
+    "errors": {
+      "configRequired": "缺少 API key 或模型配置，请到 AI 设置补全",
+      "unsupportedProvider": "当前厂商不支持出图，请切换 OpenAI 或 Gemini",
+      "invalidProvider": "服务商或协议不受支持",
+      "invalidEndpoint": "服务地址不合法（仅 https，回环地址可用 http）",
+      "corsBlocked": "请求发不出去：可能是跨域被拦或地址不可达，可尝试兼容网关地址",
+      "networkError": "网络异常，请检查连接后重试",
+      "timeout": "请求超时（生图上限 180 秒），可降低分辨率或张数重试",
+      "aborted": "已取消",
+      "authenticationFailed": "鉴权失败：请检查 API key 是否正确",
+      "modelAccessDenied": "无权访问该模型：请确认账号权限或模型名",
+      "rateLimited": "触发限流：稍等片刻再试",
+      "requestTooLarge": "请求体过大：减少参考图或降低分辨率",
+      "modelOrEndpointError": "模型或端点错误：请检查模型名与地址路径",
+      "upstreamError": "服务商上游异常：已自动重试仍失败，请稍后再试",
+      "noImageInResponse": "响应里没有图片：模型可能只回了文字，换个模型或简化提示词",
+      "imageRefused": "内容被服务商安全策略拒绝：调整提示词后重试",
+      "refused": "内容被服务商安全策略拒绝：调整提示词后重试",
+      "emptyOutput": "模型返回为空",
+      "invalidOutput": "模型输出格式无法解析",
+      "truncatedOutput": "模型输出被截断",
+      "unknown": "未知错误"
+    },
+    "details": {
+      "title": "图片详情",
+      "prompt": "提示词",
+      "revised": "模型改写后的提示词",
+      "model": "模型",
+      "params": "参数",
+      "usage": "用量",
+      "created": "生成时间"
+    },
+    "lightbox": {
+      "download": "下载"
+    },
+    "zip": {
+      "preparing": "正在打包…",
+      "done": "导出完成",
+      "none": "没有可导出的图片"
+    },
+    "settings": {
+      "title": "AI 生图设置",
+      "genApi": "生图 API",
+      "visionApi": "识图 API",
+      "provider": "服务商",
+      "enable": "启用 AI 生图",
+      "apiKey": "API Key",
+      "showKey": "显示密钥",
+      "hideKey": "隐藏密钥",
+      "keyLink": "获取密钥",
+      "baseUrl": "服务地址（Base URL）",
+      "baseUrlHint": "仅 https；回环地址可用 http。可填兼容网关。",
+      "imageModel": "生图模型",
+      "visionModel": "识图模型",
+      "fetchModels": "获取模型列表",
+      "fetchOk": "已获取 {{count}} 个模型",
+      "test": "检测连接",
+      "unassigned": "未选择",
+      "manual": "手动输入模型名…",
+      "modelPlaceholder": "模型名",
+      "consentTitle": "开启 AI 生图？",
+      "consentBody": "开启后，你的提示词与上传图片将直接发送到你配置的服务商（不经过本站服务器）；API key 仅存于本浏览器 localStorage。",
+      "consentAccept": "我已了解，开启"
+    },
+    "mode": {
+      "gen": "生图",
+      "reverse": "反推提示词"
+    },
+    "workspace": {
+      "new": "新建生成",
+      "empty": "还没有生成记录，点上方卡片开始第一次生图",
+      "count": "{{count}} 张"
+    },
+    "dock": {
+      "back": "返回工作区"
+    },
+    "reverse": {
+      "badFile": "仅支持 PNG / JPEG / WebP，且不超过 20MB",
+      "dropzone": "点击或拖拽图片到此处",
+      "dropHint": "支持 PNG / JPEG / WebP，≤20MB；也可直接粘贴",
+      "replace": "重新上传",
+      "skill": "反推 skill",
+      "visionModel": "识图模型",
+      "start": "开始反推",
+      "candidates": "候选提示词（已自动存入提示词库）",
+      "insert": "填入输入框",
+      "copy": "复制"
+    },
+    "library": {
+      "title": "提示词库",
+      "search": "搜索提示词…",
+      "empty": "还没有缓存的提示词",
+      "insert": "插入",
+      "delete": "删除",
+      "source": {
+        "reverse": "反推",
+        "gen": "生成",
+        "manual": "手动"
+      }
+    },
+    "skillManager": {
+      "title": "Skill 管理",
+      "add": "新建",
+      "edit": "编辑",
+      "delete": "删除",
+      "export": "导出",
+      "import": "导入",
+      "importOk": "已导入 {{count}} 个 skill",
+      "importError": "导入失败：不符合 SKILL.md 规范或文件损坏",
+      "name": "名称（kebab-case）",
+      "description": "描述",
+      "markdown": "指令内容（Markdown 正文）",
+      "invalidName": "名称需为小写字母、数字与连字符（≤64 字符）",
+      "format": "输出格式",
+      "builtin": "内置",
+      "empty": "没有已启用的 skill",
+      "save": "保存",
+      "cancel": "取消"
+    }
   }
 }

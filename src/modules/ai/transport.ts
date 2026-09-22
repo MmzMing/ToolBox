@@ -42,6 +42,8 @@ export type AIErrorCode =
   | 'tooManyPages'
   | 'fileTooLarge'
   | 'encryptedPdf'
+  | 'noImageInResponse'
+  | 'imageRefused'
 
 const RETRYABLE_UPSTREAM_STATUSES = new Set([500, 502, 503, 504])
 const UPSTREAM_RETRY_DELAYS_MS = [250, 750] as const
@@ -417,15 +419,14 @@ function waitForRetry(delay: number, signal: AbortSignal) {
  *
  * 浏览器里 fetch 抛 TypeError 时拿不到任何状态码：跨域被拦、DNS 失败、离线三种情况长得一样，
  * 所以统一归到 `corsBlocked`，文案里把两种可能都写出来，别让用户以为是 key 错了。
+ * body 可能是 FormData（images/edits multipart），此时不能 JSON 序列化。
  */
-export async function fetchAI(
-  connection: AIConnection,
-  input: AIGenerationInput,
+async function sendWithRetry(
+  request: AIRequest,
   signal: AbortSignal,
-  fetcher: typeof fetch = fetch,
+  fetcher: typeof fetch,
 ): Promise<Response> {
-  const request = buildAIRequest(connection, input)
-  const body = JSON.stringify(request.body)
+  const body = request.body instanceof FormData ? request.body : JSON.stringify(request.body)
   let response: Response | undefined
 
   for (let attempt = 0; attempt <= UPSTREAM_RETRY_DELAYS_MS.length; attempt++) {
@@ -441,9 +442,8 @@ export async function fetchAI(
       if (error instanceof Error && ['TimeoutError', 'AbortError'].includes(error.name)) {
         throw error
       }
-      console.error('[resume-ai] request failed', {
-        provider: connection.provider,
-        model: connection.model,
+      console.error('[ai] request failed', {
+        url: request.url,
         error: error instanceof Error ? `${error.name}: ${error.message}` : 'unknown',
       })
       throw new AIRequestError('corsBlocked', 502)
@@ -464,9 +464,8 @@ export async function fetchAI(
   }
   if (!response.ok) {
     const code = statusToCode(response.status)
-    console.error('[resume-ai] upstream failed', {
-      provider: connection.provider,
-      model: connection.model,
+    console.error('[ai] upstream failed', {
+      url: request.url,
       upstreamStatus: response.status,
       requestId:
         response.headers.get('x-request-id') ?? response.headers.get('x-goog-request-id') ?? null,
@@ -475,6 +474,15 @@ export async function fetchAI(
     throw new AIRequestError(code, response.status >= 500 ? 502 : response.status)
   }
   return response
+}
+
+export async function fetchAI(
+  connection: AIConnection,
+  input: AIGenerationInput,
+  signal: AbortSignal,
+  fetcher: typeof fetch = fetch,
+): Promise<Response> {
+  return sendWithRetry(buildAIRequest(connection, input), signal, fetcher)
 }
 
 /** 组合用户 abort 与 120s 超时；两者都要能打断重试等待 */
@@ -605,4 +613,240 @@ export async function listProviderModels(
     )
   }
   return parseModelList(await response.json())
+}
+
+/* ------------------------- 出图协议（images-openai / images-gemini） ------------------------- */
+
+/** 生图常需 20–60s，超时窗口比文本请求长 */
+export const IMAGE_REQUEST_TIMEOUT_MS = 180_000
+
+export type ImageRequestParams = {
+  count: number
+  /** OpenAI size：auto | 1024x1024 | 1536x1024 | 1024x1536 */
+  size?: string
+  /** Gemini imageConfig.aspectRatio */
+  aspectRatio?: string
+  /** OpenAI quality：auto | low | medium | high */
+  quality?: string
+  /** Gemini imageConfig.imageSize：1K | 2K | 4K */
+  imageSize?: string
+  /** 仅 Gemini 支持；OpenAI 协议无 seed */
+  seed?: number | null
+  /** OpenAI background：auto | transparent | opaque */
+  background?: string
+  /** OpenAI output_format：png | jpeg | webp */
+  outputFormat?: string
+  outputCompression?: number | null
+  /** OpenAI edits input_fidelity：low | high */
+  inputFidelity?: string
+}
+
+export type ImageGenerationInput = {
+  prompt: string
+  /** 参考图 data URL；非空时 OpenAI 走 images/edits multipart */
+  images?: string[]
+  params: ImageRequestParams
+}
+
+export type ImageOutputPart = { mimeType: string; base64: string }
+
+export type ImageUsage = { inputTokens?: number; outputTokens?: number; totalTokens?: number }
+
+export type ImageGenerationResult = {
+  images: ImageOutputPart[]
+  revisedPrompt?: string
+  usage?: ImageUsage
+}
+
+const splitDataUrl = (image: string): { mimeType: string; data: string } => {
+  const [header, data] = image.split(',')
+  return { mimeType: header.slice(5, header.indexOf(';')), data }
+}
+
+const mimeExtension = (mimeType: string) => mimeType.split('/')[1] || 'bin'
+
+const numOrUndefined = (value: unknown) =>
+  typeof value === 'number' && Number.isFinite(value) ? value : undefined
+
+/**
+ * 构造生图请求。
+ *
+ * OpenAI 带参考图时切 images/edits multipart（image[] 可带多张）；Gemini 统一走
+ * generateContent，参考图放 inlineData。multipart 不能手设 Content-Type，
+ * 由浏览器补 boundary。
+ */
+export function buildImageRequest(
+  connection: AIConnection,
+  input: ImageGenerationInput,
+): AIRequest {
+  const { model, apiKey, baseUrl } = connection
+  const { prompt, images = [], params } = input
+  const base = baseUrl.replace(/\/+$/, '')
+
+  if (connection.protocol === 'images-openai') {
+    const fields: Record<string, string | number> = {
+      model,
+      prompt,
+      n: params.count,
+      ...(params.size ? { size: params.size } : {}),
+      ...(params.quality ? { quality: params.quality } : {}),
+      ...(params.background ? { background: params.background } : {}),
+      ...(params.outputFormat ? { output_format: params.outputFormat } : {}),
+      ...(params.outputCompression != null ? { output_compression: params.outputCompression } : {}),
+    }
+    const headers: Record<string, string> = { Authorization: `Bearer ${apiKey}` }
+    if (!images.length) {
+      return {
+        url: `${base}/images/generations`,
+        headers: { ...headers, 'Content-Type': 'application/json' },
+        body: fields,
+      }
+    }
+    const form = new FormData()
+    images.forEach((image, index) => {
+      const { mimeType, data } = splitDataUrl(image)
+      const binary = atob(data)
+      const bytes = new Uint8Array(binary.length)
+      for (let i = 0; i < binary.length; i++) {
+        bytes[i] = binary.charCodeAt(i)
+      }
+      form.append(
+        'image[]',
+        new Blob([bytes], { type: mimeType }),
+        `reference-${index}.${mimeExtension(mimeType)}`,
+      )
+    })
+    for (const [key, value] of Object.entries(fields)) {
+      form.append(key, String(value))
+    }
+    if (params.inputFidelity) {
+      form.append('input_fidelity', params.inputFidelity)
+    }
+    return { url: `${base}/images/edits`, headers, body: form }
+  }
+
+  if (connection.protocol === 'images-gemini') {
+    const imageConfig: Record<string, unknown> = {
+      ...(params.aspectRatio ? { aspectRatio: params.aspectRatio } : {}),
+      ...(params.imageSize ? { imageSize: params.imageSize } : {}),
+    }
+    return {
+      url: `${base.replace(/\/v1(beta)?$/, '')}/v1beta/models/${encodeURIComponent(
+        model.replace(/^models\//, ''),
+      )}:generateContent`,
+      headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey },
+      body: {
+        contents: [
+          {
+            role: 'user',
+            parts: [
+              { text: prompt },
+              ...images.map((image) => {
+                const { mimeType, data } = splitDataUrl(image)
+                return { inlineData: { mimeType, data } }
+              }),
+            ],
+          },
+        ],
+        generationConfig: {
+          responseModalities: ['TEXT', 'IMAGE'],
+          candidateCount: 1,
+          ...(Object.keys(imageConfig).length ? { imageConfig } : {}),
+          ...(params.seed != null ? { seed: params.seed } : {}),
+        },
+      },
+    }
+  }
+
+  throw new AIRequestError('invalidProvider')
+}
+
+function finishImageResult(
+  images: ImageOutputPart[],
+  revisedPrompt: string | undefined,
+  usage: ImageUsage,
+): ImageGenerationResult {
+  if (!images.length) {
+    throw new AIRequestError('noImageInResponse', 502)
+  }
+  const hasUsage = Object.values(usage).some((value) => value != null)
+  return {
+    images,
+    ...(revisedPrompt ? { revisedPrompt } : {}),
+    ...(hasUsage ? { usage } : {}),
+  }
+}
+
+/** 提取两家出图协议的图片；安全拒绝与空图分别报错，避免把审核拦截显示成网络故障 */
+export function readImageOutput(
+  protocol: AIProtocol,
+  value: unknown,
+  fallbackMime = 'image/png',
+): ImageGenerationResult {
+  const data = asRecord(value)
+
+  if (protocol === 'images-openai') {
+    const entries = list(data.data).map(asRecord)
+    const images = entries
+      .map((entry) => textValue(entry.b64_json))
+      .filter(Boolean)
+      .map((base64) => ({ mimeType: fallbackMime, base64 }))
+    const usageRecord = asRecord(data.usage)
+    return finishImageResult(images, textValue(entries[0]?.revised_prompt) || undefined, {
+      inputTokens: numOrUndefined(usageRecord.input_tokens),
+      outputTokens: numOrUndefined(usageRecord.output_tokens),
+      totalTokens: numOrUndefined(usageRecord.total_tokens),
+    })
+  }
+
+  if (protocol === 'images-gemini') {
+    const candidate = asRecord(list(data.candidates)[0])
+    const refused =
+      ['SAFETY', 'RECITATION', 'BLOCKLIST', 'PROHIBITED_CONTENT'].includes(
+        textValue(candidate.finishReason),
+      ) || !!asRecord(data.promptFeedback).blockReason
+    if (refused) {
+      throw new AIRequestError('imageRefused', 422)
+    }
+    const images = list(asRecord(candidate.content).parts)
+      .map(asRecord)
+      .map((part) => asRecord(part.inlineData))
+      .filter((inline) => textValue(inline.data))
+      .map((inline) => ({
+        mimeType: textValue(inline.mimeType) || 'image/png',
+        base64: textValue(inline.data),
+      }))
+    const meta = asRecord(data.usageMetadata)
+    return finishImageResult(images, undefined, {
+      inputTokens: numOrUndefined(meta.promptTokenCount),
+      outputTokens: numOrUndefined(meta.candidatesTokenCount),
+      totalTokens: numOrUndefined(meta.totalTokenCount),
+    })
+  }
+
+  throw new AIRequestError('invalidProvider')
+}
+
+export async function requestAIImages(
+  connection: AIConnection,
+  input: ImageGenerationInput,
+  signal: AbortSignal,
+  fetcher: typeof fetch = fetch,
+): Promise<ImageGenerationResult> {
+  if (connection.protocol !== 'images-openai' && connection.protocol !== 'images-gemini') {
+    throw new AIRequestError('invalidProvider')
+  }
+  const response = await sendWithRetry(
+    buildImageRequest(connection, input),
+    AbortSignal.any([signal, AbortSignal.timeout(IMAGE_REQUEST_TIMEOUT_MS)]),
+    fetcher,
+  )
+  const payload = asRecord(await response.json())
+  const mime =
+    input.params.outputFormat === 'jpeg'
+      ? 'image/jpeg'
+      : input.params.outputFormat === 'webp'
+        ? 'image/webp'
+        : 'image/png'
+  return readImageOutput(connection.protocol, payload, mime)
 }

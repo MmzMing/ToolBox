@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { migrateAISettings, readLegacyAISettings } from '@/tools/resume/ai/legacy-ai-import'
+import { migrateAISettings, readLegacyAISettings } from '@/modules/ai/legacy-ai-import'
 
 const storageOf = (value: unknown) => ({
   getItem: () => (typeof value === 'string' ? value : JSON.stringify(value)),
@@ -41,7 +41,12 @@ describe('migrateAISettings', () => {
       baseUrl: 'https://dashscope.aliyuncs.com/compatible-mode/v1',
     })
     expect(settings.modelLists.deepseek).toEqual(['deepseek-chat'])
-    expect(settings.picks.deepseek).toEqual({ text: 'deepseek-chat', pdf: null })
+    expect(settings.picks.deepseek).toEqual({
+      text: 'deepseek-chat',
+      pdf: null,
+      image: null,
+      vision: null,
+    })
     expect(settings.activeProvider).toBe('deepseek')
   })
 
@@ -54,8 +59,18 @@ describe('migrateAISettings', () => {
       },
       activeProvider: 'qwen',
     })
-    expect(settings.picks.qwen).toEqual({ text: 'qwen3-vl-plus', pdf: 'qwen3-vl-plus' })
-    expect(settings.picks.deepseek).toEqual({ text: 'deepseek-chat', pdf: null })
+    expect(settings.picks.qwen).toEqual({
+      text: 'qwen3-vl-plus',
+      pdf: 'qwen3-vl-plus',
+      image: null,
+      vision: null,
+    })
+    expect(settings.picks.deepseek).toEqual({
+      text: 'deepseek-chat',
+      pdf: null,
+      image: null,
+      vision: null,
+    })
     expect(settings.activeProvider).toBe('qwen')
   })
 

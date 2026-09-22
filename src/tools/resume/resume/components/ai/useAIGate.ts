@@ -1,26 +1,12 @@
 import { useMemo } from 'react'
-import { create } from 'zustand'
 
-import { useAIConfigStore } from '../../../ai/store'
-import { resolveSlot } from '../../../ai/providers'
-import type { AIModelTask } from '../../../ai/store'
-import type { AIModelProfile } from '../../../ai/providers'
+import { useAIDialogStore } from '@/components/ai/dialog-store'
+import { useAIConfigStore } from '@/modules/ai/store'
+import { resolveSlot } from '@/modules/ai/providers'
+import type { AIModelTask } from '@/modules/ai/store'
+import type { AIModelProfile } from '@/modules/ai/providers'
 
-/**
- * AI 设置弹窗的开关。
- *
- * 触发点分散在列表页工具栏、每个富文本字段的工具栏和编辑器 dock 里，
- * 而弹窗只挂一份在页面根部，所以用一个不持久化的模块级 store 串起来。
- */
-type AIDialogState = {
-  configOpen: boolean
-  setConfigOpen: (open: boolean) => void
-}
-
-export const useAIDialogStore = create<AIDialogState>((set) => ({
-  configOpen: false,
-  setConfigOpen: (configOpen) => set({ configOpen }),
-}))
+export { useAIDialogStore }
 
 /** AI 总开关是否打开——关掉时所有 AI 入口连按钮都不渲染 */
 export function useAIEnabled() {

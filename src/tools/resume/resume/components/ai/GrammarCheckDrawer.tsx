@@ -12,7 +12,7 @@ import {
 } from '@/components/ui/sheet'
 import { cn } from '@/lib/utils'
 
-import type { GrammarError } from '../../../ai/grammar'
+import type { GrammarError } from '@/tools/resume/ai/grammar'
 import type { useGrammarCheck } from './useGrammarCheck'
 
 type GrammarCheckDrawerProps = {

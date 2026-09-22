@@ -19,7 +19,7 @@ import { RESUME_IMPORT_MAX_BYTES } from './constants'
 import { CreateResumeDialog } from './components/CreateResumeDialog'
 import { ResumeCard } from './components/ResumeCard'
 import { SyncSettingsDialog } from './components/BackupBadge'
-import { AIConfigDialog } from './components/ai/AIConfigDialog'
+import { AIConfigDialog } from '@/components/ai/config-dialog'
 import { useAIDialogStore } from './components/ai/useAIGate'
 import { PDFImportButton } from './components/ai/PDFImportButton'
 import { useResumeStore } from './store'
@@ -100,7 +100,7 @@ export default function Resume() {
         <div className="flex flex-wrap items-center gap-2">
           <Button variant="outline" size="sm" onClick={() => setConfigOpen(true)}>
             <Settings2 className="size-4" />
-            {t('resume.ai.config.entry')}
+            {t('common:ai.config.entry')}
           </Button>
           <PDFImportButton />
           <input

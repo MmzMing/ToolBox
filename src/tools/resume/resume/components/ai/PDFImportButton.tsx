@@ -14,13 +14,13 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 
-import { RESUME_IMPORT_PROMPT } from '../../../ai/prompts'
-import { requestAIText, parseJsonPayload } from '../../../ai/transport'
-import { assertPdfImportable, buildResumeFromAI } from '../../../ai/pdf-import'
-import { toAIConnection } from '../../../ai/providers'
+import { RESUME_IMPORT_PROMPT } from '@/tools/resume/ai/prompts'
+import { requestAIText, parseJsonPayload } from '@/modules/ai/transport'
+import { assertPdfImportable, buildResumeFromAI } from '@/tools/resume/ai/pdf-import'
+import { toAIConnection } from '@/modules/ai/providers'
 import { useResumeStore } from '../../store'
 import { useAIDialogStore, useAIEnabled, useTaskModel } from './useAIGate'
-import { aiErrorKey } from './error-copy'
+import { aiErrorKey } from '@/components/ai/error-copy'
 import type { ResumeLocale } from '../../store'
 
 type ParsedResume = {
@@ -64,7 +64,7 @@ export function PDFImportButton() {
     const controller = new AbortController()
     abortRef.current = controller
     try {
-      const { renderPdfToImages } = await import('../../../ai/pdf-render')
+      const { renderPdfToImages } = await import('@/tools/resume/ai/pdf-render')
       const pages = await renderPdfToImages(file, controller.signal)
       const requestBytes = pages.reduce((total, page) => total + page.bytes, 0)
       assertPdfImportable({ fileBytes: file.size, pages: pages.length, requestBytes })

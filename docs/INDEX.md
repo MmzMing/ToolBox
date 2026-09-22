@@ -17,7 +17,8 @@ docs/
 │   ├── 2026-09-19-github-accelerator-design.md
 │   ├── 2026-09-19-resume-builder-design.md
 │   ├── 2026-09-20-resume-dock-workbench-design.md
-│   └── 2026-09-20-resume-ai-migration-design.md
+│   ├── 2026-09-20-resume-ai-migration-design.md
+│   └── 2026-09-22-ai-image-gen-design.md
 └── deployment/         # 部署文档
     └── 部署方案.md      # Vercel/Netlify/Cloudflare Pages/Docker+Nginx
 ```

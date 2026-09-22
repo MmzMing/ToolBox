@@ -19,10 +19,10 @@ import {
   markdownToEditorHtml,
   markdownToPreviewHtml,
   runPolishStream,
-} from '../../../ai/polish'
-import { toAIConnection } from '../../../ai/providers'
-import type { AIModelProfile } from '../../../ai/providers'
-import { aiErrorKey } from './error-copy'
+} from '@/tools/resume/ai/polish'
+import { toAIConnection } from '@/modules/ai/providers'
+import type { AIModelProfile } from '@/modules/ai/providers'
+import { aiErrorKey } from '@/components/ai/error-copy'
 
 type AIPolishDialogProps = {
   open: boolean

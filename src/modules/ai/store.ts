@@ -4,13 +4,14 @@ import { createJSONStorage, persist } from 'zustand/middleware'
 import {
   AI_PROVIDERS,
   emptyAISettings,
+  type AIModelTask,
   type AIProvider,
   type AISettingsData,
   type ProviderPicks,
 } from './providers'
-import { migrateAISettings, readLegacyAISettings } from './legacy-ai-import'
+import { migrateAISettings, readLegacyAISettings, readPreviousAISettings } from './legacy-ai-import'
 
-export type AIModelTask = 'text' | 'pdf'
+export type { AIModelTask }
 
 export type PersistedAISettings = AISettingsData & {
   /** AI 总开关：关闭时所有 AI 入口不渲染 */
@@ -39,7 +40,15 @@ function normalize(state: PersistedAISettings): PersistedAISettings {
   const picks = Object.fromEntries(
     AI_PROVIDERS.map((provider) => {
       const pick = state.picks?.[provider]
-      return [provider, { text: pick?.text || null, pdf: pick?.pdf || null }]
+      return [
+        provider,
+        {
+          text: pick?.text || null,
+          pdf: pick?.pdf || null,
+          image: pick?.image || null,
+          vision: pick?.vision || null,
+        },
+      ]
     }),
   ) as Record<AIProvider, ProviderPicks>
   return { ...state, picks }
@@ -55,13 +64,21 @@ function toSettings(value: unknown): PersistedAISettings {
   })
 }
 
+/** 首装数据来源优先级：改名前旧键下的设置 > 旧应用遗留 > 空设置 */
+const previous = readPreviousAISettings()
 const legacy = readLegacyAISettings()
 
-const initial: PersistedAISettings = normalize({
-  ...(legacy ?? emptyAISettings()),
-  enabled: false,
-  consentSeen: false,
-})
+const initial: PersistedAISettings = previous
+  ? normalize({
+      ...previous.settings,
+      enabled: previous.enabled,
+      consentSeen: previous.consentSeen,
+    })
+  : normalize({
+      ...(legacy ?? emptyAISettings()),
+      enabled: false,
+      consentSeen: false,
+    })
 
 export const useAIConfigStore = create<AIConfigState>()(
   persist<AIConfigState, [], [], PersistedAISettings>(
@@ -116,8 +133,8 @@ export const useAIConfigStore = create<AIConfigState>()(
       markConsentSeen: () => set({ consentSeen: true }),
     }),
     {
-      name: 'toolbox.resume-ai',
-      version: 4,
+      name: 'toolbox.ai',
+      version: 5,
       storage: createJSONStorage<PersistedAISettings>(() => localStorage),
       partialize: ({ credentials, modelLists, picks, activeProvider, enabled, consentSeen }) => ({
         credentials,

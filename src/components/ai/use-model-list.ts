@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 
-import { listProviderModels, type ModelListTarget } from '../../../ai/transport'
+import { listProviderModels, type ModelListTarget } from '@/modules/ai/transport'
 
 const LIST_TIMEOUT_MS = 20_000
 

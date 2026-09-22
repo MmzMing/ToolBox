@@ -1,16 +1,20 @@
 import { useCallback, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { requestAIText, parseJsonPayload } from '../../../ai/transport'
-import {
-  TEST_SYSTEM_PROMPT,
-  TEST_USER_PROMPT,
-  TEST_OK_PATTERN,
-  VISION_TEST_PROMPT,
-} from '../../../ai/prompts'
-import { toAIConnection, canModelParsePdf } from '../../../ai/providers'
-import type { AIModelProfile } from '../../../ai/providers'
+import { requestAIText, parseJsonPayload } from '@/modules/ai/transport'
+import { toAIConnection, canModelParsePdf } from '@/modules/ai/providers'
+import type { AIModelProfile } from '@/modules/ai/providers'
 import { aiErrorKey } from './error-copy'
+
+const VISION_TEST_PROMPT =
+  'Read the digits in the image. Return only a JSON object with one string field named "code" containing those digits. Do not guess if you cannot read the image.'
+
+const TEST_SYSTEM_PROMPT = 'Reply with exactly OK.'
+
+const TEST_USER_PROMPT = 'Test this connection.'
+
+/** 命中即判成功；容忍模型习惯性的句末标点 */
+const TEST_OK_PATTERN = /^OK[.!]?$/i
 
 const TEST_TIMEOUT_MS = 130_000
 
@@ -78,7 +82,7 @@ export function useModelTest() {
         if (canModelParsePdf(model)) {
           const card = createVisionTestCard()
           if (!card) {
-            settle({ status: 'failed', message: t('resume.ai.test.canvasUnavailable') })
+            settle({ status: 'failed', message: t('common:ai.test.canvasUnavailable') })
             return
           }
           const content = await requestAIText(
@@ -104,8 +108,8 @@ export function useModelTest() {
 
         settle(
           ok
-            ? { status: 'ok', message: t('resume.ai.test.ok') }
-            : { status: 'failed', message: t('resume.ai.test.mismatch') },
+            ? { status: 'ok', message: t('common:ai.test.ok') }
+            : { status: 'failed', message: t('common:ai.test.mismatch') },
         )
       } catch (error) {
         if (error instanceof DOMException && error.name === 'AbortError') {

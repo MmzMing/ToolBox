@@ -7,7 +7,7 @@ import qwenIcon from '@lobehub/icons-static-svg/icons/qwen-color.svg?url'
 
 import { cn } from '@/lib/utils'
 
-import type { AIProvider } from '../../../ai/providers'
+import type { AIProvider } from '@/modules/ai/providers'
 
 /**
  * 厂商品牌标识。

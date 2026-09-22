@@ -246,10 +246,6 @@ export default function BaseLayout() {
           <main className="flex-1">
             <Outlet />
           </main>
-
-          <footer className="text-muted-foreground border-t px-4 py-4 text-center text-xs">
-            {siteConfig.name} · {t('footerNote')}
-          </footer>
         </div>
 
         <CommandPalette />

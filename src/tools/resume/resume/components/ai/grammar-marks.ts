@@ -1,4 +1,4 @@
-import type { GrammarError } from '../../../ai/grammar'
+import type { GrammarError } from '@/tools/resume/ai/grammar'
 
 const MARK_ATTR = 'data-grammar-mark'
 

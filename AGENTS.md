@@ -12,21 +12,21 @@
 
 ## 2. 目录结构与职责（禁止越界存放）
 
-| 目录                 | 职责                                                           | 禁止                     |
-| -------------------- | -------------------------------------------------------------- | ------------------------ |
-| `src/components/`    | 跨页面/跨工具复用的通用组件（ PascalCase 文件夹或单文件）      | 放页面专属组件、业务逻辑 |
-| `src/composable/`    | React Hooks（`useXxx.ts`），可复用的有状态逻辑                 | 放 UI 渲染、放纯函数     |
-| `src/layouts/`       | 布局壳：BaseLayout（侧栏+顶栏+内容区）、ToolLayout（工具页头） | 放业务组件               |
-| `src/modules/`       | 横切功能模块：`command-palette/`、`i18n/`、`seo/` 等，各自内聚 | 相互 import 造成循环依赖 |
-| `src/pages/`         | 路由页面级组件（首页、404、关于页）                            | 放可复用组件             |
-| `src/plugins/`       | 应用初始化装配：router、i18n 注册、Provider 组合               | 放业务逻辑               |
-| `src/stores/`        | zustand 全局 store（`xxx.store.ts`）                           | 放组件局部状态           |
-| `src/tools/`         | 工具实现，按分类分目录，每工具一个目录                         | 工具之间相互 import      |
-| `src/utils/`         | 零依赖/仅依赖第三方的纯函数                                    | 有 React 状态、有副作用  |
-| `src/lib/`           | shadcn 基础设施（`utils.ts` 的 `cn` 等）                       | 业务代码                 |
-| `src/components/ui/` | shadcn CLI 生成的组件，**不手改**（除非升级）                  | 直接改生成代码           |
-| `scripts/`           | Node 脚本（脚手架、sitemap 生成）                              | 引入浏览器 API           |
-| `docs/`              | 中文文档（deployment/design/development + INDEX.md）           | 放代码                   |
+| 目录                 | 职责                                                                  | 禁止                                      |
+| -------------------- | --------------------------------------------------------------------- | ----------------------------------------- |
+| `src/components/`    | 跨页面/跨工具复用的通用组件（ PascalCase 文件夹或单文件）             | 放页面专属组件、业务逻辑                  |
+| `src/composable/`    | React Hooks（`useXxx.ts`），可复用的有状态逻辑                        | 放 UI 渲染、放纯函数                      |
+| `src/layouts/`       | 布局壳：BaseLayout（侧栏+顶栏+内容区）、ToolLayout（工具页头）        | 放业务组件                                |
+| `src/modules/`       | 横切功能模块：`command-palette/`、`i18n/`、`seo/`、`ai/` 等，各自内聚 | 相互 import 造成循环依赖                  |
+| `src/pages/`         | 路由页面级组件（首页、404、关于页）                                   | 放可复用组件                              |
+| `src/plugins/`       | 应用初始化装配：router、i18n 注册、Provider 组合                      | 放业务逻辑                                |
+| `src/stores/`        | zustand 全局 store（`xxx.store.ts`）                                  | 放组件局部状态                            |
+| `src/tools/`         | 工具实现，按分类分目录，每工具一个目录                                | 工具之间相互 import                       |
+| `src/utils/`         | 跨工具共用的纯函数工具集（文件名净化、base64、PNG 元数据、LRU 等）    | 有 React 状态、有副作用、放单工具专属逻辑 |
+| `src/lib/`           | shadcn 基础设施（`utils.ts` 的 `cn` 等）                              | 业务代码                                  |
+| `src/components/ui/` | shadcn CLI 生成的组件，**不手改**（除非升级）                         | 直接改生成代码                            |
+| `scripts/`           | Node 脚本（脚手架、sitemap 生成）                                     | 引入浏览器 API                            |
+| `docs/`              | 中文文档（deployment/design/development + INDEX.md）                  | 放代码                                    |
 
 ## 3. 命名规范
 
@@ -105,6 +105,11 @@ export const tool = defineTool({
 - 分类归属只体现在所在目录与分类 `index.ts` 的注册，禁止在工具内重复声明 category。
 - `service.ts` 纯函数命名动词开头（`generateUuid`、`parseJwt`）；输入输出均为可序列化数据；
   抛错用 `Error` 并写英文技术信息，UI 层负责翻译。
+- **共用工具集落 `src/utils/`**：跨工具可复用的纯函数（文件名净化、base64 转换、PNG 元数据 chunk、
+  LRU 淘汰等）一律放 `src/utils/` 下一文件一职责；工具 `service.ts` 只留本工具专属纯逻辑。
+  某段逻辑被第二个工具需要时，先上移 utils 再引用，禁止复制一份。
+- **AI 连接层共用 `src/modules/ai/`**：厂商预设、凭证 store、请求构造/重试/错误码统一在此；
+  工具只调用，不得自建 provider plumbing 或重复实现 baseUrl 校验。
 - 新建工具用脚手架：`pnpm create:tool -- <分类> <工具名>`，禁止手工复制遗漏文件。
 
 ## 8. 状态管理规范（zustand）

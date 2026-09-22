@@ -1,4 +1,4 @@
-import { parseJsonPayload } from './transport'
+import { parseJsonPayload } from '@/modules/ai/transport'
 
 export type GrammarError = {
   context: string

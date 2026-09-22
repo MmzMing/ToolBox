@@ -68,17 +68,6 @@ Return JSON only, without Markdown or explanation. Use exactly this structure:
   "skills": []
 }`
 
-/** 视觉自检：本地 canvas 画一串随机数字，模型读回来必须完全一致才算通过 */
-export const VISION_TEST_PROMPT =
-  'Read the digits in the image. Return only a JSON object with one string field named "code" containing those digits. Do not guess if you cannot read the image.'
-
-export const TEST_SYSTEM_PROMPT = 'Reply with exactly OK.'
-
-export const TEST_USER_PROMPT = 'Test this connection.'
-
-/** 命中即判成功；容忍模型习惯性的句末标点 */
-export const TEST_OK_PATTERN = /^OK[.!]?$/i
-
 /** 用户在弹窗里追加的润色要求，非空时拼到 system 末尾 */
 export const polishSystemPrompt = (customInstructions?: string) => {
   const custom = customInstructions?.trim()

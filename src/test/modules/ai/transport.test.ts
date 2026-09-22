@@ -12,9 +12,9 @@ import {
   readStreamDelta,
   textDeltas,
   validateAIConnection,
-} from '@/tools/resume/ai/transport'
-import type { ModelListTarget } from '@/tools/resume/ai/transport'
-import type { AIConnection } from '@/tools/resume/ai/providers'
+} from '@/modules/ai/transport'
+import type { ModelListTarget } from '@/modules/ai/transport'
+import type { AIConnection } from '@/modules/ai/providers'
 
 const connection = (overrides: Partial<AIConnection> = {}): AIConnection => ({
   provider: 'deepseek',
