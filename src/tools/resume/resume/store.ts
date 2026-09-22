@@ -1,6 +1,9 @@
+import { toast } from 'sonner'
 import { create } from 'zustand'
 import { createJSONStorage, persist } from 'zustand/middleware'
 import type { StateStorage } from 'zustand/middleware'
+
+import { i18n } from '@/modules/i18n'
 
 import { DEFAULT_GLOBAL_SETTINGS, FILE_SYNC_DEBOUNCE_MS, HISTORY_LIMIT } from './constants'
 import {
@@ -25,6 +28,7 @@ import {
   normalizeResume,
   reorderMenuSections,
   shouldImportFromFile,
+  UNSAFE_OBJECT_KEYS,
 } from './resume.service'
 import { DEFAULT_TEMPLATE_ID, getTemplateById, getTemplateForResume } from './templates/registry'
 import type {
@@ -129,7 +133,8 @@ const warnedPersistFailures = new Set<string>()
 
 /**
  * 头像与证书图以 base64 存在同一个 blob 里，写满配额是常态而非异常。
- * 失败只提示一次并保留内存态，不能打断编辑。
+ * 失败只提示一次并保留内存态，不能打断编辑；但必须让用户看见，
+ * 否则会以为已经存下来、一刷新全丢。
  */
 const safeLocalStorage = (): StateStorage => ({
   getItem: (name) => localStorage.getItem(name),
@@ -137,14 +142,42 @@ const safeLocalStorage = (): StateStorage => ({
     try {
       localStorage.setItem(name, value)
     } catch (error) {
+      console.warn(`[resume-store] persist "${name}" failed; edits stay in memory.`, error)
       if (!warnedPersistFailures.has(name)) {
         warnedPersistFailures.add(name)
-        console.warn(`[resume-store] persist "${name}" failed; edits stay in memory.`, error)
+        toast.error(i18n.t('resume.sync.storageFull', { ns: 'tools-resume' }), {
+          duration: 12_000,
+        })
       }
     }
   },
   removeItem: (name) => localStorage.removeItem(name),
 })
+
+/**
+ * 水合进来的简历表统一收敛：缺字段补默认、坏数据整条丢弃。
+ *
+ * zustand 只在水合版本与 `version` 不一致时才调 `migrate`，版本相同时原始对象会
+ * 直接进 `merge`——被手改坏或被同页脚本写坏的数据必须在这里同样过一遍，
+ * 否则模板读到 null 就是整页白屏且再也进不去（AGENTS.md §8）。
+ */
+const normalizeResumeMap = (
+  resumes: Record<string, unknown> | undefined,
+): Record<string, ResumeData> => {
+  const normalized: Record<string, ResumeData> = {}
+
+  for (const [id, value] of Object.entries(resumes ?? {})) {
+    if (UNSAFE_OBJECT_KEYS.has(id)) {
+      continue
+    }
+    const resume = normalizeResume({ ...(value as object), id })
+    if (resume) {
+      normalized[id] = resume
+    }
+  }
+
+  return normalized
+}
 
 type PendingSync = { timer: ReturnType<typeof setTimeout>; previous?: ResumeData }
 
@@ -790,15 +823,7 @@ export const useResumeStore = create<ResumeState>()(
       /** 撤销栈不持久化，因此水合后要按新的 resumes 重算 activeResume */
       migrate: (persisted) => {
         const state = (persisted ?? {}) as Partial<PersistedResumeState>
-        const resumes: Record<string, ResumeData> = {}
-
-        for (const [id, value] of Object.entries(state.resumes ?? {})) {
-          const normalized = normalizeResume({ ...value, id })
-          if (normalized) {
-            resumes[id] = normalized
-          }
-        }
-
+        const resumes = normalizeResumeMap(state.resumes)
         const activeResumeId =
           state.activeResumeId && resumes[state.activeResumeId] ? state.activeResumeId : null
 
@@ -810,8 +835,13 @@ export const useResumeStore = create<ResumeState>()(
       }),
       merge: (persistedState, currentState) => {
         const persisted = (persistedState ?? {}) as Partial<PersistedResumeState>
-        const resumes = persisted.resumes ?? currentState.resumes
-        const activeResumeId = persisted.activeResumeId ?? null
+        const resumes = persisted.resumes
+          ? normalizeResumeMap(persisted.resumes)
+          : currentState.resumes
+        const activeResumeId =
+          persisted.activeResumeId && resumes[persisted.activeResumeId]
+            ? persisted.activeResumeId
+            : null
 
         return {
           ...currentState,

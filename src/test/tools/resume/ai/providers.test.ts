@@ -71,9 +71,15 @@ describe('model capability inference', () => {
 })
 
 describe('baseUrl validation', () => {
-  it('accepts plain http(s) origins', () => {
+  it('accepts https origins and loopback http only', () => {
     expect(isValidBaseUrl('https://api.deepseek.com/v1')).toBe(true)
     expect(isValidBaseUrl(' http://127.0.0.1:8000/v1 ')).toBe(true)
+    expect(isValidBaseUrl('http://localhost:1234/v1')).toBe(true)
+  })
+
+  it('rejects cleartext http to remote hosts because the key would travel unencrypted', () => {
+    expect(isValidBaseUrl('http://api.example.com/v1')).toBe(false)
+    expect(isValidBaseUrl('http://10.0.0.7:8000/v1')).toBe(false)
   })
 
   it('rejects credentials, queries, hashes and other protocols', () => {

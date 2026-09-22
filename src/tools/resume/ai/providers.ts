@@ -151,16 +151,20 @@ export function canModelParsePdf(model: AIModelProfile): boolean {
   return modelSupportsPdf(model.provider, model.model)
 }
 
+/** 本地推理服务（ollama / lmstudio 等）只监听回环地址，允许明文 http */
+const LOOPBACK_HOSTS = new Set(['localhost', '127.0.0.1', '::1', '[::1]'])
+
 export function isValidBaseUrl(value: string): boolean {
   try {
     const url = new URL(value.trim())
-    return (
-      (url.protocol === 'https:' || url.protocol === 'http:') &&
-      !url.username &&
-      !url.password &&
-      !url.search &&
-      !url.hash
-    )
+    if (url.username || url.password || url.search || url.hash) {
+      return false
+    }
+    if (url.protocol === 'https:') {
+      return true
+    }
+    /* 明文 http 会把 Authorization 头里的 API key 裸奔在链路上，只放行回环地址 */
+    return url.protocol === 'http:' && LOOPBACK_HOSTS.has(url.hostname)
   } catch {
     return false
   }

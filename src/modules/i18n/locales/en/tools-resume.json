@@ -53,6 +53,7 @@
       "import": "Import JSON",
       "importOk": "Imported “{{title}}”",
       "importFailed": "That file is not a valid resume JSON",
+      "importTooLarge": "That file is over 10 MB and does not look like a resume, so it was not imported.",
       "open": "Continue editing",
       "edit": "Edit",
       "meta": "{{template}} · {{time}}",
@@ -449,7 +450,8 @@
       "forget": "Unlink folder",
       "forgotten": "Folder unlinked",
       "autosaveHint": "Once linked, every edit is written to a JSON file of the same name within 1.5s; renaming deletes the old file.",
-      "footnote": "Folder permission has to be re-granted after the browser restarts."
+      "footnote": "Folder permission has to be re-granted after the browser restarts.",
+      "storageFull": "Browser storage is full, so this session's edits live in memory only and are lost on refresh. Remove spare resumes, shrink the photos, or write everything out with Local backup right now."
     },
     "faq": {
       "title": "Questions",
@@ -501,7 +503,7 @@
         "showKey": "Show key",
         "hideKey": "Hide key",
         "baseUrl": "Base URL",
-        "baseUrlHint": "You can point this at your own relay. A wrong address means the request never lands.",
+        "baseUrlHint": "You can point this at your own relay. Use https (http only for localhost); a wrong address means the request never lands.",
         "models": "Models",
         "textModel": "Text model (polish and proofread)",
         "pdfModel": "Vision model (PDF import)",

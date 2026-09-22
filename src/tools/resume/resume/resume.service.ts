@@ -8,6 +8,7 @@ import {
   DEFAULT_SECTION_ICONS,
   LEGACY_SECTION_EMOJI_ICONS,
   MAX_PAGE_BREAK_LINES,
+  RESUME_MAX_ITEMS_PER_LIST,
 } from './constants'
 import type {
   BasicField,
@@ -311,6 +312,12 @@ export function resumeFileName(title: string): string {
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null && !Array.isArray(value)
 
+/**
+ * 不能当作普通键名直接赋值的字符串：`obj['__proto__'] = ...` 会给容器换原型，
+ * 之后读出来的字段就像凭空冒出来，某些形状下还会让模板崩掉。
+ */
+export const UNSAFE_OBJECT_KEYS = new Set(['__proto__', 'constructor', 'prototype'])
+
 const str = (value: unknown, fallback = ''): string =>
   typeof value === 'string' ? value : fallback
 
@@ -321,7 +328,12 @@ const bool = (value: unknown, fallback: boolean): boolean =>
   typeof value === 'boolean' ? value : fallback
 
 const arr = <T>(value: unknown, map: (item: unknown) => T | null): T[] =>
-  Array.isArray(value) ? value.map(map).filter((item): item is T => item !== null) : []
+  Array.isArray(value)
+    ? value
+        .slice(0, RESUME_MAX_ITEMS_PER_LIST)
+        .map(map)
+        .filter((item): item is T => item !== null)
+    : []
 
 function normalizePhotoConfig(value: unknown): PhotoConfig {
   if (!isRecord(value)) {
@@ -519,7 +531,11 @@ export function normalizeResume(input: unknown): ResumeData | null {
   const customData: Record<string, CustomItem[]> = {}
 
   if (isRecord(input.customData)) {
-    for (const [sectionId, items] of Object.entries(input.customData)) {
+    const customSections = Object.entries(input.customData).slice(0, RESUME_MAX_ITEMS_PER_LIST)
+    for (const [sectionId, items] of customSections) {
+      if (UNSAFE_OBJECT_KEYS.has(sectionId)) {
+        continue
+      }
       customData[sectionId] = arr(items, (item) => {
         if (!isRecord(item)) {
           return null

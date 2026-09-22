@@ -38,7 +38,7 @@ type AIPolishDialogProps = {
  *
  * 送出去的是 Markdown 而不是 HTML：模型对 Markdown 列表与粗体的遵循度远高于对
  * contenteditable 产出的嵌套 span，回写时再转回来。左右两栏都走转义后的预览渲染，
- * 模型吐出的原始 HTML 不会被执行。
+ * 「应用」回写的 HTML 再过一遍白名单消毒，模型吐出的原始 HTML 不会被执行。
  */
 export function AIPolishDialog({
   open,

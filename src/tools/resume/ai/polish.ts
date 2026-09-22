@@ -1,7 +1,7 @@
 import TurndownService from 'turndown'
 import { Marked } from 'marked'
 
-import { normalizeLinkHref } from '../resume/rich-text'
+import { normalizeLinkHref, sanitizeRichTextHtml } from '../resume/rich-text'
 import { polishSystemPrompt } from './prompts'
 import { requestAIStream, requestAIText } from './transport'
 import type { AIConnection } from './providers'
@@ -69,11 +69,15 @@ export function htmlToMarkdown(html: string): string {
   return turndownService.turndown(html).trim()
 }
 
-/** Markdown → 富文本：原样 HTML 放行，交给 Tiptap 的 schema 做最终清洗 */
+/**
+ * Markdown → 富文本：样式子集（颜色/高亮/对齐）要还原，所以不能整段转义；
+ * 但模型输出不可信，白名单之外的标签与 javascript: 链接必须在此就地剔除，
+ * 否则会带着脏 HTML 进 store（预览渲染的是 store 里的原值，不经过 Tiptap）。
+ */
 const editorMarked = new Marked({ breaks: true, gfm: true })
 
 export function markdownToEditorHtml(markdown: string): string {
-  return editorMarked.parse(markdown, { async: false })
+  return sanitizeRichTextHtml(editorMarked.parse(markdown, { async: false }))
 }
 
 /**

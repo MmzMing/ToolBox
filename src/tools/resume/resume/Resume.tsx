@@ -15,6 +15,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
+import { RESUME_IMPORT_MAX_BYTES } from './constants'
 import { CreateResumeDialog } from './components/CreateResumeDialog'
 import { ResumeCard } from './components/ResumeCard'
 import { SyncSettingsDialog } from './components/BackupBadge'
@@ -72,6 +73,10 @@ export default function Resume() {
 
   const handleImport = async (file: File) => {
     try {
+      if (file.size > RESUME_IMPORT_MAX_BYTES) {
+        toast.error(t('resume.mine.importTooLarge'))
+        return
+      }
       const resume = reissueResume(parseResumeJson(await file.text()))
       addResume(resume)
       toast.success(t('resume.mine.importOk', { title: resume.title }))

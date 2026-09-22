@@ -1,3 +1,4 @@
+// @vitest-environment jsdom
 import { describe, expect, it } from 'vitest'
 
 import {
@@ -50,6 +51,18 @@ describe('markdown round trip', () => {
 
   it('renders line breaks as the editor expects', () => {
     expect(markdownToEditorHtml('a\nb')).toContain('<br')
+  })
+
+  /* 「应用」把结果直接写进 store，预览渲染的是 store 原值，所以消毒必须发生在这一层 */
+  it('sanitizes scriptable markup coming back from the model', () => {
+    const applied = markdownToEditorHtml('<img src=x onerror=alert(1)>\n\n<script>steal()</script>')
+    expect(applied).not.toMatch(/img|onerror|script|steal/i)
+  })
+
+  it('sanitizes unsafe model links but keeps the anchor text', () => {
+    const applied = markdownToEditorHtml('[领奖](javascript:alert(1))')
+    expect(applied).not.toContain('javascript:')
+    expect(applied).toContain('领奖')
   })
 })
 

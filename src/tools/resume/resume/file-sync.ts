@@ -1,6 +1,7 @@
 import {
   FILE_HANDLE_DB,
   FILE_HANDLE_DB_VERSION,
+  RESUME_IMPORT_MAX_BYTES,
   SYNC_DIRECTORY_HANDLE_KEY,
   SYNC_DIRECTORY_PATH_KEY,
 } from './constants'
@@ -241,6 +242,12 @@ export async function readResumesFromDirectory(): Promise<DirectoryResumeEntry[]
 
     try {
       const file = await entry.getFile()
+      // 同步目录里的文件是别人写得进来的不可信输入，超大就先拒掉再交给 JSON.parse
+      if (file.size > RESUME_IMPORT_MAX_BYTES) {
+        console.warn(`[resume-sync] skipped oversized "${entry.name}" (${file.size} bytes)`)
+        continue
+      }
+
       const parsed: unknown = JSON.parse(await file.text())
 
       if (!parsed || typeof parsed !== 'object' || typeof (parsed as ResumeData).id !== 'string') {

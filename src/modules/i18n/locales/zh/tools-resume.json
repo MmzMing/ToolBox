@@ -53,6 +53,7 @@
       "import": "导入 JSON",
       "importOk": "已导入《{{title}}》",
       "importFailed": "文件不是有效的简历 JSON",
+      "importTooLarge": "文件超过 10 MB，不像是一份简历，已拒绝导入。",
       "open": "继续编辑",
       "edit": "编辑",
       "meta": "{{template}} · {{time}}",
@@ -449,7 +450,8 @@
       "forget": "解除绑定",
       "forgotten": "已解除文件夹绑定",
       "autosaveHint": "绑定后每次编辑都会在 1.5 秒内自动写入同名 JSON 文件；重命名会删掉旧文件。",
-      "footnote": "浏览器关闭后再次进入需要重新授权文件夹权限。"
+      "footnote": "浏览器关闭后再次进入需要重新授权文件夹权限。",
+      "storageFull": "浏览器本地存储已写满，本次修改只存在于内存里，刷新就会丢失。请删除多余简历或换小一点的头像，或立即用「本地备份」把简历写入文件夹。"
     },
     "faq": {
       "title": "使用问答",
@@ -501,7 +503,7 @@
         "showKey": "显示密钥",
         "hideKey": "隐藏密钥",
         "baseUrl": "服务地址（Base URL）",
-        "baseUrlHint": "可改成自建或中转地址；填错会导致请求发不出去。",
+        "baseUrlHint": "可改成自建或中转地址；仅支持 https（本机回环地址可用 http），填错会导致请求发不出去。",
         "models": "模型",
         "textModel": "文本模型（润色与校对）",
         "pdfModel": "视觉模型（PDF 导入）",

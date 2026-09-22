@@ -86,6 +86,15 @@ export const CERTIFICATE_COMPRESSION_LADDER = [
 export const CERTIFICATE_MAX_BASE64_BYTES = 2 * 1024 * 1024
 export const CERTIFICATE_WIDTH_RANGE = { min: 10, max: 100, step: 1 }
 
+/**
+ * 不可信输入（导入的 JSON、同步目录里的文件）的体量上限，防止一份"简历"把标签页卡死。
+ *
+ * 只卡字节数与条目数，不卡单字段字符数：头像与证书 base64 就存在同一份数据里
+ * （见 CERTIFICATE_MAX_BASE64_BYTES），任何偏小的字符上限都会在每次水合时削掉合法内容。
+ */
+export const RESUME_IMPORT_MAX_BYTES = 10 * 1024 * 1024
+export const RESUME_MAX_ITEMS_PER_LIST = 500
+
 /** 章节默认图标：存 lucide 导出名，渲染统一走 components/SectionIcon */
 export const DEFAULT_SECTION_ICONS: Record<string, string> = {
   basic: 'User',

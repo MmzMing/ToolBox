@@ -25,7 +25,11 @@ import {
   splitDateRange,
   toStoredMonth,
 } from '@/tools/resume/resume/resume.service'
-import { A4_HEIGHT_PX, MAX_PAGE_BREAK_LINES } from '@/tools/resume/resume/constants'
+import {
+  A4_HEIGHT_PX,
+  MAX_PAGE_BREAK_LINES,
+  RESUME_MAX_ITEMS_PER_LIST,
+} from '@/tools/resume/resume/constants'
 import type { MenuSection, PhotoConfig, ResumeData } from '@/tools/resume/resume/types'
 
 function makeResume(overrides: Partial<ResumeData> = {}): ResumeData {
@@ -424,6 +428,49 @@ describe('normalizeResume', () => {
     const result = normalizeResume({ education: [{ school: 'A' }], customData: {} })
 
     expect(result?.education[0]?.id).toBeTruthy()
+  })
+
+  it('caps list length so a hostile export cannot freeze the tab', () => {
+    const experience = Array.from({ length: RESUME_MAX_ITEMS_PER_LIST + 200 }, (_, i) => ({
+      company: `c${i}`,
+    }))
+    const result = normalizeResume({ experience })
+
+    expect(result?.experience).toHaveLength(RESUME_MAX_ITEMS_PER_LIST)
+    expect(result?.experience[0]?.company).toBe('c0')
+  })
+
+  it('drops dangerous customData keys instead of re-pointing the container prototype', () => {
+    const payload = JSON.parse('{"customData":{"__proto__":[{"id":"x","title":"evil"}]}}')
+    const result = normalizeResume(payload)
+    const customData = result?.customData ?? {}
+
+    expect(Object.keys(customData)).toHaveLength(0)
+    expect(Object.getPrototypeOf(customData)).toBe(Object.prototype)
+  })
+
+  /* 水合每次都会跑 normalizeResume，所以这里不能有偏小的字符上限：证书 base64 会被削掉 */
+  it('keeps multi-megabyte base64 attachments intact', () => {
+    const photo = `data:image/jpeg;base64,${'A'.repeat(3 * 1024 * 1024)}`
+    const result = normalizeResume({ basic: { photo } })
+
+    expect(result?.basic.photo).toHaveLength(photo.length)
+  })
+
+  /* zustand 只在水合版本与 version 不一致时才调 migrate，版本相同则坏数据直接进 merge */
+  it('recovers a blob whose sections carry the wrong types', () => {
+    const result = normalizeResume({
+      id: 'bad1',
+      basic: null,
+      experience: 'not-an-array',
+      menuSections: 5,
+      customData: 'x',
+    })
+
+    expect(result?.basic).toBeTruthy()
+    expect(result?.experience).toEqual([])
+    expect(Array.isArray(result?.menuSections)).toBe(true)
+    expect(result?.customData).toEqual({})
   })
 })
 
