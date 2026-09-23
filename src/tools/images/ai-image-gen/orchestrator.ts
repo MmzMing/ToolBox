@@ -13,26 +13,51 @@ import {
   requestAIText,
   type ImageGenerationResult,
 } from '@/modules/ai/transport'
-import { dataUrlToBytes } from '@/utils/base64'
+import { bytesToDataUrl, dataUrlToBytes } from '@/utils/base64'
 import { selectEvictIds } from '@/utils/lru'
 
 import {
+  aspectRatioOf,
+  buildCanvasGraph,
+  CANVAS_GAP_X,
+  CANVAS_IMAGE_WIDTH,
+  composePromptText,
   defaultGenParams,
+  jobIdOfPromptNode,
+  LEGACY_WORKSPACE_ID,
+  MAX_REFERENCE_BYTES,
   parsePromptCandidates,
+  promptNodeIdOf,
+  REFERENCE_MIMES,
   toImageRequestParams,
+  type CanvasGraph,
+  type CanvasImageInput,
+  type CanvasNodeRecord,
   type GenParams,
 } from './ai-image-gen.service'
 import {
+  deleteCanvasNode,
+  deleteCanvasNodesOfWorkspace,
   deleteImage,
+  deleteImagesOfWorkspace,
+  deleteWorkspace as deleteWorkspaceRecord,
+  getImage,
   IMAGE_LIMIT,
   imageStats,
+  isIdbAvailable,
+  listCanvasNodes,
   listImages,
   listPrompts,
+  listWorkspaces,
+  putCanvasNode,
   putImage,
+  putWorkspace,
   upsertPrompt,
   type ImageRecord,
+  type WorkspaceRecord,
 } from './idb'
 import { renderSkillSystem } from './skills'
+import { releaseObjectUrl } from './object-url'
 import { useAiImageGenStore, type ApiConfig, type Job, type JobSlot } from './store'
 
 const MAX_PARALLEL_JOBS = 2
@@ -83,6 +108,7 @@ async function evictIfNeeded() {
   const evict = selectEvictIds(stats, IMAGE_LIMIT.maxCount, IMAGE_LIMIT.maxBytes)
   for (const id of evict) {
     await deleteImage(id)
+    releaseObjectUrl(id)
     useAiImageGenStore.getState().removeFromHistory(id)
   }
 }
@@ -92,19 +118,307 @@ export async function refreshPrompts() {
   useAiImageGenStore.getState().setPrompts(entries)
 }
 
-export async function loadHistory(reset = false) {
-  const store = useAiImageGenStore.getState()
-  const offset = reset ? 0 : store.history.length
-  const records = await listImages(offset, 60)
-  if (reset) {
-    store.setHistory(records, records.length === 60)
-  } else {
-    useAiImageGenStore.setState((state) => ({
-      history: [...state.history, ...records],
-      hasMoreHistory: records.length === 60,
-      historyLoaded: true,
-    }))
+const HISTORY_PAGE = 60
+
+const activeId = () => useAiImageGenStore.getState().activeWorkspaceId ?? LEGACY_WORKSPACE_ID
+
+/** 工作区概念之前入库的记录没有 workspaceId，一律视为归属默认工作区 */
+const ownedBy = (workspaceId: string | undefined) =>
+  (workspaceId || LEGACY_WORKSPACE_ID) === activeId()
+
+async function readAllImages(): Promise<ImageRecord[]> {
+  const out: ImageRecord[] = []
+  for (let offset = 0; ; offset += HISTORY_PAGE) {
+    const batch = await listImages(offset, HISTORY_PAGE)
+    out.push(...batch)
+    if (batch.length < HISTORY_PAGE) {
+      break
+    }
   }
+  return out
+}
+
+/** 循环读尽 IDB 再按活动工作区过滤：分页只是读取批次，画布需要一次看到本区全部存量 */
+export async function loadHistory() {
+  const all = await readAllImages()
+  const store = useAiImageGenStore.getState()
+  store.setImageOwners(
+    all.map((record) => ({ workspaceId: record.meta.workspaceId, jobId: record.meta.jobId })),
+  )
+  store.setHistory(all.filter((record) => ownedBy(record.meta.workspaceId)))
+}
+
+export async function loadCanvas() {
+  if (!isIdbAvailable()) {
+    return
+  }
+  const records = await listCanvasNodes()
+  useAiImageGenStore.getState().setOverlays(records.filter((record) => ownedBy(record.workspaceId)))
+}
+
+/**
+ * 读工作区列表。存量图片/overlay 里只要有没有归属的，就补一个默认工作区出来，
+ * 否则升级前生成的图会在列表里凭空消失。
+ */
+export async function loadWorkspaces() {
+  if (!isIdbAvailable()) {
+    return
+  }
+  const [workspaces, images, overlays] = await Promise.all([
+    listWorkspaces(),
+    readAllImages(),
+    listCanvasNodes(),
+  ])
+  const orphaned =
+    images.some((record) => !record.meta.workspaceId) ||
+    overlays.some((record) => !record.workspaceId)
+  if (orphaned && !workspaces.some((record) => record.id === LEGACY_WORKSPACE_ID)) {
+    const earliest = images.filter((record) => !record.meta.workspaceId).at(-1)?.meta.createdAt
+    const legacy: WorkspaceRecord = {
+      id: LEGACY_WORKSPACE_ID,
+      name: '',
+      description: '',
+      createdAt: earliest ?? Date.now(),
+      updatedAt: earliest ?? Date.now(),
+    }
+    await putWorkspace(legacy)
+    workspaces.unshift(legacy)
+  }
+  useAiImageGenStore.getState().setWorkspaces(workspaces)
+}
+
+export async function createWorkspace(name: string, description: string) {
+  const now = Date.now()
+  const record: WorkspaceRecord = {
+    id: ulid(),
+    name: name.trim(),
+    description: description.trim(),
+    createdAt: now,
+    updatedAt: now,
+  }
+  await putWorkspace(record)
+  const store = useAiImageGenStore.getState()
+  store.upsertWorkspace(record)
+  store.setActiveWorkspace(record.id)
+  await Promise.all([loadHistory(), loadCanvas()])
+  return record
+}
+
+/** 读图片固有尺寸；解不出来就留给画布按默认比例摆 */
+async function readDimensions(blob: Blob): Promise<{ width: number; height: number } | undefined> {
+  try {
+    const bitmap = await createImageBitmap(blob)
+    const size = { width: bitmap.width, height: bitmap.height }
+    bitmap.close()
+    return size
+  } catch {
+    return undefined
+  }
+}
+
+export type ImportResult = { accepted: number; rejected: number }
+
+/**
+ * 把外部图片导入当前工作区。校验沿用参考图口径（同一批 mime 与体积上限），
+ * 这样任何落在画布上的图都具备被连进提示词当参考图的资格。
+ */
+export async function importImages(
+  files: File[],
+  position?: { x: number; y: number },
+): Promise<ImportResult> {
+  const store = useAiImageGenStore.getState()
+  const workspaceId = activeId()
+  const owners = [...store.imageOwners]
+  const added: ImageRecord[] = []
+  let rejected = 0
+
+  for (const file of files) {
+    if (!REFERENCE_MIMES.includes(file.type) || file.size > MAX_REFERENCE_BYTES) {
+      rejected += 1
+      continue
+    }
+    const blob = file.slice(0, file.size, file.type)
+    const dimensions = await readDimensions(blob)
+    const id = ulid()
+    const record: ImageRecord = {
+      id,
+      blob,
+      mimeType: file.type,
+      width: dimensions?.width,
+      height: dimensions?.height,
+      meta: {
+        jobId: id,
+        workspaceId,
+        imported: true,
+        prompt: file.name,
+        provider: 'local',
+        model: 'import',
+        params: defaultGenParams(),
+        createdAt: Date.now(),
+      },
+    }
+    await putImage(record)
+    if (position) {
+      // 多张横向错开一排，避免全叠在同一个坐标上
+      await saveOverlay(
+        overlayRecord(id, {
+          x: Math.round(position.x + added.length * (CANVAS_IMAGE_WIDTH + CANVAS_GAP_X)),
+          y: Math.round(position.y),
+        }),
+      )
+    }
+    added.push(record)
+    owners.push({ workspaceId, jobId: id })
+  }
+
+  if (added.length) {
+    store.setImageOwners(owners)
+    store.appendHistory(added)
+    await evictIfNeeded()
+    void touchWorkspace(workspaceId)
+  }
+  return { accepted: added.length, rejected }
+}
+
+/** 删除工作区：图片、overlay、在跑任务与记录一起走，其他工作区不受影响 */
+export async function removeWorkspace(id: string) {
+  const store = useAiImageGenStore.getState()
+  const removed = await deleteImagesOfWorkspace(id)
+  await deleteCanvasNodesOfWorkspace(id)
+  await deleteWorkspaceRecord(id)
+  for (const imageId of removed) {
+    releaseObjectUrl(imageId)
+  }
+  for (const job of store.jobs.filter((item) => item.workspaceId === id)) {
+    cancelJob(job.id)
+  }
+  store.dropWorkspace(id)
+  await Promise.all([loadHistory(), loadCanvas()])
+}
+
+/** 出图后把工作区顶到列表最前 */
+export async function touchWorkspace(workspaceId: string) {
+  const record = useAiImageGenStore.getState().workspaces.find((item) => item.id === workspaceId)
+  if (!record) {
+    return
+  }
+  const next = { ...record, updatedAt: Date.now() }
+  await putWorkspace(next)
+  useAiImageGenStore.getState().upsertWorkspace(next)
+}
+
+const overlayRecord = (
+  nodeId: string,
+  patch: Partial<CanvasNodeRecord> = {},
+  createdAt = Date.now(),
+): CanvasNodeRecord => {
+  const merged: CanvasNodeRecord = {
+    nodeId,
+    workspaceId: activeId(),
+    x: null,
+    y: null,
+    text: null,
+    refs: [],
+    chain: [],
+    createdAt,
+    ...patch,
+  }
+  return { ...merged, refs: merged.refs ?? [], chain: merged.chain ?? [] }
+}
+
+async function saveOverlay(record: CanvasNodeRecord) {
+  await putCanvasNode(record)
+  useAiImageGenStore.getState().upsertOverlay(record)
+  return record
+}
+
+/** 新建提示词节点：坐标来自画布投影，因此新节点落在用户眼前而不是自动布局区 */
+export async function createPromptNode(text: string, position: { x: number; y: number }) {
+  const nodeId = promptNodeIdOf(ulid())
+  return saveOverlay(
+    overlayRecord(nodeId, { text, x: Math.round(position.x), y: Math.round(position.y) }),
+  )
+}
+
+export async function renamePromptNode(nodeId: string, text: string) {
+  const existing = useAiImageGenStore.getState().overlays.find((item) => item.nodeId === nodeId)
+  return saveOverlay(
+    overlayRecord(nodeId, { ...existing, text }, existing?.createdAt ?? Date.now()),
+  )
+}
+
+/** 连入/断开一张参考图：refs 顺序即参考图顺序，上限由 service 夹紧 */
+export async function linkReference(nodeId: string, imageId: string, linked: boolean) {
+  const existing = useAiImageGenStore.getState().overlays.find((item) => item.nodeId === nodeId)
+  const refs = existing?.refs ?? []
+  const next = linked ? [...refs, imageId] : refs.filter((ref) => ref !== imageId)
+  return saveOverlay(
+    overlayRecord(nodeId, { ...existing, refs: next }, existing?.createdAt ?? Date.now()),
+  )
+}
+
+/** 接上/断开一条提示词链：上游的文本会按链路顺序拼进下游的最终提示词 */
+export async function linkChain(nodeId: string, upstreamId: string, linked: boolean) {
+  const existing = useAiImageGenStore.getState().overlays.find((item) => item.nodeId === nodeId)
+  const chain = existing?.chain ?? []
+  const next = linked ? [...chain, upstreamId] : chain.filter((link) => link !== upstreamId)
+  return saveOverlay(
+    overlayRecord(nodeId, { ...existing, chain: next }, existing?.createdAt ?? Date.now()),
+  )
+}
+
+/** 用库存历史与 overlay 现算一张图：拼合最终提示词、展示链级数都走它 */
+export function canvasGraphFromHistory(): CanvasGraph {
+  const store = useAiImageGenStore.getState()
+  const images: CanvasImageInput[] = store.history.map((record) => ({
+    id: record.id,
+    jobId: record.meta.jobId,
+    prompt: record.meta.prompt,
+    createdAt: record.meta.createdAt,
+    ratio: aspectRatioOf(record.meta.params.aspect),
+  }))
+  return buildCanvasGraph(images, store.overlays)
+}
+
+export async function moveCanvasNode(nodeId: string, x: number, y: number) {
+  const existing = useAiImageGenStore.getState().overlays.find((item) => item.nodeId === nodeId)
+  return saveOverlay(
+    overlayRecord(
+      nodeId,
+      { ...existing, x: Math.round(x), y: Math.round(y) },
+      existing?.createdAt ?? Date.now(),
+    ),
+  )
+}
+
+/** 清掉全部手工坐标，整图回到按血缘自动铺开 */
+export async function clearCanvasLayout() {
+  const store = useAiImageGenStore.getState()
+  await Promise.all(store.overlays.map((record) => saveOverlay({ ...record, x: null, y: null })))
+}
+
+/**
+ * 生图所需的参考图 data URL：提交时内存里有就用，
+ * 刷新后内存 map 已空则回落到 overlay.refs 从 IDB 现取，重试不再静默丢参考图。
+ */
+async function resolveReferences(jobId: string): Promise<string[]> {
+  const cached = jobInputs.get(jobId)?.references
+  if (cached?.length) {
+    return cached
+  }
+  const refs =
+    useAiImageGenStore.getState().overlays.find((item) => item.nodeId === promptNodeIdOf(jobId))
+      ?.refs ?? []
+  const out: string[] = []
+  for (const ref of refs) {
+    const record = await getImage(ref)
+    if (!record) {
+      continue
+    }
+    const bytes = new Uint8Array(await record.blob.arrayBuffer())
+    out.push(bytesToDataUrl(bytes, record.mimeType))
+  }
+  return out
 }
 
 function rememberPrompt(text: string, source: 'gen' | 'reverse', skillId?: string) {
@@ -126,6 +440,7 @@ async function saveImage(job: Job, result: ImageGenerationResult, index: number)
     mimeType: part.mimeType,
     meta: {
       jobId: job.id,
+      workspaceId: job.workspaceId,
       prompt: job.prompt,
       revisedPrompt: result.revisedPrompt,
       provider: job.provider,
@@ -137,7 +452,15 @@ async function saveImage(job: Job, result: ImageGenerationResult, index: number)
   }
   await putImage(record)
   await evictIfNeeded()
-  useAiImageGenStore.getState().appendHistory([record])
+  const store = useAiImageGenStore.getState()
+  if (ownedBy(record.meta.workspaceId)) {
+    store.appendHistory([record])
+  }
+  store.setImageOwners([
+    ...store.imageOwners,
+    { workspaceId: record.meta.workspaceId, jobId: record.meta.jobId },
+  ])
+  void touchWorkspace(job.workspaceId)
   return record.id
 }
 
@@ -165,9 +488,8 @@ function finishJob(jobId: string) {
   pumpQueue()
 }
 
-async function runSlot(job: Job, slot: JobSlot, connection: AIConnection) {
+async function runSlot(job: Job, slot: JobSlot, connection: AIConnection, references: string[]) {
   const store = useAiImageGenStore.getState()
-  const references = jobInputs.get(job.id)?.references ?? []
   store.patchSlot(job.id, slot.id, { status: 'generating' })
   const controller = controllers.get(job.id)
   if (!controller) {
@@ -265,10 +587,11 @@ async function runJob(jobId: string) {
     return
   }
 
+  const references = await resolveReferences(job.id)
   if (connection.protocol === 'images-openai') {
-    await runSlot(job, job.slots[0], connection)
+    await runSlot(job, job.slots[0], connection, references)
   } else {
-    await Promise.all(job.slots.map((slot) => runSlot(job, slot, connection)))
+    await Promise.all(job.slots.map((slot) => runSlot(job, slot, connection, references)))
   }
   finishJob(jobId)
 }
@@ -334,25 +657,49 @@ export function pumpQueue() {
   }
 }
 
+export type SubmitOptions = {
+  /** 画布上预先铸造的 jobId，使提示词节点 id 在生成前后不变 */
+  jobId?: string
+  /** 参考图对应的库存图片 id，用于画布上画出 image → prompt 血缘边 */
+  refImageIds?: string[]
+  /** 节点自身文本：链式拼合后送出的 prompt 会更长，不能反过来覆盖掉原文 */
+  nodeText?: string
+}
+
 export function submitGeneration(
   prompt: string,
   params: GenParams,
   references: string[],
+  options: SubmitOptions = {},
 ): SubmitError | null {
   const store = useAiImageGenStore.getState()
   const connection = resolveImageConnection()
   if (!connection) {
     return 'configRequired'
   }
-  const jobId = ulid()
+  const jobId = options.jobId ?? ulid()
+  const nodeId = promptNodeIdOf(jobId)
+  const existing = store.overlays.find((item) => item.nodeId === nodeId)
   const slots: JobSlot[] = Array.from({ length: params.count }, () => ({
     id: ulid(),
     status: 'pending',
   }))
   jobInputs.set(jobId, { references })
+  void saveOverlay(
+    overlayRecord(
+      nodeId,
+      {
+        ...existing,
+        text: options.nodeText ?? prompt,
+        refs: options.refImageIds ?? existing?.refs ?? [],
+      },
+      existing?.createdAt ?? Date.now(),
+    ),
+  )
   store.addJob({
     id: jobId,
     kind: 'gen',
+    workspaceId: activeId(),
     prompt,
     provider: connection.provider,
     model: connection.model,
@@ -366,6 +713,24 @@ export function submitGeneration(
   return null
 }
 
+/** 画布上点提示词节点的「生图」：沿 chain 拼合出最终提示词，参考图来自已连入的图片节点 */
+export async function submitCanvasGeneration(
+  nodeId: string,
+  params: GenParams,
+): Promise<SubmitError | null> {
+  const overlay = useAiImageGenStore.getState().overlays.find((item) => item.nodeId === nodeId)
+  if (!overlay || overlay.text === null) {
+    return 'configRequired'
+  }
+  const jobId = jobIdOfPromptNode(nodeId)
+  const composed = composePromptText(canvasGraphFromHistory(), nodeId)
+  const references = await resolveReferences(jobId)
+  return submitGeneration(composed || overlay.text, params, references, {
+    jobId,
+    nodeText: overlay.text,
+  })
+}
+
 export function submitReverse(imageDataUrl: string, skillId: string): SubmitError | null {
   const store = useAiImageGenStore.getState()
   const connection = resolveVisionConnection()
@@ -377,6 +742,7 @@ export function submitReverse(imageDataUrl: string, skillId: string): SubmitErro
   store.addJob({
     id: jobId,
     kind: 'reverse',
+    workspaceId: activeId(),
     prompt: '',
     provider: connection.provider,
     model: connection.model,
@@ -432,8 +798,42 @@ export async function deleteJobImages(jobId: string) {
   for (const record of store.history) {
     if (record.meta.jobId === jobId) {
       await deleteImage(record.id)
+      await deleteCanvasNode(record.id)
+      releaseObjectUrl(record.id)
       store.removeFromHistory(record.id)
+      store.dropOverlay(record.id)
     }
   }
+  const nodeId = promptNodeIdOf(jobId)
+  await deleteCanvasNode(nodeId)
+  store.dropOverlay(nodeId)
   store.removeJob(jobId)
+}
+
+/** 单张图删除：坐标 overlay 必须一起摘掉，否则重建时留下无人引用的孤儿记录 */
+export async function removeCanvasImage(imageId: string) {
+  const store = useAiImageGenStore.getState()
+  await deleteImage(imageId)
+  await deleteCanvasNode(imageId)
+  releaseObjectUrl(imageId)
+  store.removeFromHistory(imageId)
+  store.dropOverlay(imageId)
+}
+
+/** 只清当前工作区：图片、归属本区的 overlay 与在跑的任务，其他工作区不受影响 */
+export async function clearWorkspace() {
+  const store = useAiImageGenStore.getState()
+  for (const record of store.history) {
+    await deleteImage(record.id)
+    await deleteCanvasNode(record.id)
+    releaseObjectUrl(record.id)
+    store.removeFromHistory(record.id)
+  }
+  for (const overlay of (await listCanvasNodes()).filter((item) => ownedBy(item.workspaceId))) {
+    await deleteCanvasNode(overlay.nodeId)
+  }
+  for (const job of store.jobs.filter((item) => ownedBy(item.workspaceId))) {
+    store.removeJob(job.id)
+  }
+  await loadCanvas()
 }

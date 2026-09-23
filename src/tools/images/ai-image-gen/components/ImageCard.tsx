@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
   AlertTriangle,
@@ -15,10 +15,10 @@ import {
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Skeleton } from '@/components/ui/skeleton'
-import { cn } from '@/lib/utils'
 import { buildImageFileName } from '@/utils/file-name'
 
 import type { ImageRecord } from '../idb'
+import { objectUrlOf } from '../object-url'
 import type { Job, JobSlot } from '../store'
 
 export type CardItem =
@@ -26,9 +26,6 @@ export type CardItem =
 
 type ImageCardProps = {
   item: CardItem
-  selectionMode: boolean
-  selected: boolean
-  onToggleSelect: () => void
   onOpen: (record: ImageRecord) => void
   onRetry: (jobId: string) => void
   onCancel: (jobId: string) => void
@@ -39,9 +36,6 @@ type ImageCardProps = {
 
 export function ImageCard({
   item,
-  selectionMode,
-  selected,
-  onToggleSelect,
   onOpen,
   onRetry,
   onCancel,
@@ -55,14 +49,7 @@ export function ImageCard({
   const record = item.kind === 'image' ? item.record : undefined
   const job = item.kind === 'slot' ? item.job : undefined
   const slot = item.kind === 'slot' ? item.slot : undefined
-  const src = useMemo(() => (record ? URL.createObjectURL(record.blob) : ''), [record])
-  useEffect(() => {
-    return () => {
-      if (src) {
-        URL.revokeObjectURL(src)
-      }
-    }
-  }, [src])
+  const src = record ? objectUrlOf(record.id, record.blob) : ''
 
   const status = slot?.status ?? 'done'
   const errorCode = slot?.errorCode ?? job?.errorCode
@@ -77,12 +64,6 @@ export function ImageCard({
     : ''
 
   const handleClick = () => {
-    if (selectionMode) {
-      if (record) {
-        onToggleSelect()
-      }
-      return
-    }
     if (record) {
       onOpen(record)
     } else if (job && (status === 'failed' || status === 'cancelled')) {
@@ -91,16 +72,15 @@ export function ImageCard({
   }
 
   return (
-    <div
-      className={cn(
-        'group bg-muted/40 relative overflow-hidden rounded-lg border',
-        selectionMode && record && 'cursor-pointer',
-        selected && 'ring-primary ring-2',
-      )}
-    >
+    <div className="group bg-muted/40 relative overflow-hidden rounded-lg border">
       <button type="button" className="block w-full" onClick={handleClick}>
         {record && src ? (
-          <img src={src} alt={record.meta.prompt} className="w-full object-cover" />
+          <img
+            src={src}
+            alt={record.meta.prompt}
+            draggable={false}
+            className="w-full object-cover"
+          />
         ) : status === 'failed' ? (
           <div className="flex min-h-40 flex-col items-center justify-center gap-2 p-4 text-center">
             <AlertTriangle className="text-destructive size-5" />
@@ -126,57 +106,43 @@ export function ImageCard({
         )}
       </button>
 
-      {selectionMode && record && (
-        <div
-          className={cn(
-            'bg-background/80 absolute top-2 left-2 size-5 rounded border',
-            selected && 'border-primary bg-primary',
-          )}
-        />
-      )}
-
-      {!selectionMode && (
-        <div className="absolute top-2 right-2 flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
-          {record && (
-            <>
-              <CardAction
-                label={t('ai-image-gen.card.download')}
-                onClick={() => void downloadRecord(record)}
-              >
-                <Download className="size-3.5" />
-              </CardAction>
-              <CardAction
-                label={t('ai-image-gen.card.reference')}
-                onClick={() => onReference(record)}
-              >
-                <Repeat className="size-3.5" />
-              </CardAction>
-              <CardAction label={t('ai-image-gen.card.remix')} onClick={() => onRemix(record)}>
-                <RefreshCw className="size-3.5" />
-              </CardAction>
-              <CardAction
-                label={t('ai-image-gen.card.details')}
-                onClick={() => setDetailsOpen(true)}
-              >
-                <Eye className="size-3.5" />
-              </CardAction>
-            </>
-          )}
-          {job && (status === 'pending' || status === 'generating') && (
-            <CardAction label={t('ai-image-gen.card.cancel')} onClick={() => onCancel(job.id)}>
-              <X className="size-3.5" />
+      <div className="absolute top-2 right-2 flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+        {record && (
+          <>
+            <CardAction
+              label={t('ai-image-gen.card.download')}
+              onClick={() => void downloadRecord(record)}
+            >
+              <Download className="size-3.5" />
             </CardAction>
-          )}
-          {job && (status === 'failed' || status === 'cancelled') && (
-            <CardAction label={t('ai-image-gen.card.retry')} onClick={() => onRetry(job.id)}>
+            <CardAction
+              label={t('ai-image-gen.card.reference')}
+              onClick={() => onReference(record)}
+            >
+              <Repeat className="size-3.5" />
+            </CardAction>
+            <CardAction label={t('ai-image-gen.card.remix')} onClick={() => onRemix(record)}>
               <RefreshCw className="size-3.5" />
             </CardAction>
-          )}
-          <CardAction label={t('ai-image-gen.card.delete')} onClick={onDelete}>
-            <Trash2 className="size-3.5" />
+            <CardAction label={t('ai-image-gen.card.details')} onClick={() => setDetailsOpen(true)}>
+              <Eye className="size-3.5" />
+            </CardAction>
+          </>
+        )}
+        {job && (status === 'pending' || status === 'generating') && (
+          <CardAction label={t('ai-image-gen.card.cancel')} onClick={() => onCancel(job.id)}>
+            <X className="size-3.5" />
           </CardAction>
-        </div>
-      )}
+        )}
+        {job && (status === 'failed' || status === 'cancelled') && (
+          <CardAction label={t('ai-image-gen.card.retry')} onClick={() => onRetry(job.id)}>
+            <RefreshCw className="size-3.5" />
+          </CardAction>
+        )}
+        <CardAction label={t('ai-image-gen.card.delete')} onClick={onDelete}>
+          <Trash2 className="size-3.5" />
+        </CardAction>
+      </div>
 
       {metaLine && (
         <p className="absolute inset-x-0 bottom-0 truncate bg-gradient-to-t from-black/60 to-transparent px-2 pt-4 pb-1 text-[10px] text-white/90">
@@ -238,7 +204,7 @@ function CardAction({
       type="button"
       variant="secondary"
       size="icon"
-      className="bg-background/90 size-7"
+      className="nodrag bg-background/90 size-7"
       title={label}
       aria-label={label}
       onClick={(event) => {

@@ -1,4 +1,3 @@
-import { useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Download } from 'lucide-react'
 
@@ -7,6 +6,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { buildImageFileName } from '@/utils/file-name'
 
 import type { ImageRecord } from '../idb'
+import { objectUrlOf } from '../object-url'
 
 type ImageLightboxProps = {
   record: ImageRecord | null
@@ -15,14 +15,7 @@ type ImageLightboxProps = {
 
 export function ImageLightbox({ record, onClose }: ImageLightboxProps) {
   const { t } = useTranslation('tools-images')
-  const src = useMemo(() => (record ? URL.createObjectURL(record.blob) : ''), [record])
-  useEffect(() => {
-    return () => {
-      if (src) {
-        URL.revokeObjectURL(src)
-      }
-    }
-  }, [src])
+  const src = record ? objectUrlOf(record.id, record.blob) : ''
 
   return (
     <Dialog open={!!record} onOpenChange={(open) => !open && onClose()}>

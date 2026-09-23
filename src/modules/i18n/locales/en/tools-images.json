@@ -222,10 +222,9 @@
   },
   "ai-image-gen": {
     "title": "AI Image Gen",
-    "description": "Bring your own key to generate images via OpenAI / Gemini, manage results in a masonry gallery, reverse-engineer prompts with skill templates and export zips",
+    "badge": "Beta",
+    "description": "Bring your own key to generate images via OpenAI / Gemini, arrange results on a lineage canvas, reverse-engineer prompts with skill templates and export zips",
     "toolbar": {
-      "select": "Select",
-      "exitSelect": "Exit select",
       "exportZip": "Export zip",
       "exportSelected": "Export selected",
       "clear": "Clear",
@@ -245,6 +244,9 @@
     "composer": {
       "placeholder": "Describe the image you want… (Enter to send, Shift+Enter for newline)",
       "send": "Send",
+      "sendHint": "Send (Enter)",
+      "needPrompt": "Write a prompt first",
+      "needImage": "Add an image to reverse-engineer first",
       "addReference": "Reference",
       "removeReference": "Remove reference",
       "enableHint": "AI image gen is off: click here to configure a provider and enable it (content goes straight to your API; the key stays local).",
@@ -344,16 +346,64 @@
       "consentAccept": "I understand, enable"
     },
     "mode": {
-      "gen": "Generate",
-      "reverse": "Reverse prompt"
+      "switchToGen": "Switch to generate",
+      "switchToReverse": "Switch to reverse prompt"
     },
     "workspace": {
-      "new": "New generation",
-      "empty": "Nothing generated yet — open the card above to start",
-      "count": "{{count}} images"
+      "new": "New workspace",
+      "newDescription": "Group one line of exploration on a canvas",
+      "delete": "Delete workspace",
+      "deleteConfirmTitle": "Delete this workspace?",
+      "deleteConfirmDesc": "“{{name}}” and its {{count}} images will be deleted. This cannot be undone.",
+      "deleteConfirmAction": "Delete",
+      "untitled": "Untitled workspace",
+      "noDescription": "No description",
+      "running": "{{count}} running",
+      "jobCount": "{{count}} generations",
+      "imageCount": "{{count}} images",
+      "createTitle": "New workspace",
+      "createHint": "Each workspace is its own canvas — images, links and prompt chains stay independent.",
+      "nameLabel": "Name",
+      "namePlaceholder": "Leave blank to call it “Untitled workspace”",
+      "descLabel": "Description (optional)",
+      "descPlaceholder": "What are these images for? Style, use case, audience…",
+      "create": "Create and open",
+      "cancel": "Cancel"
     },
     "dock": {
       "back": "Back to workspace"
+    },
+    "canvas": {
+      "empty": "The canvas is empty. Generate an image, or add a prompt node and link existing images into it to generate right there.",
+      "newPrompt": "New prompt",
+      "menuAddImage": "Add image",
+      "menuDelete": "Delete",
+      "modeSelect": "Left-drag selects (click to pan instead)",
+      "modePan": "Left-drag pans (click to select instead)",
+      "upload": "Upload images",
+      "dropHint": "Drop to import onto the canvas",
+      "imported": "Imported {{count}} images",
+      "importRejected": "{{count}} files rejected: PNG / JPEG / WebP only, up to 20MB",
+      "relayout": "Auto layout",
+      "relayoutConfirmTitle": "Relayout the whole canvas by lineage?",
+      "relayoutConfirmDesc": "Clears every manually placed position and re-lays the graph as reference images → prompt → outputs. This cannot be undone.",
+      "relayoutConfirmAction": "Relayout",
+      "fitView": "Fit view",
+      "zoomIn": "Zoom in",
+      "zoomOut": "Zoom out",
+      "linkShape": "Only images can be linked into a prompt",
+      "linkCycle": "That link would close a cycle in the lineage",
+      "linkFull": "A prompt takes at most 4 reference images",
+      "detachTitle": "Detach this link?",
+      "detachDesc": "Only the connection is removed — both nodes and their images stay, and you can relink them anytime.",
+      "detachAction": "Detach"
+    },
+    "promptNode": {
+      "refs": "{{count}} / {{max}} references",
+      "chain": "←{{count}} upstream",
+      "placeholder": "Write a prompt, or link images from the canvas as references",
+      "generate": "Generate",
+      "delete": "Delete prompt"
     },
     "reverse": {
       "badFile": "PNG / JPEG / WebP only, up to 20MB",

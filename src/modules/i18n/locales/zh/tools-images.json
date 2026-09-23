@@ -222,10 +222,9 @@
   },
   "ai-image-gen": {
     "title": "AI 生图",
-    "description": "自带 key 直连 OpenAI / Gemini 出图，瀑布流管理生成结果，支持反推提示词、skill 模板与 zip 导出",
+    "badge": "Beta",
+    "description": "自带 key 直连 OpenAI / Gemini 出图，画布按血缘组织生成结果，支持反推提示词、skill 模板与 zip 导出",
     "toolbar": {
-      "select": "选择",
-      "exitSelect": "退出选择",
       "exportZip": "导出 zip",
       "exportSelected": "导出所选",
       "clear": "清空",
@@ -245,6 +244,9 @@
     "composer": {
       "placeholder": "描述你想生成的画面……（Enter 发送，Shift+Enter 换行）",
       "send": "发送",
+      "sendHint": "发送（Enter）",
+      "needPrompt": "先写一句提示词",
+      "needImage": "先上传一张要反推的图片",
       "addReference": "参考图",
       "removeReference": "移除参考图",
       "enableHint": "AI 生图未开启：点击这里配置服务商并开启（内容直连你配置的 API，key 只存本地）。",
@@ -344,16 +346,64 @@
       "consentAccept": "我已了解，开启"
     },
     "mode": {
-      "gen": "生图",
-      "reverse": "反推提示词"
+      "switchToGen": "切换到生图",
+      "switchToReverse": "切换到反推提示词"
     },
     "workspace": {
-      "new": "新建生成",
-      "empty": "还没有生成记录，点上方卡片开始第一次生图",
-      "count": "{{count}} 张"
+      "new": "新建工作区",
+      "newDescription": "把同一批探索放进一张画布",
+      "delete": "删除工作区",
+      "deleteConfirmTitle": "删除这个工作区？",
+      "deleteConfirmDesc": "「{{name}}」及其中的 {{count}} 张图片会一并删除，此操作不可撤销。",
+      "deleteConfirmAction": "删除",
+      "untitled": "未命名工作区",
+      "noDescription": "暂无描述",
+      "running": "{{count}} 个进行中",
+      "jobCount": "{{count}} 次生成",
+      "imageCount": "{{count}} 张图",
+      "createTitle": "新建工作区",
+      "createHint": "每个工作区是一张独立画布，图片、连线与提示词链互不干扰。",
+      "nameLabel": "名称",
+      "namePlaceholder": "留空则命名为「未命名工作区」",
+      "descLabel": "描述（可选）",
+      "descPlaceholder": "这批图要解决什么？风格、用途、交付对象……",
+      "create": "创建并进入",
+      "cancel": "取消"
     },
     "dock": {
       "back": "返回工作区"
+    },
+    "canvas": {
+      "empty": "画布还是空的。生成一次图，或先建一个提示词节点，把已有图片连到它上面就能就地出图。",
+      "newPrompt": "新建提示词",
+      "menuAddImage": "新增图片",
+      "menuDelete": "删除",
+      "modeSelect": "左键框选中（点击切换为拖拽平移）",
+      "modePan": "左键拖拽平移中（点击切换为框选）",
+      "upload": "上传图片",
+      "dropHint": "松手即导入到画布",
+      "imported": "已导入 {{count}} 张图片",
+      "importRejected": "{{count}} 个文件不支持：仅 PNG / JPEG / WebP，且不超过 20MB",
+      "relayout": "自动重排",
+      "relayoutConfirmTitle": "按血缘重排整个画布？",
+      "relayoutConfirmDesc": "会清掉所有手动摆放的位置，重新按「参考图 → 提示词 → 产出图」分层铺开。此操作不可撤销。",
+      "relayoutConfirmAction": "重排",
+      "fitView": "全览",
+      "zoomIn": "放大",
+      "zoomOut": "缩小",
+      "linkShape": "只能把图片连到提示词上",
+      "linkCycle": "这条连线会让血缘成环",
+      "linkFull": "一个提示词最多连 4 张参考图",
+      "detachTitle": "断开这条关联？",
+      "detachDesc": "只断开这条连线，两端的节点和图片都保留，之后可以重新连上。",
+      "detachAction": "断开"
+    },
+    "promptNode": {
+      "refs": "{{count}} / {{max}} 张参考图",
+      "chain": "←{{count}} 条上游",
+      "placeholder": "写下提示词，或把画布上的图连进来当参考图",
+      "generate": "生图",
+      "delete": "删除提示词"
     },
     "reverse": {
       "badFile": "仅支持 PNG / JPEG / WebP，且不超过 20MB",

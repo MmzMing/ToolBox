@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { Separator } from '@/components/ui/separator'
 import { Textarea } from '@/components/ui/textarea'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 
 import {
   parseSkillMarkdown,
@@ -97,18 +98,24 @@ export function SkillPicker({ skillId, onSkillIdChange }: SkillPickerProps) {
         if (!next) setEditing(null)
       }}
     >
-      <PopoverTrigger asChild>
-        <Button
-          variant="outline"
-          size="sm"
-          className="h-8 max-w-44 gap-1.5 rounded-full px-3 text-xs"
-        >
-          <Wand2 className="size-3.5 shrink-0" />
-          <span className="truncate">
-            {active ? skillLabel(active) : t('ai-image-gen.reverse.skill')}
-          </span>
-        </Button>
-      </PopoverTrigger>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <PopoverTrigger asChild>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-8 max-w-44 gap-1.5 rounded-full px-3 text-xs"
+              aria-label={t('ai-image-gen.reverse.skill')}
+            >
+              <Wand2 className="size-3.5 shrink-0" />
+              <span className="truncate">
+                {active ? skillLabel(active) : t('ai-image-gen.reverse.skill')}
+              </span>
+            </Button>
+          </PopoverTrigger>
+        </TooltipTrigger>
+        <TooltipContent side="top">{t('ai-image-gen.reverse.skill')}</TooltipContent>
+      </Tooltip>
       <PopoverContent className="w-80 p-2" align="start" side="top">
         {editing ? (
           <SkillEditor

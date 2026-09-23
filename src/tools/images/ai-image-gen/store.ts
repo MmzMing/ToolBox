@@ -9,8 +9,8 @@ import {
 } from '@/modules/ai/providers'
 import type { ImageUsage } from '@/modules/ai/transport'
 
-import type { GenParams } from './ai-image-gen.service'
-import type { ImageRecord, PromptEntry } from './idb'
+import { type CanvasNodeRecord, type GenParams } from './ai-image-gen.service'
+import type { ImageRecord, PromptEntry, WorkspaceRecord } from './idb'
 import { BUILTIN_SKILLS, mergeSkills, type Skill } from './skills'
 
 export type JobSlotStatus = 'pending' | 'generating' | 'done' | 'failed' | 'cancelled'
@@ -27,6 +27,8 @@ export type JobStatus = 'queued' | 'running' | 'done' | 'partial' | 'failed' | '
 export type Job = {
   id: string
   kind: 'gen' | 'reverse'
+  /** 所属工作区；画布只渲染当前工作区的任务 */
+  workspaceId: string
   prompt: string
   provider: string
   model: string
@@ -73,18 +75,44 @@ const readApi = (value: unknown, fallback: ApiConfig): ApiConfig => {
   return { provider, apiKey, baseUrl, model }
 }
 
+export type Viewport = { x: number; y: number; zoom: number }
+
+const finite = (value: unknown, fallback: number): number =>
+  typeof value === 'number' && Number.isFinite(value) ? value : fallback
+
+export const DEFAULT_VIEWPORT: Viewport = { x: 0, y: 0, zoom: 1 }
+
+/** null = 从未移动过视口，交给首屏 fitView；只兜住「值被改坏」 */
+const readViewport = (value: unknown): Viewport | null => {
+  if (!value || typeof value !== 'object') {
+    return null
+  }
+  const raw = value as Record<string, unknown>
+  return {
+    x: finite(raw.x, DEFAULT_VIEWPORT.x),
+    y: finite(raw.y, DEFAULT_VIEWPORT.y),
+    zoom: Math.min(4, Math.max(0.1, finite(raw.zoom, DEFAULT_VIEWPORT.zoom))),
+  }
+}
+
 type AiImageGenState = {
   jobs: Job[]
   history: ImageRecord[]
   historyLoaded: boolean
-  hasMoreHistory: boolean
   prompts: PromptEntry[]
   skills: Skill[]
   genApi: ApiConfig
   visionApi: ApiConfig
   modelLists: Partial<Record<AIProvider, string[]>>
   tested: { gen: string; vision: string }
-  selectionMode: boolean
+  /** 画布 overlay 的内存镜像，真相在 IDB canvasNodes */
+  overlays: CanvasNodeRecord[]
+  /** 工作区列表，真相在 IDB workspaces；顺序即列表顺序 */
+  workspaces: WorkspaceRecord[]
+  /** 全部图片的工作区归属（含未加载进 history 的其他工作区），供列表统计 */
+  imageOwners: { workspaceId?: string; jobId: string }[]
+  activeWorkspaceId: string | null
+  viewport: Viewport | null
   selectedImageIds: string[]
 
   setGenApi: (patch: Partial<ApiConfig>) => void
@@ -96,18 +124,27 @@ type AiImageGenState = {
   patchSlot: (jobId: string, slotId: string, patch: Partial<JobSlot>) => void
   removeJob: (id: string) => void
 
-  setHistory: (records: ImageRecord[], hasMore: boolean) => void
+  setWorkspaces: (records: WorkspaceRecord[]) => void
+  setImageOwners: (owners: { workspaceId?: string; jobId: string }[]) => void
+  upsertWorkspace: (record: WorkspaceRecord) => void
+  dropWorkspace: (id: string) => void
+  setActiveWorkspace: (id: string | null) => void
+
+  setHistory: (records: ImageRecord[]) => void
   appendHistory: (records: ImageRecord[]) => void
   removeFromHistory: (id: string) => void
-  setHasMoreHistory: (hasMore: boolean) => void
 
   setPrompts: (entries: PromptEntry[]) => void
   upsertPrompt: (entry: PromptEntry) => void
   removePrompt: (id: string) => void
 
   setSkills: (skills: Skill[]) => void
-  toggleSelectionMode: () => void
+  setOverlays: (records: CanvasNodeRecord[]) => void
+  upsertOverlay: (record: CanvasNodeRecord) => void
+  dropOverlay: (nodeId: string) => void
+  setViewport: (viewport: Viewport | null) => void
   toggleSelected: (id: string) => void
+  setSelected: (ids: string[]) => void
   clearSelection: () => void
 }
 
@@ -117,14 +154,17 @@ export const useAiImageGenStore = create<AiImageGenState>()(
       jobs: [],
       history: [],
       historyLoaded: false,
-      hasMoreHistory: false,
       prompts: [],
       skills: [...BUILTIN_SKILLS],
       genApi: defaultApi('openai'),
       visionApi: defaultApi('openai'),
       modelLists: {},
       tested: { gen: '', vision: '' },
-      selectionMode: false,
+      overlays: [],
+      workspaces: [],
+      imageOwners: [],
+      activeWorkspaceId: null,
+      viewport: null,
       selectedImageIds: [],
 
       setGenApi: (patch) =>
@@ -188,15 +228,13 @@ export const useAiImageGenStore = create<AiImageGenState>()(
         })),
       removeJob: (id) => set((state) => ({ jobs: state.jobs.filter((job) => job.id !== id) })),
 
-      setHistory: (records, hasMore) =>
-        set({ history: records, historyLoaded: true, hasMoreHistory: hasMore }),
+      setHistory: (records) => set({ history: records, historyLoaded: true }),
       appendHistory: (records) => set((state) => ({ history: [...records, ...state.history] })),
       removeFromHistory: (id) =>
         set((state) => ({
           history: state.history.filter((record) => record.id !== id),
           selectedImageIds: state.selectedImageIds.filter((selected) => selected !== id),
         })),
-      setHasMoreHistory: (hasMore) => set({ hasMoreHistory: hasMore }),
 
       setPrompts: (entries) => set({ prompts: entries }),
       upsertPrompt: (entry) =>
@@ -207,20 +245,50 @@ export const useAiImageGenStore = create<AiImageGenState>()(
         set((state) => ({ prompts: state.prompts.filter((item) => item.id !== id) })),
 
       setSkills: (skills) => set({ skills }),
-      toggleSelectionMode: () =>
-        set((state) => ({ selectionMode: !state.selectionMode, selectedImageIds: [] })),
+      setWorkspaces: (records) => set({ workspaces: records }),
+      setImageOwners: (owners) => set({ imageOwners: owners }),
+      upsertWorkspace: (record) =>
+        set((state) => ({
+          workspaces: [record, ...state.workspaces.filter((item) => item.id !== record.id)],
+        })),
+      dropWorkspace: (id) =>
+        set((state) => ({
+          workspaces: state.workspaces.filter((item) => item.id !== id),
+          activeWorkspaceId: state.activeWorkspaceId === id ? null : state.activeWorkspaceId,
+          selectedImageIds: state.activeWorkspaceId === id ? [] : state.selectedImageIds,
+        })),
+      setActiveWorkspace: (id) => set({ activeWorkspaceId: id, selectedImageIds: [] }),
+      setOverlays: (records) => set({ overlays: records }),
+      upsertOverlay: (record) =>
+        set((state) => ({
+          overlays: [...state.overlays.filter((item) => item.nodeId !== record.nodeId), record],
+        })),
+      dropOverlay: (nodeId) =>
+        set((state) => ({ overlays: state.overlays.filter((item) => item.nodeId !== nodeId) })),
+      setViewport: (viewport) => set({ viewport }),
       toggleSelected: (id) =>
         set((state) => ({
           selectedImageIds: state.selectedImageIds.includes(id)
             ? state.selectedImageIds.filter((selected) => selected !== id)
             : [...state.selectedImageIds, id],
         })),
+      setSelected: (ids) => set({ selectedImageIds: ids }),
       clearSelection: () => set({ selectedImageIds: [] }),
     }),
     {
       name: 'toolbox.ai-image-gen',
-      version: 4,
-      partialize: ({ skills, genApi, visionApi, modelLists, tested }) => ({
+      version: 6,
+      /** 5 及更早版本没有 activeWorkspaceId：原样交给 merge 的逐字段校验兜底 */
+      migrate: (persisted) => persisted,
+      partialize: ({
+        skills,
+        genApi,
+        visionApi,
+        modelLists,
+        tested,
+        viewport,
+        activeWorkspaceId,
+      }) => ({
         customs: skills.filter((skill) => !skill.builtin),
         skillFlags: Object.fromEntries(
           skills.filter((skill) => skill.builtin).map((skill) => [skill.id, skill.enabled]),
@@ -229,6 +297,8 @@ export const useAiImageGenStore = create<AiImageGenState>()(
         visionApi,
         modelLists,
         tested,
+        viewport,
+        activeWorkspaceId,
       }),
       merge: (persisted, current) => {
         const saved = persisted as
@@ -240,6 +310,8 @@ export const useAiImageGenStore = create<AiImageGenState>()(
               visionApi?: unknown
               modelLists?: Partial<Record<AIProvider, string[]>>
               tested?: { gen?: string; vision?: string }
+              viewport?: unknown
+              activeWorkspaceId?: unknown
             }
           | undefined
         return {
@@ -249,6 +321,11 @@ export const useAiImageGenStore = create<AiImageGenState>()(
           visionApi: readApi(saved?.visionApi, defaultApi('openai')),
           modelLists: saved?.modelLists ?? {},
           tested: { gen: saved?.tested?.gen ?? '', vision: saved?.tested?.vision ?? '' },
+          viewport: readViewport(saved?.viewport),
+          activeWorkspaceId:
+            typeof saved?.activeWorkspaceId === 'string' && saved.activeWorkspaceId
+              ? saved.activeWorkspaceId
+              : null,
         }
       },
     },

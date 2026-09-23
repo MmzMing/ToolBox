@@ -38,9 +38,10 @@ export function ToolLayout({ tool, children, fill = false }: ToolLayoutProps) {
   )
 
   if (fill) {
-    // 沉浸式工具自管页面头部（工作区/会话视图各自渲染），这里只给 SEO 与高度链
+    // 沉浸式工具自管页面头部与留白（画布类要贴边，卡片网格类自己加 padding），
+    // 这里只给 SEO 与打通到视口的高度链
     return (
-      <div className="mx-auto flex h-full min-h-0 w-full max-w-6xl flex-col px-4 py-4">
+      <div className="flex h-full min-h-0 w-full flex-col">
         <DocumentMeta
           title={`${title} · ToolBox`}
           description={description}

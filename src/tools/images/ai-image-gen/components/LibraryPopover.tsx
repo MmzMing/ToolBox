@@ -5,6 +5,7 @@ import { CornerDownLeft, BookMarked, Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 
 import { deletePrompt } from '../idb'
 import { useAiImageGenStore } from '../store'
@@ -28,17 +29,21 @@ export function LibraryPopover({ onInsert }: LibraryPopoverProps) {
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <Button
-          variant="outline"
-          size="sm"
-          className="h-8 gap-1.5 rounded-full px-3 text-xs"
-          title={t('ai-image-gen.toolbar.library')}
-        >
-          <BookMarked className="size-3.5" />
-          <span className="hidden sm:inline">{t('ai-image-gen.toolbar.library')}</span>
-        </Button>
-      </PopoverTrigger>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <PopoverTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="size-8"
+              aria-label={t('ai-image-gen.toolbar.library')}
+            >
+              <BookMarked className="size-4" />
+            </Button>
+          </PopoverTrigger>
+        </TooltipTrigger>
+        <TooltipContent side="top">{t('ai-image-gen.toolbar.library')}</TooltipContent>
+      </Tooltip>
       <PopoverContent className="w-96 p-2" align="start" side="top">
         <Input
           value={query}

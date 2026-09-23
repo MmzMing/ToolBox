@@ -136,6 +136,93 @@
   }
 }
 
+/* AI 生图画布（canvas/ImageCanvas.tsx）：React Flow 自带一套 --xy-* 令牌，
+   统一指回本项目语义令牌后亮暗主题自动生效；节点的边框底色由节点组件自己用
+   Tailwind 令牌画，这里只接管库内置的网格、连线、把手、框选与选中描边。 */
+.react-flow {
+  --xy-background-color: var(--background);
+  --xy-background-pattern-dots-color-default: var(--border);
+  --xy-edge-stroke-default: var(--border);
+  --xy-edge-stroke-selected-default: var(--primary);
+  --xy-connectionline-stroke-default: var(--primary);
+  --xy-handle-background-color-default: var(--background);
+  --xy-handle-border-color-default: var(--muted-foreground);
+  --xy-selection-background-color-default: color-mix(in oklch, var(--primary) 12%, transparent);
+  --xy-selection-border-default: 1px dashed color-mix(in oklch, var(--primary) 60%, transparent);
+  --xy-node-boxshadow-selected-default: 0 0 0 2px
+    color-mix(in oklch, var(--primary) 45%, transparent);
+  --xy-attribution-background-color-default: var(--muted);
+}
+
+/* 画布光标：React Flow 在 selectionOnDrag 下把空白处设成 cursor:pointer，完全看不出可拖；
+   这里按「空白=抓取手、框选=十字准星、节点=抓取手、节点内可操作控件=pointer/text」重排。
+   必须带 .react-flow 前缀提权：库的 style.css 在组件里导入，注入顺序在本文件之后。 */
+.react-flow .react-flow__pane {
+  cursor: grab;
+}
+.react-flow .react-flow__pane.selection {
+  cursor: crosshair;
+}
+.react-flow .react-flow__pane.dragging {
+  cursor: grabbing;
+}
+.react-flow .react-flow__node.draggable {
+  cursor: grab;
+}
+.react-flow .react-flow__node.draggable.dragging {
+  cursor: grabbing;
+}
+/* 拖拽中的节点单独提层：卡片里是一张解码后的大图，不提层的话每帧都要重新栅格化 */
+.react-flow .react-flow__node.dragging {
+  will-change: transform;
+}
+.react-flow .react-flow__node .react-flow__handle {
+  cursor: crosshair;
+  transition:
+    background-color 120ms,
+    box-shadow 120ms;
+}
+/* 视觉只有 6px 的点，命中范围用 ::after 向外扩 5px；悬停时同一圈用光环保亮，
+   让「能点到的范围」看得见 */
+.react-flow .react-flow__node .react-flow__handle::after {
+  content: '';
+  position: absolute;
+  inset: -5px;
+  border-radius: 9999px;
+}
+.react-flow .react-flow__node .react-flow__handle:hover {
+  background-color: var(--primary);
+  box-shadow: 0 0 0 5px color-mix(in oklch, var(--primary) 30%, transparent);
+}
+/* 节点内的操作按钮要盖过抓取手，否则看着像整块都能拖。
+   注意只能限定到 button：React Flow 给 handle 也挂了 nodrag 类，宽泛选择器会把
+   把手的 crosshair 一起盖掉。 */
+.react-flow .react-flow__node button.nodrag {
+  cursor: pointer;
+}
+.react-flow .react-flow__node textarea {
+  cursor: text;
+}
+
+/* 可断开的连线（参考图 / 提示词链）：悬停整条描红提示可点，点击后由画布弹确认框；
+   产出边由提示词派生，没有这个类，因此不会给出删除入口 */
+.react-flow .react-flow__edge.canvas-edge-detachable {
+  cursor: pointer;
+}
+.react-flow .react-flow__edge.canvas-edge-detachable:hover .react-flow__edge-path {
+  stroke: var(--destructive);
+}
+
+/* 画布点阵的光标聚光：ImageCanvas 在 pointermove 上写 --glow-x/y/r 三个变量，
+   第二层主色点阵（.canvas-glow）用圆形遮罩只在半径内显形，网格随光标亮一圈 */
+.react-flow .react-flow__background.canvas-glow {
+  mask-image: radial-gradient(
+    circle var(--glow-r, 0px) at var(--glow-x, -9999px) var(--glow-y, -9999px),
+    #000 0%,
+    transparent 70%
+  );
+}
+
 /* 数字框自带的小箭头由浏览器绘制，吃不进主题还会挤掉数字；需要时统一挂这个类关掉 */
 @utility no-spinner {
   appearance: textfield;

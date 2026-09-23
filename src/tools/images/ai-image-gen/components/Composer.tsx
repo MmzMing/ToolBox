@@ -13,25 +13,19 @@ import {
 
 import { Button } from '@/components/ui/button'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { Textarea } from '@/components/ui/textarea'
-import { cn } from '@/lib/utils'
-import { AI_PROVIDER_DEFINITIONS, DEFAULT_IMAGE_MODEL } from '@/modules/ai/providers'
-import { useAIConfigStore } from '@/modules/ai/store'
+import { DEFAULT_IMAGE_MODEL } from '@/modules/ai/providers'
 import { bytesToDataUrl } from '@/utils/base64'
 
-import {
-  apiReady,
-  MAX_REFERENCE_BYTES,
-  REFERENCE_MIMES,
-  type GenParams,
-} from '../ai-image-gen.service'
+import { MAX_REFERENCE_BYTES, REFERENCE_MIMES, type GenParams } from '../ai-image-gen.service'
 import { useAiImageGenStore } from '../store'
 import type { Skill } from '../skills'
 import { LibraryPopover } from './LibraryPopover'
 import { ParamBar } from './ParamBar'
 import { SkillPicker } from './SkillPicker'
 
-export type ReferenceImage = { id: string; dataUrl: string; name: string }
+export type ReferenceImage = { id: string; dataUrl: string; name: string; imageId?: string }
 export type ReverseImage = { dataUrl: string; name: string }
 
 type ComposerProps = {
@@ -78,17 +72,11 @@ export function Composer(props: ComposerProps) {
 
   const genApi = useAiImageGenStore((state) => state.genApi)
   const visionApi = useAiImageGenStore((state) => state.visionApi)
-  const tested = useAiImageGenStore((state) => state.tested)
-  const enabled = useAIConfigStore((state) => state.enabled)
 
   const enabledSkills = skills.filter((skill) => skill.enabled)
   const activeSkillId = skillId || enabledSkills[0]?.id || ''
   const genProvider = genApi.provider === 'gemini' ? 'gemini' : 'openai'
   const model = genApi.model || DEFAULT_IMAGE_MODEL[genProvider]
-  const ready =
-    mode === 'gen'
-      ? apiReady(genApi, enabled, tested.gen)
-      : apiReady(visionApi, enabled, tested.vision)
 
   const readFiles = async (files: FileList | null, limit: number) => {
     if (!files?.length) {
@@ -240,50 +228,23 @@ export function Composer(props: ComposerProps) {
       )}
 
       <div className="mt-2 flex flex-wrap items-center gap-1.5">
-        <div className="flex rounded-lg border p-0.5">
-          <ModeButton
-            active={mode === 'gen'}
-            label={t('ai-image-gen.mode.gen')}
-            onClick={() => onModeChange('gen')}
-          >
-            <Images className="size-3.5" />
-          </ModeButton>
-          <ModeButton
-            active={mode === 'reverse'}
-            label={t('ai-image-gen.mode.reverse')}
-            onClick={() => onModeChange('reverse')}
-          >
-            <ScanSearch className="size-3.5" />
-          </ModeButton>
-        </div>
-
         <Popover>
-          <PopoverTrigger asChild>
-            <Button
-              variant="outline"
-              size="sm"
-              className="h-8 max-w-56 gap-1.5 rounded-full px-3 text-xs"
-              title={t('ai-image-gen.params.advanced')}
-            >
-              <span
-                aria-hidden
-                className={cn(
-                  'size-2 shrink-0 rounded-full',
-                  ready ? 'bg-primary' : 'bg-destructive',
-                )}
-              />
-              <SlidersHorizontal className="size-3.5 shrink-0" />
-              <span className="truncate">
-                {mode === 'gen'
-                  ? `${AI_PROVIDER_DEFINITIONS[genProvider].name} · ${model} · ${
-                      params.aspect === 'auto' ? t('ai-image-gen.params.aspectAuto') : params.aspect
-                    } · ×${params.count}`
-                  : `${AI_PROVIDER_DEFINITIONS[visionApi.provider].name} · ${
-                      visionApi.model || t('ai-image-gen.reverse.visionModel')
-                    }`}
-              </span>
-            </Button>
-          </PopoverTrigger>
+          <BarTooltip label={t('ai-image-gen.params.advanced')}>
+            <PopoverTrigger asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-8 max-w-40 gap-1.5 rounded-full px-3 text-xs"
+              >
+                <SlidersHorizontal className="size-3.5 shrink-0" />
+                <span className="truncate">
+                  {mode === 'gen'
+                    ? model
+                    : visionApi.model || t('ai-image-gen.reverse.visionModel')}
+                </span>
+              </Button>
+            </PopoverTrigger>
+          </BarTooltip>
           <PopoverContent className="w-80" align="start" side="top">
             <ParamBar mode={mode} params={params} onParamsChange={onParamsChange} />
           </PopoverContent>
@@ -312,72 +273,86 @@ export function Composer(props: ComposerProps) {
                 })
               }}
             />
-            <Button
-              variant="outline"
-              size="sm"
-              className="h-8 gap-1.5 rounded-full px-3 text-xs"
-              title={t('ai-image-gen.composer.addReference')}
-              onClick={() => refFileRef.current?.click()}
-            >
-              <ImagePlus className="size-3.5" />
-              <span className="hidden sm:inline">{t('ai-image-gen.composer.addReference')}</span>
-            </Button>
+            <BarTooltip label={t('ai-image-gen.composer.addReference')}>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="size-8"
+                aria-label={t('ai-image-gen.composer.addReference')}
+                onClick={() => refFileRef.current?.click()}
+              >
+                <ImagePlus className="size-4" />
+              </Button>
+            </BarTooltip>
           </>
         )}
 
         <div className="flex-1" />
 
-        <Button
-          variant="ghost"
-          size="icon"
-          className="text-muted-foreground size-8"
-          title={t('ai-image-gen.toolbar.settings')}
-          aria-label={t('ai-image-gen.toolbar.settings')}
-          onClick={onOpenSettings}
-        >
-          <Settings2 className="size-4" />
-        </Button>
-        <Button
-          size="icon"
-          className="size-9 shrink-0 rounded-full"
-          disabled={!canSend}
-          onClick={onSubmit}
-          aria-label={
-            mode === 'gen' ? t('ai-image-gen.composer.send') : t('ai-image-gen.reverse.start')
+        <BarTooltip
+          label={
+            mode === 'gen'
+              ? t('ai-image-gen.mode.switchToReverse')
+              : t('ai-image-gen.mode.switchToGen')
           }
         >
-          {mode === 'gen' ? <ArrowUp className="size-4" /> : <ScanSearch className="size-4" />}
-        </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="text-muted-foreground size-8"
+            aria-label={
+              mode === 'gen'
+                ? t('ai-image-gen.mode.switchToReverse')
+                : t('ai-image-gen.mode.switchToGen')
+            }
+            onClick={() => onModeChange(mode === 'gen' ? 'reverse' : 'gen')}
+          >
+            {mode === 'gen' ? <ScanSearch className="size-4" /> : <Images className="size-4" />}
+          </Button>
+        </BarTooltip>
+        <BarTooltip label={t('ai-image-gen.toolbar.settings')}>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="text-muted-foreground size-8"
+            aria-label={t('ai-image-gen.toolbar.settings')}
+            onClick={onOpenSettings}
+          >
+            <Settings2 className="size-4" />
+          </Button>
+        </BarTooltip>
+        <BarTooltip
+          label={
+            canSend
+              ? t('ai-image-gen.composer.sendHint')
+              : mode === 'gen'
+                ? t('ai-image-gen.composer.needPrompt')
+                : t('ai-image-gen.composer.needImage')
+          }
+        >
+          <Button
+            size="icon"
+            className="size-9 shrink-0 rounded-full"
+            disabled={!canSend}
+            onClick={onSubmit}
+            aria-label={
+              mode === 'gen' ? t('ai-image-gen.composer.send') : t('ai-image-gen.reverse.start')
+            }
+          >
+            {mode === 'gen' ? <ArrowUp className="size-4" /> : <ScanSearch className="size-4" />}
+          </Button>
+        </BarTooltip>
       </div>
     </div>
   )
 }
 
-function ModeButton({
-  active,
-  label,
-  onClick,
-  children,
-}: {
-  active: boolean
-  label: string
-  onClick: () => void
-  children: React.ReactNode
-}) {
+/** 底栏按钮的统一悬浮提示：Radix 要求 Trigger 只包一个可聚焦子元素 */
+function BarTooltip({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      title={label}
-      aria-label={label}
-      aria-pressed={active}
-      className={cn(
-        'flex items-center gap-1 rounded-md px-2 py-1 text-xs transition-colors',
-        active ? 'bg-secondary text-foreground' : 'text-muted-foreground hover:text-foreground',
-      )}
-    >
-      {children}
-      <span className="hidden sm:inline">{label}</span>
-    </button>
+    <Tooltip>
+      <TooltipTrigger asChild>{children}</TooltipTrigger>
+      <TooltipContent side="top">{label}</TooltipContent>
+    </Tooltip>
   )
 }
