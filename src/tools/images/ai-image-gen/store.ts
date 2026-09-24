@@ -43,7 +43,6 @@ export type Job = {
   finishedAt?: number
   usage?: ImageUsage
   revisedPrompt?: string
-  candidates?: string[]
 }
 
 /** 生图与识图各一份独立 API 配置：key、地址、模型互不牵连 */

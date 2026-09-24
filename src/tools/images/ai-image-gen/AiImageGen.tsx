@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
-import { ReactFlowProvider } from '@xyflow/react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { ReactFlowProvider, useReactFlow, type ReactFlowInstance } from '@xyflow/react'
 import { ArrowLeft } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
@@ -9,15 +9,18 @@ import { useAIConfigStore } from '@/modules/ai/store'
 import { bytesToDataUrl } from '@/utils/base64'
 
 import {
+  CANVAS_GAP_X,
+  CANVAS_IMAGE_WIDTH,
+  CANVAS_PROMPT_HEIGHT,
+  CANVAS_PROMPT_WIDTH,
   LEGACY_WORKSPACE_ID,
   normalizeGenParams,
   summarizeWorkspaces,
   type GenParams,
 } from './ai-image-gen.service'
 import { AiImageSettingsDialog } from './components/AiImageSettingsDialog'
-import { Composer, type ReferenceImage, type ReverseImage } from './components/Composer'
+import { Composer, type ReferenceImage } from './components/Composer'
 import { ImageLightbox } from './components/ImageLightbox'
-import { ReversePromptPanel } from './components/ReversePromptPanel'
 import { SessionDock } from './components/SessionDock'
 import { WorkspaceCreateDialog } from './components/WorkspaceCreateDialog'
 import { WorkspaceView } from './components/WorkspaceView'
@@ -65,8 +68,12 @@ export default function AiImageGen() {
   const [references, setReferences] = useState<ReferenceImage[]>([])
   const [lightbox, setLightbox] = useState<ImageRecord | null>(null)
   const [mode, setMode] = useState<'gen' | 'reverse'>('gen')
-  const [reverseImage, setReverseImage] = useState<ReverseImage | null>(null)
+  const [reverseImages, setReverseImages] = useState<ReferenceImage[]>([])
   const [skillId, setSkillId] = useState('')
+  const flowRef = useRef<ReactFlowInstance | null>(null)
+  const rememberFlow = useCallback((instance: ReactFlowInstance) => {
+    flowRef.current = instance
+  }, [])
 
   useEffect(() => {
     if (!isIdbAvailable()) {
@@ -135,8 +142,8 @@ export default function AiImageGen() {
   const handleImportFiles = useCallback(
     (files: File[], position: { x: number; y: number }) => {
       void importImages(files, position).then((result) => {
-        if (result.accepted) {
-          toast.success(t('ai-image-gen.canvas.imported', { count: result.accepted }))
+        if (result.accepted.length) {
+          toast.success(t('ai-image-gen.canvas.imported', { count: result.accepted.length }))
         }
         if (result.rejected) {
           toast.error(t('ai-image-gen.canvas.importRejected', { count: result.rejected }))
@@ -146,21 +153,41 @@ export default function AiImageGen() {
     [t],
   )
 
+  /** 视口中央的流坐标：Composer 在画布之外，落点只能借 useReactFlow 换算 */
+  const canvasCenter = useCallback(() => {
+    const rect = document.querySelector('.react-flow')?.getBoundingClientRect()
+    const instance = flowRef.current
+    if (!instance || !rect) {
+      return { x: 0, y: 0 }
+    }
+    const point = instance.screenToFlowPosition({
+      x: rect.left + rect.width / 2,
+      y: rect.top + rect.height / 2,
+    })
+    return {
+      x: point.x - (CANVAS_IMAGE_WIDTH + CANVAS_GAP_X + CANVAS_PROMPT_WIDTH) / 2,
+      y: point.y - CANVAS_PROMPT_HEIGHT / 2,
+    }
+  }, [])
+
   const handleSubmit = () => {
     if (!enabled) {
       setSettingsOpen(true)
       return
     }
     if (mode === 'reverse') {
-      if (!reverseImage) {
+      if (!reverseImages.length) {
         return
       }
       const target = skillId || skills.find((skill) => skill.enabled)?.id || ''
-      const error = submitReverse(reverseImage.dataUrl, target)
-      if (error) {
-        toast.error(t(`ai-image-gen.errors.${error}`))
-        setSettingsOpen(true)
-      }
+      void submitReverse(reverseImages, target, canvasCenter()).then((error) => {
+        if (error) {
+          toast.error(t(`ai-image-gen.errors.${error}`))
+          setSettingsOpen(true)
+          return
+        }
+        setReverseImages([])
+      })
       return
     }
     const trimmed = prompt.trim()
@@ -239,6 +266,7 @@ export default function AiImageGen() {
   return (
     <div className="relative h-full min-h-0 overflow-hidden">
       <ReactFlowProvider>
+        <FlowReady onReady={rememberFlow} />
         <SessionDock
           hasSelection={selectedImageIds.length > 0}
           interaction={interaction}
@@ -264,7 +292,7 @@ export default function AiImageGen() {
         />
       </ReactFlowProvider>
 
-      <div className="pointer-events-none absolute inset-x-3 top-3 z-10 flex items-start gap-3">
+      <div className="pointer-events-none absolute inset-x-3 top-3 z-10">
         <Button
           type="button"
           variant="ghost"
@@ -275,30 +303,23 @@ export default function AiImageGen() {
           <ArrowLeft className="size-3.5" />
           <span className="hidden sm:inline">{t('ai-image-gen.dock.back')}</span>
         </Button>
+      </div>
+
+      <div className="absolute inset-x-3 bottom-3 z-10 mx-auto flex max-w-3xl flex-col gap-2">
+        {/* 配置提示贴在输入框上方：顶栏离手元操作太远，出图时看不见 */}
         {!enabled ? (
           <button
             type="button"
-            className="border-destructive/40 bg-destructive/90 text-destructive-foreground pointer-events-auto mx-auto max-w-2xl rounded-md border p-2 text-left text-xs backdrop-blur"
+            className="border-destructive/40 bg-destructive/90 text-destructive-foreground w-full rounded-md border p-2 text-left text-xs backdrop-blur"
             onClick={() => setSettingsOpen(true)}
           >
             {t('ai-image-gen.composer.enableHint')}
           </button>
         ) : !connection ? (
-          <p className="border-destructive/40 bg-destructive/90 text-destructive-foreground mx-auto max-w-2xl rounded-md border p-2 text-xs backdrop-blur">
+          <p className="border-destructive/40 bg-destructive/90 text-destructive-foreground w-full rounded-md border p-2 text-xs backdrop-blur">
             {t('ai-image-gen.composer.configHint')}
           </p>
         ) : null}
-      </div>
-
-      <div className="absolute right-3 bottom-3 left-3 z-10 mx-auto max-w-3xl">
-        {mode === 'reverse' && (
-          <ReversePromptPanel
-            onInsertPrompt={(text) => {
-              setPrompt(text)
-              setMode('gen')
-            }}
-          />
-        )}
         <Composer
           mode={mode}
           onModeChange={setMode}
@@ -308,8 +329,8 @@ export default function AiImageGen() {
           onParamsChange={applyParams}
           references={references}
           onReferencesChange={setReferences}
-          reverseImage={reverseImage}
-          onReverseImageChange={setReverseImage}
+          reverseImages={reverseImages}
+          onReverseImagesChange={setReverseImages}
           skills={skills}
           skillId={skillId}
           onSkillIdChange={setSkillId}
@@ -326,4 +347,11 @@ export default function AiImageGen() {
       <AiImageSettingsDialog open={settingsOpen} onOpenChange={setSettingsOpen} />
     </div>
   )
+}
+
+/** 把 React Flow 实例交给外层：Composer 不在 Provider 内，落点换算要用到它 */
+function FlowReady({ onReady }: { onReady: (instance: ReactFlowInstance) => void }) {
+  const instance = useReactFlow()
+  useEffect(() => onReady(instance), [instance, onReady])
+  return null
 }

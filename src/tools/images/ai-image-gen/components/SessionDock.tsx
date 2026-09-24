@@ -38,6 +38,9 @@ import {
 } from '../ai-image-gen.service'
 import type { CanvasInteraction } from '../canvas/ImageCanvas'
 
+/** 全览两次点击之间的最短间隔：小于它会被吞掉，避免 fitView 动画互相打断 */
+const FIT_VIEW_COOLDOWN_MS = 3000
+
 type SessionDockProps = {
   hasSelection: boolean
   interaction: CanvasInteraction
@@ -65,6 +68,17 @@ export function SessionDock({
   const instance = useReactFlow()
   const { zoom } = useViewport()
   const fileRef = useRef<HTMLInputElement>(null)
+  const lastFitAt = useRef(0)
+
+  /** 全览冷却：图还在陆续落板时反复 fitView 会让视口来回抖，3 秒内只认第一次 */
+  const fitView = () => {
+    const now = Date.now()
+    if (now - lastFitAt.current < FIT_VIEW_COOLDOWN_MS) {
+      return
+    }
+    lastFitAt.current = now
+    void instance.fitView({ padding: 0.15, duration: 600 })
+  }
 
   const upload = () => {
     const rect = document.querySelector('.react-flow')?.getBoundingClientRect()
@@ -190,10 +204,7 @@ export function SessionDock({
       >
         <Plus className="size-4" />
       </DockButton>
-      <DockButton
-        label={t('ai-image-gen.canvas.fitView')}
-        onClick={() => void instance.fitView({ padding: 0.15, duration: 600 })}
-      >
+      <DockButton label={t('ai-image-gen.canvas.fitView')} onClick={fitView}>
         <Maximize className="size-4" />
       </DockButton>
     </div>

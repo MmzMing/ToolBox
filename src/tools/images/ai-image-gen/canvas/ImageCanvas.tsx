@@ -76,7 +76,7 @@ const edgeOptions = {
 }
 
 type RfNode = ImageRfNode | PromptRfNode
-type LinkProblem = 'shape' | 'cycle' | 'full'
+type LinkProblem = 'shape' | 'cycle' | 'full' | 'vision'
 /** 待断开的连线：由悬停描红 + 点击确认后走 unlink */
 type DetachTarget = { id: string; source: string; target: string }
 
@@ -84,6 +84,7 @@ const LINK_KEY: Record<LinkProblem, string> = {
   shape: 'ai-image-gen.canvas.linkShape',
   cycle: 'ai-image-gen.canvas.linkCycle',
   full: 'ai-image-gen.canvas.linkFull',
+  vision: 'ai-image-gen.canvas.linkVision',
 }
 
 /** 左键行为：框选，或拖拽平移 */
@@ -269,6 +270,10 @@ export function ImageCanvas(props: ImageCanvasProps) {
       if (!from || !to || to.kind !== 'prompt' || (from.kind === 'prompt' && from.id === to.id)) {
         return 'shape'
       }
+      // 识图原图只服务于它自己那条识别边，拉出去当参考图会误导「这张图会进下一次生图」
+      if (from.kind === 'image' && from.vision) {
+        return 'vision'
+      }
       if (wouldCreateCycle(graph.edges, from.id, to.id)) {
         return 'cycle'
       }
@@ -309,6 +314,7 @@ export function ImageCanvas(props: ImageCanvasProps) {
             data: {
               card: {
                 item,
+                vision: node.vision,
                 onOpen: onOpenLightbox,
                 onRetry: retryJob,
                 onCancel: cancelJob,
@@ -341,6 +347,7 @@ export function ImageCanvas(props: ImageCanvasProps) {
             status: job?.status ?? 'idle',
             errorCode: job?.errorCode,
             params,
+            vision: node.vision,
             onRename: (nodeId: string, text: string) => void renamePromptNode(nodeId, text),
             onGenerate: handleGenerate,
             onCancel: cancelJob,

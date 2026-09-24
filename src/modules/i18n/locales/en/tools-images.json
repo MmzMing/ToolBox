@@ -248,7 +248,7 @@
       "needPrompt": "Write a prompt first",
       "needImage": "Add an image to reverse-engineer first",
       "addReference": "Reference",
-      "removeReference": "Remove reference",
+      "removeImage": "Remove image",
       "dropReference": "Drop to add as reference",
       "dropImage": "Drop to set the image to reverse",
       "clearAll": "Clear text and images",
@@ -275,6 +275,7 @@
     "card": {
       "queued": "Queued",
       "generating": "Generating",
+      "reading": "Reading",
       "cancelled": "Cancelled",
       "retry": "Retry",
       "cancel": "Cancel",
@@ -397,6 +398,7 @@
       "linkShape": "Only images can be linked into a prompt",
       "linkCycle": "That link would close a cycle in the lineage",
       "linkFull": "A prompt takes at most 4 reference images",
+      "linkVision": "A vision source image only feeds recognition, never a reference",
       "detachTitle": "Detach this link?",
       "detachDesc": "Only the connection is removed — both nodes and their images stay, and you can relink them anytime.",
       "detachAction": "Detach"
@@ -406,19 +408,19 @@
       "chain": "←{{count}} upstream",
       "placeholder": "Write a prompt, or link images from the canvas as references",
       "generate": "Generate",
-      "delete": "Delete prompt"
+      "delete": "Delete prompt",
+      "vision": "Vision to prompt",
+      "reading": "Reading this image…",
+      "copy": "Copy prompt"
     },
     "reverse": {
       "badFile": "PNG / JPEG / WebP only, up to 20MB",
       "dropzone": "Click or drag an image here",
       "dropHint": "PNG / JPEG / WebP, up to 20MB; pasting also works",
-      "replace": "Re-upload",
+      "add": "Add another",
       "skill": "Reverse skill",
       "visionModel": "Vision model",
-      "start": "Reverse",
-      "candidates": "Candidate prompts (auto-saved to the library)",
-      "insert": "Use in composer",
-      "copy": "Copy"
+      "start": "Reverse"
     },
     "library": {
       "title": "Prompt library",

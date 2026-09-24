@@ -248,7 +248,7 @@
       "needPrompt": "先写一句提示词",
       "needImage": "先上传一张要反推的图片",
       "addReference": "参考图",
-      "removeReference": "移除参考图",
+      "removeImage": "移除图片",
       "dropReference": "松手即添加为参考图",
       "dropImage": "松手即作为反推图片",
       "clearAll": "清空文字与图片",
@@ -275,6 +275,7 @@
     "card": {
       "queued": "排队中",
       "generating": "生成中",
+      "reading": "识别中",
       "cancelled": "已取消",
       "retry": "重试",
       "cancel": "取消",
@@ -397,6 +398,7 @@
       "linkShape": "只能把图片连到提示词上",
       "linkCycle": "这条连线会让血缘成环",
       "linkFull": "一个提示词最多连 4 张参考图",
+      "linkVision": "识图原图只用于识别，不能当参考图",
       "detachTitle": "断开这条关联？",
       "detachDesc": "只断开这条连线，两端的节点和图片都保留，之后可以重新连上。",
       "detachAction": "断开"
@@ -406,19 +408,19 @@
       "chain": "←{{count}} 条上游",
       "placeholder": "写下提示词，或把画布上的图连进来当参考图",
       "generate": "生图",
-      "delete": "删除提示词"
+      "delete": "删除提示词",
+      "vision": "识图取词",
+      "reading": "正在识别这张图…",
+      "copy": "复制提示词"
     },
     "reverse": {
       "badFile": "仅支持 PNG / JPEG / WebP，且不超过 20MB",
       "dropzone": "点击或拖拽图片到此处",
       "dropHint": "支持 PNG / JPEG / WebP，≤20MB；也可直接粘贴",
-      "replace": "重新上传",
+      "add": "再加一张",
       "skill": "反推 skill",
       "visionModel": "识图模型",
-      "start": "开始反推",
-      "candidates": "候选提示词（已自动存入提示词库）",
-      "insert": "填入输入框",
-      "copy": "复制"
+      "start": "开始反推"
     },
     "library": {
       "title": "提示词库",

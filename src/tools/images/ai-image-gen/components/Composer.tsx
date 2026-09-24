@@ -6,6 +6,7 @@ import {
   Eraser,
   ImagePlus,
   Images,
+  Plus,
   ScanSearch,
   Settings2,
   SlidersHorizontal,
@@ -28,9 +29,8 @@ import { ParamBar } from './ParamBar'
 import { SkillPicker } from './SkillPicker'
 
 export type ReferenceImage = { id: string; dataUrl: string; name: string; imageId?: string }
-export type ReverseImage = { dataUrl: string; name: string }
 
-/** 一次生成最多带的参考图张数 */
+/** 一次生成最多带的参考图张数，识图一次最多提交的张数与它对齐 */
 const MAX_REFERENCES = 4
 
 type ComposerProps = {
@@ -42,8 +42,9 @@ type ComposerProps = {
   onParamsChange: (patch: Partial<GenParams>) => void
   references: ReferenceImage[]
   onReferencesChange: (references: ReferenceImage[]) => void
-  reverseImage: ReverseImage | null
-  onReverseImageChange: (image: ReverseImage | null) => void
+  /** 待识图的图片：提交后每张各自落成一对画布节点 */
+  reverseImages: ReferenceImage[]
+  onReverseImagesChange: (images: ReferenceImage[]) => void
   skills: Skill[]
   skillId: string
   onSkillIdChange: (id: string) => void
@@ -62,8 +63,8 @@ export function Composer(props: ComposerProps) {
     onParamsChange,
     references,
     onReferencesChange,
-    reverseImage,
-    onReverseImageChange,
+    reverseImages,
+    onReverseImagesChange,
     skills,
     skillId,
     onSkillIdChange,
@@ -103,25 +104,26 @@ export function Composer(props: ComposerProps) {
     return next.slice(0, limit)
   }
 
-  /** 粘贴与拖拽共用：按当前模式落到参考图列表或反推图 */
+  /** 粘贴与拖拽共用：按当前模式落到参考图列表或待识图列表 */
   const takeFiles = (files: FileList | null) => {
-    const limit = mode === 'gen' ? MAX_REFERENCES - references.length : 1
-    void readFiles(files, limit).then((items) => {
+    const current = mode === 'gen' ? references : reverseImages
+    void readFiles(files, MAX_REFERENCES - current.length).then((items) => {
       if (!items.length) {
         if (files?.length) {
           toast.error(t('ai-image-gen.canvas.importRejected', { count: files.length }))
         }
         return
       }
+      const next = [...current, ...items].slice(0, MAX_REFERENCES)
       if (mode === 'gen') {
-        onReferencesChange([...references, ...items].slice(0, MAX_REFERENCES))
-      } else if (items[0]) {
-        onReverseImageChange({ dataUrl: items[0].dataUrl, name: items[0].name })
+        onReferencesChange(next)
+      } else {
+        onReverseImagesChange(next)
       }
     })
   }
 
-  const canSend = mode === 'gen' ? !!prompt.trim() : !!reverseImage
+  const canSend = mode === 'gen' ? !!prompt.trim() : reverseImages.length > 0
 
   const handlePaste = (event: React.ClipboardEvent) => {
     const hasImage = Array.from(event.clipboardData.items).some((item) =>
@@ -137,13 +139,14 @@ export function Composer(props: ComposerProps) {
   const draggingFiles = (event: React.DragEvent) =>
     event.dataTransfer?.types.includes('Files') ?? false
 
-  /** 一键清空：文字、参考图、反推图一起归零，两种模式共用一个入口 */
-  const hasContent = mode === 'gen' ? !!prompt.trim() || references.length > 0 : !!reverseImage
+  /** 一键清空：文字与两种模式下的图片一起归零 */
+  const hasContent =
+    !!prompt.trim() || references.length > 0 || (mode === 'reverse' && reverseImages.length > 0)
 
   const clearAll = () => {
     onPromptChange('')
     onReferencesChange([])
-    onReverseImageChange(null)
+    onReverseImagesChange([])
   }
 
   return (
@@ -181,29 +184,10 @@ export function Composer(props: ComposerProps) {
       ) : null}
       {mode === 'gen' ? (
         <>
-          {references.length > 0 && (
-            <div className="mb-2 flex flex-wrap gap-2">
-              {references.map((reference) => (
-                <div key={reference.id} className="relative">
-                  <img
-                    src={reference.dataUrl}
-                    alt={reference.name}
-                    className="size-10 rounded-md border object-cover"
-                  />
-                  <button
-                    type="button"
-                    aria-label={t('ai-image-gen.composer.removeReference')}
-                    className="bg-background text-muted-foreground hover:text-foreground absolute -top-1.5 -right-1.5 rounded-full border p-0.5"
-                    onClick={() =>
-                      onReferencesChange(references.filter((item) => item.id !== reference.id))
-                    }
-                  >
-                    <X className="size-3" />
-                  </button>
-                </div>
-              ))}
-            </div>
-          )}
+          <ImageThumbs
+            items={references}
+            onRemove={(id) => onReferencesChange(references.filter((item) => item.id !== id))}
+          />
           <Textarea
             value={prompt}
             onChange={(event) => onPromptChange(event.target.value)}
@@ -223,58 +207,27 @@ export function Composer(props: ComposerProps) {
             ref={reverseFileRef}
             type="file"
             accept={REFERENCE_MIMES.join(',')}
+            multiple
             className="hidden"
             onChange={(event) => {
-              void readFiles(event.target.files, 1).then((items) => {
-                if (items[0]) {
-                  onReverseImageChange({ dataUrl: items[0].dataUrl, name: items[0].name })
-                }
-                if (reverseFileRef.current) {
-                  reverseFileRef.current.value = ''
-                }
-              })
+              takeFiles(event.target.files)
+              if (reverseFileRef.current) {
+                reverseFileRef.current.value = ''
+              }
             }}
           />
-          {reverseImage ? (
-            <div className="flex min-h-24 items-center gap-3">
-              <div className="relative">
-                <img
-                  src={reverseImage.dataUrl}
-                  alt={reverseImage.name}
-                  className="size-20 rounded-lg border object-cover"
-                />
-                <button
-                  type="button"
-                  aria-label={t('ai-image-gen.composer.removeReference')}
-                  className="bg-background text-muted-foreground hover:text-foreground absolute -top-1.5 -right-1.5 rounded-full border p-0.5"
-                  onClick={() => onReverseImageChange(null)}
-                >
-                  <X className="size-3" />
-                </button>
-              </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-muted-foreground gap-1 text-xs"
-                onClick={() => reverseFileRef.current?.click()}
-              >
-                <Upload className="size-3.5" />
-                {t('ai-image-gen.reverse.replace')}
-              </Button>
-            </div>
+          {reverseImages.length ? (
+            <ImageThumbs
+              items={reverseImages}
+              onRemove={(id) =>
+                onReverseImagesChange(reverseImages.filter((item) => item.id !== id))
+              }
+              onAdd={() => reverseFileRef.current?.click()}
+            />
           ) : (
             <button
               type="button"
               onClick={() => reverseFileRef.current?.click()}
-              onDragOver={(event) => event.preventDefault()}
-              onDrop={(event) => {
-                event.preventDefault()
-                void readFiles(event.dataTransfer.files, 1).then((items) => {
-                  if (items[0]) {
-                    onReverseImageChange({ dataUrl: items[0].dataUrl, name: items[0].name })
-                  }
-                })
-              }}
               className="border-input text-muted-foreground hover:border-primary/60 hover:text-foreground flex min-h-24 w-full flex-col items-center justify-center gap-1 rounded-xl border border-dashed transition-colors"
             >
               <Upload className="size-5" />
@@ -426,5 +379,52 @@ function BarTooltip({ label, children }: { label: string; children: React.ReactN
       <TooltipTrigger asChild>{children}</TooltipTrigger>
       <TooltipContent side="top">{label}</TooltipContent>
     </Tooltip>
+  )
+}
+
+/** 输入框上方的缩略图行：参考图与待识图共用，叉号回写各自的列表，末尾可挂一个「再加一张」 */
+function ImageThumbs({
+  items,
+  onRemove,
+  onAdd,
+}: {
+  items: ReferenceImage[]
+  onRemove: (id: string) => void
+  onAdd?: () => void
+}) {
+  const { t } = useTranslation('tools-images')
+  if (!items.length) {
+    return null
+  }
+  return (
+    <div className="mb-2 flex flex-wrap gap-2">
+      {items.map((item) => (
+        <div key={item.id} className="relative">
+          <img
+            src={item.dataUrl}
+            alt={item.name}
+            className="size-10 rounded-md border object-cover"
+          />
+          <button
+            type="button"
+            aria-label={t('ai-image-gen.composer.removeImage')}
+            className="bg-background text-muted-foreground hover:text-foreground absolute -top-1.5 -right-1.5 rounded-full border p-0.5"
+            onClick={() => onRemove(item.id)}
+          >
+            <X className="size-3" />
+          </button>
+        </div>
+      ))}
+      {onAdd ? (
+        <button
+          type="button"
+          aria-label={t('ai-image-gen.reverse.add')}
+          onClick={onAdd}
+          className="border-input text-muted-foreground hover:border-primary/60 hover:text-foreground flex size-10 items-center justify-center rounded-md border border-dashed transition-colors"
+        >
+          <Plus className="size-4" />
+        </button>
+      ) : null}
+    </div>
   )
 }

@@ -38,6 +38,14 @@
   "crashTitle": "页面出错了",
   "crashDescription": "应用遇到了意外错误。你的数据都存在本机，没有丢失；重新加载通常就能恢复。",
   "reload": "重新加载",
+  "lightbox": {
+    "title": "灯箱查看",
+    "zoomIn": "放大",
+    "zoomOut": "缩小",
+    "fit": "适应窗口",
+    "close": "关闭",
+    "hint": "滚轮缩放 · 拖动平移 · 双击放大"
+  },
   "ai": {
     "entry": "AI 辅助",
     "entryHint": "关闭时润色与校对入口隐藏、导入 PDF 置灰；开启后内容直连你在此配置的服务商。",

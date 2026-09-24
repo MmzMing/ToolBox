@@ -126,6 +126,8 @@ export type CanvasNodeRecord = {
   /** 手工缩放的尺寸；null = 用该类型节点的默认尺寸 */
   width: number | null
   height: number | null
+  /** 识图取词节点：连入的图片只读、不进生图参考 */
+  vision: boolean
   createdAt: number | null
 }
 
@@ -181,6 +183,7 @@ export function normalizeCanvasNode(raw: unknown): CanvasNodeRecord | null {
     chain,
     width: size?.width ?? null,
     height: size?.height ?? null,
+    vision: source.vision === true,
     createdAt:
       typeof source.createdAt === 'number' && Number.isFinite(source.createdAt)
         ? source.createdAt
@@ -248,6 +251,8 @@ export type CanvasNode =
       jobId: string
       createdAt: number
       ratio: number
+      /** 识图取词节点的原图：只读展示，不会作为生图参考图送出去 */
+      vision: boolean
       pinned: boolean
     })
   | (CanvasBox & {
@@ -261,6 +266,8 @@ export type CanvasNode =
       createdAt: number
       /** false = IDB 无 text 记录，由该 job 的历史图片合成 */
       persisted: boolean
+      /** 由图片识别得来的提示词：不给生图入口，连入的图片也不进参考 */
+      vision: boolean
       pinned: boolean
     })
 
@@ -279,7 +286,8 @@ export type CanvasGraph = {
 const boxIntersects = (a: CanvasBox, b: CanvasBox): boolean =>
   a.x < b.x + b.width && a.x + a.width > b.x && a.y < b.y + b.height && a.y + a.height > b.y
 
-const imageHeightOf = (ratio: number, width: number): number =>
+/** 图片节点在给定宽度下的高度：等比推导，供布局与识图落位共用 */
+export const imageHeightOf = (ratio: number, width: number): number =>
   Math.round(ratio > 0 ? width / ratio : width)
 
 const SLOT_PROBE_LIMIT = 400
@@ -417,6 +425,11 @@ export function buildCanvasGraph(
     }
   }
 
+  /** 识图取词节点连入的图片：只读展示，不参与下一次生图的参考图 */
+  const visionSourceIds = new Set(
+    overlays.filter((record) => record.vision).flatMap((record) => record.refs),
+  )
+
   for (const image of images) {
     const record = overlayById.get(image.id)
     const pinned = record?.x != null && record?.y != null
@@ -432,6 +445,7 @@ export function buildCanvasGraph(
       y: pinned ? (record?.y as number) : 0,
       width,
       height: record?.height ?? imageHeightOf(image.ratio, width),
+      vision: visionSourceIds.has(image.id),
       pinned,
     })
   }
@@ -454,6 +468,7 @@ export function buildCanvasGraph(
       width: record?.width ?? CANVAS_PROMPT_WIDTH,
       height: record?.height ?? CANVAS_PROMPT_HEIGHT,
       persisted: record?.text != null,
+      vision: record?.vision ?? false,
       pinned,
     })
   }

@@ -15,6 +15,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Skeleton } from '@/components/ui/skeleton'
+import { cn } from '@/lib/utils'
 import { buildImageFileName } from '@/utils/file-name'
 
 import type { ImageRecord } from '../idb'
@@ -26,6 +27,8 @@ export type CardItem =
 
 type ImageCardProps = {
   item: CardItem
+  /** 识图取词的原图：红圈标出，只读展示，除删除外不给任何动作 */
+  vision?: boolean
   onOpen: (record: ImageRecord) => void
   onRetry: (jobId: string) => void
   onCancel: (jobId: string) => void
@@ -36,6 +39,7 @@ type ImageCardProps = {
 
 export function ImageCard({
   item,
+  vision = false,
   onOpen,
   onRetry,
   onCancel,
@@ -72,7 +76,12 @@ export function ImageCard({
   }
 
   return (
-    <div className="group bg-muted/40 relative h-full overflow-hidden rounded-lg border">
+    <div
+      className={cn(
+        'group bg-muted/40 relative h-full overflow-hidden rounded-lg border',
+        vision && 'border-destructive',
+      )}
+    >
       <button type="button" className="block h-full w-full" onClick={handleClick}>
         {record && src ? (
           <img
@@ -107,7 +116,7 @@ export function ImageCard({
       </button>
 
       <div className="absolute top-2 right-2 flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
-        {record && (
+        {record && !vision && (
           <>
             <CardAction
               label={t('ai-image-gen.card.download')}
@@ -152,11 +161,12 @@ export function ImageCard({
 
       {record && (
         <Dialog open={detailsOpen} onOpenChange={setDetailsOpen}>
-          <DialogContent className="max-h-[80vh] overflow-y-auto">
-            <DialogHeader>
+          {/* 固定一块可读的画幅：窄屏跟着视口收，长 JSON 与提示词都在框内换行，超出只在框内滚 */}
+          <DialogContent className="flex max-h-[min(80vh,42rem)] w-[min(92vw,52rem)] max-w-none flex-col gap-3 sm:max-w-none">
+            <DialogHeader className="shrink-0">
               <DialogTitle>{t('ai-image-gen.details.title')}</DialogTitle>
             </DialogHeader>
-            <dl className="space-y-2 text-sm">
+            <dl className="min-h-0 min-w-0 flex-1 space-y-3 overflow-y-auto pr-1 text-sm">
               <DetailRow label={t('ai-image-gen.details.prompt')} value={record.meta.prompt} />
               {record.meta.revisedPrompt && (
                 <DetailRow
@@ -219,9 +229,10 @@ function CardAction({
 
 function DetailRow({ label, value }: { label: string; value: string }) {
   return (
-    <div className="space-y-0.5">
+    <div className="min-w-0 space-y-0.5">
       <dt className="text-muted-foreground text-xs">{label}</dt>
-      <dd className="break-words whitespace-pre-wrap">{value}</dd>
+      {/* anywhere 才会真正压小 min-content：break-word 下长串 JSON 仍会把弹框撑出横向滚动条 */}
+      <dd className="min-w-0 [overflow-wrap:anywhere] whitespace-pre-wrap">{value}</dd>
     </div>
   )
 }

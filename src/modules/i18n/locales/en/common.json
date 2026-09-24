@@ -38,6 +38,14 @@
   "crashTitle": "Something went wrong",
   "crashDescription": "The app hit an unexpected error. Your data lives on this device and is not lost — reloading usually fixes it.",
   "reload": "Reload",
+  "lightbox": {
+    "title": "Lightbox view",
+    "zoomIn": "Zoom in",
+    "zoomOut": "Zoom out",
+    "fit": "Fit to window",
+    "close": "Close",
+    "hint": "Scroll to zoom · drag to pan · double-click to magnify"
+  },
   "ai": {
     "entry": "AI assist",
     "entryHint": "When off, the polish and proofreading entries are hidden and Import PDF is greyed out. When on, content goes straight to the provider you configure here.",

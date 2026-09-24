@@ -167,6 +167,7 @@ describe('normalizeCanvasNode', () => {
       y: -40,
       text: 'a cat',
       refs: ['01IMG'],
+      vision: true,
       createdAt: 1700000000000,
     })
     expect(result).toEqual({
@@ -179,9 +180,15 @@ describe('normalizeCanvasNode', () => {
       chain: [],
       width: null,
       height: null,
+      vision: true,
       createdAt: 1700000000000,
     })
     expect(normalizeCanvasNode({ nodeId: 'p:1', workspaceId: 'W7' })?.workspaceId).toBe('W7')
+  })
+
+  it('treats a missing or tampered vision flag as false', () => {
+    expect(normalizeCanvasNode({ nodeId: 'p:a', text: '' })?.vision).toBe(false)
+    expect(normalizeCanvasNode({ nodeId: 'p:a', text: '', vision: 'yes' })?.vision).toBe(false)
   })
 
   it('rounds a manual size and caps it per node kind', () => {
@@ -297,6 +304,7 @@ const overlay = (nodeId: string, over: Partial<CanvasNodeRecord> = {}): CanvasNo
   chain: [],
   width: null,
   height: null,
+  vision: false,
   createdAt: null,
   ...over,
 })
@@ -372,6 +380,25 @@ describe('buildCanvasGraph', () => {
     expect(prompt?.kind === 'prompt' && prompt.x).toBeGreaterThan(
       (graph.nodes.find((node) => node.id === 'seed') as CanvasNode).x,
     )
+  })
+
+  it('marks a vision node and its source image, keeping the pair out of generation', () => {
+    const graph = buildCanvasGraph(
+      [img('seed', 'seed'), img('out', 'J1')],
+      [overlay('p:J1', { text: 'from image', refs: ['seed'], vision: true })],
+    )
+    const prompt = graph.nodes.find((node) => node.id === 'p:J1')
+    const seed = graph.nodes.find((node) => node.id === 'seed')
+    expect(prompt?.kind === 'prompt' && prompt.vision).toBe(true)
+    expect(seed?.kind === 'image' && seed.vision).toBe(true)
+    const out = graph.nodes.find((node) => node.id === 'out')
+    expect(out?.kind === 'image' && out.vision).toBe(false)
+    expect(graph.edges).toContainEqual({
+      id: 'ref:seed>p:J1',
+      source: 'seed',
+      target: 'p:J1',
+      kind: 'reference',
+    })
   })
 
   it('drops a dangling ref and a self referencing ref without breaking the node', () => {

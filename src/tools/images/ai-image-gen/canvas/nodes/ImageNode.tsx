@@ -22,6 +22,8 @@ export type ImageRfNode = Node<ImageNodeData, 'image'>
 
 /** 图片节点：卡片本体照搬，左侧 target 只承接派生的产出入边，右侧 source 才允许用户拖出 */
 export function ImageNode({ id, data }: NodeProps<ImageRfNode>) {
+  // 识图原图只用来显示：不给拖出参考图的把手，它永远不会进下一次生图
+  const vision = data.card.vision === true
   return (
     <>
       <ImageCard {...data.card} />
@@ -32,7 +34,12 @@ export function ImageNode({ id, data }: NodeProps<ImageRfNode>) {
         isConnectable={false}
         className="pointer-events-none opacity-0"
       />
-      <Handle type="source" position={Position.Right} />
+      <Handle
+        type="source"
+        position={Position.Right}
+        isConnectable={!vision}
+        className={vision ? 'pointer-events-none opacity-0' : undefined}
+      />
       {/* 等比缩放：只改显示尺寸，不裁剪也不拉伸 */}
       <NodeResizeControl
         position="bottom-right"

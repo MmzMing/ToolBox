@@ -20,10 +20,13 @@ import {
   aspectRatioOf,
   buildCanvasGraph,
   CANVAS_GAP_X,
+  CANVAS_GAP_Y,
   CANVAS_IMAGE_WIDTH,
+  CANVAS_PROMPT_JOINER,
   clampCanvasSize,
   composePromptText,
   defaultGenParams,
+  imageHeightOf,
   jobIdOfPromptNode,
   LEGACY_WORKSPACE_ID,
   MAX_REFERENCE_BYTES,
@@ -63,7 +66,7 @@ import { useAiImageGenStore, type ApiConfig, type Job, type JobSlot } from './st
 
 const MAX_PARALLEL_JOBS = 2
 const controllers = new Map<string, AbortController>()
-const jobInputs = new Map<string, { references: string[]; skillId?: string }>()
+const jobInputs = new Map<string, { references: string[] }>()
 
 export type SubmitError = 'configRequired' | 'unsupportedProvider'
 
@@ -217,7 +220,7 @@ async function readDimensions(blob: Blob): Promise<{ width: number; height: numb
   }
 }
 
-export type ImportResult = { accepted: number; rejected: number }
+export type ImportResult = { accepted: ImageRecord[]; rejected: number }
 
 /**
  * 把外部图片导入当前工作区。校验沿用参考图口径（同一批 mime 与体积上限），
@@ -278,7 +281,7 @@ export async function importImages(
     await evictIfNeeded()
     void touchWorkspace(workspaceId)
   }
-  return { accepted: added.length, rejected }
+  return { accepted: added, rejected }
 }
 
 /** 删除工作区：图片、overlay、在跑任务与记录一起走，其他工作区不受影响 */
@@ -323,6 +326,7 @@ const overlayRecord = (
     chain: [],
     width: null,
     height: null,
+    vision: false,
     createdAt,
     ...patch,
   }
@@ -588,6 +592,15 @@ async function runJob(jobId: string) {
   if (!job) {
     return
   }
+  const controller = new AbortController()
+  controllers.set(jobId, controller)
+  store.patchJob(jobId, { status: 'running', startedAt: Date.now() })
+  // 识图只吃视觉凭证：放在生图连接检查之前，否则没配出图 key 时识图永远报 configRequired
+  if (job.kind === 'reverse') {
+    await runReverse(job, controller)
+    finishJob(jobId)
+    return
+  }
   const connection = resolveImageConnection({
     ...useAiImageGenStore.getState().genApi,
     provider: job.provider === 'gemini' ? 'gemini' : 'openai',
@@ -597,19 +610,7 @@ async function runJob(jobId: string) {
     pumpQueue()
     return
   }
-  const controller = new AbortController()
-  controllers.set(jobId, controller)
-  store.patchJob(jobId, { status: 'running', startedAt: Date.now() })
-  if (job.kind === 'gen') {
-    rememberPrompt(job.prompt, 'gen')
-  }
-
-  if (job.kind === 'reverse') {
-    await runReverse(job, controller)
-    finishJob(jobId)
-    return
-  }
-
+  rememberPrompt(job.prompt, 'gen')
   const references = await resolveReferences(job.id)
   if (connection.protocol === 'images-openai') {
     await runSlot(job, job.slots[0], connection, references)
@@ -641,7 +642,7 @@ async function runReverse(job: Job, controller: AbortController) {
           document.documentElement.lang.startsWith('zh') ? 'zh' : 'en',
         ),
         text: 'Reverse-engineer this image now.',
-        images: jobInputs.get(job.id)?.references ?? [],
+        images: await resolveReferences(job.id),
       },
       controller.signal,
     )
@@ -651,8 +652,9 @@ async function runReverse(job: Job, controller: AbortController) {
       store.patchJob(job.id, { errorCode: 'emptyOutput' })
       return
     }
+    // 结果就地写回识图节点：候选之间空行分段，用户可在节点里删掉不要的那几条
+    await renamePromptNode(promptNodeIdOf(job.id), candidates.join(CANVAS_PROMPT_JOINER))
     store.patchSlot(job.id, job.slots[0].id, { status: 'done' })
-    store.patchJob(job.id, { candidates })
     for (const candidate of candidates) {
       rememberPrompt(candidate, 'reverse', skill.id)
     }
@@ -754,28 +756,58 @@ export async function submitCanvasGeneration(
   })
 }
 
-export function submitReverse(imageDataUrl: string, skillId: string): SubmitError | null {
+export type ReverseInput = { dataUrl: string; name: string }
+
+/**
+ * 识图取词：每张图落成一对节点（左侧只读原图 + 右侧识图提示词），再各起一个 reverse 任务。
+ * 成对坐标写进 overlay，因此自动布局不会把图和词拆散；参考图只用于识别，
+ * 任务自己也不给出图入口，所以这些图片永远不会进下一次生图的参考。
+ */
+export async function submitReverse(
+  images: ReverseInput[],
+  skillId: string,
+  position: { x: number; y: number },
+): Promise<SubmitError | null> {
   const store = useAiImageGenStore.getState()
   const connection = resolveVisionConnection()
   if (!connection) {
     return 'configRequired'
   }
-  const jobId = ulid()
-  jobInputs.set(jobId, { references: [imageDataUrl], skillId })
-  store.addJob({
-    id: jobId,
-    kind: 'reverse',
-    workspaceId: activeId(),
-    prompt: '',
-    provider: connection.provider,
-    model: connection.model,
-    params: defaultGenParams(),
-    referenceCount: 1,
-    skillId,
-    slots: [{ id: ulid(), status: 'pending' }],
-    status: 'queued',
-    createdAt: Date.now(),
+  const files = images.map((image) => {
+    const { bytes, mimeType } = dataUrlToBytes(image.dataUrl)
+    return new File([bytes], image.name, { type: mimeType })
   })
+  const { accepted } = await importImages(files)
+  let y = position.y
+  for (const record of accepted) {
+    const jobId = ulid()
+    const ratio = record.width && record.height ? record.width / record.height : 1
+    await moveCanvasNode(record.id, position.x, y)
+    await saveOverlay(
+      overlayRecord(promptNodeIdOf(jobId), {
+        text: '',
+        refs: [record.id],
+        vision: true,
+        x: Math.round(position.x + CANVAS_IMAGE_WIDTH + CANVAS_GAP_X),
+        y: Math.round(y),
+      }),
+    )
+    store.addJob({
+      id: jobId,
+      kind: 'reverse',
+      workspaceId: activeId(),
+      prompt: '',
+      provider: connection.provider,
+      model: connection.model,
+      params: defaultGenParams(),
+      referenceCount: 1,
+      skillId,
+      slots: [{ id: ulid(), status: 'pending' }],
+      status: 'queued',
+      createdAt: Date.now(),
+    })
+    y += imageHeightOf(ratio, CANVAS_IMAGE_WIDTH) + CANVAS_GAP_Y
+  }
   pumpQueue()
   return null
 }
