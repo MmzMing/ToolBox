@@ -77,6 +77,7 @@
       "modelPlaceholder": "Type a model name, e.g. deepseek-chat",
       "textHint": "Each provider keeps its own text, vision, image and reverse-vision pick, so configuring one never overwrites another. The provider that actually runs is the one chosen at the top. The vision slot feeds PDF import, the reverse-vision slot feeds prompt reverse-engineering, and the image slot only applies to OpenAI / Gemini.",
       "fetchModels": "Fetch models",
+      "directBlocked": "This provider has no CORS enabled: the browser will block the request, so both \"Fetch models\" and later calls fail. Use a CORS-enabled relay address instead.",
       "fetchOk": "Fetched {{count}} models",
       "fetchEmpty": "That endpoint returned no models. Use \"Type a model name\" and fill it in.",
       "unassigned": "Not selected",

@@ -211,6 +211,10 @@ function ModelSection({
         </div>
       </div>
 
+      {AI_PROVIDER_DEFINITIONS[provider].browserDirect === 'blocked' && (
+        <p className="text-destructive text-xs">{t('common:ai.config.directBlocked')}</p>
+      )}
+
       {test.status !== 'idle' && test.message && (
         <p
           role="status"

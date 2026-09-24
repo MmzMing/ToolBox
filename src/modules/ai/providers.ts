@@ -115,12 +115,13 @@ export const AI_PROVIDER_DEFINITIONS: Record<AIProvider, ProviderDefinition> = {
     browserDirect: 'blocked',
   },
   tokenrhythm: {
-    name: '基元 TokenRhythm',
+    name: '基元',
     baseUrl: 'https://tokenrhythm.studio/v1',
     protocol: 'chat-completions',
     protocols: ['chat-completions'],
     keyUrl: 'https://tokenrhythm.studio/account/keys',
-    // 实测预检请求返回 404 且不带任何 Access-Control-* 头，浏览器直连会被 CORS 拦下
+    // 实测 /v1/models、/v1/chat/completions、/v1/messages、/v1/embeddings 的 OPTIONS 预检
+    // 全部 404，且任何响应都不带 Access-Control-Allow-*，浏览器直连一律被 CORS 拦下
     browserDirect: 'blocked',
   },
 }

@@ -89,7 +89,7 @@ function FavoriteSection() {
 
   return (
     <section className="mb-10">
-      <h2 className="mb-3 text-lg font-semibold">{t('favorites')}</h2>
+      <h2 className="mb-3 text-3xl font-semibold">{t('favorites')}</h2>
       <DndContext
         sensors={sensors}
         collisionDetection={closestCenter}
@@ -126,7 +126,7 @@ function RecentSection() {
   return (
     <section className="mb-10">
       <div className="mb-3 flex items-center gap-2">
-        <h2 className="text-lg font-semibold">{t('recent')}</h2>
+        <h2 className="text-3xl font-semibold">{t('recent')}</h2>
         <Button
           variant="ghost"
           size="xs"
@@ -171,7 +171,6 @@ function SortableToolCard({ tool }: { tool: Tool }) {
 }
 
 function AllCategoriesSection() {
-  const { t } = useTranslation('home')
   const { t: tCategory } = useTranslation('categories')
 
   return (
@@ -180,12 +179,10 @@ function AllCategoriesSection() {
         const Icon = categoryIcons[category]
         return (
           <div key={category}>
-            <div className="mb-3 flex items-center gap-2">
-              <Icon className="text-primary size-4" />
-              <h2 className="text-lg font-semibold">{tCategory(category)}</h2>
-              <span className="text-muted-foreground text-xs">
-                {t('toolCount', { count: tools.length })}
-              </span>
+            {/* 标题与图标按「大一号」的区块标题走；工具数量从侧栏的计数就能看出来，这里不再重复 */}
+            <div className="mb-4 flex items-center gap-3">
+              <Icon className="text-primary size-8" />
+              <h2 className="text-3xl font-semibold">{tCategory(category)}</h2>
             </div>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {tools.map((tool) => (

@@ -4,6 +4,5 @@
   "subtitle": "Free and open-source online tools: crypto, converters, encoders, web, text utilities and more — 40+ tools, all running locally in your browser (except IP lookup, the optional AI in Resume Studio and AI Image Gen, and the opt-in online music library in Music to Video).",
   "favorites": "Favorite tools",
   "recent": "Recent tools",
-  "allCategories": "All tools",
-  "toolCount": "{{count}} tools"
+  "allCategories": "All tools"
 }

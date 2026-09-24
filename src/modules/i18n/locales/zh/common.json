@@ -77,6 +77,7 @@
       "modelPlaceholder": "手输模型名，例如 deepseek-chat",
       "textHint": "每家各记一个文本、视觉、出图与识图型号，互不覆盖；实际生效的是顶部「使用厂商」选中的那家。视觉槽供导入 PDF 使用，识图槽供生图工具反推提示词使用，出图槽仅 OpenAI / Gemini 生效。",
       "fetchModels": "获取模型列表",
+      "directBlocked": "这家未开放跨域（CORS）：浏览器发出的请求会被拦下，「获取模型列表」和后续调用都会失败，需换成支持跨域的中转地址。",
       "fetchOk": "已获取 {{count}} 个模型",
       "fetchEmpty": "这个地址没有返回模型列表，改用「手动输入模型名」直接填。",
       "unassigned": "未选择",
