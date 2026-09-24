@@ -6,6 +6,7 @@ import { cryptoTools } from './crypto'
 import { cheatsheetTools } from './cheatsheet'
 import { developmentTools } from './development'
 import { imagesTools } from './images'
+import { videoTools } from './video'
 import { resumeTools } from './resume'
 import { textTools } from './text'
 import { lifeTools } from './life'
@@ -31,6 +32,7 @@ export const toolsByCategory: readonly ToolCategory[] = [
   { category: 'development', tools: attachCategory('development', developmentTools) },
   { category: 'cheatsheet', tools: attachCategory('cheatsheet', cheatsheetTools) },
   { category: 'images', tools: attachCategory('images', imagesTools) },
+  { category: 'video', tools: attachCategory('video', videoTools) },
   { category: 'text', tools: attachCategory('text', textTools) },
   { category: 'life', tools: attachCategory('life', lifeTools) },
 ]

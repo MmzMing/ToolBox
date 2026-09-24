@@ -89,6 +89,7 @@
     "lucide-react": "^1.47.0",
     "marked": "^18.0.13",
     "motion": "^13.4.0",
+    "mp4-muxer": "^5.2.2",
     "pdfjs-dist": "^6.3.289",
     "qrcode": "^1.5.4",
     "radix-ui": "^1.6.7",

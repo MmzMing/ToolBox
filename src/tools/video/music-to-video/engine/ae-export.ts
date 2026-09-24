@@ -1,0 +1,667 @@
+/**
+ * After Effects 面板用的构成数据导出，对齐 JIZURA 的 J.planForAE（src/11_export.js）。
+ *
+ * AE 面板只实现了第一版公开的那批表现，所以导出时要把浏览器里的新部件换成
+ * 面板里最接近的一件，并把浏览器的原始 key 留在 webLayout / webEnter / ... 字段里，
+ * 信息不丢。两张表都是从旧项目运行期导出的（见 D:/tmp/dump-defs.mjs）：
+ *   AE_MAP   首版之后追加、但面板里已有对应关系的部件
+ *   PACK_AE  各表达式包自己声明的近亲（旧项目里挂在 def.ae 上）
+ * 核心部件的 key 原样保留，判断依据是各核心模块的 *_ORDER（与旧项目 CORE_ORDER 同源）。
+ */
+import { FONTS } from './fonts'
+import { outputSize } from './planner'
+import { FXE, LAYOUTS } from './registry'
+import { DECOR_ORDER } from './decor'
+import { ENTER_ORDER, EXIT_ORDER, HOLD_ORDER } from './anim'
+import { LAYOUT_ORDER } from './layouts'
+import { glyphCount } from './script'
+import { hash, rng } from './util'
+import type { Plan, Project } from './types'
+import type { Rng } from './types'
+
+/** 导出的 JSON 就是一个普通值树 */
+export type AEValue = string | number | boolean | null | AEValue[] | { [key: string]: AEValue }
+
+/** 只有这几组需要映射到面板表现 */
+type AEGroup = 'layout' | 'enter' | 'hold' | 'exit' | 'decor' | 'fx'
+
+/** 首版就有的部件 key：这些在 AE 面板里本来就有实现，原样导出 */
+const CORE_ORDER: Partial<Record<AEGroup, readonly string[]>> = {
+  layout: LAYOUT_ORDER,
+  enter: ENTER_ORDER,
+  hold: HOLD_ORDER,
+  exit: EXIT_ORDER,
+  decor: DECOR_ORDER,
+}
+
+/** 面板支持的后期效果（其余换成最接近的一件，换不了就丢弃该事件） */
+const AE_FX = ['chroma', 'shake', 'slice', 'block', 'invert', 'flash', 'zoom', 'mosaic']
+
+export const AE_MAP: Record<AEGroup, Record<string, string>> = {
+  layout: {
+    lowerThird: 'center',
+    corners: 'mixed',
+    staircase: 'mixed',
+    zigzag: 'wave',
+    arcTop: 'ring',
+    spiral: 'ring',
+    gridCells: 'labels',
+    dropCap: 'mixed',
+    justified: 'tile',
+    frameBox: 'center',
+    bubble: 'pill',
+    subtitleBar: 'center',
+    ticker: 'marquee',
+    splitScreen: 'diag',
+    mirror: 'stack',
+    sideways: 'vcols',
+    edgeFrame: 'marquee',
+    perspective: 'stack',
+    hanko: 'vcols',
+    genkou: 'vcols',
+    panels: 'diag',
+    filmstrip: 'labels',
+    quote: 'center',
+    ruler: 'gloss',
+    searchBar: 'type',
+    chat: 'labels',
+    notification: 'pill',
+    ticket: 'pill',
+    rain: 'tile',
+    hanging: 'scatter',
+    orbit: 'ring',
+    tunnel: 'tile',
+    wordCloud: 'scatter',
+    bounceLine: 'mixed',
+    elastic: 'condensed',
+    crossBands: 'diag',
+    stickerBomb: 'labels',
+    neon: 'center',
+    keycaps: 'labels',
+    bubbles: 'scatter',
+    slotMachine: 'labels',
+    flipBoard: 'labels',
+    credits: 'type',
+    zoomRepeat: 'stack',
+    splitHalves: 'stack',
+    columnsBig: 'vcols',
+    circleWords: 'ring',
+    dotMatrix: 'type',
+    depthStack: 'stack',
+    typeSpecimen: 'stack',
+    kanjiFocus: 'huge',
+    halfVertical: 'vcols',
+    curtain: 'center',
+    equalizer: 'mixed',
+    tape: 'diag',
+  },
+  enter: {
+    riseMask: 'drop',
+    dropMask: 'drop',
+    slideL: 'wipe',
+    slideR: 'wipe',
+    slideWhole: 'stretch',
+    flipX: 'spin',
+    flipY: 'spin',
+    domino: 'spin',
+    fold: 'pop',
+    unroll: 'wipe',
+    strokeDraw: 'assemble',
+    outlineFill: 'blur',
+    splitJoin: 'slice',
+    vSlice: 'slice',
+    shutter: 'wipe',
+    iris: 'zoom',
+    diagWipe: 'wipe',
+    blinds: 'slice',
+    checker: 'flicker',
+    randomOrder: 'flicker',
+    bounceBig: 'drop',
+    squashDrop: 'drop',
+    rubber: 'stretch',
+    glitchIn: 'scramble',
+    echoIn: 'zoom',
+    whip: 'stretch',
+    skewIn: 'stretch',
+    trackIn: 'blur',
+    trackOut: 'blur',
+    blurStagger: 'blur',
+    fadeStagger: 'blur',
+    waveIn: 'pop',
+    spiralIn: 'spin',
+    zoomOut: 'zoom',
+    resolve: 'scramble',
+    magnet: 'assemble',
+    inkBleed: 'blur',
+    neonOn: 'flicker',
+    cursorSweep: 'type',
+    stamp: 'zoom',
+  },
+  exit: {
+    sinkMask: 'fall',
+    riseOut: 'drift',
+    slideOutL: 'stretch',
+    slideOutR: 'stretch',
+    flipOutX: 'shrink',
+    flipOutY: 'fall',
+    foldOut: 'shrink',
+    squash: 'shrink',
+    trackOutWide: 'blur',
+    collapse: 'shrink',
+    zoomThrough: 'blur',
+    zoomFar: 'shrink',
+    spinOut: 'scatter',
+    twist: 'shrink',
+    waveOut: 'scatter',
+    blurOutStagger: 'blur',
+    undraw: 'blur',
+    outlineOut: 'blur',
+    irisClose: 'shrink',
+    diagWipeOut: 'wipe',
+    blindsClose: 'slice',
+    checkerOut: 'glitch',
+    splitApart: 'slice',
+    vSliceDrop: 'fall',
+    melt: 'fall',
+    dissolve: 'drift',
+    backspace: 'wipe',
+    scrambleOut: 'glitch',
+    glitchDissolve: 'glitch',
+    echoOut: 'blur',
+    whipOut: 'stretch',
+    gravity: 'fall',
+    popOut: 'scatter',
+    burn: 'drift',
+    sweepCover: 'wipe',
+    shatterLite: 'explode',
+  },
+  hold: {
+    float: 'drift',
+    sway: 'wave',
+    pulse: 'breathe',
+    shimmer: 'still',
+    colorRun: 'still',
+    rotateSlow: 'drift',
+    trackBreathe: 'breathe',
+    skewWobble: 'wave',
+    beatHop: 'wave',
+    hWave: 'wave',
+    heartbeat: 'breathe',
+    orbitSmall: 'jitter',
+    jelly: 'breathe',
+    scanBand: 'glitchtick',
+    noiseDrift: 'drift',
+    tilt: 'drift',
+    zoomSlow: 'drift',
+    stretchPulse: 'breathe',
+    glitchJump: 'glitchtick',
+    echoTrail: 'drift',
+  },
+  decor: {
+    crosshair: 'brackets',
+    cropMarks: 'brackets',
+    reticle: 'rings',
+    radar: 'rings',
+    progressRing: 'rings',
+    timecodeBar: 'barcode',
+    rulerEdge: 'grid',
+    dimension: 'leaders',
+    indexNum: 'counter',
+    dateStamp: 'barcode',
+    qrBlock: 'barcode',
+    glitchRects: 'bars',
+    concentricSquares: 'shapes',
+    triangleSpin: 'shapes',
+    lineBurst: 'sparks',
+    plusGrid: 'grid',
+    guides: 'grid',
+    waveLine: 'waveform',
+    spiralLine: 'rings',
+    halftonePatch: 'shapes',
+    checkerStrip: 'stripes',
+    beatRing: 'rings',
+    orbitDots: 'dots',
+    constellation: 'sparks',
+    confetti: 'shapes',
+    petals: 'shapes',
+    rainStreaks: 'slash',
+    snow: 'dots',
+    lightLeak: 'blobs',
+    bokeh: 'blobs',
+    speedCorner: 'slash',
+    risingParticles: 'sparks',
+    twinkle: 'sparks',
+    brushStroke: 'bars',
+    tapePieces: 'bars',
+    scribbleCircle: 'rings',
+    scribbleUnder: 'slash',
+    crossOut: 'slash',
+    highlightMark: 'bars',
+    heartsStars: 'shapes',
+    watermarkKanji: 'counter',
+    verticalStrip: 'leaders',
+    romajiLine: 'leaders',
+    bracketsJP: 'brackets',
+    seal: 'shapes',
+  },
+  fx: {
+    rgbSplit: 'chroma',
+    smear: 'slice',
+    vhsRoll: 'slice',
+    trackingNoise: 'slice',
+    waveWarp: 'slice',
+    pixelDrift: 'slice',
+    tileShift: 'block',
+    gridRepeat: 'block',
+    mirrorFlash: 'block',
+    strobe: 'invert',
+    blackFrame: 'invert',
+    whiteFrame: 'flash',
+    filmBurn: 'flash',
+    lightSweep: 'flash',
+    panelWipe: 'flash',
+    zoomPunch: 'zoom',
+    whipBlur: 'zoom',
+    posterize: 'mosaic',
+    hueShift: 'chroma',
+    irisTrans: 'zoom',
+    doors: 'slice',
+    blindsTrans: 'slice',
+    splitSlide: 'slice',
+    crtOff: 'flash',
+  },
+}
+
+export const PACK_AE: Partial<Record<AEGroup, Record<string, string>>> = {
+  layout: {
+    magazine: 'gloss',
+    headlineDeck: 'center',
+    contents: 'stack',
+    footnote: 'gloss',
+    proofread: 'gloss',
+    numbered: 'mixed',
+    poster: 'huge',
+    swissGrid: 'mixed',
+    dictionary: 'gloss',
+    ema: 'labels',
+    ransom: 'labels',
+    newspaper: 'tile',
+    vinyl: 'ring',
+    cassette: 'pill',
+    bookSpine: 'vcols',
+    polaroid: 'labels',
+    stampSheet: 'tile',
+    postcard: 'vcols',
+    letterPaper: 'vcols',
+    calendar: 'center',
+    chochin: 'circle',
+    routeMap: 'labels',
+    stationSign: 'center',
+    noren: 'vcols',
+    tanzaku: 'vcols',
+    omikuji: 'vcols',
+    kakejiku: 'vcols',
+    shoji: 'center',
+    clapper: 'labels',
+    warningLabel: 'pill',
+    priceTag: 'pill',
+    nameTag: 'pill',
+    stickyNotes: 'labels',
+    karuta: 'vcols',
+    cube: 'pill',
+    cylinder: 'ring',
+    flipCards: 'labels',
+    accordion: 'labels',
+    flag: 'wave',
+    ribbon: 'wave',
+    pendulum: 'labels',
+    pile: 'scatter',
+    blocks: 'labels',
+    balloons: 'scatter',
+    magnets: 'scatter',
+    tiles: 'labels',
+    bulbs: 'center',
+    ledScroll: 'marquee',
+    billboard: 'center',
+    crowdBubbles: 'labels',
+    crossword: 'type',
+    wordSearch: 'tile',
+    puzzle: 'center',
+    shadowPlay: 'stack',
+    kaleido: 'ring',
+    dominoes: 'labels',
+    burst: 'circle',
+    fisheye: 'mixed',
+    wall: 'diag',
+    origami: 'circle',
+    zipper: 'center',
+    sliceStack: 'stack',
+    glitchGrid: 'tile',
+    mosaicTiles: 'center',
+    maskReveal: 'huge',
+    contour: 'huge',
+    halftoneBig: 'huge',
+    stencil: 'center',
+  },
+  enter: {
+    springIn: 'drop',
+    pendulum: 'spin',
+    rollIn: 'spin',
+    slingshot: 'stretch',
+    rockSettle: 'drop',
+    bounceBall: 'pop',
+    snapRail: 'assemble',
+    fanOpen: 'spin',
+    cylinder: 'spin',
+    shuffle: 'scramble',
+    stopMotion: 'pop',
+    ripple: 'pop',
+    zipper: 'slice',
+    zoomAlt: 'zoom',
+    tiltUp: 'stretch',
+    stickerPeel: 'wipe',
+    crumple: 'assemble',
+    noteUnfold: 'pop',
+    tornJoin: 'slice',
+    splitFlap: 'scramble',
+    overexpose: 'blur',
+    glint: 'wipe',
+    loupe: 'zoom',
+    filmFeed: 'flicker',
+    backlight: 'blur',
+    lightLeak: 'blur',
+    heatHaze: 'slice',
+    crtOn: 'stretch',
+    interlace: 'slice',
+    loadingBar: 'wipe',
+    dither: 'flicker',
+    odometer: 'scramble',
+    matrixRain: 'scramble',
+    hatchFill: 'blur',
+    brushReveal: 'wipe',
+    inkDrop: 'blur',
+    quarters: 'assemble',
+    invertBox: 'wipe',
+    printRegister: 'slice',
+    echoCount: 'zoom',
+    liquidFill: 'wipe',
+    windBlown: 'assemble',
+    strokeOrder: 'assemble',
+    clockWipe: 'wipe',
+    shadowFirst: 'drop',
+    bubbles: 'pop',
+    tokoroten: 'stretch',
+  },
+  hold: {
+    glowFlicker: 'breathe',
+    windGust: 'wave',
+    dangle: 'wave',
+    eqBounce: 'breathe',
+    flashBox: 'glitchtick',
+    glintSweep: 'still',
+    flipSwap: 'glitchtick',
+    shadowSway: 'drift',
+    magnetJiggle: 'jitter',
+    typeRattle: 'jitter',
+    focusRack: 'breathe',
+    pluckString: 'wave',
+  },
+  exit: {
+    peelOff: 'wipe',
+    crumpleOut: 'shrink',
+    tearOut: 'slice',
+    scorchOut: 'wipe',
+    overexposeOut: 'blur',
+    scanOut: 'slice',
+    stripesOut: 'wipe',
+    halftoneOut: 'shrink',
+    eraserOut: 'wipe',
+    vacuumOut: 'shrink',
+    sandOut: 'drift',
+    shredOut: 'fall',
+    dominoOut: 'fall',
+    hingeOut: 'fall',
+    rocketOff: 'drift',
+    bounceOff: 'scatter',
+    balloonOff: 'drift',
+    deflateOut: 'scatter',
+    hazeOut: 'blur',
+    glassBreak: 'explode',
+    zipOut: 'wipe',
+    clapShut: 'wipe',
+    lampOff: 'glitch',
+    slotOut: 'glitch',
+    clockOut: 'wipe',
+    matrixOut: 'glitch',
+    tornadoOut: 'scatter',
+    rollUpOut: 'wipe',
+    snakeOut: 'stretch',
+    flutterOut: 'fall',
+    rollOff: 'scatter',
+    fanClose: 'shrink',
+    rgbSplitOut: 'glitch',
+    shockOut: 'explode',
+    floodOut: 'wipe',
+    slashOut: 'slice',
+    mosaicOut: 'glitch',
+    scribbleOut: 'wipe',
+    candleOut: 'drift',
+  },
+  decor: {
+    kamon: 'shapes',
+    seigaiha: 'grid',
+    asanoha: 'grid',
+    hanabi: 'sparks',
+    chochin: 'shapes',
+    shimenawa: 'leaders',
+    sensu: 'shapes',
+    tsukiKumo: 'shapes',
+    momiji: 'shapes',
+    namiGashira: 'waveform',
+    kasumi: 'bars',
+    hexGrid: 'grid',
+    spectrumRing: 'waveform',
+    dataColumns: 'barcode',
+    spinner: 'rings',
+    headingTape: 'grid',
+    glyphLock: 'brackets',
+    atomOrbit: 'rings',
+    sonarArcs: 'rings',
+    circuit: 'leaders',
+    swatches: 'bars',
+    ruledLines: 'grid',
+    registration: 'brackets',
+    punchHoles: 'dots',
+    staple: 'shapes',
+    paperClip: 'shapes',
+    indexTabs: 'bars',
+    vines: 'leaders',
+    cloudPuffs: 'blobs',
+    starField: 'dots',
+    moonPhases: 'dots',
+    sunRays: 'stripes',
+    rainRipples: 'rings',
+    bubbles: 'dots',
+    smoke: 'blobs',
+    dandelion: 'sparks',
+    fireflies: 'dots',
+    memphis: 'shapes',
+    zigzagRibbon: 'bars',
+    polkaPatch: 'dots',
+    stripeCircle: 'stripes',
+    decoCorners: 'brackets',
+    halfCircles: 'shapes',
+    loopArrows: 'arrows',
+    starburst: 'shapes',
+    tally: 'counter',
+    cursorClick: 'arrows',
+    windowChrome: 'brackets',
+    progressBar: 'bars',
+    toggleSwitch: 'shapes',
+    notifBell: 'counter',
+    likeCounter: 'counter',
+    mediaControls: 'shapes',
+    volumeBars: 'waveform',
+    musicNotes: 'sparks',
+  },
+  fx: {
+    radialChroma: 'chroma',
+    bloomFlash: 'flash',
+    bulge: 'zoom',
+    pixelSort: 'slice',
+    interlace: 'slice',
+    macroBlock: 'block',
+    halftone: 'mosaic',
+    duotone: 'chroma',
+    ditherBit: 'mosaic',
+    rotateSnap: 'shake',
+    echoFrames: 'zoom',
+    kaleido: 'block',
+    bandInvert: 'invert',
+    lightRays: 'flash',
+    anamorphic: 'flash',
+    heartbeat: 'zoom',
+    tvStatic: 'block',
+    filmAdvance: 'slice',
+    perspectiveTilt: 'shake',
+    ripple: 'zoom',
+    focusLines: 'zoom',
+    starGlint: 'flash',
+    colorBars: 'slice',
+    zoomStutter: 'zoom',
+    negativeRing: 'invert',
+    edgeDetect: 'invert',
+    shatter: 'block',
+    defocus: 'zoom',
+    snapshot: 'flash',
+    squash: 'zoom',
+    scanBar: 'flash',
+    loopScroll: 'slice',
+  },
+}
+
+/** 换成面板里的近亲手稿；核心件原样，映射不到时用 dflt */
+function aeKey(group: AEGroup, key: string, dflt: string | null): string | null {
+  const core = CORE_ORDER[group]
+  if (core?.includes(key)) return key
+  if (group === 'layout' && (key === 'title' || key === 'interlude')) return key
+  if (AE_MAP[group]?.[key]) return AE_MAP[group][key]
+  const own = PACK_AE[group]?.[key]
+  if (own && core?.includes(own)) return own
+  return dflt
+}
+
+/** 能量曲线一类的二进制/大数组不进 JSON，面板用不上 */
+function strip(_key: string, value: unknown): unknown {
+  if (value instanceof Float32Array || value instanceof Uint8Array) return undefined
+  return value
+}
+
+const asRecord = (value: AEValue): Record<string, AEValue> => value as Record<string, AEValue>
+
+/**
+ * 把分镜方案整理成 AE 面板的输入。
+ * note 由界面给出：换了几件，就按当前语言写一句说明进 JSON。
+ */
+export function planForAE(
+  plan: Plan,
+  project: Project,
+  note: (subs: number) => string,
+): Record<string, AEValue> {
+  const clean = JSON.parse(JSON.stringify(plan, strip)) as Record<string, AEValue>
+  // 能量曲线（无音频时是 null，有音频时是 Float32Array）面板不需要，整条去掉
+  delete clean.energy
+  let subs = 0
+  for (const raw of clean.cuts as AEValue[]) {
+    const cut = asRecord(raw)
+    const layout = String(cut.layout)
+    const toLayout = aeKey('layout', layout, 'center')
+    if (toLayout && toLayout !== layout) {
+      cut.webLayout = layout
+      cut.layout = toLayout
+      subs += 1
+      // 换了构图就得按新构图的参数重算一份，seed 与旧项目同款
+      const seed = typeof cut.seed === 'number' ? cut.seed : 0
+      const text = String(cut.text ?? '')
+      try {
+        const rnd = rng(hash(seed, 31)) as Rng
+        cut.params = LAYOUTS[toLayout].plan(
+          rnd,
+          { text, n: glyphCount(text), W: plan.W, H: plan.H, dur: Number(cut.dur ?? 0) },
+          plan.style,
+        ) as AEValue
+      } catch {
+        cut.params = {}
+      }
+    }
+    for (const [field, dflt] of [
+      ['enter', 'blur'],
+      ['exit', 'blur'],
+      ['hold', 'still'],
+    ] as const) {
+      const from = String(cut[field])
+      const to = aeKey(field, from, dflt)
+      if (to && to !== from) {
+        cut[`web${field[0].toUpperCase()}${field.slice(1)}`] = from
+        cut[field] = to
+        subs += 1
+      }
+    }
+    const decor = cut.decor as AEValue[] | undefined
+    if (Array.isArray(decor)) {
+      const seen = new Set<string>()
+      const kept: AEValue[] = []
+      for (const raw of decor) {
+        const d = asRecord(raw)
+        const from = String(d.id)
+        const to = aeKey('decor', from, null)
+        if (!to) {
+          subs += 1
+          continue
+        }
+        if (to !== from) {
+          d.webId = from
+          d.id = to
+          subs += 1
+        }
+        if (seen.has(to)) continue
+        seen.add(to)
+        kept.push(d)
+      }
+      cut.decor = kept
+    }
+  }
+
+  const events = clean.events as AEValue[]
+  clean.events = events
+    .map((raw): AEValue | null => {
+      const ev = asRecord(raw)
+      const fx = FXE[String(ev.type)]
+      if (!fx || fx.builtin) return ev
+      const browser = String(ev.type)
+      const declared = PACK_AE.fx?.[browser]
+      const mapped =
+        AE_MAP.fx?.[browser] ?? (declared && AE_FX.includes(declared) ? declared : null)
+      if (!mapped) return null
+      return { ...ev, type: mapped, webType: ev.type }
+    })
+    .filter((v): v is AEValue => v !== null)
+
+  if (subs > 0) clean.aeNote = note(subs)
+
+  const [w, h] = outputSize(project.aspect, project.res)
+  clean.width = w
+  clean.height = h
+  const fonts: Record<string, AEValue> = {}
+  for (const [role, keys] of Object.entries(plan.style.fonts)) {
+    fonts[role] = keys.map((k) => FONTS[k]?.label ?? k)
+  }
+  clean.fonts = fonts
+  clean.fontTable = Object.fromEntries(
+    Object.entries(FONTS).map(([k, f]) => [
+      k,
+      { label: f.label, family: f.family.replace(/"/g, ''), weight: f.weight, kind: f.kind },
+    ]),
+  )
+  return clean
+}
