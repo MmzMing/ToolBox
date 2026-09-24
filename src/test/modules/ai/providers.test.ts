@@ -28,8 +28,8 @@ const profile = (overrides: Partial<AIModelProfile> = {}): AIModelProfile => ({
 })
 
 describe('provider presets', () => {
-  it('ships six providers, each allowing its own protocol and a usable default endpoint', () => {
-    expect(AI_PROVIDERS).toHaveLength(6)
+  it('ships seven providers, each allowing its own protocol and a usable default endpoint', () => {
+    expect(AI_PROVIDERS).toHaveLength(7)
     for (const provider of AI_PROVIDERS) {
       const definition = AI_PROVIDER_DEFINITIONS[provider]
       expect(definition.protocols).toContain(definition.protocol)

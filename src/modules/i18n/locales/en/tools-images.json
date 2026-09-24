@@ -280,8 +280,7 @@
       "retry": "Retry",
       "cancel": "Cancel",
       "download": "Download",
-      "reference": "Use as reference",
-      "remix": "Reuse params",
+      "reference": "Add to input",
       "details": "Details",
       "delete": "Delete"
     },
@@ -399,24 +398,24 @@
       "relayoutConfirmAction": "Relayout",
       "fitView": "Fit view",
       "zoomIn": "Zoom in",
-      "zoomOut": "Zoom out",
-      "linkShape": "Only images can be linked into a prompt",
-      "linkCycle": "That link would close a cycle in the lineage",
-      "linkFull": "A prompt takes at most 4 reference images",
-      "linkVision": "A vision source image only feeds recognition, never a reference",
-      "detachTitle": "Detach this link?",
-      "detachDesc": "Only the connection is removed — both nodes and their images stay, and you can relink them anytime.",
-      "detachAction": "Detach"
+      "zoomOut": "Zoom out"
     },
     "promptNode": {
       "refs": "{{count}} / {{max}} references",
       "chain": "←{{count}} upstream",
-      "placeholder": "Write a prompt, or link images from the canvas as references",
+      "placeholder": "Double-click to edit, or link images from the canvas as references",
       "generate": "Generate",
-      "delete": "Delete prompt",
+      "delete": "Delete",
       "vision": "Vision to prompt",
       "reading": "Reading this image…",
-      "copy": "Copy prompt"
+      "duplicate": "Duplicate",
+      "expand": "Expand",
+      "expandTitle": "Edit prompt",
+      "download": "Download",
+      "done": "Done",
+      "mentionHint": "↑↓ to move · Enter to insert · Esc to close",
+      "mentionEmpty": "No reference linked yet — drag an edge from an image node",
+      "mentionNone": "No matching reference"
     },
     "reverse": {
       "badFile": "PNG / JPEG / WebP only, up to 20MB",

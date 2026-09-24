@@ -122,11 +122,6 @@ export default function AiImageGen() {
     )
   }, [])
 
-  const remix = useCallback((record: ImageRecord) => {
-    setPrompt(record.meta.prompt)
-    setParams(normalizeGenParams(record.meta.params))
-  }, [])
-
   const applyParams = useCallback(
     (patch: Partial<GenParams>) =>
       setParams((current) => normalizeGenParams({ ...current, ...patch })),
@@ -290,7 +285,6 @@ export default function AiImageGen() {
           onImportFiles={handleImportFiles}
           onParamsChange={applyParams}
           onReference={handleReference}
-          onRemix={remix}
           onOpenLightbox={setLightbox}
           onOpenSettings={openSettings}
         />
@@ -310,17 +304,19 @@ export default function AiImageGen() {
       </div>
 
       <div className="absolute inset-x-3 bottom-3 z-10 mx-auto flex max-w-3xl flex-col gap-2">
-        {/* 配置提示贴在输入框上方：顶栏离手元操作太远，出图时看不见 */}
+        {/* 配置提示贴在输入框上方：顶栏离手元操作太远，出图时看不见。
+            底色用 destructive 淡染而非实色：项目没有 destructive-foreground 令牌，
+            实色红底在亮主题下会拿近黑的继承色写字，细边框也无处可显 */}
         {!enabled ? (
           <button
             type="button"
-            className="border-destructive/40 bg-destructive/90 text-destructive-foreground w-full rounded-md border p-2 text-left text-xs backdrop-blur"
+            className="border-destructive/60 bg-destructive/15 text-destructive w-fit max-w-full self-center rounded-xl border px-3 py-2 text-left text-xs backdrop-blur"
             onClick={() => setSettingsOpen(true)}
           >
             {t('ai-image-gen.composer.enableHint')}
           </button>
         ) : !connection ? (
-          <p className="border-destructive/40 bg-destructive/90 text-destructive-foreground w-full rounded-md border p-2 text-xs backdrop-blur">
+          <p className="border-destructive/60 bg-destructive/15 text-destructive w-fit max-w-full self-center rounded-xl border px-3 py-2 text-xs backdrop-blur">
             {t('ai-image-gen.composer.configHint')}
           </p>
         ) : null}

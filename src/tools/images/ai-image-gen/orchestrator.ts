@@ -22,6 +22,7 @@ import {
   CANVAS_GAP_X,
   CANVAS_GAP_Y,
   CANVAS_IMAGE_WIDTH,
+  CANVAS_PROMPT_HEIGHT,
   CANVAS_PROMPT_JOINER,
   clampCanvasSize,
   composePromptText,
@@ -33,7 +34,9 @@ import {
   parsePromptCandidates,
   promptNodeIdOf,
   REFERENCE_MIMES,
+  remapReferenceMentions,
   toImageRequestParams,
+  usableReferenceIds,
   type CanvasGraph,
   type CanvasImageInput,
   type CanvasNodeRecord,
@@ -54,6 +57,7 @@ import {
   listPrompts,
   listWorkspaces,
   putCanvasNode,
+  putCanvasNodes,
   putImage,
   putWorkspace,
   upsertPrompt,
@@ -327,6 +331,7 @@ const overlayRecord = (
     width: null,
     height: null,
     vision: false,
+    mentions: [],
     createdAt,
     ...patch,
   }
@@ -347,10 +352,65 @@ export async function createPromptNode(text: string, position: { x: number; y: n
   )
 }
 
-export async function renamePromptNode(nodeId: string, text: string) {
-  const existing = useAiImageGenStore.getState().overlays.find((item) => item.nodeId === nodeId)
+/**
+ * 复制一个提示词节点：文本、@ 绑定、参考图与上游链原样带走，落在正下方。
+ * 编号不用重算——参考图顺序没变，所以 @图N 指的还是同一批图。
+ * 原节点没钉位时副本也不钉，交给自动布局排，否则两个节点会叠在同一处。
+ */
+export async function duplicatePromptNode(nodeId: string) {
+  const source = useAiImageGenStore.getState().overlays.find((item) => item.nodeId === nodeId)
+  if (!source || source.text === null) {
+    return null
+  }
+  const copyId = promptNodeIdOf(ulid())
+  const pinned = source.x !== null && source.y !== null
   return saveOverlay(
-    overlayRecord(nodeId, { ...existing, text }, existing?.createdAt ?? Date.now()),
+    overlayRecord(
+      copyId,
+      {
+        workspaceId: source.workspaceId,
+        text: source.text,
+        mentions: source.mentions,
+        refs: source.refs,
+        chain: source.chain,
+        width: source.width,
+        height: source.height,
+        x: pinned ? source.x : null,
+        y: pinned ? (source.y ?? 0) + (source.height ?? CANVAS_PROMPT_HEIGHT) + CANVAS_GAP_Y : null,
+      },
+      Date.now(),
+    ),
+  )
+}
+
+/** 界面语言决定 @图N 用哪套词；IDB 里两种写法都能解析回来 */
+const canvasLang = () => (document.documentElement.lang.startsWith('zh') ? 'zh' : 'en')
+
+/** 节点当前真正可用的参考图顺序，与出图请求共用同一套筛选 */
+const usableRefs = (nodeId: string, refs: string[]): string[] =>
+  usableReferenceIds(
+    refs,
+    (id) => useAiImageGenStore.getState().history.find((record) => record.id === id)?.meta,
+    jobIdOfPromptNode(nodeId),
+  )
+
+const reconcileMentions = (nodeId: string, text: string, mentions: string[], refs: string[]) =>
+  remapReferenceMentions({ text, mentions, refs: usableRefs(nodeId, refs), lang: canvasLang() })
+
+export async function renamePromptNode(nodeId: string, text: string, mentions?: string[]) {
+  const existing = useAiImageGenStore.getState().overlays.find((item) => item.nodeId === nodeId)
+  const remapped = reconcileMentions(
+    nodeId,
+    text,
+    mentions ?? existing?.mentions ?? [],
+    existing?.refs ?? [],
+  )
+  return saveOverlay(
+    overlayRecord(
+      nodeId,
+      { ...existing, text: remapped.text, mentions: remapped.mentions },
+      existing?.createdAt ?? Date.now(),
+    ),
   )
 }
 
@@ -359,8 +419,17 @@ export async function linkReference(nodeId: string, imageId: string, linked: boo
   const existing = useAiImageGenStore.getState().overlays.find((item) => item.nodeId === nodeId)
   const refs = existing?.refs ?? []
   const next = linked ? [...refs, imageId] : refs.filter((ref) => ref !== imageId)
+  // 顺序变了就重写编号；断开那张的标记一并摘掉，留着只会让模型指错图
+  const remapped =
+    existing?.text == null
+      ? { text: existing?.text ?? null, mentions: existing?.mentions ?? [] }
+      : reconcileMentions(nodeId, existing.text, existing.mentions ?? [], next)
   return saveOverlay(
-    overlayRecord(nodeId, { ...existing, refs: next }, existing?.createdAt ?? Date.now()),
+    overlayRecord(
+      nodeId,
+      { ...existing, refs: next, text: remapped.text, mentions: remapped.mentions },
+      existing?.createdAt ?? Date.now(),
+    ),
   )
 }
 
@@ -399,6 +468,36 @@ export async function moveCanvasNode(nodeId: string, x: number, y: number) {
 }
 
 /**
+ * 批量落位：对齐一次挪多个节点，逐条写会触发同样次数的重渲染与图重建，
+ * 所以 IDB 开一个事务、内存只 set 一次。
+ */
+export async function moveCanvasNodes(
+  updates: { nodeId: string; x: number; y: number }[],
+): Promise<void> {
+  if (!updates.length) {
+    return
+  }
+  const store = useAiImageGenStore.getState()
+  const next = updates.map((update) => {
+    const existing = store.overlays.find((item) => item.nodeId === update.nodeId)
+    return overlayRecord(
+      update.nodeId,
+      {
+        ...existing,
+        x: Math.round(update.x),
+        y: Math.round(update.y),
+      },
+      existing?.createdAt ?? Date.now(),
+    )
+  })
+  await putCanvasNodes(next)
+  store.setOverlays([
+    ...store.overlays.filter((item) => !next.some((r) => r.nodeId === item.nodeId)),
+    ...next,
+  ])
+}
+
+/**
  * 缩放一个节点：尺寸与位置一起落库。
  * 未钉位的节点会被自动布局按尺寸重排，所以缩放的同时把当前位置钉住，否则松手就跳走。
  */
@@ -418,10 +517,24 @@ export async function resizeCanvasNode(
   )
 }
 
-/** 清掉全部手工坐标，整图回到按血缘自动铺开 */
-export async function clearCanvasLayout() {
+/**
+ * 清掉手工坐标，让自动布局按血缘重新铺开。
+ * 传 nodeIds 就只放开选中的那批，其余节点的手摆位置不动。
+ */
+export async function clearCanvasLayout(nodeIds?: string[]) {
   const store = useAiImageGenStore.getState()
-  await Promise.all(store.overlays.map((record) => saveOverlay({ ...record, x: null, y: null })))
+  const targets = nodeIds
+    ? store.overlays.filter((record) => nodeIds.includes(record.nodeId))
+    : store.overlays
+  const next = targets.map((record) => ({ ...record, x: null, y: null }))
+  if (!next.length) {
+    return
+  }
+  await putCanvasNodes(next)
+  store.setOverlays([
+    ...store.overlays.filter((record) => !next.some((item) => item.nodeId === record.nodeId)),
+    ...next,
+  ])
 }
 
 /**
@@ -436,9 +549,18 @@ async function resolveReferences(jobId: string): Promise<string[]> {
   const refs =
     useAiImageGenStore.getState().overlays.find((item) => item.nodeId === promptNodeIdOf(jobId))
       ?.refs ?? []
+  const records = await Promise.all(refs.map((ref) => getImage(ref)))
+  const byId = new Map<string, ImageRecord>()
+  refs.forEach((ref, index) => {
+    const record = records[index]
+    if (record) {
+      byId.set(ref, record)
+    }
+  })
   const out: string[] = []
-  for (const ref of refs) {
-    const record = await getImage(ref)
+  // 与画布同一套筛选：编号 @图N 是按这份顺序标出来的，少一张都会让提示词指错图
+  for (const ref of usableReferenceIds(refs, (id) => byId.get(id)?.meta, jobId)) {
+    const record = byId.get(ref)
     if (!record) {
       continue
     }

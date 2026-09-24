@@ -1,4 +1,12 @@
-export const AI_PROVIDERS = ['openai', 'gemini', 'deepseek', 'anthropic', 'qwen', 'doubao'] as const
+export const AI_PROVIDERS = [
+  'openai',
+  'gemini',
+  'deepseek',
+  'anthropic',
+  'qwen',
+  'doubao',
+  'tokenrhythm',
+] as const
 
 export type AIProvider = (typeof AI_PROVIDERS)[number]
 
@@ -104,6 +112,15 @@ export const AI_PROVIDER_DEFINITIONS: Record<AIProvider, ProviderDefinition> = {
     protocol: 'anthropic',
     protocols: ['anthropic'],
     keyUrl: 'https://console.anthropic.com/settings/keys',
+    browserDirect: 'blocked',
+  },
+  tokenrhythm: {
+    name: '基元 TokenRhythm',
+    baseUrl: 'https://tokenrhythm.studio/v1',
+    protocol: 'chat-completions',
+    protocols: ['chat-completions'],
+    keyUrl: 'https://tokenrhythm.studio/account/keys',
+    // 实测预检请求返回 404 且不带任何 Access-Control-* 头，浏览器直连会被 CORS 拦下
     browserDirect: 'blocked',
   },
 }

@@ -8,6 +8,7 @@ import qwenIcon from '@lobehub/icons-static-svg/icons/qwen-color.svg?url'
 import { cn } from '@/lib/utils'
 
 import type { AIProvider } from '@/modules/ai/providers'
+import { AI_PROVIDER_DEFINITIONS } from '@/modules/ai/providers'
 
 /**
  * 厂商品牌标识。
@@ -16,7 +17,7 @@ import type { AIProvider } from '@/modules/ai/providers'
  * OpenAI 与 Anthropic 是 `fill="currentColor"` 的单色图，按 <img> 渲染时恒为黑色，
  * 暗色主题下靠 dark:invert 翻白。
  */
-const MARKS: Record<AIProvider, { src: string; monochrome?: boolean }> = {
+const MARKS: Partial<Record<AIProvider, { src: string; monochrome?: boolean }>> = {
   openai: { src: openaiIcon, monochrome: true },
   anthropic: { src: anthropicIcon, monochrome: true },
   gemini: { src: geminiIcon },
@@ -32,7 +33,14 @@ export function ProviderMark({ provider }: { provider: AIProvider }) {
       aria-hidden
       className="border-border bg-background flex size-9 shrink-0 items-center justify-center rounded-lg border"
     >
-      <img src={mark.src} alt="" className={cn('size-4', mark.monochrome && 'dark:invert')} />
+      {mark ? (
+        <img src={mark.src} alt="" className={cn('size-4', mark.monochrome && 'dark:invert')} />
+      ) : (
+        // 品牌图标集里没有的厂商（聚合服务）退回首字母，比硬塞一个不相干的 logo 更诚实
+        <span className="text-muted-foreground text-xs font-medium">
+          {AI_PROVIDER_DEFINITIONS[provider].name.trim().charAt(0)}
+        </span>
+      )}
     </span>
   )
 }

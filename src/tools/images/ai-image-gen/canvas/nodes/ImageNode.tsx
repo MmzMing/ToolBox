@@ -1,4 +1,4 @@
-import { Handle, NodeResizeControl, Position, type Node, type NodeProps } from '@xyflow/react'
+import { NodeResizeControl, Position, type Node, type NodeProps } from '@xyflow/react'
 import type { ComponentProps } from 'react'
 
 import {
@@ -8,6 +8,7 @@ import {
   CANVAS_NODE_MIN_WIDTH,
 } from '../../ai-image-gen.service'
 import { ImageCard } from '../../components/ImageCard'
+import { LinkZone } from './link-zone'
 
 export type ImageNodeData = {
   card: ComponentProps<typeof ImageCard>
@@ -21,25 +22,15 @@ export type ImageNodeData = {
 export type ImageRfNode = Node<ImageNodeData, 'image'>
 
 /** 图片节点：卡片本体照搬，左侧 target 只承接派生的产出入边，右侧 source 才允许用户拖出 */
-export function ImageNode({ id, data }: NodeProps<ImageRfNode>) {
-  // 识图原图只用来显示：不给拖出参考图的把手，它永远不会进下一次生图
+export function ImageNode({ id, data, selected }: NodeProps<ImageRfNode>) {
+  // 识图原图只用来显示：不给拖出参考图的热区，它永远不会进下一次生图
   const vision = data.card.vision === true
   return (
     <>
-      <ImageCard {...data.card} />
-      {/* 只承接派生的产出入边，用户连不上它，所以不显示也不可命中 */}
-      <Handle
-        type="target"
-        position={Position.Left}
-        isConnectable={false}
-        className="pointer-events-none opacity-0"
-      />
-      <Handle
-        type="source"
-        position={Position.Right}
-        isConnectable={!vision}
-        className={vision ? 'pointer-events-none opacity-0' : undefined}
-      />
+      <ImageCard {...data.card} selected={selected} />
+      {/* 产出边由提示词派生，用户连不上，所以这一侧不可见也不吃事件 */}
+      <LinkZone type="target" position={Position.Left} invisible />
+      <LinkZone type="source" position={Position.Right} invisible={vision} />
       {/* 等比缩放：只改显示尺寸，不裁剪也不拉伸 */}
       <NodeResizeControl
         position="bottom-right"

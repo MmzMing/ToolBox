@@ -20,3 +20,10 @@ export function buildImageFileName(prompt: string, createdAt: number, mimeType: 
   const stamp = new Date(createdAt).toISOString().replace(/[:.]/g, '-').slice(0, 19)
   return `${stamp}-${sanitizeFileName(prompt.slice(0, 40), 'image')}.${extension}`
 }
+
+/** 提示词导出成 txt：取首行做摘要，整段为空时兜底成 prompt */
+export function buildTextFileName(text: string, createdAt: number): string {
+  const stamp = new Date(createdAt).toISOString().replace(/[:.]/g, '-').slice(0, 19)
+  const head = text.trim().split('\n')[0] ?? ''
+  return `${stamp}-${sanitizeFileName(head.slice(0, 40), 'prompt')}.txt`
+}

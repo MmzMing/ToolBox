@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 
 import {
   aspectRatioOf,
+  boundingBoxOf,
   buildCanvasGraph,
   CANVAS_NODE_MAX_HEIGHT,
   CANVAS_NODE_MAX_WIDTH,
@@ -11,15 +12,22 @@ import {
   CANVAS_TEXT_LIMIT,
   clampCanvasSize,
   composePromptText,
+  defaultGenParams,
   findFreeSlot,
+  insertReferenceMention,
   LEGACY_WORKSPACE_ID,
+  MAX_MENTIONS,
   normalizeCanvasNode,
   normalizeGenParams,
   openaiSizeFor,
   parsePromptCandidates,
+  parseReferenceMentions,
+  referenceLabelAt,
+  remapReferenceMentions,
   summarizeWorkspaces,
   toImageRequestParams,
   wouldCreateCycle,
+  zipReferenceMentions,
   type CanvasBox,
   type CanvasImageInput,
   type CanvasNode,
@@ -46,6 +54,11 @@ describe('aspect to OpenAI size', () => {
 })
 
 describe('normalizeGenParams', () => {
+  it('defaults the aspect to auto so the provider follows the reference images', () => {
+    expect(normalizeGenParams(null).aspect).toBe('auto')
+    expect(defaultGenParams().aspect).toBe('auto')
+  })
+
   it('clamps count into 1..4', () => {
     expect(normalizeGenParams({ count: 0 }).count).toBe(1)
     expect(normalizeGenParams({ count: 9 }).count).toBe(4)
@@ -60,7 +73,7 @@ describe('normalizeGenParams', () => {
 
   it('falls back to defaults for unknown enum values', () => {
     const params = normalizeGenParams({ aspect: '2:1', quality: 'ultra' } as never)
-    expect(params.aspect).toBe('1:1')
+    expect(params.aspect).toBe('auto')
     expect(params.quality).toBe('auto')
   })
 })
@@ -181,6 +194,7 @@ describe('normalizeCanvasNode', () => {
       width: null,
       height: null,
       vision: true,
+      mentions: [],
       createdAt: 1700000000000,
     })
     expect(normalizeCanvasNode({ nodeId: 'p:1', workspaceId: 'W7' })?.workspaceId).toBe('W7')
@@ -251,6 +265,20 @@ describe('normalizeCanvasNode', () => {
     expect(normalizeCanvasNode({ nodeId: 'p:A', chain: 'nope' })?.chain).toEqual([])
   })
 
+  it('keeps only mention bindings that are strings and clamps the list', () => {
+    expect(
+      normalizeCanvasNode({ nodeId: 'p:a', text: '', mentions: ['A', 'B'] })?.mentions,
+    ).toEqual(['A', 'B'])
+    expect(normalizeCanvasNode({ nodeId: 'p:a', mentions: ['A', 2, '', 'B'] })?.mentions).toEqual([
+      'A',
+      'B',
+    ])
+    expect(normalizeCanvasNode({ nodeId: 'p:a', mentions: 'nope' })?.mentions).toEqual([])
+    expect(
+      normalizeCanvasNode({ nodeId: 'p:a', mentions: Array(40).fill('A') })?.mentions,
+    ).toHaveLength(MAX_MENTIONS)
+  })
+
   it('returns null when the nodeId is unusable', () => {
     expect(normalizeCanvasNode(null)).toBeNull()
     expect(normalizeCanvasNode('p:1')).toBeNull()
@@ -281,6 +309,132 @@ describe('clampCanvasSize', () => {
   })
 })
 
+describe('referenceLabelAt', () => {
+  it('uses chinese numerals in zh and arabic ones in en', () => {
+    expect(referenceLabelAt(0, 'zh-CN')).toBe('图一')
+    expect(referenceLabelAt(3, 'zh')).toBe('图四')
+    expect(referenceLabelAt(1, 'en')).toBe('Image 2')
+  })
+
+  it('falls back to a plain number past the word list and to the first label when negative', () => {
+    expect(referenceLabelAt(5, 'zh')).toBe('6')
+    expect(referenceLabelAt(-1, 'en')).toBe('图一')
+  })
+})
+
+describe('parseReferenceMentions', () => {
+  it('returns tokens in reading order and accepts both languages', () => {
+    const tokens = parseReferenceMentions('把 @图二 的衣服给 @Image 1，再看 @图一')
+    expect(tokens.map((token) => token.label)).toEqual(['图二', 'Image 1', '图一'])
+    expect(tokens.map((token) => token.start)).toEqual(
+      [...tokens.map((t) => t.start)].sort((a, b) => a - b),
+    )
+  })
+
+  it('ignores an at sign that is not a known label', () => {
+    expect(parseReferenceMentions('@ nobody 图一')).toEqual([])
+  })
+})
+
+describe('zipReferenceMentions', () => {
+  it('drops bindings whose token the user deleted', () => {
+    const bindings = zipReferenceMentions('@图一 only', ['A', 'B'])
+    expect(bindings).toHaveLength(1)
+    expect(bindings[0]).toMatchObject({ imageId: 'A', start: 0, end: 3 })
+  })
+})
+
+describe('remapReferenceMentions', () => {
+  it('renumbers every token after the reference order changes', () => {
+    expect(
+      remapReferenceMentions({
+        text: '@图一 and @图二',
+        mentions: ['A', 'B'],
+        refs: ['B', 'A'],
+        lang: 'zh',
+      }),
+    ).toEqual({ text: '@图二 and @图一', mentions: ['A', 'B'] })
+  })
+
+  it('removes the token of a disconnected image and shifts the rest up', () => {
+    expect(
+      remapReferenceMentions({
+        text: '@图一 与 @图二',
+        mentions: ['A', 'B'],
+        refs: ['B'],
+        lang: 'zh',
+      }),
+    ).toEqual({ text: ' 与 @图一', mentions: ['B'] })
+  })
+
+  it('rewrites a token into the current language', () => {
+    expect(
+      remapReferenceMentions({
+        text: '@图二',
+        mentions: ['A'],
+        refs: ['B', 'A'],
+        lang: 'en',
+      }).text,
+    ).toBe('@Image 2')
+  })
+
+  it('leaves hand-typed tokens beyond the binding list untouched', () => {
+    expect(
+      remapReferenceMentions({
+        text: '@图一 @图二',
+        mentions: ['A'],
+        refs: ['A'],
+        lang: 'zh',
+      }),
+    ).toEqual({ text: '@图一 @图二', mentions: ['A'] })
+  })
+})
+
+describe('insertReferenceMention', () => {
+  it('splices the binding at the occurrence position instead of appending', () => {
+    const result = insertReferenceMention({
+      text: '@图一 done @',
+      mentions: ['A'],
+      refs: ['A', 'B'],
+      imageId: 'B',
+      start: 9,
+      end: 10,
+      lang: 'zh',
+    })
+    expect(result.text).toBe('@图一 done @图二 ')
+    expect(result.mentions).toEqual(['A', 'B'])
+    expect(result.caret).toBe(13)
+  })
+
+  it('keeps ordering right when inserting before an existing mention', () => {
+    const result = insertReferenceMention({
+      text: '@before @图一',
+      mentions: ['A'],
+      refs: ['A', 'B'],
+      imageId: 'B',
+      start: 0,
+      end: 1,
+      lang: 'zh',
+    })
+    expect(result.text).toBe('@图二 before @图一')
+    expect(result.mentions).toEqual(['B', 'A'])
+  })
+
+  it('refuses an image that is not linked in', () => {
+    expect(
+      insertReferenceMention({
+        text: '@',
+        mentions: [],
+        refs: ['A'],
+        imageId: 'Z',
+        start: 0,
+        end: 1,
+        lang: 'zh',
+      }),
+    ).toEqual({ text: '@', mentions: [], caret: 1 })
+  })
+})
+
 const img = (
   id: string,
   jobId: string,
@@ -305,6 +459,7 @@ const overlay = (nodeId: string, over: Partial<CanvasNodeRecord> = {}): CanvasNo
   width: null,
   height: null,
   vision: false,
+  mentions: [],
   createdAt: null,
   ...over,
 })
@@ -344,6 +499,17 @@ describe('findFreeSlot', () => {
   it('ignores occupied boxes that live in another column', () => {
     const occupied = [{ x: 900, y: 0, width: 240, height: 240 }]
     expect(findFreeSlot({ x: 0, y: 0, width: 240, height: 240 }, occupied)).toEqual({ x: 0, y: 0 })
+  })
+})
+
+describe('boundingBoxOf', () => {
+  it('wraps a set of boxes regardless of order', () => {
+    expect(
+      boundingBoxOf([
+        { id: 'b', x: 60, y: 150, width: 100, height: 50 },
+        { id: 'a', x: 0, y: 0, width: 200, height: 100 },
+      ]),
+    ).toEqual({ left: 0, top: 0, right: 200, bottom: 200, width: 200, height: 200 })
   })
 })
 
@@ -408,7 +574,18 @@ describe('buildCanvasGraph', () => {
     )
     expect(graph.edges.filter((edge) => edge.kind === 'reference')).toEqual([])
     const prompt = graph.nodes.find((node) => node.id === 'p:J')
-    expect(prompt?.kind === 'prompt' && prompt.refs).toEqual(['ghost', 'own'])
+    // 节点暴露的 refs 就是能用的那张顺序，@图N 的编号与出图请求都按它算
+    expect(prompt?.kind === 'prompt' && prompt.refs).toEqual([])
+  })
+
+  it('carries mention bindings onto the prompt node in order', () => {
+    const graph = buildCanvasGraph(
+      [img('s1', 'J0'), img('s2', 'J0'), img('out', 'J1')],
+      [overlay('p:J1', { text: '@图二 配 @图一', refs: ['s2', 's1'], mentions: ['s2', 's1'] })],
+    )
+    const prompt = graph.nodes.find((node) => node.id === 'p:J1')
+    expect(prompt?.kind === 'prompt' && prompt.refs).toEqual(['s2', 's1'])
+    expect(prompt?.kind === 'prompt' && prompt.mentions).toEqual(['s2', 's1'])
   })
 
   it('applies a manual size to both node kinds', () => {

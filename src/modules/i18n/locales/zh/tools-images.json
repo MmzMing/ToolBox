@@ -280,8 +280,7 @@
       "retry": "重试",
       "cancel": "取消",
       "download": "下载",
-      "reference": "以此为参考图",
-      "remix": "复用参数",
+      "reference": "加入对话框",
       "details": "详情",
       "delete": "删除"
     },
@@ -399,24 +398,24 @@
       "relayoutConfirmAction": "重排",
       "fitView": "全览",
       "zoomIn": "放大",
-      "zoomOut": "缩小",
-      "linkShape": "只能把图片连到提示词上",
-      "linkCycle": "这条连线会让血缘成环",
-      "linkFull": "一个提示词最多连 4 张参考图",
-      "linkVision": "识图原图只用于识别，不能当参考图",
-      "detachTitle": "断开这条关联？",
-      "detachDesc": "只断开这条连线，两端的节点和图片都保留，之后可以重新连上。",
-      "detachAction": "断开"
+      "zoomOut": "缩小"
     },
     "promptNode": {
       "refs": "{{count}} / {{max}} 张参考图",
       "chain": "←{{count}} 条上游",
-      "placeholder": "写下提示词，或把画布上的图连进来当参考图",
+      "placeholder": "双击编辑提示词，或把画布上的图连进来当参考图",
       "generate": "生图",
-      "delete": "删除提示词",
+      "delete": "删除",
       "vision": "识图取词",
       "reading": "正在识别这张图…",
-      "copy": "复制提示词"
+      "duplicate": "复制",
+      "expand": "放大",
+      "expandTitle": "编辑提示词",
+      "download": "下载",
+      "done": "完成",
+      "mentionHint": "↑↓ 选择 · Enter 插入 · Esc 关闭",
+      "mentionEmpty": "还没有连入参考图，从图片节点拖一条线过来",
+      "mentionNone": "没有匹配的参考图"
     },
     "reverse": {
       "badFile": "仅支持 PNG / JPEG / WebP，且不超过 20MB",

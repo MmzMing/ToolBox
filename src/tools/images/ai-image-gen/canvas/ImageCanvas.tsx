@@ -6,33 +6,24 @@ import {
   useEdgesState,
   useNodesState,
   useReactFlow,
+  useStore,
   type Connection,
   type Edge,
-  type FinalConnectionState,
   type Node,
 } from '@xyflow/react'
 import '@xyflow/react/dist/style.css'
-import { ImagePlus, Plus, SquarePlus, Trash2 } from 'lucide-react'
+import { ImagePlus, Layers, Plus, SquarePlus, Trash2 } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog'
 import { useIsMobile } from '@/composable/use-breakpoint'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 
 import {
   aspectRatioOf,
+  boundingBoxOf,
   buildCanvasGraph,
   CANVAS_IMAGE_WIDTH,
   CANVAS_MAX_ZOOM,
@@ -42,19 +33,24 @@ import {
   jobIdOfPromptNode,
   MAX_CANVAS_REFS,
   REFERENCE_MIMES,
+  referenceLabelAt,
   wouldCreateCycle,
   type CanvasImageInput,
   type GenParams,
+  type NodeBounds,
 } from '../ai-image-gen.service'
 import type { CardItem } from '../components/ImageCard'
 import type { ImageRecord } from '../idb'
+import { objectUrlOf } from '../object-url'
 import {
   cancelJob,
+  clearCanvasLayout,
   createPromptNode,
   deleteJobImages,
+  duplicatePromptNode,
   linkChain,
   linkReference,
-  moveCanvasNode,
+  moveCanvasNodes,
   removeCanvasImage,
   renamePromptNode,
   resizeCanvasNode,
@@ -76,22 +72,9 @@ const edgeOptions = {
 }
 
 type RfNode = ImageRfNode | PromptRfNode
-type LinkProblem = 'shape' | 'cycle' | 'full' | 'vision'
-/** 待断开的连线：由悬停描红 + 点击确认后走 unlink */
-type DetachTarget = { id: string; source: string; target: string }
-
-const LINK_KEY: Record<LinkProblem, string> = {
-  shape: 'ai-image-gen.canvas.linkShape',
-  cycle: 'ai-image-gen.canvas.linkCycle',
-  full: 'ai-image-gen.canvas.linkFull',
-  vision: 'ai-image-gen.canvas.linkVision',
-}
 
 /** 左键行为：框选，或拖拽平移 */
 export type CanvasInteraction = 'select' | 'pan'
-
-/** 光标聚光的半径（px，屏幕空间）：画布点阵在这个范围内被点亮 */
-const CANVAS_GLOW_RADIUS = 150
 
 /** 右键菜单的落点：screen 用于定位菜单，flow 用于放新节点 */
 type ContextMenuState = {
@@ -111,7 +94,6 @@ type ImageCanvasProps = {
   onImportFiles: (files: File[], position: { x: number; y: number }) => void
   onParamsChange: (patch: Partial<GenParams>) => void
   onReference: (record: ImageRecord) => void
-  onRemix: (record: ImageRecord) => void
   onOpenLightbox: (record: ImageRecord) => void
   onOpenSettings: () => void
 }
@@ -126,22 +108,19 @@ export function ImageCanvas(props: ImageCanvasProps) {
     onImportFiles,
     onParamsChange,
     onReference,
-    onRemix,
     onOpenLightbox,
     onOpenSettings,
   } = props
-  const { t } = useTranslation('tools-images')
+  const { t, i18n } = useTranslation('tools-images')
   const isMobile = useIsMobile()
+  // @图N 的词表跟着界面语言走，两种写法在解析时都认
+  const lang = i18n.language
   const instance = useReactFlow()
   const holderRef = useRef<HTMLDivElement>(null)
   const menuFileRef = useRef<HTMLInputElement>(null)
   const menuFlowRef = useRef<{ x: number; y: number } | null>(null)
   const fitted = useRef(false)
   const created = useRef(0)
-  /** 聚光的坐标与排帧：pointermove 可以远快于刷新率，逐帧合批才不会拖垮合成 */
-  const glowPoint = useRef({ x: 0, y: 0 })
-  const glowFrame = useRef(0)
-  const draggingNode = useRef(false)
 
   const overlays = useAiImageGenStore((state) => state.overlays)
   const viewport = useAiImageGenStore((state) => state.viewport)
@@ -152,7 +131,6 @@ export function ImageCanvas(props: ImageCanvasProps) {
   const [rfEdges, setRfEdges, onEdgesChange] = useEdgesState<Edge>([])
   const [dropping, setDropping] = useState(false)
   const [menu, setMenu] = useState<ContextMenuState | null>(null)
-  const [detach, setDetach] = useState<DetachTarget | null>(null)
 
   const recordIndex = useMemo(
     () => new Map(records.map((record) => [record.id, record])),
@@ -209,6 +187,26 @@ export function ImageCanvas(props: ImageCanvasProps) {
     [rfNodes],
   )
 
+  /** 多选时各节点的工具条让位给选框上方那一条重排，所以包围盒要按这批节点算 */
+  const selectedBoxes = useMemo<NodeBounds[]>(
+    () =>
+      rfNodes
+        .filter((node) => node.selected)
+        .map((node) => ({
+          id: node.id,
+          x: node.position.x,
+          y: node.position.y,
+          width: node.width ?? 0,
+          height: node.height ?? 0,
+        })),
+    [rfNodes],
+  )
+  const multiSelected = selectedBoxes.length > 1
+
+  const handleRelayout = useCallback(() => {
+    void clearCanvasLayout(selectedBoxes.map((node) => node.id))
+  }, [selectedBoxes])
+
   const cardItemOf = useCallback(
     (nodeId: string): CardItem | null => {
       const record = recordIndex.get(nodeId)
@@ -251,6 +249,10 @@ export function ImageCanvas(props: ImageCanvasProps) {
     void deleteJobImages(jobIdOfPromptNode(nodeId))
   }, [])
 
+  const handleDuplicatePrompt = useCallback((nodeId: string) => {
+    void duplicatePromptNode(nodeId)
+  }, [])
+
   /** 松手即落库：尺寸连同当前位置一起写，否则未钉位的节点会被自动布局按新尺寸挪走 */
   const handleResize = useCallback(
     (
@@ -263,27 +265,25 @@ export function ImageCanvas(props: ImageCanvasProps) {
     [],
   )
 
-  const linkProblem = useCallback(
-    (source: string | null | undefined, target: string | null | undefined): LinkProblem | null => {
+  /** 能不能连：只判形状、识别原图、成环与参考图上限，不合法就静默不接单 */
+  const canConnect = useCallback(
+    (source: string | null | undefined, target: string | null | undefined): boolean => {
       const from = source ? graph.nodes.find((node) => node.id === source) : undefined
       const to = target ? graph.nodes.find((node) => node.id === target) : undefined
       if (!from || !to || to.kind !== 'prompt' || (from.kind === 'prompt' && from.id === to.id)) {
-        return 'shape'
+        return false
       }
       // 识图原图只服务于它自己那条识别边，拉出去当参考图会误导「这张图会进下一次生图」
       if (from.kind === 'image' && from.vision) {
-        return 'vision'
+        return false
       }
       if (wouldCreateCycle(graph.edges, from.id, to.id)) {
-        return 'cycle'
+        return false
       }
       if (from.kind === 'image') {
-        const connected = to.refs.filter((ref) => recordIndex.has(ref)).length
-        if (connected >= MAX_CANVAS_REFS) {
-          return 'full'
-        }
+        return to.refs.filter((ref) => recordIndex.has(ref)).length < MAX_CANVAS_REFS
       }
-      return null
+      return true
     },
     [graph, recordIndex],
   )
@@ -315,11 +315,11 @@ export function ImageCanvas(props: ImageCanvasProps) {
               card: {
                 item,
                 vision: node.vision,
+                barHidden: multiSelected,
                 onOpen: onOpenLightbox,
                 onRetry: retryJob,
                 onCancel: cancelJob,
                 onReference,
-                onRemix,
                 onDelete: () => handleDeleteImage(node.id),
               },
               onResize: handleResize,
@@ -340,7 +340,16 @@ export function ImageCanvas(props: ImageCanvasProps) {
             nodeId: node.id,
             jobId: node.jobId,
             text: node.text,
-            refCount: node.refs.filter((ref) => recordIndex.has(ref)).length,
+            refs: node.refs.map((id, index) => {
+              const record = recordIndex.get(id)
+              return {
+                imageId: id,
+                label: referenceLabelAt(index, lang),
+                name: record?.meta.prompt ?? id,
+                url: record ? objectUrlOf(record.id, record.blob) : '',
+              }
+            }),
+            mentions: node.mentions,
             chainCount: node.chain.filter(
               (link) => link !== node.id && graph.nodes.some((item) => item.id === link),
             ).length,
@@ -348,11 +357,16 @@ export function ImageCanvas(props: ImageCanvasProps) {
             errorCode: job?.errorCode,
             params,
             vision: node.vision,
-            onRename: (nodeId: string, text: string) => void renamePromptNode(nodeId, text),
+            barHidden: multiSelected,
+            createdAt: node.createdAt,
+            lang,
+            onRename: (nodeId: string, text: string, mentions: string[]) =>
+              void renamePromptNode(nodeId, text, mentions),
             onGenerate: handleGenerate,
             onCancel: cancelJob,
             onRetry: retryJob,
             onDelete: handleDeletePrompt,
+            onDuplicate: handleDuplicatePrompt,
             onParamsChange,
             onResize: handleResize,
           },
@@ -367,12 +381,14 @@ export function ImageCanvas(props: ImageCanvasProps) {
     recordIndex,
     jobs,
     params,
+    lang,
+    multiSelected,
     onOpenLightbox,
     onReference,
-    onRemix,
     handleDeleteImage,
     handleGenerate,
     handleDeletePrompt,
+    handleDuplicatePrompt,
     onParamsChange,
     handleResize,
   ])
@@ -411,64 +427,24 @@ export function ImageCanvas(props: ImageCanvasProps) {
     [graph],
   )
 
-  const handleConnectEnd = useCallback(
-    (_event: MouseEvent | TouchEvent, state: FinalConnectionState) => {
-      if (state.isValid) {
-        return
-      }
-      const problem = linkProblem(state.fromNode?.id, state.toNode?.id)
-      if (problem) {
-        toast.error(t(LINK_KEY[problem]))
-      }
-    },
-    [linkProblem, t],
-  )
-
-  /** 悬停描红的那条线被点中：先确认再断，产出边不可断所以不进这里 */
+  /** 点线即断开，不再二次确认；产出边由提示词派生，不可断所以不进这里 */
   const handleEdgeClick = useCallback((_event: React.MouseEvent, edge: Edge) => {
     if (edge.deletable === false) {
       return
     }
-    setDetach({ id: edge.id, source: edge.source, target: edge.target })
+    const unlink = edge.id.startsWith('chain:') ? linkChain : linkReference
+    void unlink(edge.target, edge.source, false)
   }, [])
 
-  const confirmDetach = useCallback(() => {
-    if (detach) {
-      const unlink = detach.id.startsWith('chain:') ? linkChain : linkReference
-      void unlink(detach.target, detach.source, false)
-    }
-    setDetach(null)
-  }, [detach])
-
-  const handleDragStart = useCallback(() => {
-    // 拖拽期间不需要聚光：省掉整块遮罩层的重绘，换卡片跟手
-    draggingNode.current = true
-    holderRef.current?.style.setProperty('--glow-r', '0px')
-  }, [])
-
-  const handleDragStop = useCallback((_event: unknown, node: Node) => {
-    draggingNode.current = false
-    void moveCanvasNode(node.id, node.position.x, node.position.y)
-  }, [])
-
-  const handleGlowMove = useCallback((event: React.PointerEvent<HTMLDivElement>) => {
-    const el = event.currentTarget
-    glowPoint.current.x = event.clientX
-    glowPoint.current.y = event.clientY
-    if (draggingNode.current || glowFrame.current) {
-      return
-    }
-    glowFrame.current = requestAnimationFrame(() => {
-      glowFrame.current = 0
-      const rect = el.getBoundingClientRect()
-      el.style.setProperty('--glow-x', `${glowPoint.current.x - rect.left}px`)
-      el.style.setProperty('--glow-y', `${glowPoint.current.y - rect.top}px`)
-      el.style.setProperty('--glow-r', `${CANVAS_GLOW_RADIUS}px`)
-    })
-  }, [])
-
-  const handleGlowOff = useCallback((event: React.PointerEvent<HTMLDivElement>) => {
-    event.currentTarget.style.setProperty('--glow-r', '0px')
+  /**
+   * 落库必须吃第三个参数 nodes：RF 把这一批被拖动的节点全传进来，node 只是被按住的那个，
+   * 拖选框整体时它甚至是空的。只存 node 的话其余节点下次图重建会各自弹回原位，
+   * 表现为一组节点被拉开、彼此错位。
+   */
+  const handleDragStop = useCallback((_event: unknown, _node: Node, nodes: Node[]) => {
+    void moveCanvasNodes(
+      nodes.map((item) => ({ nodeId: item.id, x: item.position.x, y: item.position.y })),
+    )
   }, [])
 
   const handleSelectionChange = useCallback(
@@ -640,8 +616,6 @@ export function ImageCanvas(props: ImageCanvasProps) {
         setDropping(false)
       }}
       onDrop={handleDrop}
-      onPointerMove={handleGlowMove}
-      onPointerLeave={handleGlowOff}
     >
       {dropping ? (
         <div className="border-primary/70 bg-primary/5 pointer-events-none absolute inset-3 z-10 flex items-center justify-center rounded-xl border-2 border-dashed">
@@ -655,14 +629,10 @@ export function ImageCanvas(props: ImageCanvasProps) {
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onConnect={handleConnect}
-        onConnectEnd={handleConnectEnd}
         onEdgeClick={handleEdgeClick}
-        onNodeDragStart={handleDragStart}
         onNodeDragStop={handleDragStop}
         onSelectionChange={handleSelectionChange}
-        isValidConnection={(connection) =>
-          linkProblem(connection.source, connection.target) === null
-        }
+        isValidConnection={(connection) => canConnect(connection.source, connection.target)}
         onMoveEnd={(_event, next) => setViewport(next)}
         onMoveStart={() => setMenu(null)}
         onPaneContextMenu={(event) => openMenu(event, null)}
@@ -680,18 +650,15 @@ export function ImageCanvas(props: ImageCanvasProps) {
         defaultViewport={viewport ?? undefined}
         proOptions={{ hideAttribution: true }}
       >
-        <Background variant={BackgroundVariant.Dots} gap={22} size={1.5} />
-        {/* 同规格的第二层主色点阵，靠 --glow-* 的圆形遮罩只在光标半径内显形 */}
-        <Background
-          id="glow"
-          variant={BackgroundVariant.Dots}
-          gap={22}
-          size={1.5}
-          color="var(--primary)"
-          bgColor="transparent"
-          className="canvas-glow"
-        />
+        <Background variant={BackgroundVariant.Dots} gap={22} size={2} />
       </ReactFlow>
+
+      {multiSelected ? (
+        <>
+          <SelectionFrame boxes={selectedBoxes} />
+          <SelectionToolbar boxes={selectedBoxes} onRelayout={handleRelayout} />
+        </>
+      ) : null}
 
       {!graph.nodes.length ? (
         <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
@@ -759,21 +726,6 @@ export function ImageCanvas(props: ImageCanvasProps) {
           />
         </div>
       ) : null}
-
-      <AlertDialog open={!!detach} onOpenChange={(open) => (open ? null : setDetach(null))}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>{t('ai-image-gen.canvas.detachTitle')}</AlertDialogTitle>
-            <AlertDialogDescription>{t('ai-image-gen.canvas.detachDesc')}</AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>{t('ai-image-gen.toolbar.cancel')}</AlertDialogCancel>
-            <AlertDialogAction variant="destructive" onClick={confirmDetach}>
-              {t('ai-image-gen.canvas.detachAction')}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </div>
   )
 }
@@ -804,5 +756,82 @@ function MenuItem({
       {icon}
       <span className="truncate">{label}</span>
     </button>
+  )
+}
+
+/** 选框与内容之间的留白，与 index.css 里 .canvas-selection-frame 的 outline-offset 同值 */
+const SELECTION_PAD = 10
+/** 按钮半宽的估算（中英文标签都在 90–110px 之间）与它离容器边、容器顶的最小距离 */
+const TOOLBAR_HALF = 56
+const TOOLBAR_EDGE = 8
+const TOOLBAR_MIN_TOP = 40
+
+const clamp = (value: number, min: number, max: number) => Math.min(Math.max(value, min), max)
+
+/**
+ * 多选时圈住选区的边框：位置由选中节点的包围盒换算到容器像素，跟着平移缩放实时走。
+ *
+ * 不复用 React Flow 自带的 nodesselection-rect：它只在「框选松手」那一刻挂载，之后点一下
+ * 节点、或按住节点起拖，库都会把 nodesSelectionActive 置回 false 把整块框摘掉；而且它挂载
+ * 即 focus，库的 :focus { outline: none } 会把我们画的描边抹掉（见 index.css 的说明）。
+ * 所以边框自己画，只认选区状态，与上方的重排条同源、同寿命。
+ */
+function SelectionFrame({ boxes }: { boxes: NodeBounds[] }) {
+  const [tx, ty, zoom] = useStore((store) => store.transform)
+  // 框选拖拽途中由库自己的虚线矩形接手，避免两个框叠在一起
+  const userSelectionActive = useStore((store) => store.userSelectionActive)
+  if (userSelectionActive) {
+    return null
+  }
+  const box = boundingBoxOf(boxes)
+  return (
+    <div
+      className="canvas-selection-frame pointer-events-none absolute z-10"
+      style={{
+        left: box.left * zoom + tx,
+        top: box.top * zoom + ty,
+        width: box.width * zoom,
+        height: box.height * zoom,
+      }}
+    />
+  )
+}
+
+/**
+ * 多选时浮在选框上方的工具条：节点各自的动作条这时让位，重排只在这里做。
+ * 位置由选中节点的包围盒换算到容器像素，跟着平移缩放实时走（订阅 RF 的 transform）。
+ *
+ * 坐标必须夹进容器内：画布容器是 overflow-hidden，选框顶到视野之外时按钮会整颗被裁掉，
+ * 表现为「明明还选中着，重排条却不见了」。
+ */
+function SelectionToolbar({ boxes, onRelayout }: { boxes: NodeBounds[]; onRelayout: () => void }) {
+  const { t } = useTranslation('tools-images')
+  const [tx, ty, zoom] = useStore((store) => store.transform)
+  const width = useStore((store) => store.width)
+  const height = useStore((store) => store.height)
+  const box = boundingBoxOf(boxes)
+  const rawLeft = (box.left + box.width / 2) * zoom + tx
+  const rawTop = box.top * zoom + ty - SELECTION_PAD - 8
+  return (
+    <div
+      className="pointer-events-none absolute z-20 -translate-x-1/2 -translate-y-full"
+      style={{
+        left: width
+          ? clamp(rawLeft, TOOLBAR_HALF + TOOLBAR_EDGE, width - TOOLBAR_HALF - TOOLBAR_EDGE)
+          : rawLeft,
+        top: height ? clamp(rawTop, TOOLBAR_MIN_TOP, height - TOOLBAR_EDGE) : rawTop,
+      }}
+    >
+      <Button
+        type="button"
+        variant="secondary"
+        size="sm"
+        className="pointer-events-auto gap-1.5 rounded-full px-3 text-xs shadow-lg"
+        onClick={onRelayout}
+      >
+        <Layers className="size-3.5" />
+        {t('ai-image-gen.canvas.relayout')}
+      </Button>
+    </div>
   )
 }

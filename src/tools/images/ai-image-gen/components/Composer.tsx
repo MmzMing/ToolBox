@@ -151,7 +151,7 @@ export function Composer(props: ComposerProps) {
 
   return (
     <div
-      className="bg-card/70 relative shrink-0 rounded-2xl p-3 shadow-lg backdrop-blur-xl"
+      className="border-border bg-card/70 relative shrink-0 rounded-2xl border p-3 shadow-lg backdrop-blur-xl"
       onPaste={handlePaste}
       onDragOver={(event) => {
         if (!draggingFiles(event)) {

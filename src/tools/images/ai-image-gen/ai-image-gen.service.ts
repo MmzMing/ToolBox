@@ -50,7 +50,8 @@ export const MAX_REFERENCE_BYTES = 20 * 1024 * 1024
 export const REFERENCE_MIMES: readonly string[] = ['image/png', 'image/jpeg', 'image/webp']
 
 export const defaultGenParams = (): GenParams => ({
-  aspect: '1:1',
+  // 默认让服务商自己定比例：带参考图时跟着原图走最不容易出错
+  aspect: 'auto',
   quality: 'auto',
   count: 1,
   imageSize: '1K',
@@ -128,6 +129,8 @@ export type CanvasNodeRecord = {
   height: number | null
   /** 识图取词节点：连入的图片只读、不进生图参考 */
   vision: boolean
+  /** 文本里第 k 个 @图N 标记绑定的图片 id，见 referenceLabelAt 一节 */
+  mentions: string[]
   createdAt: number | null
 }
 
@@ -170,6 +173,11 @@ export function normalizeCanvasNode(raw: unknown): CanvasNodeRecord | null {
   const height = coord(source.height)
   const size =
     width !== null && height !== null ? clampCanvasSize(source.nodeId, width, height) : null
+  const mentions = Array.isArray(source.mentions)
+    ? source.mentions
+        .filter((id): id is string => typeof id === 'string' && id.length > 0)
+        .slice(0, MAX_MENTIONS)
+    : []
   return {
     nodeId: source.nodeId,
     workspaceId:
@@ -184,6 +192,7 @@ export function normalizeCanvasNode(raw: unknown): CanvasNodeRecord | null {
     width: size?.width ?? null,
     height: size?.height ?? null,
     vision: source.vision === true,
+    mentions,
     createdAt:
       typeof source.createdAt === 'number' && Number.isFinite(source.createdAt)
         ? source.createdAt
@@ -231,6 +240,149 @@ export function clampCanvasSize(nodeId: string, width: number, height: number) {
 export const promptNodeIdOf = (jobId: string): string => `p:${jobId}`
 export const jobIdOfPromptNode = (nodeId: string): string => nodeId.slice(2)
 
+export type NodeBounds = {
+  id: string
+  x: number
+  y: number
+  width: number
+  height: number
+}
+
+/** 多选时浮出的重排条要贴着选框，包围盒由这批节点算出 */
+export function boundingBoxOf(nodes: NodeBounds[]) {
+  const left = Math.min(...nodes.map((node) => node.x))
+  const right = Math.max(...nodes.map((node) => node.x + node.width))
+  const top = Math.min(...nodes.map((node) => node.y))
+  const bottom = Math.max(...nodes.map((node) => node.y + node.height))
+  return { left, top, right, bottom, width: right - left, height: bottom - top }
+}
+
+/** 提及标记的上限：同一张图可以反复 @，但手改坏的记录不能把 IDB 撑爆 */
+export const MAX_MENTIONS = 32
+
+const ZH_LABELS = ['图一', '图二', '图三', '图四']
+
+/**
+ * 参考图的编号词。编号就是 refs 里的下标，所以它必须与发给 API 的图片顺序同源；
+ * 上限固定 4 张，词表写死，不做通用数字转换。
+ */
+export function referenceLabelAt(index: number, lang: string): string {
+  if (index < 0) return ZH_LABELS[0]
+  return lang.startsWith('zh') ? (ZH_LABELS[index] ?? String(index + 1)) : `Image ${index + 1}`
+}
+
+/** 解析时两种语言都认：中途切换界面语言不会让既有标记失效 */
+export const ALL_REFERENCE_LABELS: string[] = [
+  ...ZH_LABELS,
+  ...Array.from({ length: MAX_CANVAS_REFS }, (_, index) => `Image ${index + 1}`),
+]
+
+export type MentionToken = { label: string; start: number; end: number }
+
+/**
+ * 一个提示词节点真正能用的参考图：图片还在，且不是它自己的产出。
+ * 顺序即发给 API 的图片顺序，所以 @图N 的编号与出图请求都必须走这条规则，两处共用一个实现。
+ */
+export function usableReferenceIds(
+  refs: string[],
+  resolve: (id: string) => { jobId: string } | undefined,
+  jobId: string,
+): string[] {
+  return refs.filter((ref) => {
+    const source = resolve(ref)
+    return source !== undefined && source.jobId !== jobId
+  })
+}
+
+/** 按出现顺序扫出文本里所有 @图N 标记 */
+export function parseReferenceMentions(
+  text: string,
+  labels: string[] = ALL_REFERENCE_LABELS,
+): MentionToken[] {
+  const tokens: MentionToken[] = []
+  for (const label of labels) {
+    const needle = `@${label}`
+    let from = text.indexOf(needle)
+    while (from >= 0) {
+      tokens.push({ label, start: from, end: from + needle.length })
+      from = text.indexOf(needle, from + needle.length)
+    }
+  }
+  return tokens.sort((a, b) => a.start - b.start)
+}
+
+export type MentionBinding = MentionToken & { imageId: string }
+
+/**
+ * 标记与绑定表按出现顺序逐位配对。多出来的绑定（用户手删了标记）丢弃，
+ * 多出来的标记（用户自己打的字）不属于本机制，原样保留。
+ */
+export function zipReferenceMentions(text: string, mentions: string[]): MentionBinding[] {
+  return parseReferenceMentions(text)
+    .slice(0, mentions.length)
+    .map((token, index) => ({ ...token, imageId: mentions[index] }))
+}
+
+/**
+ * 参考图顺序变了就把标记重写成当前编号；图片断开后编号已无处可指，
+ * 留着只会让模型把 @图二 认成另一张图，所以连同文字一起摘掉。
+ */
+export function remapReferenceMentions(input: {
+  text: string
+  mentions: string[]
+  refs: string[]
+  lang: string
+}): { text: string; mentions: string[] } {
+  const bindings = zipReferenceMentions(input.text, input.mentions)
+  const kept: string[] = []
+  const edits: { start: number; end: number; insert: string }[] = []
+  for (const binding of bindings) {
+    const index = input.refs.indexOf(binding.imageId)
+    if (index < 0) {
+      edits.push({ start: binding.start, end: binding.end, insert: '' })
+      continue
+    }
+    const next = `@${referenceLabelAt(index, input.lang)}`
+    if (next !== input.text.slice(binding.start, binding.end)) {
+      edits.push({ start: binding.start, end: binding.end, insert: next })
+    }
+    kept.push(binding.imageId)
+  }
+  let text = input.text
+  for (const edit of edits.sort((a, b) => b.start - a.start)) {
+    text = text.slice(0, edit.start) + edit.insert + text.slice(edit.end)
+  }
+  return { text, mentions: kept }
+}
+
+/**
+ * 在光标处插入一个提及：`[start, end)` 是待替换的 @ 片段（含刚打的 @）。
+ * 绑定表按出现顺序记录，所以要插到第 k 个位置而不是追加到末尾。
+ */
+export function insertReferenceMention(input: {
+  text: string
+  mentions: string[]
+  refs: string[]
+  imageId: string
+  start: number
+  end: number
+  lang: string
+}): { text: string; mentions: string[]; caret: number } {
+  const index = input.refs.indexOf(input.imageId)
+  if (index < 0 || input.mentions.length >= MAX_MENTIONS) {
+    return { text: input.text, mentions: input.mentions, caret: input.end }
+  }
+  const token = `@${referenceLabelAt(index, input.lang)}`
+  const earlier = parseReferenceMentions(input.text).filter((found) => found.end <= input.start)
+  const mentions = [...input.mentions]
+  mentions.splice(earlier.length, 0, input.imageId)
+  return {
+    text: `${input.text.slice(0, input.start)}${token} ${input.text.slice(input.end)}`,
+    mentions,
+    caret: input.start + token.length + 1,
+  }
+}
+
 export type CanvasImageInput = {
   id: string
   jobId: string
@@ -260,9 +412,12 @@ export type CanvasNode =
       id: string
       jobId: string
       text: string
+      /** 已校验的参考图，顺序即发给 API 的图片顺序，@图N 的编号由它算 */
       refs: string[]
       /** 上游提示词节点 id，生成时按链路顺序拼进最终提示词 */
       chain: string[]
+      /** 文本里 @图N 标记绑定的图片 id，按出现顺序 */
+      mentions: string[]
       createdAt: number
       /** false = IDB 无 text 记录，由该 job 的历史图片合成 */
       persisted: boolean
@@ -395,12 +550,12 @@ export function buildCanvasGraph(
 
   const deps = new Map<string, string[]>()
   const edges: CanvasEdge[] = []
+  /** 每个提示词节点真正能用的参考图：图片还在、且不是自己的产出 */
+  const validRefs = new Map<string, string[]>()
   for (const [nodeId, links] of promptLinks) {
     const jobId = jobIdOfPromptNode(nodeId)
-    const valid = links.refs.filter((ref) => {
-      const source = imageById.get(ref)
-      return source !== undefined && source.jobId !== jobId
-    })
+    const valid = usableReferenceIds(links.refs, (ref) => imageById.get(ref), jobId)
+    validRefs.set(nodeId, valid)
     const chain = links.chain.filter((link) => link !== nodeId && promptLinks.has(link))
     deps.set(nodeId, [...valid, ...chain])
     for (const ref of valid) {
@@ -460,8 +615,9 @@ export function buildCanvasGraph(
       id: nodeId,
       jobId,
       text: record?.text ?? first?.prompt ?? '',
-      refs: promptLinks.get(nodeId)?.refs ?? [],
+      refs: validRefs.get(nodeId) ?? [],
       chain: record?.chain ?? [],
+      mentions: record?.mentions ?? [],
       createdAt: record?.createdAt ?? first?.createdAt ?? 0,
       x: pinned ? (record?.x as number) : 0,
       y: pinned ? (record?.y as number) : 0,

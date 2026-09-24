@@ -212,6 +212,18 @@ export async function putCanvasNode(record: CanvasNodeRecord): Promise<void> {
   await wrap((await store('canvasNodes', 'readwrite')).put(record))
 }
 
+/** 一次事务写多条：对齐这类批量落位用它，免得逐条开事务 */
+export async function putCanvasNodes(records: CanvasNodeRecord[]): Promise<void> {
+  const db = await openDb()
+  const tx = db.transaction('canvasNodes', 'readwrite')
+  records.forEach((record) => tx.objectStore('canvasNodes').put(record))
+  await new Promise<void>((resolve, reject) => {
+    tx.oncomplete = () => resolve()
+    tx.onerror = () => reject(tx.error ?? new Error('idb write failed'))
+    tx.onabort = () => reject(tx.error ?? new Error('idb write aborted'))
+  })
+}
+
 export async function deleteCanvasNode(nodeId: string): Promise<void> {
   await wrap((await store('canvasNodes', 'readwrite')).delete(nodeId))
 }

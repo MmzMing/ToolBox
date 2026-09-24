@@ -136,9 +136,11 @@
   }
 }
 
-/* AI 生图画布（canvas/ImageCanvas.tsx）：React Flow 自带一套 --xy-* 令牌，
-   统一指回本项目语义令牌后亮暗主题自动生效；节点的边框底色由节点组件自己用
-   Tailwind 令牌画，这里只接管库内置的网格、连线、把手、框选与选中描边。 */
+/* AI 生图画布（canvas/ImageCanvas.tsx）：React Flow 自带一套 --xy-* 令牌。
+   注意：库的 style.css 在组件里 import，注入顺序在本文件之后，等特异性的
+   .react-flow {} 会把这些令牌全部盖回出厂默认值（实测 --xy-edge-stroke-default
+   等仍是 #b1b1b7）。要真正改颜色，得用带 .react-flow 前缀的属性规则，见下方。
+   节点的边框底色由节点组件自己用 Tailwind 令牌画，不受这里影响。 */
 .react-flow {
   --xy-background-color: var(--background);
   --xy-background-pattern-dots-color-default: var(--border);
@@ -176,6 +178,34 @@
 .react-flow .react-flow__node.dragging {
   will-change: transform;
 }
+/* 框选拖拽中的矩形：去掉蓝色填充，只留一圈随主题的实线粗框。
+   必须带 .react-flow 前缀提权，否则被库的 style.css 盖回蓝色默认值 */
+.react-flow .react-flow__selection {
+  background-color: transparent;
+  border: none;
+  border-radius: 12px;
+  outline: 2px solid color-mix(in oklch, var(--foreground) 65%, transparent);
+}
+/* 库自带的「多选持久框」只留透明底与去边框，描边交给 .canvas-selection-frame：
+   1) 它只在框选松手那一刻存在，之后点一下节点、或按住节点开始拖，库都会把
+      nodesSelectionActive 置回 false，把整块框摘掉（选区还在，框没了）；
+   2) 它挂载后会自动 focus，而库的 .react-flow__nodesselection-rect:focus { outline: none }
+      与我们这条同特异性、又后注入，谁给它上色都会被抹掉。
+   元素本身保留：拖动整组、右键菜单与方向键微移仍归它管，只是不再由它上色。 */
+.react-flow .react-flow__nodesselection-rect {
+  background-color: transparent;
+  border: none;
+  outline: none;
+}
+
+/* 多选边框（canvas/ImageCanvas.tsx 的 SelectionFrame）：只认选区状态，选中两个以上节点就
+   一直在，平移缩放与拖拽时实时跟随。描边用 outline 往外画，因为盒子尺寸是内联的屏幕像素，
+   inset 改不动；往外空出的 10px 与 ImageCanvas 里的 SELECTION_PAD 必须保持一致。 */
+.canvas-selection-frame {
+  border-radius: 12px;
+  outline: 2px solid color-mix(in oklch, var(--foreground) 65%, transparent);
+  outline-offset: 10px;
+}
 .react-flow .react-flow__node .react-flow__handle {
   cursor: crosshair;
   transition:
@@ -200,7 +230,11 @@
 .react-flow .react-flow__node button.nodrag {
   cursor: pointer;
 }
-.react-flow .react-flow__node textarea {
+/* 未进入编辑态的文本框整块都是拖拽面，光标跟着抓取手走；只有可写时才要文本光标 */
+.react-flow .react-flow__node textarea[readonly] {
+  cursor: grab;
+}
+.react-flow .react-flow__node textarea:not([readonly]) {
   cursor: text;
 }
 
@@ -226,23 +260,95 @@
   box-shadow: inset 0 0 0 2px var(--primary);
 }
 
-/* 可断开的连线（参考图 / 提示词链）：悬停整条描红提示可点，点击后由画布弹确认框；
+/* @ 参考图面板从输入框下方划入：只给一个短促的落位感，不抢输入节奏 */
+.canvas-mention-panel {
+  animation: canvas-mention-in 130ms ease-out;
+}
+@keyframes canvas-mention-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 连接热区（canvas/nodes/link-zone.tsx）：贴着侧边中点的一小块活动区，不是整条边。
+   热区中心压在侧边中点上，所以 React Flow 按把手外框算出的连线端点不变；
+   ::after 只朝外侧撑开，内侧仅探进 8px，避免吃掉正文点击。 */
+.react-flow .react-flow__node .react-flow__handle.canvas-link-zone {
+  width: 22px;
+  height: 120px;
+  max-height: 72%;
+  top: 50%;
+  bottom: auto;
+  border: none;
+  background-color: transparent;
+  transform: translateY(-50%);
+}
+.react-flow .react-flow__node .react-flow__handle-left.canvas-link-zone {
+  left: -11px;
+  --kx: -18px;
+}
+.react-flow .react-flow__node .react-flow__handle-right.canvas-link-zone {
+  right: -11px;
+  left: auto;
+  --kx: 18px;
+}
+.react-flow .react-flow__node .react-flow__handle-left.canvas-link-zone::after {
+  inset: -10px -8px -10px -30px;
+}
+.react-flow .react-flow__node .react-flow__handle-right.canvas-link-zone::after {
+  inset: -10px -30px -10px -8px;
+}
+.react-flow .react-flow__node .canvas-link-zone:hover {
+  background-color: transparent;
+  box-shadow: none;
+}
+/* 加号旋钮：静止时停在侧边外一点，鼠标在活动区内移动时跟手二维游动 */
+.react-flow .react-flow__node .canvas-link-knob {
+  position: absolute;
+  left: calc(50% + var(--kx, 0px));
+  top: var(--ky, 50%);
+  display: flex;
+  width: 20px;
+  height: 20px;
+  translate: -50% -50%;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  background-color: var(--background);
+  color: var(--muted-foreground);
+  box-shadow:
+    0 0 0 1px var(--border),
+    0 1px 3px rgb(0 0 0 / 0.3);
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    opacity 120ms,
+    box-shadow 120ms,
+    color 120ms;
+}
+.react-flow .react-flow__node:hover .canvas-link-knob,
+.react-flow .react-flow__node.selected .canvas-link-knob {
+  opacity: 1;
+}
+.react-flow .react-flow__node .canvas-link-zone:hover .canvas-link-knob {
+  color: var(--primary);
+  box-shadow:
+    0 0 0 2px var(--primary),
+    0 1px 3px rgb(0 0 0 / 0.3);
+}
+
+/* 可断开的连线（参考图 / 提示词链）：悬停整条描红提示可点，点击即断开；
    产出边由提示词派生，没有这个类，因此不会给出删除入口 */
 .react-flow .react-flow__edge.canvas-edge-detachable {
   cursor: pointer;
 }
 .react-flow .react-flow__edge.canvas-edge-detachable:hover .react-flow__edge-path {
   stroke: var(--destructive);
-}
-
-/* 画布点阵的光标聚光：ImageCanvas 在 pointermove 上写 --glow-x/y/r 三个变量，
-   第二层主色点阵（.canvas-glow）用圆形遮罩只在半径内显形，网格随光标亮一圈 */
-.react-flow .react-flow__background.canvas-glow {
-  mask-image: radial-gradient(
-    circle var(--glow-r, 0px) at var(--glow-x, -9999px) var(--glow-y, -9999px),
-    #000 0%,
-    transparent 70%
-  );
 }
 
 /* 数字框自带的小箭头由浏览器绘制，吃不进主题还会挤掉数字；需要时统一挂这个类关掉 */
