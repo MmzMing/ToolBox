@@ -1,6 +1,6 @@
 {
   "title": "About ToolBox",
-  "intro": "ToolBox is a free, open-source toolbox with {{count}} everyday tools: crypto, format converters, encoders, web utilities, text and image tools. Everything runs locally in your browser — no data is collected or uploaded. Two features reach out: IP lookup queries third-party public services, and the AI in Resume Studio and AI Image Gen is opt-in and talks directly to the provider you configure.",
+  "intro": "ToolBox is a free, open-source toolbox with {{count}} everyday tools: crypto, format converters, encoders, web utilities, text and image tools. Everything runs locally in your browser — no data is collected or uploaded. Three features reach out: IP lookup queries third-party public services; the AI in Resume Studio and AI Image Gen is opt-in and talks directly to the provider you configure; and the online music library in Music to Video is off by default, sending the playlist you type to the Meting instance you configure.",
   "whyTitle": "Why this exists",
   "whyBody": "AI can certainly do these jobs — hash a string, convert a format, decode a JWT. But that means maintaining a skill or a workflow, re-describing the task every time, waiting for it to think, and correcting the occasional improvisation. The inputs and outputs were already deterministic, so there is no reason to rebuild the wheel on every run while burning tokens. So these became fixed pages: open it, get the same result, no quota spent, no improvisation.",
   "privacyTitle": "Privacy first",

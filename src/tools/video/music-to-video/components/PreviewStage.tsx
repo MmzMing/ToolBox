@@ -8,14 +8,25 @@
  * 时间读数、播放头与镜头信息走 ref/局部 state，避免每帧 setState 拖垮设置面板。
  */
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { Pause, Play, Repeat, Shuffle, SkipBack, SkipForward } from 'lucide-react'
+import {
+  Pause,
+  Play,
+  Repeat,
+  Shuffle,
+  SkipBack,
+  SkipForward,
+  Volume2,
+  VolumeX,
+  Wand2,
+} from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
-import { Button } from '@/components/ui/button'
+import { Slider } from '@/components/ui/slider'
 import { Renderer } from '../engine/renderer'
 import { LAYOUT_ORDER } from '../engine/registry'
 import type { AudioInfo, Cut, Plan } from '../engine/types'
 import { clamp, fmtTime } from '../engine/util'
+import { TipButton } from './TipButton'
 
 /** 预览缓冲区的最大宽度：再高只是浪费，逐帧渲染会掉速 */
 const PREVIEW_MAX_W = 1440
@@ -43,6 +54,11 @@ type PreviewStageProps = {
   getTime: () => number
   /** 字体加载完成后自增，用于强制重画一帧 */
   fontEpoch: number
+  /** 非 0 时按这个帧率走带，预览看到的就是导出的节奏 */
+  exportFps: number
+  /** 预览监听音量 0-1 */
+  volume: number
+  onVolume: (v: number) => void
   /** 当前镜头属于第几行歌词（-1 表示片头/间奏），供行列表高亮 */
   onCurrentLine: (line: number) => void
 }
@@ -68,6 +84,9 @@ export function PreviewStage({
   onOmakase,
   getTime,
   fontEpoch,
+  exportFps,
+  volume,
+  onVolume,
   onCurrentLine,
 }: PreviewStageProps) {
   const { t } = useTranslation('tools-video', { keyPrefix: 'music-to-video' })
@@ -79,6 +98,8 @@ export function PreviewStage({
   const frameRef = useRef(0)
   const draggingRef = useRef(false)
   const slowRef = useRef(false)
+  /** 静音前最后一次音量，取消静音时回到它 */
+  const lastVolumeRef = useRef(volume > 0 ? volume : 1)
   const [cutIndex, setCutIndex] = useState(-1)
 
   const drawTimeline = useCallback(
@@ -163,23 +184,24 @@ export function PreviewStage({
       if (!ctx) return
       const renderer = rendererRef.current
       if (!renderer) return
+      const shown = exportFps > 0 ? Math.floor(time * exportFps + 1e-6) / exportFps : time
       const started = performance.now()
-      renderer.frame(ctx, plan, time, {
+      renderer.frame(ctx, plan, shown, {
         scale: canvas.width / plan.W,
         fast: playing && slowRef.current,
       })
       const ms = performance.now() - started
       // 掉帧时自动降级（关掉辉光/颗粒等滤镜），保证走带不卡
       slowRef.current = playing ? (ms > 30 ? true : ms < 14 ? false : slowRef.current) : false
-      if (clockRef.current) clockRef.current.textContent = fmtTime(time)
+      if (clockRef.current) clockRef.current.textContent = fmtTime(shown)
       // 擦除条的可访问性数值直接写 DOM：它每帧都变，走 state 会拖垮整棵树
       scrubRef.current?.setAttribute('aria-valuenow', time.toFixed(2))
-      const here = cutAtTime(plan, time)
+      const here = cutAtTime(plan, shown)
       setCutIndex((prev) => (prev === (here?.index ?? -1) ? prev : (here?.index ?? -1)))
       onCurrentLine(here?.line ?? -1)
-      drawTimeline(time)
+      drawTimeline(shown)
     },
-    [drawTimeline, onCurrentLine, plan, playing],
+    [drawTimeline, exportFps, onCurrentLine, plan, playing],
   )
 
   // 缓冲区尺寸跟随容器宽度（CSS 尺寸交给 object-contain，不参与测量，避免回环）
@@ -230,13 +252,15 @@ export function PreviewStage({
           }
         }
       }
-      if (time === lastDrawn) return
-      lastDrawn = time
+      // 按导出帧率走带时，同一帧内重复画没有意义，用帧号当去重键
+      const key = exportFps > 0 ? Math.floor(time * exportFps + 1e-6) : time
+      if (key === lastDrawn) return
+      lastDrawn = key
       drawFrame(time)
     }
     frameRef.current = requestAnimationFrame(tick)
     return () => cancelAnimationFrame(frameRef.current)
-  }, [drawFrame, getTime, loop, onSeek, onTogglePlay, plan.duration, playing])
+  }, [drawFrame, exportFps, getTime, loop, onSeek, onTogglePlay, plan.duration, playing])
 
   const seekFromPointer = (clientX: number) => {
     const cv = timelineRef.current
@@ -298,39 +322,64 @@ export function PreviewStage({
       </div>
 
       <div className="flex shrink-0 flex-wrap items-center gap-1.5">
-        <Button
+        <TipButton
           size="sm"
           variant="secondary"
           onClick={onTogglePlay}
-          aria-label={playing ? t('actions.pause') : t('actions.play')}
+          tip={playing ? t('actions.pause') : t('actions.play')}
         >
           {playing ? <Pause className="size-4" /> : <Play className="size-4" />}
-        </Button>
-        <Button
+        </TipButton>
+        <TipButton
           size="sm"
           variant={loop ? 'default' : 'outline'}
           onClick={onToggleLoop}
           aria-pressed={loop}
-          aria-label={t('actions.loop')}
+          tip={t('actions.loop')}
         >
           <Repeat className="size-4" />
-        </Button>
-        <Button
+        </TipButton>
+        <TipButton
           size="sm"
           variant="ghost"
           onClick={() => jumpCut(-1)}
-          aria-label={t('actions.prevCut')}
+          tip={t('actions.prevCut')}
+          side="top"
         >
           <SkipBack className="size-4" />
-        </Button>
-        <Button
+        </TipButton>
+        <TipButton
           size="sm"
           variant="ghost"
           onClick={() => jumpCut(1)}
-          aria-label={t('actions.nextCut')}
+          tip={t('actions.nextCut')}
+          side="top"
         >
           <SkipForward className="size-4" />
-        </Button>
+        </TipButton>
+        {/* Radix 把 role=slider 放在 thumb 上，aria-label 给 Root 到不了它，所以整组用 group 命名 */}
+        <div role="group" aria-label={t('actions.volume')} className="flex shrink-0 items-center">
+          <TipButton
+            size="sm"
+            variant="ghost"
+            onClick={() => onVolume(volume > 0 ? 0 : lastVolumeRef.current)}
+            tip={volume > 0 ? t('actions.mute') : t('actions.unmute')}
+          >
+            {volume > 0 ? <Volume2 className="size-4" /> : <VolumeX className="size-4" />}
+          </TipButton>
+          <Slider
+            value={[Math.round(volume * 100)]}
+            min={0}
+            max={100}
+            step={1}
+            onValueChange={(v) => {
+              const next = (v[0] ?? 0) / 100
+              if (next > 0) lastVolumeRef.current = next
+              onVolume(next)
+            }}
+            className="ml-1 w-20"
+          />
+        </div>
         <span ref={clockRef} className="text-muted-foreground font-mono text-xs tabular-nums">
           {fmtTime(0)}
         </span>
@@ -338,13 +387,25 @@ export function PreviewStage({
           / {fmtTime(plan.duration)}
         </span>
         <div className="ml-auto flex items-center gap-1.5">
-          <Button size="sm" variant="outline" onClick={onShuffle}>
+          <TipButton
+            size="sm"
+            variant="outline"
+            onClick={onShuffle}
+            aria-label={t('actions.shuffle')}
+            tip={t('actions.shuffleTip')}
+          >
             <Shuffle className="size-4" />
             {t('actions.shuffle')}
-          </Button>
-          <Button size="sm" onClick={onOmakase}>
+          </TipButton>
+          <TipButton
+            size="sm"
+            onClick={onOmakase}
+            aria-label={t('actions.omakase')}
+            tip={t('actions.omakaseTip')}
+          >
+            <Wand2 className="size-4" />
             {t('actions.omakase')}
-          </Button>
+          </TipButton>
         </div>
       </div>
 

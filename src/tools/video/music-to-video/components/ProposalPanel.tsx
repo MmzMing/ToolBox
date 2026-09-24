@@ -8,24 +8,25 @@ import {
   Blend,
   ChevronLeft,
   ChevronRight,
+  Eraser,
   LayoutGrid,
   Palette,
   Sparkles,
-  Wand2,
+  Trash2,
 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
-import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { FONTS } from '../engine/fonts'
 import type { Plan, Project } from '../engine/types'
+import { TipButton } from './TipButton'
 
 type ProposalPanelProps = {
   project: Project
   plan: Plan
   onReroll: (part: 'style' | 'palette' | 'mood' | 'cut') => void
-  onOmakase: () => void
+  onDropLook: () => void
+  onClearLooks: () => void
   histIndex: number
   histLength: number
   onHist: (delta: number) => void
@@ -43,7 +44,8 @@ export function ProposalPanel({
   project,
   plan,
   onReroll,
-  onOmakase,
+  onDropLook,
+  onClearLooks,
   histIndex,
   histLength,
   onHist,
@@ -65,57 +67,56 @@ export function ProposalPanel({
 
   return (
     <div className="flex flex-col gap-1.5">
-      <Button onClick={onOmakase} className="w-full">
-        <Wand2 className="size-4" />
-        {t('actions.omakase')}
-      </Button>
-
       <div className="flex items-center gap-1">
-        <Button
+        <TipButton
           size="icon"
           variant="outline"
           className="size-7 shrink-0"
           disabled={histIndex <= 0}
           onClick={() => onHist(-1)}
-          aria-label={t('actions.prevLook')}
-          title={t('actions.prevLook')}
+          tip={t('actions.prevLook')}
         >
           <ChevronLeft className="size-4" />
-        </Button>
+        </TipButton>
         <span className="text-muted-foreground w-12 text-center font-mono text-[11px]">
           {histLength > 1 ? `${histIndex + 1}/${histLength}` : ''}
         </span>
-        <Button
+        <TipButton
           size="icon"
           variant="outline"
           className="size-7 shrink-0"
           disabled={histIndex >= histLength - 1}
           onClick={() => onHist(1)}
-          aria-label={t('actions.nextLook')}
-          title={t('actions.nextLook')}
+          tip={t('actions.nextLook')}
         >
           <ChevronRight className="size-4" />
-        </Button>
+        </TipButton>
 
         <Separator orientation="vertical" className="mx-1 h-5" />
 
         <span className="text-muted-foreground shrink-0 text-[11px]">{t('reroll.title')}</span>
         {REROLLS.map(({ part, icon: Icon, key }) => (
-          <Tooltip key={part}>
-            <TooltipTrigger asChild>
-              <Button
-                size="icon"
-                variant="ghost"
-                className="size-7"
-                aria-label={t(`reroll.${key}`)}
-                onClick={() => onReroll(part)}
-              >
-                <Icon className="size-4" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent side="bottom">{t(`reroll.${key}`)}</TooltipContent>
-          </Tooltip>
+          <TipButton
+            key={part}
+            size="icon"
+            variant="ghost"
+            className="size-7"
+            onClick={() => onReroll(part)}
+            tip={t(`reroll.${key}`)}
+          >
+            <Icon className="size-4" />
+          </TipButton>
         ))}
+        <TipButton
+          size="icon"
+          variant="destructive"
+          className="ml-auto size-7 shrink-0"
+          disabled={histLength === 0}
+          onClick={onClearLooks}
+          tip={t('actions.clearLooks')}
+        >
+          <Trash2 className="size-4" />
+        </TipButton>
       </div>
 
       <div className="border-input flex flex-col gap-1 rounded-md border p-2 text-[11px]">
@@ -137,15 +138,30 @@ export function ProposalPanel({
           <span className="text-muted-foreground shrink-0">{t('proposal.headingFont')}</span>
           <span className="min-w-0 truncate text-right">{FONTS[faceKey]?.label ?? faceKey}</span>
         </div>
-        <div className="text-muted-foreground flex flex-wrap items-center gap-x-2 gap-y-0.5 pt-0.5 font-mono">
-          <span>{t('proposal.compositionValue', { cuts: cuts.length, kinds })}</span>
-          <span>
-            {t('proposal.effectsValue', {
-              treat: cuts.filter((c) => c.treat !== 'none').length,
-              bg: new Set(cuts.map((c) => c.bg).filter((b) => b !== 'none')).size,
-              cam: cuts.filter((c) => c.cam !== 'push').length,
-            })}
-          </span>
+        <div className="flex min-w-0 items-center justify-between gap-2 pt-0.5">
+          <div className="text-muted-foreground flex w-0 min-w-0 flex-1 flex-wrap items-center gap-x-2 gap-y-0.5 font-mono">
+            <span>{t('proposal.compositionValue', { cuts: cuts.length, kinds })}</span>
+            <span>
+              {t('proposal.effectsValue', {
+                treat: cuts.filter((c) => c.treat !== 'none').length,
+                bg: new Set(cuts.map((c) => c.bg).filter((b) => b !== 'none')).size,
+                cam: cuts.filter((c) => c.cam !== 'push').length,
+              })}
+            </span>
+          </div>
+          {/* 历史攒到几十条时 ◀ ▶ 翻不动，就地删掉正看着的这一版 */}
+          <div className="flex shrink-0 items-center">
+            <TipButton
+              size="icon"
+              variant="destructive"
+              className="size-6"
+              disabled={histIndex < 0}
+              onClick={onDropLook}
+              tip={t('actions.dropLook')}
+            >
+              <Eraser className="size-3.5" />
+            </TipButton>
+          </div>
         </div>
       </div>
     </div>

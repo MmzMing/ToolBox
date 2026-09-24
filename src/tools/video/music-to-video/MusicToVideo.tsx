@@ -115,6 +115,8 @@ export default function MusicToVideo() {
   const [fontEpoch, setFontEpoch] = useState(0)
   const [userFonts, setUserFonts] = useState<{ key: string; label: string }[]>([])
   const [quality, setQuality] = useState<Quality>('high')
+  /** 打开后预览按导出的帧率走带，看到的就是导出的节奏 */
+  const [exportPreview, setExportPreview] = useState(false)
   const [job, setJob] = useState<ExportJob>(null)
   const [codecNote, setCodecNote] = useState('')
   const [canMp4, setCanMp4] = useState(true)
@@ -186,6 +188,21 @@ export default function MusicToVideo() {
     },
     [patch, remember, seek, syncHist],
   )
+
+  /** 删掉正看着的这一版：只动历史，当前参数保持不变 */
+  const dropLook = useCallback(() => {
+    const i = indexRef.current
+    if (i < 0 || i >= historyRef.current.length) return
+    historyRef.current.splice(i, 1)
+    indexRef.current = historyRef.current.length ? Math.min(i, historyRef.current.length - 1) : -1
+    syncHist()
+  }, [syncHist])
+
+  const clearLooks = useCallback(() => {
+    historyRef.current = []
+    indexRef.current = -1
+    syncHist()
+  }, [syncHist])
 
   /* ---------------- 随机与部件 ---------------- */
   const runOmakase = useCallback(() => {
@@ -710,6 +727,7 @@ export default function MusicToVideo() {
                 <li>{t('about.output')}</li>
                 <li>{t('about.input')}</li>
                 <li>{t('about.local')}</li>
+                <li>{t('about.online')}</li>
                 <li>{t('about.engine')}</li>
               </ul>
             </DialogContent>
@@ -731,6 +749,9 @@ export default function MusicToVideo() {
             onOmakase={runOmakase}
             getTime={now}
             fontEpoch={fontEpoch}
+            exportFps={exportPreview ? plan.fps : 0}
+            volume={playback.volume}
+            onVolume={playback.setVolume}
             onCurrentLine={setCurrentLine}
           />
         </div>
@@ -762,7 +783,8 @@ export default function MusicToVideo() {
               project={project}
               plan={plan}
               onReroll={reroll}
-              onOmakase={runOmakase}
+              onDropLook={dropLook}
+              onClearLooks={clearLooks}
               histIndex={hist.i}
               histLength={hist.len}
               onHist={histGo}
@@ -779,6 +801,8 @@ export default function MusicToVideo() {
             canMp4={canMp4}
             job={job}
             quality={quality}
+            exportPreview={exportPreview}
+            onExportPreview={setExportPreview}
             userFonts={userFonts}
             patch={patch}
             patchFx={patchFx}

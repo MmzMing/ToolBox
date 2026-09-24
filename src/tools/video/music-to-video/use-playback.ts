@@ -11,6 +11,18 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import type { AudioInfo } from './engine/types'
 import { clamp } from './engine/util'
 
+const VOLUME_KEY = 'toolbox.music-to-video.volume'
+
+/** 音量记在本地：每次开页都拉满太吵；读不到或读坏了都回到 1 */
+function readVolume(): number {
+  try {
+    const raw = Number.parseFloat(localStorage.getItem(VOLUME_KEY) ?? '')
+    return Number.isFinite(raw) ? clamp(raw, 0, 1) : 1
+  } catch {
+    return 1
+  }
+}
+
 export type Playback = {
   playing: boolean
   loop: boolean
@@ -22,13 +34,19 @@ export type Playback = {
   /** 当前画面时刻（供 rAF 读取，不触发重渲染） */
   now: () => number
   duration: () => number
+  /** 预览监听音量 0-1，只作用于预览播放，导出走音频轨本身 */
+  volume: number
+  setVolume: (v: number) => void
 }
 
 export function usePlayback(audio: AudioInfo | null, duration: number): Playback {
   const [playing, setPlaying] = useState(false)
   const [loop, setLoop] = useState(true)
+  const [volume, setVolume] = useState(readVolume)
   const ctxRef = useRef<AudioContext | null>(null)
   const srcRef = useRef<AudioBufferSourceNode | null>(null)
+  const gainRef = useRef<GainNode | null>(null)
+  const volumeRef = useRef(volume)
   const startAtRef = useRef(0)
   const clockRef = useRef(0)
   const timeRef = useRef(0)
@@ -42,6 +60,16 @@ export function usePlayback(audio: AudioInfo | null, duration: number): Playback
   useEffect(() => {
     loopRef.current = loop
   }, [loop])
+
+  useEffect(() => {
+    volumeRef.current = volume
+    if (gainRef.current) gainRef.current.gain.value = volume
+    try {
+      localStorage.setItem(VOLUME_KEY, String(volume))
+    } catch {
+      /* 隐私模式存不了，音量照样能调，只是下次要重设 */
+    }
+  }, [volume])
 
   const stopSource = useCallback(() => {
     const src = srcRef.current
@@ -81,9 +109,15 @@ export function usePlayback(audio: AudioInfo | null, duration: number): Playback
       const ctx = ctxRef.current
       if (ctx.state === 'suspended') void ctx.resume()
       stopSource()
+      // GainNode 挂在 source 与 destination 之间，调音量不用重新起播
+      if (!gainRef.current) {
+        gainRef.current = ctx.createGain()
+        gainRef.current.connect(ctx.destination)
+      }
+      gainRef.current.gain.value = volumeRef.current
       const src = ctx.createBufferSource()
       src.buffer = audio.buffer
-      src.connect(ctx.destination)
+      src.connect(gainRef.current)
       src.start(0, from)
       srcRef.current = src
       startAtRef.current = ctx.currentTime - from
@@ -119,5 +153,7 @@ export function usePlayback(audio: AudioInfo | null, duration: number): Playback
     seek,
     now,
     duration: () => durationRef.current,
+    volume,
+    setVolume: (v: number) => setVolume(clamp(v, 0, 1)),
   }
 }

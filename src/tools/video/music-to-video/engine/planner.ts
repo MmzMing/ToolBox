@@ -51,8 +51,8 @@ export const SAMPLE_LYRICS = `把还没说完的话/留在风里
 *我们*都以为明天/还很远
 那些没寄出的信/全都成了歌!`
 
-/** 镜头密度：每 L 秒一个镜头 */
-const CUT_LENGTH = { min: 1.3, max: 0.5 }
+/** 镜头密度两端的目标时长：density=0 时每镜 1.3s（疏），=1 时每镜 0.5s（密） */
+const CUT_LENGTH = { sparse: 1.3, dense: 0.5 }
 /** 节拍吸附的最大偏移（秒） */
 const SNAP_WINDOW = 0.13
 
@@ -417,7 +417,8 @@ function pickDecor(
     .map((k) => {
       const D = DECOR[k]
       const base = D?.w != null ? D.w * 0.5 : 0.35
-      return [k, (st.decor?.[k] ?? 1) * base * (recent.has(k) ? 0.35 : 1)] as [string, number]
+      // 风格包的 decor 权重是"替换默认值"，不是"在默认值上再乘一层"
+      return [k, (st.decor?.[k] ?? base) * (recent.has(k) ? 0.35 : 1)] as [string, number]
     })
   const out: DecorParam[] = []
   const pool = [...list]
@@ -753,7 +754,7 @@ export function plan(project: Project, audio: AudioFeatures | null): Plan {
     planLine.chunks = chunks
     out.lines.push(planLine)
 
-    const L = lerp(CUT_LENGTH.max, CUT_LENGTH.min, fx.density)
+    const L = lerp(CUT_LENGTH.sparse, CUT_LENGTH.dense, fx.density)
     let nC = Math.round(D / L)
     const maxC = chunks.length + (chunks.length >= 2 && D > 2 ? 1 : 0)
     nC = clamp(nC, 1, Math.max(1, maxC))
@@ -897,35 +898,41 @@ export function plan(project: Project, audio: AudioFeatures | null): Plan {
 
       const g = fx.glitch * (st.glitchBoost || 1)
       const F = 1 / 24
-      addEvent(cs, 'chroma', 1.4 + rngIn.range(0, 2) * fx.chroma + (emph ? 2.5 : 0), 0.25)
-      if (rngIn.chance(g * 0.5 + (emph ? 0.3 : 0)))
+      // 内置特效同样受部件开关约束；关掉时连掷骰一起跳过，否则后续抽样会整体错位
+      const fxOn = (key: string) => on(en, 'fx', key)
+      if (fxOn('chroma'))
+        addEvent(cs, 'chroma', 1.4 + rngIn.range(0, 2) * fx.chroma + (emph ? 2.5 : 0), 0.25)
+      if (fxOn('slice') && rngIn.chance(g * 0.5 + (emph ? 0.3 : 0)))
         addEvent(
           cs,
           'slice',
           0.6 + rngIn.range(0, 0.8) * g + (emph ? 0.5 : 0),
           rngIn.pick([2, 3, 4]) * F,
         )
-      if (rngIn.chance(g * 0.22))
+      if (fxOn('block') && rngIn.chance(g * 0.22))
         addEvent(cs + rngIn.range(0, 0.05), 'block', 0.5 + g, rngIn.pick([2, 4]) * F)
-      if (emph || rngIn.chance(fx.motion * 0.18))
+      if (fxOn('shake') && (emph || rngIn.chance(fx.motion * 0.18)))
         addEvent(cs, 'shake', (emph ? 1 : 0.5) * fx.motion, 0.3)
-      if (fx.flash && ln.impact && k === 0) addEvent(cs, 'flash', 1, 3 * F)
-      if (rngIn.chance(0.035 * g)) addEvent(cs, 'invert', 1, 2 * F)
-      if ((emph && rngIn.chance(0.6)) || rngIn.chance(0.06 * fx.motion))
+      if (fxOn('flash') && fx.flash && ln.impact && k === 0) addEvent(cs, 'flash', 1, 3 * F)
+      if (fxOn('invert') && rngIn.chance(0.035 * g)) addEvent(cs, 'invert', 1, 2 * F)
+      if (fxOn('zoom') && ((emph && rngIn.chance(0.6)) || rngIn.chance(0.06 * fx.motion)))
         addEvent(cs, 'zoom', 0.7 + 0.5 * fx.motion, 0.22)
-      if (rngIn.chance(0.04 * g)) addEvent(cs, 'mosaic', 1, 3 * F)
-      if (dur > 0.8 && rngIn.chance(g * 0.4))
+      if (fxOn('mosaic') && rngIn.chance(0.04 * g)) addEvent(cs, 'mosaic', 1, 3 * F)
+      if (fxOn('slice') && dur > 0.8 && rngIn.chance(g * 0.4))
         addEvent(cs + rngIn.range(0.35, 0.8) * dur, 'slice', 0.4 + g * 0.4, 2 * F)
-      const extraFx = pickFx(rngIn, st, en, fx, emph, fxHistory, 'edge')
-      if (extraFx) {
-        const D2 = FXE[extraFx]
-        addEvent(
-          cs - (D2.pre || 0) * F,
-          extraFx,
-          (D2.amp || 1) * (0.7 + 0.5 * g + (emph ? 0.3 : 0)),
-          (D2.dur || 4) * F,
-        )
-        fxHistory.push(extraFx)
+      // 全片第一个镜头不追加特效：多掷这一次会让后面每一镜的抽样整体偏移
+      if (out.cuts.length > 1 || k > 0 || li > 0) {
+        const extraFx = pickFx(rngIn, st, en, fx, emph, fxHistory, 'edge')
+        if (extraFx) {
+          const D2 = FXE[extraFx]
+          addEvent(
+            cs - (D2.pre || 0) * F,
+            extraFx,
+            (D2.amp || 1) * (0.7 + 0.5 * g + (emph ? 0.3 : 0)),
+            (D2.dur || 4) * F,
+          )
+          fxHistory.push(extraFx)
+        }
       }
       if (dur > 1.1) {
         const mid = pickFx(rngIn, st, en, fx, emph, fxHistory, 'mid')
@@ -937,7 +944,6 @@ export function plan(project: Project, audio: AudioFeatures | null): Plan {
             (D2.amp || 1) * (0.5 + 0.4 * g),
             (D2.dur || 3) * F,
           )
-          fxHistory.push(mid)
         }
       }
     })

@@ -10,8 +10,11 @@
       "output": "Output",
       "fx": "Intensity"
     },
-    "fields": {
+    "cards": {
       "audio": "Audio file",
+      "info": "Music info"
+    },
+    "fields": {
       "title": "Title",
       "artist": "Artist",
       "lyrics": "Lyrics",
@@ -58,12 +61,15 @@
       "lyricsSyntax": "LRC timestamps like [00:12.30] are supported; use / to split cuts, *word* for emphasis, a trailing ! to punch, and | to attach an annotation. Lines starting with # are comments",
       "fonts": "Upload a ttf / otf / woff2 file to use a font from your own machine",
       "bpmAuto": "Detected {{bpm}} BPM, beat grid generated",
-      "noAudio": "Without audio, timing is estimated from character count"
+      "noAudio": "Without audio, timing is estimated from character count",
+      "exportPreview": "Steps the preview at the export frame rate: the frame you see is the frame you get"
     },
     "actions": {
       "pickAudio": "Choose audio",
       "addFont": "Add font file",
       "omakase": "Surprise me",
+      "exportPreview": "Preview at export settings",
+      "omakaseTip": "Swap the whole look — style, mood, motion and palette (shortcut R)",
       "reseed": "New seed",
       "exportMp4": "Export MP4",
       "exportPng": "PNG sequence",
@@ -74,9 +80,15 @@
       "loop": "Loop preview",
       "prevCut": "Previous cut",
       "nextCut": "Next cut",
+      "volume": "Volume",
+      "mute": "Mute",
+      "unmute": "Unmute",
       "prevLook": "Previous look",
       "nextLook": "Next look",
+      "dropLook": "Clear current look",
+      "clearLooks": "Clear all looks",
       "shuffle": "Reroll cuts",
+      "shuffleTip": "Reroll the composition only: new seed, style and palette unchanged",
       "tapSync": "Tap to sync",
       "openProject": "Open project file",
       "saveProject": "Save project file",
@@ -921,7 +933,9 @@
       "layoutAria": "Force layout",
       "startAria": "Start seconds of line {{line}}",
       "reroll": "Reroll this line",
-      "lock": "Lock this line's composition"
+      "lock": "Lock this line's composition",
+      "layoutSearch": "Search layouts",
+      "noLayoutMatch": "No matching layout"
     },
     "proposal": {
       "palette": "Palette",
@@ -1001,7 +1015,8 @@
       "output": "Exported MP4 / PNG files are yours — commercial use and publishing are fine, no attribution required.",
       "input": "Copyright in the lyrics, titles and audio you supply stays with their owners; make sure you may use them.",
       "local": "Lyrics and audio are processed only inside your browser and never uploaded anywhere.",
-      "engine": "The rendering engine is ported from JIZURA, MIT licensed (© 2026 hakoniwa); MP4 muxing uses mp4-muxer (MIT); interface fonts come from Google Fonts families (SIL OFL 1.1)."
+      "engine": "The rendering engine is ported from JIZURA, MIT licensed (© 2026 hakoniwa); MP4 muxing uses mp4-muxer (MIT); interface fonts come from Google Fonts families (SIL OFL 1.1).",
+      "online": "The online library is optional and off by default: once on, the playlist you type goes to the third-party Meting instance you configure, and audio and lyrics come back from that service. The tool runs no backend and caches no audio — check you may publish the track before exporting."
     },
     "ae": {
       "note": "{{subs}} browser-only expressions were swapped for the closest one the AE panel implements (text treatments, backgrounds, camera moves and cut transitions are not yet supported in the AE version)."
@@ -1016,6 +1031,42 @@
       "timing": "Beat & timing",
       "fonts": "Local fonts",
       "snap": "snap"
+    },
+    "online": {
+      "title": "Online library",
+      "enable": "Enable online library",
+      "off": "Off",
+      "ready": "On",
+      "hint": "Paste a NetEase / QQ Music playlist or track link, or just the playlist ID. Off by default — no requests until you turn it on. Loading a track replaces the lyrics box with its online LRC.",
+      "placeholder": "Playlist link or ID",
+      "fetch": "Fetch",
+      "load": "Load this track",
+      "fellBack": "Your instance did not answer, fell back to the built-in one.",
+      "truncated": "Long playlist — showing the first {{limit}} tracks only.",
+      "apiLabel": "API endpoint (optional)",
+      "apiPlaceholder": "https://your.instance/meting/",
+      "apiSave": "Save",
+      "apiHint": "Leave empty to use the built-in public instances in order. A bare site address is completed automatically; a full https template works too. The address stays in this browser only.",
+      "dialogTitle": "Turn on the online library",
+      "dialogBody": "Once on, the link and playlist ID you paste are sent to the third-party Meting instance you configure, and the audio and lyrics come straight back to this browser. This tool runs no backend, never uploads your lyrics and does not cache audio: platform links carry a signed, short-lived token, so every load fetches a fresh one. Copyright in the tracks stays with its owners — check you may publish before you export.",
+      "dialogOk": "I understand, turn it on",
+      "dialogCancel": "Not now",
+      "err": {
+        "badLink": "Unrecognised link: paste a NetEase or QQ Music playlist / song address, or a playlist ID.",
+        "badApi": "Invalid endpoint: it must be a full address starting with https://.",
+        "apiDown": "No instance answered. The public ones may be down — try again later, set your own below, or use a local file.",
+        "cors": "The audio address refused cross-origin reading. Please use a local file.",
+        "notPlayable": "This track cannot be played (VIP, taken down or region-locked). Pick another or use a local file.",
+        "tooLarge": "The audio is over the size limit. Please use a local file.",
+        "timeout": "The request timed out. Try again.",
+        "noLyrics": "This track has no lyrics; your lyrics box was left as it was."
+      },
+      "loadingTitle": "Loading this track…"
+    },
+    "audio": {
+      "local": "Local file",
+      "online": "Online library",
+      "clear": "Remove audio"
     }
   }
 }

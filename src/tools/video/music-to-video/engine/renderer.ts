@@ -24,7 +24,7 @@ import { drawItem } from './draw'
 import { komaOf, stepDur } from './planner'
 import { BG, CAMERA, DECOR, FXE, LAYOUTS, TRANS } from './registry'
 import { drawHUD } from './decor'
-import { DEG, TAU, clamp, lum, r, rs } from './util'
+import { DEG, TAU, clamp, hash, lum, r, rr, rs } from './util'
 
 /** 二分查找：t 落在哪个镜头里 */
 function cutAt(plan: Plan, t: number): Cut | null {
@@ -721,13 +721,13 @@ export class Renderer {
       }
       if (ev.type === 'slice' && S) {
         copy()
-        const n = 6 + (clock24 % 7)
+        const n = 6 + (hash(clock24, 3) % 7)
         let y = 0
         for (let i = 0; i < n && y < ch; i++) {
-          const h = Math.max(2, ch * clamp(-0.06 + 0.12 * r(clock24, i, 1) + 0.06, 0.01, 0.12))
+          const h = Math.max(2, ch * rr(0.01, 0.12, clock24, i, 1))
           const dx = r(clock24, i, 2) < 0.55 ? rs(clock24, i, 3) * cw * 0.06 * ev.amp : 0
           if (dx) ctx.drawImage(S, 0, y, cw, h, dx, y, cw, h)
-          y += h + ch * clamp(r(clock24, i, 4) * 0.08, 0, 0.08)
+          y += h + ch * rr(0, 0.08, clock24, i, 4)
         }
       } else if (ev.type === 'block' && S) {
         copy()

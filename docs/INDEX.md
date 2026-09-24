@@ -12,7 +12,9 @@ docs/
 │   ├── 详细设计文档.md  # 架构、注册表机制、布局、状态、搜索、i18n、SEO
 │   └── 功能介绍文档.md  # 站点功能 + 48 个工具清单
 ├── development/        # 开发过程文档
-│   └── 开发计划.md      # 阶段拆分、批次安排、进度看板
+│   ├── 开发计划.md      # 阶段拆分、批次安排、进度看板
+│   └── 2026-09-24-music-to-video-jizura-parity-audit.md
+│                       # 音乐转视频工具与旧项目 JIZURA 的移植对账审查
 ├── plans/              # 单次功能的设计稿（按日期命名，实现前先评审）
 │   ├── 2026-09-19-github-accelerator-design.md
 │   ├── 2026-09-19-resume-builder-design.md

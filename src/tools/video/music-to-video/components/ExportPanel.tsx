@@ -4,7 +4,7 @@
  * 编码器说明必须异步探测（VideoEncoder.isConfigSupported），
  * 不然用户点了按钮才知道浏览器不支持。
  */
-import { Download, Film, Images } from 'lucide-react'
+import { Download, Film, Images, MonitorPlay } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
 import { Button } from '@/components/ui/button'
@@ -20,6 +20,7 @@ import {
 import { Switch } from '@/components/ui/switch'
 import type { AspectKey, Project } from '../engine/types'
 import type { Quality } from '../engine/export'
+import { TipButton } from './TipButton'
 
 const ASPECTS: readonly AspectKey[] = ['16:9', '9:16', '1:1', '4:5', '21:9', '4:3', '3:4']
 
@@ -28,6 +29,8 @@ type ExportPanelProps = {
   onPatch: (part: Partial<Project>) => void
   quality: Quality
   onQuality: (q: Quality) => void
+  exportPreview: boolean
+  onExportPreview: (on: boolean) => void
   codecNote: string
   canMp4: boolean
   job: { progress: number; text: string } | null
@@ -40,6 +43,8 @@ export function ExportPanel({
   onPatch,
   quality,
   onQuality,
+  exportPreview,
+  onExportPreview,
   codecNote,
   canMp4,
   job,
@@ -105,6 +110,19 @@ export function ExportPanel({
           </Select>
         </div>
       </div>
+
+      <TipButton
+        size="sm"
+        variant={exportPreview ? 'default' : 'outline'}
+        aria-pressed={exportPreview}
+        aria-label={t('actions.exportPreview')}
+        onClick={() => onExportPreview(!exportPreview)}
+        tip={t('hints.exportPreview')}
+        className="w-full"
+      >
+        <MonitorPlay className="size-4" />
+        {t('actions.exportPreview')}
+      </TipButton>
 
       <div className="flex flex-col gap-1">
         <Label className="text-xs font-medium">{t('fields.quality')}</Label>

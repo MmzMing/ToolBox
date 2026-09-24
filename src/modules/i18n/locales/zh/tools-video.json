@@ -10,8 +10,11 @@
       "output": "输出",
       "fx": "强度"
     },
-    "fields": {
+    "cards": {
       "audio": "音频文件",
+      "info": "音乐信息"
+    },
+    "fields": {
       "title": "标题",
       "artist": "作者",
       "lyrics": "歌词",
@@ -58,12 +61,15 @@
       "lyricsSyntax": "支持 LRC 时间戳 [00:12.30]；用 / 手工分镜，*词* 加重音，行尾 ! 表示强调，| 之后写注释；# 开头为注释行",
       "fonts": "上传 ttf / otf / woff2 后，可在字体角色里使用你电脑上的字体",
       "bpmAuto": "分析得到 {{bpm}} BPM，已自动生成节拍网格",
-      "noAudio": "未上传音频时按字数估算时长"
+      "noAudio": "未上传音频时按字数估算时长",
+      "exportPreview": "预览改为按导出的帧率走带：画面停在哪一帧，导出就是哪一帧"
     },
     "actions": {
       "pickAudio": "选择音频",
       "addFont": "添加字体文件",
       "omakase": "一键随机",
+      "exportPreview": "按导出参数预览",
+      "omakaseTip": "整套换掉风格、氛围、动作与配色（快捷键 R）",
       "reseed": "换个种子",
       "exportMp4": "导出 MP4",
       "exportPng": "PNG 序列",
@@ -74,9 +80,15 @@
       "loop": "循环预览",
       "prevCut": "上一个镜头",
       "nextCut": "下一个镜头",
+      "volume": "音量",
+      "mute": "静音",
+      "unmute": "取消静音",
       "prevLook": "上一版方案",
       "nextLook": "下一版方案",
+      "dropLook": "清理当前方案",
+      "clearLooks": "清理全部方案",
       "shuffle": "重抽构成",
+      "shuffleTip": "只重抽构成：换个种子，风格与配色保持不变",
       "tapSync": "按拍点打点",
       "openProject": "打开工程文件",
       "saveProject": "保存工程文件",
@@ -921,7 +933,9 @@
       "layoutAria": "指定构图",
       "startAria": "第 {{line}} 行开始秒",
       "reroll": "重抽这一行",
-      "lock": "锁定该行的构成"
+      "lock": "锁定该行的构成",
+      "layoutSearch": "搜索构图",
+      "noLayoutMatch": "没有匹配的构图"
     },
     "proposal": {
       "palette": "配色",
@@ -1001,7 +1015,8 @@
       "input": "你填入的歌词、曲名与音频的版权仍归各自的权利人；请确认你有权使用它们。",
       "local": "歌词与音频只在你自己的浏览器里处理，不会上传到任何服务器。",
       "engine": "渲染引擎移植自 MIT 许可的开源项目 JIZURA（© 2026 hakoniwa）；MP4 封装用 mp4-muxer（MIT）；界面字体来自 Google Fonts 各书体（SIL OFL 1.1）。",
-      "title": "关于与许可"
+      "title": "关于与许可",
+      "online": "在线曲库是可选功能，默认关闭：开启后，你填的歌单标识会发送给你配置的第三方 Meting 实例，音频与歌词由该服务返回。工具不搭建后端、不缓存音频，发布前请自行确认曲目授权。"
     },
     "ae": {
       "note": "浏览器版新增的 {{subs}} 处表现，已换成 AE 面板里最接近的一件（文字加工、背景图形、运镜与镜头衔接在 AE 版尚未支持）。"
@@ -1016,6 +1031,42 @@
       "timing": "节拍与时间",
       "fonts": "本地字体",
       "snap": "吸附"
+    },
+    "online": {
+      "title": "在线曲库",
+      "enable": "开启在线曲库",
+      "off": "未开启",
+      "ready": "已开启",
+      "hint": "粘贴网易云 / QQ 音乐的歌单或单曲链接，也可以只填歌单 ID。默认关闭，关闭时不发任何请求。载入会把歌词框替换成这首歌的在线 LRC。",
+      "placeholder": "歌单链接或 ID",
+      "fetch": "拉取",
+      "load": "载入这首歌",
+      "fellBack": "自定义实例未响应，已改用内置实例。",
+      "truncated": "歌单较长，仅显示前 {{limit}} 首。",
+      "apiLabel": "接口地址（可选）",
+      "apiPlaceholder": "https://你的实例/meting/",
+      "apiSave": "保存",
+      "apiHint": "留空则依次使用内置公共实例；只填站点地址会自动补全查询参数，填 https 的完整模板也可以。地址只存在你这台设备的浏览器里。",
+      "dialogTitle": "开启在线曲库",
+      "dialogBody": "开启后，你粘贴的链接与歌单 ID 会发送给你配置的第三方 Meting 实例，音频与歌词由该服务直接返回到本浏览器。本工具不搭建后端、不上传你的歌词、不缓存音频；平台直链带签名时效，每次载入都会重新获取。曲目版权仍归权利人，发布前请自行确认授权。",
+      "dialogOk": "我知道了，开启",
+      "dialogCancel": "先不用",
+      "err": {
+        "badLink": "认不出这个链接：请粘贴网易云或 QQ 音乐的歌单 / 单曲地址，或直接填歌单 ID。",
+        "badApi": "接口地址无效：需要以 https:// 开头的完整地址。",
+        "apiDown": "所有接口都没有响应，可能是公共实例暂时失效。稍后再试，或在下方填自己的实例，也可以改用本地文件。",
+        "cors": "音频地址拒绝跨域读取，请改用本地文件。",
+        "notPlayable": "这首放不出来（VIP、下架或地区限制），换一首或改用本地文件。",
+        "tooLarge": "音频超过大小上限，请改用本地文件。",
+        "timeout": "请求超时，请重试。",
+        "noLyrics": "这首歌没有歌词，歌词框保持原样。"
+      },
+      "loadingTitle": "正在载入这首歌…"
+    },
+    "audio": {
+      "local": "本地文件",
+      "online": "在线曲库",
+      "clear": "移除已选音频"
     }
   }
 }

@@ -781,6 +781,12 @@ describe('部件库与 JIZURA 对账', () => {
     expect(EXPECTED[group].filter((k) => !ACTUAL[group].includes(k))).toEqual([])
   })
 
+  it.each(Object.keys(EXPECTED))('%s 分组的顺序逐位一致', (group) => {
+    // 光比对 key 集合不够：planner 的加权抽样是顺序相关的（wpick 逐项累减权重），
+    // 同一批件换个顺序就会抽出别的部件，画面整体跑偏。
+    expect(ACTUAL[group]).toEqual(EXPECTED[group])
+  })
+
   it('总件数与旧项目一致（707 件可随机挑选）', () => {
     expect(Object.values(ACTUAL).reduce((a, v) => a + v.length, 0)).toBe(707)
     for (const [group, keys] of Object.entries(ACTUAL)) {

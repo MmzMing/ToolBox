@@ -20,7 +20,7 @@ import type {
   TransDef,
 } from './types'
 import { ENTER as ENTER_CORE, EXIT as EXIT_CORE, HOLD as HOLD_CORE } from './anim'
-import { DECOR as DECOR_CORE } from './decor'
+import { DECOR as DECOR_CORE, DECOR_ORDER as DECOR_CORE_ORDER } from './decor'
 import { LAYOUTS as LAYOUTS_CORE } from './layouts'
 import { applyMoodTags } from './moods'
 import {
@@ -85,7 +85,17 @@ export const LAYOUTS: Record<string, LayoutDef> = mergeGroup(LAYOUTS_CORE, (p) =
 export const ENTER: Record<string, AnimDef> = mergeGroup(ENTER_CORE, (p) => p.enter)
 export const HOLD: Record<string, AnimDef> = mergeGroup(HOLD_CORE, (p) => p.hold)
 export const EXIT: Record<string, AnimDef> = mergeGroup(EXIT_CORE, (p) => p.exit)
-export const DECOR: Record<string, DecorDef> = mergeGroup(DECOR_CORE, (p) => p.decor)
+/**
+ * 核心装饰必须按 decor.ts 声明的 DECOR_ORDER 排，不能按对象字面量的书写顺序：
+ * planner 的加权抽样是顺序相关的（wpick 逐项累减权重），书写顺序不同就会抽出别的件。
+ */
+const DECOR_CORE_ORDERED: Record<string, DecorDef> = Object.fromEntries(
+  [
+    ...DECOR_CORE_ORDER,
+    ...Object.keys(DECOR_CORE).filter((k) => !DECOR_CORE_ORDER.includes(k)),
+  ].map((k) => [k, DECOR_CORE[k]]),
+)
+export const DECOR: Record<string, DecorDef> = mergeGroup(DECOR_CORE_ORDERED, (p) => p.decor)
 export const TREAT: Record<string, TreatDef> = mergeGroup(TREAT_CORE, (p) => p.treat)
 export const BG: Record<string, BgDef> = mergeGroup(BG_CORE, (p) => p.bg)
 export const CAMERA: Record<string, CamDef> = mergeGroup(CAMERA_CORE, (p) => p.cam)
