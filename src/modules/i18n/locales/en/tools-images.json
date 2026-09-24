@@ -249,6 +249,9 @@
       "needImage": "Add an image to reverse-engineer first",
       "addReference": "Reference",
       "removeReference": "Remove reference",
+      "dropReference": "Drop to add as reference",
+      "dropImage": "Drop to set the image to reverse",
+      "clearAll": "Clear text and images",
       "enableHint": "AI image gen is off: click here to configure a provider and enable it (content goes straight to your API; the key stays local).",
       "configHint": "No usable credentials or model for this provider: open AI settings to fill in a key and pick an image model (only OpenAI and Gemini generate images)."
     },

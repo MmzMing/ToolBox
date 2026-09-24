@@ -1,7 +1,9 @@
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { toast } from 'sonner'
 import {
   ArrowUp,
+  Eraser,
   ImagePlus,
   Images,
   ScanSearch,
@@ -27,6 +29,9 @@ import { SkillPicker } from './SkillPicker'
 
 export type ReferenceImage = { id: string; dataUrl: string; name: string; imageId?: string }
 export type ReverseImage = { dataUrl: string; name: string }
+
+/** 一次生成最多带的参考图张数 */
+const MAX_REFERENCES = 4
 
 type ComposerProps = {
   mode: 'gen' | 'reverse'
@@ -69,6 +74,7 @@ export function Composer(props: ComposerProps) {
   const { t } = useTranslation('tools-images')
   const refFileRef = useRef<HTMLInputElement>(null)
   const reverseFileRef = useRef<HTMLInputElement>(null)
+  const [dropping, setDropping] = useState(false)
 
   const genApi = useAiImageGenStore((state) => state.genApi)
   const visionApi = useAiImageGenStore((state) => state.visionApi)
@@ -79,7 +85,7 @@ export function Composer(props: ComposerProps) {
   const model = genApi.model || DEFAULT_IMAGE_MODEL[genProvider]
 
   const readFiles = async (files: FileList | null, limit: number) => {
-    if (!files?.length) {
+    if (!files?.length || limit <= 0) {
       return []
     }
     const next: ReferenceImage[] = []
@@ -97,6 +103,24 @@ export function Composer(props: ComposerProps) {
     return next.slice(0, limit)
   }
 
+  /** 粘贴与拖拽共用：按当前模式落到参考图列表或反推图 */
+  const takeFiles = (files: FileList | null) => {
+    const limit = mode === 'gen' ? MAX_REFERENCES - references.length : 1
+    void readFiles(files, limit).then((items) => {
+      if (!items.length) {
+        if (files?.length) {
+          toast.error(t('ai-image-gen.canvas.importRejected', { count: files.length }))
+        }
+        return
+      }
+      if (mode === 'gen') {
+        onReferencesChange([...references, ...items].slice(0, MAX_REFERENCES))
+      } else if (items[0]) {
+        onReverseImageChange({ dataUrl: items[0].dataUrl, name: items[0].name })
+      }
+    })
+  }
+
   const canSend = mode === 'gen' ? !!prompt.trim() : !!reverseImage
 
   const handlePaste = (event: React.ClipboardEvent) => {
@@ -107,20 +131,54 @@ export function Composer(props: ComposerProps) {
       return
     }
     event.preventDefault()
-    void readFiles(event.clipboardData.files, mode === 'gen' ? 4 : 1).then((items) => {
-      if (mode === 'gen') {
-        onReferencesChange([...references, ...items].slice(0, 4))
-      } else if (items[0]) {
-        onReverseImageChange({ dataUrl: items[0].dataUrl, name: items[0].name })
-      }
-    })
+    takeFiles(event.clipboardData.files)
+  }
+
+  const draggingFiles = (event: React.DragEvent) =>
+    event.dataTransfer?.types.includes('Files') ?? false
+
+  /** 一键清空：文字、参考图、反推图一起归零，两种模式共用一个入口 */
+  const hasContent = mode === 'gen' ? !!prompt.trim() || references.length > 0 : !!reverseImage
+
+  const clearAll = () => {
+    onPromptChange('')
+    onReferencesChange([])
+    onReverseImageChange(null)
   }
 
   return (
     <div
-      className="bg-card/70 shrink-0 rounded-2xl p-3 shadow-lg backdrop-blur-xl"
+      className="bg-card/70 relative shrink-0 rounded-2xl p-3 shadow-lg backdrop-blur-xl"
       onPaste={handlePaste}
+      onDragOver={(event) => {
+        if (!draggingFiles(event)) {
+          return
+        }
+        event.preventDefault()
+        setDropping(true)
+      }}
+      onDragLeave={(event) => {
+        if (event.currentTarget.contains(event.relatedTarget as Element | null)) {
+          return
+        }
+        setDropping(false)
+      }}
+      onDrop={(event) => {
+        if (!draggingFiles(event)) {
+          return
+        }
+        event.preventDefault()
+        setDropping(false)
+        takeFiles(event.dataTransfer.files)
+      }}
     >
+      {dropping ? (
+        <div className="border-primary/70 bg-primary/5 pointer-events-none absolute inset-1 z-10 flex items-center justify-center rounded-xl border-2 border-dashed">
+          <p className="text-primary text-xs font-medium">
+            {t(`ai-image-gen.composer.drop${mode === 'gen' ? 'Reference' : 'Image'}`)}
+          </p>
+        </div>
+      ) : null}
       {mode === 'gen' ? (
         <>
           {references.length > 0 && (
@@ -265,8 +323,8 @@ export function Composer(props: ComposerProps) {
               multiple
               className="hidden"
               onChange={(event) => {
-                void readFiles(event.target.files, 4).then((items) => {
-                  onReferencesChange([...references, ...items].slice(0, 4))
+                void readFiles(event.target.files, MAX_REFERENCES).then((items) => {
+                  onReferencesChange([...references, ...items].slice(0, MAX_REFERENCES))
                   if (refFileRef.current) {
                     refFileRef.current.value = ''
                   }
@@ -286,6 +344,20 @@ export function Composer(props: ComposerProps) {
             </BarTooltip>
           </>
         )}
+
+        {hasContent ? (
+          <BarTooltip label={t('ai-image-gen.composer.clearAll')}>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="text-muted-foreground hover:text-foreground size-8"
+              aria-label={t('ai-image-gen.composer.clearAll')}
+              onClick={clearAll}
+            >
+              <Eraser className="size-4" />
+            </Button>
+          </BarTooltip>
+        ) : null}
 
         <div className="flex-1" />
 

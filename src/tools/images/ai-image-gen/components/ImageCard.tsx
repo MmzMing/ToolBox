@@ -72,29 +72,29 @@ export function ImageCard({
   }
 
   return (
-    <div className="group bg-muted/40 relative overflow-hidden rounded-lg border">
-      <button type="button" className="block w-full" onClick={handleClick}>
+    <div className="group bg-muted/40 relative h-full overflow-hidden rounded-lg border">
+      <button type="button" className="block h-full w-full" onClick={handleClick}>
         {record && src ? (
           <img
             src={src}
             alt={record.meta.prompt}
             draggable={false}
-            className="w-full object-cover"
+            className="h-full w-full object-contain"
           />
         ) : status === 'failed' ? (
-          <div className="flex min-h-40 flex-col items-center justify-center gap-2 p-4 text-center">
+          <div className="flex h-full min-h-24 flex-col items-center justify-center gap-2 p-4 text-center">
             <AlertTriangle className="text-destructive size-5" />
             <p className="text-muted-foreground text-xs">
               {errorCode ? t(`ai-image-gen.errors.${errorCode}`) : t('ai-image-gen.errors.unknown')}
             </p>
           </div>
         ) : status === 'cancelled' ? (
-          <div className="flex min-h-40 flex-col items-center justify-center gap-2 p-4 text-center">
+          <div className="flex h-full min-h-24 flex-col items-center justify-center gap-2 p-4 text-center">
             <Ban className="text-muted-foreground size-5" />
             <p className="text-muted-foreground text-xs">{t('ai-image-gen.card.cancelled')}</p>
           </div>
         ) : (
-          <div className="flex min-h-40 flex-col items-center justify-center gap-2 p-4">
+          <div className="relative flex h-full min-h-24 flex-col items-center justify-center gap-2 p-4">
             <Skeleton className="absolute inset-0 animate-pulse rounded-none" />
             <Loader2 className="text-muted-foreground relative size-5 animate-spin" />
             <p className="text-muted-foreground relative text-xs">

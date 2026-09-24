@@ -3,7 +3,13 @@ import { describe, expect, it } from 'vitest'
 import {
   aspectRatioOf,
   buildCanvasGraph,
+  CANVAS_NODE_MAX_HEIGHT,
+  CANVAS_NODE_MAX_WIDTH,
+  CANVAS_NODE_MIN_HEIGHT,
+  CANVAS_NODE_MIN_WIDTH,
+  CANVAS_PROMPT_MAX_HEIGHT,
   CANVAS_TEXT_LIMIT,
+  clampCanvasSize,
   composePromptText,
   findFreeSlot,
   LEGACY_WORKSPACE_ID,
@@ -171,9 +177,39 @@ describe('normalizeCanvasNode', () => {
       text: 'a cat',
       refs: ['01IMG'],
       chain: [],
+      width: null,
+      height: null,
       createdAt: 1700000000000,
     })
     expect(normalizeCanvasNode({ nodeId: 'p:1', workspaceId: 'W7' })?.workspaceId).toBe('W7')
+  })
+
+  it('rounds a manual size and caps it per node kind', () => {
+    expect(normalizeCanvasNode({ nodeId: 'a', width: 300.6, height: 200.4 })).toMatchObject({
+      width: 301,
+      height: 200,
+    })
+    // 提示词节点的高度封顶，图片节点不封
+    expect(normalizeCanvasNode({ nodeId: 'p:a', width: 300, height: 9999 })?.height).toBe(
+      CANVAS_PROMPT_MAX_HEIGHT,
+    )
+    expect(normalizeCanvasNode({ nodeId: 'a', width: 9999, height: 9999 })).toMatchObject({
+      width: CANVAS_NODE_MAX_WIDTH,
+      height: CANVAS_NODE_MAX_HEIGHT,
+    })
+    expect(normalizeCanvasNode({ nodeId: 'a', width: 1, height: 1 })).toMatchObject({
+      width: CANVAS_NODE_MIN_WIDTH,
+      height: CANVAS_NODE_MIN_HEIGHT,
+    })
+  })
+
+  it('drops a half specified or non finite size back to the default box', () => {
+    expect(normalizeCanvasNode({ nodeId: 'a', width: 300 })?.width).toBeNull()
+    expect(normalizeCanvasNode({ nodeId: 'a', height: 300 })?.height).toBeNull()
+    expect(normalizeCanvasNode({ nodeId: 'a', width: '300', height: Number.NaN })).toMatchObject({
+      width: null,
+      height: null,
+    })
   })
 
   it('drops non finite coordinates back to auto layout', () => {
@@ -216,6 +252,28 @@ describe('normalizeCanvasNode', () => {
   })
 })
 
+describe('clampCanvasSize', () => {
+  it('keeps an in-range size and rounds it', () => {
+    expect(clampCanvasSize('a', 320, 180.6)).toEqual({ width: 320, height: 181 })
+  })
+
+  it('caps prompt nodes lower than image nodes', () => {
+    expect(clampCanvasSize('p:a', 400, 4000).height).toBe(CANVAS_PROMPT_MAX_HEIGHT)
+    expect(clampCanvasSize('a', 400, 4000).height).toBe(CANVAS_NODE_MAX_HEIGHT)
+  })
+
+  it('clamps both axes to the shared bounds', () => {
+    expect(clampCanvasSize('a', -100, -100)).toEqual({
+      width: CANVAS_NODE_MIN_WIDTH,
+      height: CANVAS_NODE_MIN_HEIGHT,
+    })
+    expect(clampCanvasSize('p:a', 1e6, 1e6)).toEqual({
+      width: CANVAS_NODE_MAX_WIDTH,
+      height: CANVAS_PROMPT_MAX_HEIGHT,
+    })
+  })
+})
+
 const img = (
   id: string,
   jobId: string,
@@ -237,6 +295,8 @@ const overlay = (nodeId: string, over: Partial<CanvasNodeRecord> = {}): CanvasNo
   text: null,
   refs: [],
   chain: [],
+  width: null,
+  height: null,
   createdAt: null,
   ...over,
 })
@@ -322,6 +382,19 @@ describe('buildCanvasGraph', () => {
     expect(graph.edges.filter((edge) => edge.kind === 'reference')).toEqual([])
     const prompt = graph.nodes.find((node) => node.id === 'p:J')
     expect(prompt?.kind === 'prompt' && prompt.refs).toEqual(['ghost', 'own'])
+  })
+
+  it('applies a manual size to both node kinds', () => {
+    const graph = buildCanvasGraph(
+      [img('a', 'J', { ratio: 2 }), img('b', 'J')],
+      [
+        overlay('p:J', { text: 't', width: 400, height: 300 }),
+        overlay('a', { x: 10, y: 10, width: 120 }),
+      ],
+    )
+    expect(graph.nodes.find((node) => node.id === 'p:J')).toMatchObject({ width: 400, height: 300 })
+    // 图片只改宽度时，高度按原比例重算
+    expect(graph.nodes.find((node) => node.id === 'a')).toMatchObject({ width: 120, height: 60 })
   })
 
   it('keeps pinned coordinates and places the rest without overlapping', () => {

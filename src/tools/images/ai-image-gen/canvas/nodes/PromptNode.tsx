@@ -1,4 +1,4 @@
-import { Handle, Position, type Node, type NodeProps } from '@xyflow/react'
+import { Handle, NodeResizeControl, Position, type Node, type NodeProps } from '@xyflow/react'
 import { AlertTriangle, Loader2, Sparkles, Trash2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
@@ -6,9 +6,23 @@ import { Button } from '@/components/ui/button'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { Textarea } from '@/components/ui/textarea'
 
-import { MAX_CANVAS_REFS, type GenParams } from '../../ai-image-gen.service'
+import {
+  CANVAS_NODE_MAX_WIDTH,
+  CANVAS_NODE_MIN_HEIGHT,
+  CANVAS_NODE_MIN_WIDTH,
+  CANVAS_PROMPT_MAX_HEIGHT,
+  MAX_CANVAS_REFS,
+  type GenParams,
+} from '../../ai-image-gen.service'
 import { ParamBar } from '../../components/ParamBar'
 import type { JobStatus } from '../../store'
+
+/** 松手时回写的尺寸与当前位置 */
+type ResizeHandler = (
+  nodeId: string,
+  size: { width: number; height: number },
+  position: { x: number; y: number },
+) => void
 
 export type PromptNodeData = {
   nodeId: string
@@ -26,6 +40,7 @@ export type PromptNodeData = {
   onRetry: (jobId: string) => void
   onDelete: (nodeId: string) => void
   onParamsChange: (patch: Partial<GenParams>) => void
+  onResize: ResizeHandler
 }
 
 export type PromptRfNode = Node<PromptNodeData, 'prompt'>
@@ -51,7 +66,7 @@ export function PromptNode({ data }: NodeProps<PromptRfNode>) {
         defaultValue={data.text}
         placeholder={t('ai-image-gen.promptNode.placeholder')}
         onBlur={(event) => commit(event.currentTarget.value)}
-        className="nodrag nowheel min-h-16 w-full flex-1 resize-none border-0 bg-transparent px-2.5 pt-2 text-xs shadow-none focus-visible:ring-0 dark:bg-transparent"
+        className="nodrag nowheel min-h-16 w-full flex-1 resize-none overflow-y-auto border-0 bg-transparent px-2.5 pt-2 text-xs shadow-none focus-visible:ring-0 dark:bg-transparent"
       />
 
       <div className="flex shrink-0 items-center gap-1.5 border-t px-2 py-1.5">
@@ -146,6 +161,19 @@ export function PromptNode({ data }: NodeProps<PromptRfNode>) {
       ) : null}
 
       <Handle type="source" position={Position.Right} />
+
+      <NodeResizeControl
+        position="bottom-right"
+        color="transparent"
+        className="canvas-resize-handle"
+        minWidth={CANVAS_NODE_MIN_WIDTH}
+        maxWidth={CANVAS_NODE_MAX_WIDTH}
+        minHeight={CANVAS_NODE_MIN_HEIGHT}
+        maxHeight={CANVAS_PROMPT_MAX_HEIGHT}
+        onResizeEnd={(_event, { width, height, x, y }) =>
+          data.onResize(data.nodeId, { width, height }, { x, y })
+        }
+      />
     </div>
   )
 }

@@ -123,6 +123,9 @@ export type CanvasNodeRecord = {
   refs: string[]
   /** 入边：上游提示词节点 id，生成时按链路顺序拼合 */
   chain: string[]
+  /** 手工缩放的尺寸；null = 用该类型节点的默认尺寸 */
+  width: number | null
+  height: number | null
   createdAt: number | null
 }
 
@@ -161,6 +164,10 @@ export function normalizeCanvasNode(raw: unknown): CanvasNodeRecord | null {
         ),
       ]
     : []
+  const width = coord(source.width)
+  const height = coord(source.height)
+  const size =
+    width !== null && height !== null ? clampCanvasSize(source.nodeId, width, height) : null
   return {
     nodeId: source.nodeId,
     workspaceId:
@@ -172,6 +179,8 @@ export function normalizeCanvasNode(raw: unknown): CanvasNodeRecord | null {
     text: typeof source.text === 'string' ? source.text.slice(0, CANVAS_TEXT_LIMIT) : null,
     refs,
     chain,
+    width: size?.width ?? null,
+    height: size?.height ?? null,
     createdAt:
       typeof source.createdAt === 'number' && Number.isFinite(source.createdAt)
         ? source.createdAt
@@ -196,6 +205,24 @@ export const CANVAS_PROMPT_HEIGHT = 150
 export const CANVAS_GAP_X = 96
 export const CANVAS_GAP_Y = 24
 export const CANVAS_ORIGIN_Y = 0
+
+/** 手工缩放的范围：宽度两端共用，提示词节点的高度必须封顶，否则长文本会把画布拉爆 */
+export const CANVAS_NODE_MIN_WIDTH = 160
+export const CANVAS_NODE_MAX_WIDTH = 720
+export const CANVAS_NODE_MIN_HEIGHT = 120
+export const CANVAS_NODE_MAX_HEIGHT = 720
+export const CANVAS_PROMPT_MAX_HEIGHT = 560
+
+const clamp = (value: number, min: number, max: number) => Math.min(Math.max(value, min), max)
+
+/** 缩放手柄松手后的落库值：按节点类型夹紧并取整，图片节点的高度上限跟着宽度走 */
+export function clampCanvasSize(nodeId: string, width: number, height: number) {
+  const maxHeight = nodeId.startsWith('p:') ? CANVAS_PROMPT_MAX_HEIGHT : CANVAS_NODE_MAX_HEIGHT
+  return {
+    width: Math.round(clamp(width, CANVAS_NODE_MIN_WIDTH, CANVAS_NODE_MAX_WIDTH)),
+    height: Math.round(clamp(height, CANVAS_NODE_MIN_HEIGHT, maxHeight)),
+  }
+}
 
 /** 一次生成 = 一个 prompt 节点，id 直接由 jobId 派生，位置与入边因此零重映射 */
 export const promptNodeIdOf = (jobId: string): string => `p:${jobId}`
@@ -252,8 +279,8 @@ export type CanvasGraph = {
 const boxIntersects = (a: CanvasBox, b: CanvasBox): boolean =>
   a.x < b.x + b.width && a.x + a.width > b.x && a.y < b.y + b.height && a.y + a.height > b.y
 
-const imageHeightOf = (ratio: number): number =>
-  Math.round(ratio > 0 ? CANVAS_IMAGE_WIDTH / ratio : CANVAS_IMAGE_WIDTH)
+const imageHeightOf = (ratio: number, width: number): number =>
+  Math.round(ratio > 0 ? width / ratio : width)
 
 const SLOT_PROBE_LIMIT = 400
 
@@ -393,6 +420,7 @@ export function buildCanvasGraph(
   for (const image of images) {
     const record = overlayById.get(image.id)
     const pinned = record?.x != null && record?.y != null
+    const width = record?.width ?? CANVAS_IMAGE_WIDTH
     nodes.push({
       kind: 'image',
       id: image.id,
@@ -402,8 +430,8 @@ export function buildCanvasGraph(
       ratio: image.ratio,
       x: pinned ? (record?.x as number) : 0,
       y: pinned ? (record?.y as number) : 0,
-      width: CANVAS_IMAGE_WIDTH,
-      height: imageHeightOf(image.ratio),
+      width,
+      height: record?.height ?? imageHeightOf(image.ratio, width),
       pinned,
     })
   }
@@ -423,8 +451,8 @@ export function buildCanvasGraph(
       createdAt: record?.createdAt ?? first?.createdAt ?? 0,
       x: pinned ? (record?.x as number) : 0,
       y: pinned ? (record?.y as number) : 0,
-      width: CANVAS_PROMPT_WIDTH,
-      height: CANVAS_PROMPT_HEIGHT,
+      width: record?.width ?? CANVAS_PROMPT_WIDTH,
+      height: record?.height ?? CANVAS_PROMPT_HEIGHT,
       persisted: record?.text != null,
       pinned,
     })

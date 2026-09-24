@@ -249,6 +249,9 @@
       "needImage": "先上传一张要反推的图片",
       "addReference": "参考图",
       "removeReference": "移除参考图",
+      "dropReference": "松手即添加为参考图",
+      "dropImage": "松手即作为反推图片",
+      "clearAll": "清空文字与图片",
       "enableHint": "AI 生图未开启：点击这里配置服务商并开启（内容直连你配置的 API，key 只存本地）。",
       "configHint": "当前厂商缺少可用凭证或模型：请到 AI 设置填写 key / 选择出图模型（仅 OpenAI 与 Gemini 支持出图）。"
     },

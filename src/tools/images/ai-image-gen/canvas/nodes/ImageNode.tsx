@@ -1,16 +1,27 @@
-import { Handle, Position, type Node, type NodeProps } from '@xyflow/react'
+import { Handle, NodeResizeControl, Position, type Node, type NodeProps } from '@xyflow/react'
 import type { ComponentProps } from 'react'
 
+import {
+  CANVAS_NODE_MAX_HEIGHT,
+  CANVAS_NODE_MAX_WIDTH,
+  CANVAS_NODE_MIN_HEIGHT,
+  CANVAS_NODE_MIN_WIDTH,
+} from '../../ai-image-gen.service'
 import { ImageCard } from '../../components/ImageCard'
 
 export type ImageNodeData = {
   card: ComponentProps<typeof ImageCard>
+  onResize: (
+    nodeId: string,
+    size: { width: number; height: number },
+    position: { x: number; y: number },
+  ) => void
 }
 
 export type ImageRfNode = Node<ImageNodeData, 'image'>
 
 /** 图片节点：卡片本体照搬，左侧 target 只承接派生的产出入边，右侧 source 才允许用户拖出 */
-export function ImageNode({ data }: NodeProps<ImageRfNode>) {
+export function ImageNode({ id, data }: NodeProps<ImageRfNode>) {
   return (
     <>
       <ImageCard {...data.card} />
@@ -22,6 +33,20 @@ export function ImageNode({ data }: NodeProps<ImageRfNode>) {
         className="pointer-events-none opacity-0"
       />
       <Handle type="source" position={Position.Right} />
+      {/* 等比缩放：只改显示尺寸，不裁剪也不拉伸 */}
+      <NodeResizeControl
+        position="bottom-right"
+        color="transparent"
+        className="canvas-resize-handle"
+        keepAspectRatio
+        minWidth={CANVAS_NODE_MIN_WIDTH}
+        maxWidth={CANVAS_NODE_MAX_WIDTH}
+        minHeight={CANVAS_NODE_MIN_HEIGHT}
+        maxHeight={CANVAS_NODE_MAX_HEIGHT}
+        onResizeEnd={(_event, { width, height, x, y }) =>
+          data.onResize(id, { width, height }, { x, y })
+        }
+      />
     </>
   )
 }

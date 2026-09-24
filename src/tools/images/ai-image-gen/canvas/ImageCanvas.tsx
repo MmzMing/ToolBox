@@ -57,6 +57,7 @@ import {
   moveCanvasNode,
   removeCanvasImage,
   renamePromptNode,
+  resizeCanvasNode,
   retryJob,
   submitCanvasGeneration,
 } from '../orchestrator'
@@ -249,6 +250,18 @@ export function ImageCanvas(props: ImageCanvasProps) {
     void deleteJobImages(jobIdOfPromptNode(nodeId))
   }, [])
 
+  /** 松手即落库：尺寸连同当前位置一起写，否则未钉位的节点会被自动布局按新尺寸挪走 */
+  const handleResize = useCallback(
+    (
+      nodeId: string,
+      size: { width: number; height: number },
+      position: { x: number; y: number },
+    ) => {
+      void resizeCanvasNode(nodeId, size, position)
+    },
+    [],
+  )
+
   const linkProblem = useCallback(
     (source: string | null | undefined, target: string | null | undefined): LinkProblem | null => {
       const from = source ? graph.nodes.find((node) => node.id === source) : undefined
@@ -291,7 +304,8 @@ export function ImageCanvas(props: ImageCanvasProps) {
             type: 'image',
             deletable: false,
             position,
-            style: { width: node.width },
+            width: node.width,
+            height: node.height,
             data: {
               card: {
                 item,
@@ -302,6 +316,7 @@ export function ImageCanvas(props: ImageCanvasProps) {
                 onRemix,
                 onDelete: () => handleDeleteImage(node.id),
               },
+              onResize: handleResize,
             },
           })
           continue
@@ -313,7 +328,8 @@ export function ImageCanvas(props: ImageCanvasProps) {
           type: 'prompt',
           deletable: false,
           position,
-          style: { width: node.width, height: node.height },
+          width: node.width,
+          height: node.height,
           data: {
             nodeId: node.id,
             jobId: node.jobId,
@@ -331,6 +347,7 @@ export function ImageCanvas(props: ImageCanvasProps) {
             onRetry: retryJob,
             onDelete: handleDeletePrompt,
             onParamsChange,
+            onResize: handleResize,
           },
         })
       }
@@ -350,6 +367,7 @@ export function ImageCanvas(props: ImageCanvasProps) {
     handleGenerate,
     handleDeletePrompt,
     onParamsChange,
+    handleResize,
   ])
 
   useEffect(() => {

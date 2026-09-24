@@ -21,6 +21,7 @@ import {
   buildCanvasGraph,
   CANVAS_GAP_X,
   CANVAS_IMAGE_WIDTH,
+  clampCanvasSize,
   composePromptText,
   defaultGenParams,
   jobIdOfPromptNode,
@@ -320,6 +321,8 @@ const overlayRecord = (
     text: null,
     refs: [],
     chain: [],
+    width: null,
+    height: null,
     createdAt,
     ...patch,
   }
@@ -386,6 +389,26 @@ export async function moveCanvasNode(nodeId: string, x: number, y: number) {
     overlayRecord(
       nodeId,
       { ...existing, x: Math.round(x), y: Math.round(y) },
+      existing?.createdAt ?? Date.now(),
+    ),
+  )
+}
+
+/**
+ * 缩放一个节点：尺寸与位置一起落库。
+ * 未钉位的节点会被自动布局按尺寸重排，所以缩放的同时把当前位置钉住，否则松手就跳走。
+ */
+export async function resizeCanvasNode(
+  nodeId: string,
+  size: { width: number; height: number },
+  position: { x: number; y: number },
+) {
+  const existing = useAiImageGenStore.getState().overlays.find((item) => item.nodeId === nodeId)
+  const { width, height } = clampCanvasSize(nodeId, size.width, size.height)
+  return saveOverlay(
+    overlayRecord(
+      nodeId,
+      { ...existing, width, height, x: Math.round(position.x), y: Math.round(position.y) },
       existing?.createdAt ?? Date.now(),
     ),
   )
