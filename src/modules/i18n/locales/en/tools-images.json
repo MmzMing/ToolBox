@@ -359,27 +359,15 @@
     },
     "workspace": {
       "new": "New workspace",
-      "newDescription": "Group one line of exploration on a canvas",
-      "delete": "Delete workspace",
+      "close": "Close workspace",
+      "autoName": "Workspace {{number}}",
+      "untitled": "Untitled workspace",
+      "running": "{{count}} running",
+      "imageCount": "{{count}} images",
       "deleteConfirmTitle": "Delete this workspace?",
       "deleteConfirmDesc": "“{{name}}” and its {{count}} images will be deleted. This cannot be undone.",
       "deleteConfirmAction": "Delete",
-      "untitled": "Untitled workspace",
-      "noDescription": "No description",
-      "running": "{{count}} running",
-      "jobCount": "{{count}} generations",
-      "imageCount": "{{count}} images",
-      "createTitle": "New workspace",
-      "createHint": "Each workspace is its own canvas — images, links and prompt chains stay independent.",
-      "nameLabel": "Name",
-      "namePlaceholder": "Leave blank to call it “Untitled workspace”",
-      "descLabel": "Description (optional)",
-      "descPlaceholder": "What are these images for? Style, use case, audience…",
-      "create": "Create and open",
       "cancel": "Cancel"
-    },
-    "dock": {
-      "back": "Back to workspace"
     },
     "canvas": {
       "empty": "The canvas is empty. Generate an image, or add a prompt node and link existing images into it to generate right there.",

@@ -4,6 +4,10 @@ import {
   aspectRatioOf,
   boundingBoxOf,
   buildCanvasGraph,
+  buildCanvasMap,
+  canvasMapBox,
+  CANVAS_IMAGE_WIDTH,
+  CANVAS_MAP_LIMIT,
   CANVAS_NODE_MAX_HEIGHT,
   CANVAS_NODE_MAX_WIDTH,
   CANVAS_NODE_MIN_HEIGHT,
@@ -17,8 +21,10 @@ import {
   insertReferenceMention,
   LEGACY_WORKSPACE_ID,
   MAX_MENTIONS,
+  nextWorkspaceNumber,
   normalizeCanvasNode,
   normalizeGenParams,
+  normalizeWorkspace,
   openaiSizeFor,
   parsePromptCandidates,
   parseReferenceMentions,
@@ -26,6 +32,7 @@ import {
   remapReferenceMentions,
   summarizeWorkspaces,
   toImageRequestParams,
+  WORKSPACE_NAME_LIMIT,
   wouldCreateCycle,
   zipReferenceMentions,
   type CanvasBox,
@@ -748,7 +755,7 @@ describe('summarizeWorkspaces', () => {
   const ws = (id: string, over: Partial<WorkspaceInput> = {}): WorkspaceInput => ({
     id,
     name: `name ${id}`,
-    description: '',
+    map: [],
     createdAt: 1000,
     updatedAt: 2000,
     ...over,
@@ -798,5 +805,103 @@ describe('summarizeWorkspaces', () => {
       'B',
       'A',
     ])
+  })
+})
+
+describe('buildCanvasMap', () => {
+  it('rounds coordinates and falls back to the default node size', () => {
+    expect(buildCanvasMap([{ x: 12.4, y: -8.6 }])).toEqual([
+      { x: 12, y: -9, width: CANVAS_IMAGE_WIDTH, height: CANVAS_IMAGE_WIDTH },
+    ])
+  })
+
+  it('drops entries without usable coordinates so the svg viewBox stays finite', () => {
+    expect(
+      buildCanvasMap([
+        { x: Number.NaN, y: 0 },
+        { x: 0, y: '2' },
+        { x: 5, y: 5, width: 240, height: 150 },
+      ]),
+    ).toEqual([{ x: 5, y: 5, width: 240, height: 150 }])
+  })
+
+  it('treats anything but an array as an empty map', () => {
+    expect(buildCanvasMap(null)).toEqual([])
+    expect(buildCanvasMap('legacy row')).toEqual([])
+  })
+
+  it('caps the snapshot so a crowded canvas cannot bloat the record', () => {
+    const nodes = Array.from({ length: CANVAS_MAP_LIMIT + 30 }, (_, index) => ({
+      x: index,
+      y: index,
+    }))
+    expect(buildCanvasMap(nodes)).toHaveLength(CANVAS_MAP_LIMIT)
+  })
+})
+
+describe('canvasMapBox', () => {
+  it('returns null for an empty map so the tile can show a placeholder', () => {
+    expect(canvasMapBox([])).toBeNull()
+  })
+
+  it('wraps the union of the rects with padding on every side', () => {
+    expect(
+      canvasMapBox([
+        { x: 0, y: 0, width: 100, height: 100 },
+        { x: 300, y: 200, width: 100, height: 100 },
+      ]),
+    ).toEqual({ x: -48, y: -48, width: 496, height: 396 })
+  })
+
+  it('keeps a minimum padding so a single node is not blown up to fill the tile', () => {
+    expect(canvasMapBox([{ x: 0, y: 0, width: 10, height: 10 }])).toEqual({
+      x: -48,
+      y: -48,
+      width: 106,
+      height: 106,
+    })
+  })
+})
+
+describe('normalizeWorkspace', () => {
+  it('rebuilds the map field records saved before thumbnails existed', () => {
+    expect(normalizeWorkspace({ id: 'A', name: 'A', createdAt: 1, updatedAt: 2 })).toEqual({
+      id: 'A',
+      name: 'A',
+      map: [],
+      createdAt: 1,
+      updatedAt: 2,
+    })
+  })
+
+  it('rejects rows without a usable id', () => {
+    expect(normalizeWorkspace({ name: 'x' })).toBeNull()
+    expect(normalizeWorkspace(null)).toBeNull()
+  })
+
+  it('clamps an oversized name and replaces broken timestamps', () => {
+    const record = normalizeWorkspace({
+      id: 'A',
+      name: '字'.repeat(WORKSPACE_NAME_LIMIT + 40),
+      createdAt: 'nope',
+      updatedAt: null,
+    })
+    expect(record?.name).toHaveLength(WORKSPACE_NAME_LIMIT)
+    expect(record && record.createdAt > 0).toBe(true)
+    expect(record && record.updatedAt > 0).toBe(true)
+  })
+})
+
+describe('nextWorkspaceNumber', () => {
+  it('starts at one when nothing is around yet', () => {
+    expect(nextWorkspaceNumber([])).toBe(1)
+  })
+
+  it('follows the largest trailing number instead of the list size', () => {
+    expect(nextWorkspaceNumber(['工作区1', '工作区7', '草稿'])).toBe(8)
+  })
+
+  it('ignores digits that sit anywhere but the end of the name', () => {
+    expect(nextWorkspaceNumber(['2024 年度'])).toBe(1)
   })
 })

@@ -4,8 +4,10 @@ import type { StorageStat } from '@/utils/lru'
 import {
   LEGACY_WORKSPACE_ID,
   normalizeCanvasNode,
+  normalizeWorkspace,
   type CanvasNodeRecord,
   type GenParams,
+  type WorkspaceInput,
 } from './ai-image-gen.service'
 
 export type ImageMeta = {
@@ -33,13 +35,7 @@ export type ImageRecord = {
   meta: ImageMeta
 }
 
-export type WorkspaceRecord = {
-  id: string
-  name: string
-  description: string
-  createdAt: number
-  updatedAt: number
-}
+export type WorkspaceRecord = WorkspaceInput
 
 export type PromptEntry = {
   id: string
@@ -257,7 +253,10 @@ export async function listWorkspaces(): Promise<WorkspaceRecord[]> {
         resolve(out)
         return
       }
-      out.push(cursor.value as WorkspaceRecord)
+      const record = normalizeWorkspace(cursor.value)
+      if (record) {
+        out.push(record)
+      }
       cursor.continue()
     }
   })

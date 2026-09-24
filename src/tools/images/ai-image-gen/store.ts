@@ -9,7 +9,7 @@ import {
 } from '@/modules/ai/providers'
 import type { ImageUsage } from '@/modules/ai/transport'
 
-import { type CanvasNodeRecord, type GenParams } from './ai-image-gen.service'
+import { type CanvasMapRect, type CanvasNodeRecord, type GenParams } from './ai-image-gen.service'
 import type { ImageRecord, PromptEntry, WorkspaceRecord } from './idb'
 import { BUILTIN_SKILLS, mergeSkills, type Skill } from './skills'
 
@@ -129,6 +129,7 @@ type AiImageGenState = {
   setWorkspaces: (records: WorkspaceRecord[]) => void
   setImageOwners: (owners: { workspaceId?: string; jobId: string }[]) => void
   upsertWorkspace: (record: WorkspaceRecord) => void
+  patchWorkspaceMap: (id: string, map: CanvasMapRect[]) => void
   dropWorkspace: (id: string) => void
   setActiveWorkspace: (id: string | null) => void
 
@@ -255,13 +256,20 @@ export const useAiImageGenStore = create<AiImageGenState>()(
         set((state) => ({
           workspaces: [record, ...state.workspaces.filter((item) => item.id !== record.id)],
         })),
+      /** 只换地图快照，顺序与原地位都不动：快照落库不代表用户又动过这个工作区 */
+      patchWorkspaceMap: (id, map) =>
+        set((state) => ({
+          workspaces: state.workspaces.map((item) => (item.id === id ? { ...item, map } : item)),
+        })),
       dropWorkspace: (id) =>
         set((state) => ({
           workspaces: state.workspaces.filter((item) => item.id !== id),
           activeWorkspaceId: state.activeWorkspaceId === id ? null : state.activeWorkspaceId,
           selectedImageIds: state.activeWorkspaceId === id ? [] : state.selectedImageIds,
         })),
-      setActiveWorkspace: (id) => set({ activeWorkspaceId: id, selectedImageIds: [] }),
+      /** 切区即清视口：视口是全局一份，留着上一区的坐标会让新工作区看着像张空画布 */
+      setActiveWorkspace: (id) =>
+        set({ activeWorkspaceId: id, selectedImageIds: [], viewport: null }),
       setOverlays: (records) => set({ overlays: records }),
       upsertOverlay: (record) =>
         set((state) => ({

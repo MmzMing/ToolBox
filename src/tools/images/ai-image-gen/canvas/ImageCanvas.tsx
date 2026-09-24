@@ -36,6 +36,7 @@ import {
   referenceLabelAt,
   wouldCreateCycle,
   type CanvasImageInput,
+  type CanvasMapInput,
   type GenParams,
   type NodeBounds,
 } from '../ai-image-gen.service'
@@ -55,6 +56,7 @@ import {
   renamePromptNode,
   resizeCanvasNode,
   retryJob,
+  saveWorkspaceMap,
   submitCanvasGeneration,
 } from '../orchestrator'
 import { useAiImageGenStore, type Job, type JobSlot } from '../store'
@@ -75,6 +77,9 @@ type RfNode = ImageRfNode | PromptRfNode
 
 /** 左键行为：框选，或拖拽平移 */
 export type CanvasInteraction = 'select' | 'pan'
+
+/** 地图快照的防抖窗口：拖动途中每帧都在变，要落的是松手后的最终形状 */
+const MAP_SNAPSHOT_DELAY_MS = 900
 
 /** 右键菜单的落点：screen 用于定位菜单，flow 用于放新节点 */
 type ContextMenuState = {
@@ -123,6 +128,7 @@ export function ImageCanvas(props: ImageCanvasProps) {
   const created = useRef(0)
 
   const overlays = useAiImageGenStore((state) => state.overlays)
+  const activeWorkspaceId = useAiImageGenStore((state) => state.activeWorkspaceId)
   const viewport = useAiImageGenStore((state) => state.viewport)
   const setViewport = useAiImageGenStore((state) => state.setViewport)
   const setSelected = useAiImageGenStore((state) => state.setSelected)
@@ -597,6 +603,47 @@ export function ImageCanvas(props: ImageCanvasProps) {
     fitted.current = true
     void instance.fitView({ padding: 0.15, duration: 600 })
   }, [graph, instance, viewport])
+
+  /**
+   * 地图快照：静止一会儿落一次，切走时再补落最后一帧。
+   * id 与矩形一起存进 ref，否则补落时活动区已经换成下一个，上一区的布局会写错地方。
+   * historyLoaded 之前不落：首屏节点还没进来，那一份空布局会把上一轮的快照冲掉。
+   */
+  const historyLoaded = useAiImageGenStore((state) => state.historyLoaded)
+  const mapRects = useMemo<CanvasMapInput[]>(
+    () =>
+      rfNodes.map((node) => ({
+        x: node.position.x,
+        y: node.position.y,
+        width: node.width ?? node.measured?.width,
+        height: node.height ?? node.measured?.height,
+      })),
+    [rfNodes],
+  )
+  const pendingMap = useRef<{ workspaceId: string; rects: CanvasMapInput[] } | null>(null)
+
+  useEffect(() => {
+    if (!activeWorkspaceId || !historyLoaded) {
+      return
+    }
+    pendingMap.current = { workspaceId: activeWorkspaceId, rects: mapRects }
+    const timer = setTimeout(() => {
+      pendingMap.current = null
+      void saveWorkspaceMap(activeWorkspaceId, mapRects)
+    }, MAP_SNAPSHOT_DELAY_MS)
+    return () => clearTimeout(timer)
+  }, [mapRects, activeWorkspaceId, historyLoaded])
+
+  useEffect(
+    () => () => {
+      const pending = pendingMap.current
+      if (pending) {
+        pendingMap.current = null
+        void saveWorkspaceMap(pending.workspaceId, pending.rects)
+      }
+    },
+    [],
+  )
 
   return (
     <div

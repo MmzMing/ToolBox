@@ -359,27 +359,15 @@
     },
     "workspace": {
       "new": "新建工作区",
-      "newDescription": "把同一批探索放进一张画布",
-      "delete": "删除工作区",
+      "close": "关闭工作区",
+      "autoName": "工作区{{number}}",
+      "untitled": "未命名工作区",
+      "running": "{{count}} 个进行中",
+      "imageCount": "{{count}} 张图",
       "deleteConfirmTitle": "删除这个工作区？",
       "deleteConfirmDesc": "「{{name}}」及其中的 {{count}} 张图片会一并删除，此操作不可撤销。",
       "deleteConfirmAction": "删除",
-      "untitled": "未命名工作区",
-      "noDescription": "暂无描述",
-      "running": "{{count}} 个进行中",
-      "jobCount": "{{count}} 次生成",
-      "imageCount": "{{count}} 张图",
-      "createTitle": "新建工作区",
-      "createHint": "每个工作区是一张独立画布，图片、连线与提示词链互不干扰。",
-      "nameLabel": "名称",
-      "namePlaceholder": "留空则命名为「未命名工作区」",
-      "descLabel": "描述（可选）",
-      "descPlaceholder": "这批图要解决什么？风格、用途、交付对象……",
-      "create": "创建并进入",
       "cancel": "取消"
-    },
-    "dock": {
-      "back": "返回工作区"
     },
     "canvas": {
       "empty": "画布还是空的。生成一次图，或先建一个提示词节点，把已有图片连到它上面就能就地出图。",

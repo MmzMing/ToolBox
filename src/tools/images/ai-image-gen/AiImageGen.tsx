@@ -1,10 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { ReactFlowProvider, useReactFlow, type ReactFlowInstance } from '@xyflow/react'
-import { ArrowLeft } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 
-import { Button } from '@/components/ui/button'
 import { useAIConfigStore } from '@/modules/ai/store'
 import { bytesToDataUrl } from '@/utils/base64'
 
@@ -14,6 +12,7 @@ import {
   CANVAS_PROMPT_HEIGHT,
   CANVAS_PROMPT_WIDTH,
   LEGACY_WORKSPACE_ID,
+  nextWorkspaceNumber,
   normalizeGenParams,
   summarizeWorkspaces,
   type GenParams,
@@ -22,8 +21,7 @@ import { AiImageSettingsDialog } from './components/AiImageSettingsDialog'
 import { Composer, type ReferenceImage } from './components/Composer'
 import { ImageLightbox } from './components/ImageLightbox'
 import { SessionDock } from './components/SessionDock'
-import { WorkspaceCreateDialog } from './components/WorkspaceCreateDialog'
-import { WorkspaceView } from './components/WorkspaceView'
+import { WorkspaceSwitcher } from './components/WorkspaceSwitcher'
 import { ImageCanvas, type CanvasInteraction } from './canvas/ImageCanvas'
 import { buildExportZip, downloadZip } from './export-zip'
 import { isIdbAvailable, type ImageRecord } from './idb'
@@ -32,9 +30,9 @@ import {
   clearCanvasLayout,
   clearWorkspace,
   createWorkspace,
+  ensureActiveWorkspace,
   loadCanvas,
   loadHistory,
-  loadWorkspaces,
   importImages,
   refreshPrompts,
   removeWorkspace,
@@ -45,11 +43,9 @@ import {
 import { useAiImageGenStore } from './store'
 
 export default function AiImageGen() {
-  const { t } = useTranslation('tools-images')
+  const { t, i18n } = useTranslation('tools-images')
   const enabled = useAIConfigStore((state) => state.enabled)
   const [settingsOpen, setSettingsOpen] = useState(false)
-  const [createOpen, setCreateOpen] = useState(false)
-  const [view, setView] = useState<'workspace' | 'canvas'>('workspace')
   const [interaction, setInteraction] = useState<CanvasInteraction>('select')
   const [createPromptSignal, setCreatePromptSignal] = useState(0)
 
@@ -78,14 +74,22 @@ export default function AiImageGen() {
   const rememberFlow = useCallback((instance: ReactFlowInstance) => {
     flowRef.current = instance
   }, [])
+  const booted = useRef(false)
+
+  /** 自动命名按界面语言落进记录，落定后即为固定文本，之后切语言不会跟着改 */
+  const autoName = useCallback(
+    (number: number) => i18n.t('ai-image-gen.workspace.autoName', { number, ns: 'tools-images' }),
+    [i18n],
+  )
 
   useEffect(() => {
-    if (!isIdbAvailable()) {
+    if (booted.current || !isIdbAvailable()) {
       return
     }
-    void Promise.all([loadWorkspaces(), loadHistory(), loadCanvas()])
+    booted.current = true
+    void ensureActiveWorkspace(autoName(1))
     void refreshPrompts()
-  }, [])
+  }, [autoName])
 
   const connection = useMemo(() => resolveImageConnection(genApi), [genApi])
 
@@ -132,11 +136,6 @@ export default function AiImageGen() {
     (record: ImageRecord) => void addReference(record),
     [addReference],
   )
-
-  const backToWorkspace = useCallback(() => {
-    clearSelection()
-    setView('workspace')
-  }, [clearSelection])
 
   const handleImportFiles = useCallback(
     (files: File[], position: { x: number; y: number }) => {
@@ -230,37 +229,29 @@ export default function AiImageGen() {
     await clearWorkspace()
   }, [])
 
-  const openWorkspace = useCallback(
-    async (id: string) => {
+  /** 切区：先落活动 id 再拉数据，画布按 id 重挂，视口因此重新全览一次 */
+  const handleActivate = useCallback(
+    (id: string) => {
+      if (id === activeWorkspaceId) {
+        return
+      }
       setActiveWorkspace(id)
-      await Promise.all([loadHistory(), loadCanvas()])
-      setView('canvas')
+      void Promise.all([loadHistory(), loadCanvas()])
     },
-    [setActiveWorkspace],
+    [activeWorkspaceId, setActiveWorkspace],
   )
 
-  const handleCreateWorkspace = useCallback((name: string, description: string) => {
-    void createWorkspace(name, description).then(() => setView('canvas'))
-  }, [])
+  const handleCreateWorkspace = useCallback(() => {
+    void createWorkspace(autoName(nextWorkspaceNumber(workspaces.map((item) => item.name))))
+  }, [autoName, workspaces])
 
-  if (view === 'workspace') {
-    return (
-      <>
-        <WorkspaceView
-          cards={workspaceCards}
-          onOpen={(id) => void openWorkspace(id)}
-          onCreate={() => setCreateOpen(true)}
-          onDelete={(id) => void removeWorkspace(id)}
-        />
-        <WorkspaceCreateDialog
-          open={createOpen}
-          onOpenChange={setCreateOpen}
-          onCreate={handleCreateWorkspace}
-        />
-        <AiImageSettingsDialog open={settingsOpen} onOpenChange={setSettingsOpen} />
-      </>
-    )
-  }
+  /** 关掉一个区即补位：删掉最后一个时默认工作区会被重新兜出来 */
+  const handleCloseWorkspace = useCallback(
+    (id: string) => {
+      void removeWorkspace(id).then(() => ensureActiveWorkspace(autoName(1)))
+    },
+    [autoName],
+  )
 
   return (
     <div className="relative h-full min-h-0 overflow-hidden">
@@ -277,6 +268,7 @@ export default function AiImageGen() {
           onImportFiles={handleImportFiles}
         />
         <ImageCanvas
+          key={activeWorkspaceId ?? LEGACY_WORKSPACE_ID}
           records={history}
           jobs={canvasJobs}
           params={params}
@@ -290,18 +282,13 @@ export default function AiImageGen() {
         />
       </ReactFlowProvider>
 
-      <div className="pointer-events-none absolute inset-x-3 top-3 z-10">
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          className="bg-card/90 pointer-events-auto h-8 shrink-0 gap-1.5 rounded-full border px-3 text-xs shadow-lg backdrop-blur"
-          onClick={backToWorkspace}
-        >
-          <ArrowLeft className="size-3.5" />
-          <span className="hidden sm:inline">{t('ai-image-gen.dock.back')}</span>
-        </Button>
-      </div>
+      <WorkspaceSwitcher
+        cards={workspaceCards}
+        activeId={activeWorkspaceId}
+        onActivate={handleActivate}
+        onCreate={handleCreateWorkspace}
+        onDelete={handleCloseWorkspace}
+      />
 
       <div className="absolute inset-x-3 bottom-3 z-10 mx-auto flex max-w-3xl flex-col gap-2">
         {/* 配置提示贴在输入框上方：顶栏离手元操作太远，出图时看不见。

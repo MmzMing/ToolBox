@@ -19,6 +19,7 @@ import { selectEvictIds } from '@/utils/lru'
 import {
   aspectRatioOf,
   buildCanvasGraph,
+  buildCanvasMap,
   CANVAS_GAP_X,
   CANVAS_GAP_Y,
   CANVAS_IMAGE_WIDTH,
@@ -39,6 +40,7 @@ import {
   usableReferenceIds,
   type CanvasGraph,
   type CanvasImageInput,
+  type CanvasMapInput,
   type CanvasNodeRecord,
   type GenParams,
 } from './ai-image-gen.service'
@@ -165,13 +167,17 @@ export async function loadCanvas() {
 }
 
 /**
- * 读工作区列表。存量图片/overlay 里只要有没有归属的，就补一个默认工作区出来，
- * 否则升级前生成的图会在列表里凭空消失。
+ * 读工作区列表并与活动 id 对账，进工具与关掉工作区后都走它：
+ * - 存量图片/overlay 里有没归属的，补一个默认工作区兜住，否则升级前生成的图会在列表里凭空消失；
+ * - 一个工作区都没有（首次使用，或刚被全部关掉）就按自动命名补一个；
+ * - 持久化的活动 id 可能指向已删除的工作区，回落到列表第一个。
+ * @param defaultName 自动命名出来的默认工作区名
  */
-export async function loadWorkspaces() {
+export async function ensureActiveWorkspace(defaultName: string) {
   if (!isIdbAvailable()) {
     return
   }
+  const store = useAiImageGenStore.getState()
   const [workspaces, images, overlays] = await Promise.all([
     listWorkspaces(),
     readAllImages(),
@@ -180,27 +186,44 @@ export async function loadWorkspaces() {
   const orphaned =
     images.some((record) => !record.meta.workspaceId) ||
     overlays.some((record) => !record.workspaceId)
+  const now = Date.now()
   if (orphaned && !workspaces.some((record) => record.id === LEGACY_WORKSPACE_ID)) {
     const earliest = images.filter((record) => !record.meta.workspaceId).at(-1)?.meta.createdAt
     const legacy: WorkspaceRecord = {
       id: LEGACY_WORKSPACE_ID,
-      name: '',
-      description: '',
-      createdAt: earliest ?? Date.now(),
-      updatedAt: earliest ?? Date.now(),
+      name: defaultName,
+      map: [],
+      createdAt: earliest ?? now,
+      updatedAt: earliest ?? now,
     }
     await putWorkspace(legacy)
     workspaces.unshift(legacy)
   }
-  useAiImageGenStore.getState().setWorkspaces(workspaces)
+  if (!workspaces.length) {
+    // 沿用默认区 id：没有 workspaceId 的历史记录天然归它，删完再进来也不会串区
+    const first: WorkspaceRecord = {
+      id: LEGACY_WORKSPACE_ID,
+      name: defaultName,
+      map: [],
+      createdAt: now,
+      updatedAt: now,
+    }
+    await putWorkspace(first)
+    workspaces.push(first)
+  }
+  store.setWorkspaces(workspaces)
+  if (!workspaces.some((record) => record.id === store.activeWorkspaceId)) {
+    store.setActiveWorkspace(workspaces[0].id)
+  }
+  await Promise.all([loadHistory(), loadCanvas()])
 }
 
-export async function createWorkspace(name: string, description: string) {
+export async function createWorkspace(name: string) {
   const now = Date.now()
   const record: WorkspaceRecord = {
     id: ulid(),
     name: name.trim(),
-    description: description.trim(),
+    map: [],
     createdAt: now,
     updatedAt: now,
   }
@@ -210,6 +233,21 @@ export async function createWorkspace(name: string, description: string) {
   store.setActiveWorkspace(record.id)
   await Promise.all([loadHistory(), loadCanvas()])
   return record
+}
+
+/**
+ * 把某个画布的布局写进工作区记录的地图快照。工作区 id 由调用方给死：
+ * 快照是防抖落盘的，切区之后再取当前 id 就会把上一区的布局写进新区的记录。
+ * 没变就不碰 IDB，免得节点每动一下都写一次盘。
+ */
+export async function saveWorkspaceMap(workspaceId: string, rects: CanvasMapInput[]) {
+  const current = useAiImageGenStore.getState().workspaces.find((item) => item.id === workspaceId)
+  const map = buildCanvasMap(rects)
+  if (!current || JSON.stringify(current.map) === JSON.stringify(map)) {
+    return
+  }
+  await putWorkspace({ ...current, map })
+  useAiImageGenStore.getState().patchWorkspaceMap(workspaceId, map)
 }
 
 /** 读图片固有尺寸；解不出来就留给画布按默认比例摆 */

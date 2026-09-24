@@ -754,10 +754,21 @@ export function composePromptText(graph: CanvasGraph, nodeId: string): string {
   return [...ordered.map(textOf), self.text.trim()].filter(Boolean).join(CANVAS_PROMPT_JOINER)
 }
 
+export type CanvasMapRect = {
+  x: number
+  y: number
+  width: number
+  height: number
+}
+
+/** 落快照前的形状：尺寸可能还没量出来，交给 buildCanvasMap 兜成默认节点宽 */
+export type CanvasMapInput = { x: number; y: number; width?: number; height?: number }
+
 export type WorkspaceInput = {
   id: string
   name: string
-  description: string
+  /** 上次访问时的画布布局快照，左上角工作区地图照着它画 */
+  map: CanvasMapRect[]
   createdAt: number
   updatedAt: number
 }
@@ -773,7 +784,7 @@ export type WorkspaceSummary = WorkspaceInput & {
 
 const ownerOf = (workspaceId: string | undefined): string => workspaceId || LEGACY_WORKSPACE_ID
 
-/** 工作区列表卡片的数据源：只算数量不碰图片，卡片因此不需要缩略图 */
+/** 工作区地图的数据源：只算数量不碰图片，缩略图另有 map 快照 */
 export function summarizeWorkspaces(
   workspaces: WorkspaceInput[],
   images: WorkspaceImageInput[],
@@ -806,6 +817,98 @@ export function summarizeWorkspaces(
       activeCount: bucket?.activeCount ?? 0,
     }
   })
+}
+
+/** 快照条数上限：再多也缩不出可辨认的形状，只留前排节点 */
+export const CANVAS_MAP_LIMIT = 140
+
+const mapCoord = (value: unknown): number | null =>
+  typeof value === 'number' && Number.isFinite(value) ? Math.round(value) : null
+
+/**
+ * 画布节点 → 地图矩形。写库前与读库后都过它一遍：IDB 内容可能被手工改坏，
+ * 而非有限数一旦进了 SVG 的 viewBox，整张地图都画不出来。
+ */
+export function buildCanvasMap(raw: unknown): CanvasMapRect[] {
+  if (!Array.isArray(raw)) {
+    return []
+  }
+  const out: CanvasMapRect[] = []
+  for (const item of raw) {
+    if (!item || typeof item !== 'object') {
+      continue
+    }
+    const source = item as Record<string, unknown>
+    const x = mapCoord(source.x)
+    const y = mapCoord(source.y)
+    if (x === null || y === null) {
+      continue
+    }
+    out.push({
+      x,
+      y,
+      width: mapCoord(source.width) ?? CANVAS_IMAGE_WIDTH,
+      height: mapCoord(source.height) ?? CANVAS_IMAGE_WIDTH,
+    })
+    if (out.length >= CANVAS_MAP_LIMIT) {
+      break
+    }
+  }
+  return out
+}
+
+/** 地图取景框：节点并集外扩一圈留白，空画布返回 null 交给调用方画占位 */
+export function canvasMapBox(rects: CanvasMapRect[]) {
+  if (!rects.length) {
+    return null
+  }
+  const left = Math.min(...rects.map((rect) => rect.x))
+  const top = Math.min(...rects.map((rect) => rect.y))
+  const right = Math.max(...rects.map((rect) => rect.x + rect.width))
+  const bottom = Math.max(...rects.map((rect) => rect.y + rect.height))
+  const pad = Math.max(48, Math.max(right - left, bottom - top) * 0.06)
+  return {
+    x: left - pad,
+    y: top - pad,
+    width: right - left + pad * 2,
+    height: bottom - top + pad * 2,
+  }
+}
+
+/** 工作区名上限：改坏的数据截回可用长度，不让超长名称撑破地图卡片 */
+export const WORKSPACE_NAME_LIMIT = 60
+
+/** 逐字段兜底：老版本记录没有 map 字段，名称与时间戳也可能被手工改坏 */
+export function normalizeWorkspace(raw: unknown): WorkspaceInput | null {
+  if (!raw || typeof raw !== 'object') {
+    return null
+  }
+  const source = raw as Record<string, unknown>
+  if (typeof source.id !== 'string' || !source.id) {
+    return null
+  }
+  const time = (value: unknown): number =>
+    typeof value === 'number' && Number.isFinite(value) ? value : Date.now()
+  return {
+    id: source.id,
+    name: typeof source.name === 'string' ? source.name.slice(0, WORKSPACE_NAME_LIMIT) : '',
+    map: buildCanvasMap(source.map),
+    createdAt: time(source.createdAt),
+    updatedAt: time(source.updatedAt),
+  }
+}
+
+/** 自动命名的序号：取已有名称尾部数字的最大值加一，删掉中间那个也不会撞名 */
+export function nextWorkspaceNumber(names: string[]): number {
+  let max = 0
+  for (const name of names) {
+    const matched = /(\d+)\s*$/.exec(name)
+    const value = matched ? Number(matched[1]) : 0
+    if (value > max) {
+      max = value
+    }
+  }
+  return max + 1
 }
 
 export function toImageRequestParams(
