@@ -27,6 +27,7 @@ import { WorkspaceView } from './components/WorkspaceView'
 import { ImageCanvas, type CanvasInteraction } from './canvas/ImageCanvas'
 import { buildExportZip, downloadZip } from './export-zip'
 import { isIdbAvailable, type ImageRecord } from './idb'
+import { useImageNotify } from './use-image-notify'
 import {
   clearCanvasLayout,
   clearWorkspace,
@@ -62,6 +63,9 @@ export default function AiImageGen() {
   const clearSelection = useAiImageGenStore((state) => state.clearSelection)
   const skills = useAiImageGenStore((state) => state.skills)
   const genApi = useAiImageGenStore((state) => state.genApi)
+  const sound = useAiImageGenStore((state) => state.sound)
+
+  useImageNotify(sound)
 
   const [prompt, setPrompt] = useState('')
   const [params, setParams] = useState<GenParams>(() => normalizeGenParams(null))

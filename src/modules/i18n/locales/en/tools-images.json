@@ -285,6 +285,11 @@
       "details": "Details",
       "delete": "Delete"
     },
+    "notify": {
+      "on": "Completion sound on",
+      "off": "Completion sound off",
+      "badge": "{{count}} image(s) generated"
+    },
     "errors": {
       "configRequired": "Missing API key or model: complete them in AI settings",
       "unsupportedProvider": "This provider cannot generate images: switch to OpenAI or Gemini",

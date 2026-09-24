@@ -12,6 +12,8 @@ import {
   SquarePlus,
   Trash2,
   Upload,
+  Volume2,
+  VolumeX,
 } from 'lucide-react'
 
 import {
@@ -37,6 +39,7 @@ import {
   REFERENCE_MIMES,
 } from '../ai-image-gen.service'
 import type { CanvasInteraction } from '../canvas/ImageCanvas'
+import { useAiImageGenStore } from '../store'
 
 /** 全览两次点击之间的最短间隔：小于它会被吞掉，避免 fitView 动画互相打断 */
 const FIT_VIEW_COOLDOWN_MS = 3000
@@ -67,6 +70,8 @@ export function SessionDock({
   const isMobile = useIsMobile()
   const instance = useReactFlow()
   const { zoom } = useViewport()
+  const sound = useAiImageGenStore((state) => state.sound)
+  const setSound = useAiImageGenStore((state) => state.setSound)
   const fileRef = useRef<HTMLInputElement>(null)
   const lastFitAt = useRef(0)
 
@@ -165,6 +170,13 @@ export function SessionDock({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+      <DockButton
+        label={t(sound ? 'ai-image-gen.notify.on' : 'ai-image-gen.notify.off')}
+        active={sound}
+        onClick={() => setSound(!sound)}
+      >
+        {sound ? <Volume2 className="size-4" /> : <VolumeX className="size-4" />}
+      </DockButton>
       <AlertDialog>
         <AlertDialogTrigger asChild>
           <DockButton label={t('ai-image-gen.toolbar.clear')} destructive>

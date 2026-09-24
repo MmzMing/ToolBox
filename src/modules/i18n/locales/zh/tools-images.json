@@ -285,6 +285,11 @@
       "details": "详情",
       "delete": "删除"
     },
+    "notify": {
+      "on": "出图提示音已开启",
+      "off": "出图提示音已关闭",
+      "badge": "{{count}} 张图片生成成功"
+    },
     "errors": {
       "configRequired": "缺少 API key 或模型配置，请到 AI 设置补全",
       "unsupportedProvider": "当前厂商不支持出图，请切换 OpenAI 或 Gemini",

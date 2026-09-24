@@ -113,11 +113,14 @@ type AiImageGenState = {
   activeWorkspaceId: string | null
   viewport: Viewport | null
   selectedImageIds: string[]
+  /** 出图完成提示：音效 + 页面在后台时的标题计数 */
+  sound: boolean
 
   setGenApi: (patch: Partial<ApiConfig>) => void
   setVisionApi: (patch: Partial<ApiConfig>) => void
   setTested: (slot: 'gen' | 'vision', signature: string) => void
   setModelList: (provider: AIProvider, models: string[]) => void
+  setSound: (on: boolean) => void
   addJob: (job: Job) => void
   patchJob: (id: string, patch: Partial<Job>) => void
   patchSlot: (jobId: string, slotId: string, patch: Partial<JobSlot>) => void
@@ -165,6 +168,7 @@ export const useAiImageGenStore = create<AiImageGenState>()(
       activeWorkspaceId: null,
       viewport: null,
       selectedImageIds: [],
+      sound: false,
 
       setGenApi: (patch) =>
         set((state) => {
@@ -193,6 +197,7 @@ export const useAiImageGenStore = create<AiImageGenState>()(
         }),
       setTested: (slot, signature) =>
         set((state) => ({ tested: { ...state.tested, [slot]: signature } })),
+      setSound: (on) => set({ sound: on }),
       setModelList: (provider, models) =>
         set((state) => ({
           modelLists: {
@@ -276,8 +281,8 @@ export const useAiImageGenStore = create<AiImageGenState>()(
     }),
     {
       name: 'toolbox.ai-image-gen',
-      version: 6,
-      /** 5 及更早版本没有 activeWorkspaceId：原样交给 merge 的逐字段校验兜底 */
+      version: 7,
+      /** 6 及更早版本没有 sound：原样交给 merge 的逐字段校验兜底 */
       migrate: (persisted) => persisted,
       partialize: ({
         skills,
@@ -287,6 +292,7 @@ export const useAiImageGenStore = create<AiImageGenState>()(
         tested,
         viewport,
         activeWorkspaceId,
+        sound,
       }) => ({
         customs: skills.filter((skill) => !skill.builtin),
         skillFlags: Object.fromEntries(
@@ -298,6 +304,7 @@ export const useAiImageGenStore = create<AiImageGenState>()(
         tested,
         viewport,
         activeWorkspaceId,
+        sound,
       }),
       merge: (persisted, current) => {
         const saved = persisted as
@@ -311,6 +318,7 @@ export const useAiImageGenStore = create<AiImageGenState>()(
               tested?: { gen?: string; vision?: string }
               viewport?: unknown
               activeWorkspaceId?: unknown
+              sound?: unknown
             }
           | undefined
         return {
@@ -325,6 +333,7 @@ export const useAiImageGenStore = create<AiImageGenState>()(
             typeof saved?.activeWorkspaceId === 'string' && saved.activeWorkspaceId
               ? saved.activeWorkspaceId
               : null,
+          sound: saved?.sound === true,
         }
       },
     },
