@@ -2,13 +2,10 @@
 <html lang="zh-CN">
   <head>
     <meta charset="UTF-8" />
-    <!-- 图标与 theme-color 由 vite.config.ts 按 src/config/site.ts 注入 -->
+    <!-- 标题、描述、图标与 theme-color 由 vite.config.ts 按 src/config/site.ts 注入，勿在此硬编码 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <meta
-      name="description"
-      content="ToolBox — 免费开源的开发者在线工具箱：加密、转换、编码、网络、文本处理等 80+ 实用工具，计算全部在浏览器本地完成，本站不收集、不上传数据。"
-    />
-    <title>ToolBox - 开发者在线工具箱</title>
+    <meta name="description" content="__SITE_DESCRIPTION__" />
+    <title>__SITE_TITLE__</title>
     <!-- 外置而非内联：部署层 CSP 的 script-src 只放行 'self'（文件见 public/theme-init.js） -->
     <script src="/theme-init.js"></script>
   </head>

@@ -1,7 +1,7 @@
 {
-  "pageTitle": "ToolBox - Developer Toolbox",
-  "title": "ToolBox",
-  "subtitle": "Free and open-source online tools for developers: crypto, converters, encoders, web, text utilities and more — 40+ tools, all running locally in your browser (except IP lookup, the optional AI in Resume Studio and AI Image Gen, and the opt-in online music library in Music to Video).",
+  "pageTitle": "{{site}} - Online Toolbox",
+  "title": "{{site}}",
+  "subtitle": "Free and open-source online tools: crypto, converters, encoders, web, text utilities and more — 40+ tools, all running locally in your browser (except IP lookup, the optional AI in Resume Studio and AI Image Gen, and the opt-in online music library in Music to Video).",
   "favorites": "Favorite tools",
   "recent": "Recent tools",
   "allCategories": "All tools",

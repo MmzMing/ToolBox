@@ -1,16 +1,26 @@
 /**
  * 站点级外部链接、品牌信息与图标资源，集中在此管理（新增只改这里）。
  * 各处（顶栏、侧栏、命令面板、关于页、index.html、文档脚本）统一从本文件引用，禁止硬编码。
- * index.html 是静态文件读不到 TS，其 <link rel="icon"> 由 vite.config.ts 的
- * transformIndexHtml 钩子按本文件生成，因此这里仍是唯一来源。
+ * index.html 是静态文件读不到 TS，其 <title>、meta description 与 <link rel="icon">
+ * 由 vite.config.ts 的 transformIndexHtml 钩子按本文件生成，因此这里仍是唯一来源。
  */
 
 /** 图标资源目录（public 下，构建时整体拷贝进 dist） */
 const ICON_DIR = '/images/favicon'
 
+/** 品牌名：i18n 文案里的 {{site}} 占位符、页签标题、SEO 均取此值 */
+const SITE_NAME = 'MmzMing的工具箱'
+
 export const siteConfig = {
   /** 站点名称 */
-  name: 'ToolBox',
+  name: SITE_NAME,
+  /**
+   * 站点标题与描述：静态 index.html 的首屏值（React 挂载后由各页 DocumentMeta 覆盖）。
+   * 与 locales/zh/home.json 的 pageTitle / subtitle 对应，中文文案改动时同步此处。
+   */
+  title: `${SITE_NAME} - 在线工具箱`,
+  description:
+    '免费开源的在线工具箱：加密、转换、编码、网络、文本处理等 80+ 实用工具，计算全部在浏览器本地完成，本站不收集、不上传数据。',
   /**
    * 站点正式域名（不带结尾斜杠）。sitemap.xml / robots.txt 的绝对地址以此为准，
    * 构建时可用环境变量 SITE_URL 临时覆盖（预览环境等）。

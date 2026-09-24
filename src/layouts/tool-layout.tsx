@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 
 import { FavoriteButton } from '@/components/favorite-button'
 import { DocumentMeta } from '@/modules/seo/document-meta'
+import { siteConfig } from '@/config/site'
 import type { Tool } from '@/tools/define-tool'
 
 interface ToolLayoutProps {
@@ -21,7 +22,7 @@ export function ToolLayout({ tool, children, fill = false }: ToolLayoutProps) {
   const head = (
     <>
       <DocumentMeta
-        title={`${title} · ToolBox`}
+        title={`${title} · ${siteConfig.name}`}
         description={description}
         keywords={tool.keywords}
       />
@@ -43,7 +44,7 @@ export function ToolLayout({ tool, children, fill = false }: ToolLayoutProps) {
     return (
       <div className="flex h-full min-h-0 w-full flex-col">
         <DocumentMeta
-          title={`${title} · ToolBox`}
+          title={`${title} · ${siteConfig.name}`}
           description={description}
           keywords={tool.keywords}
         />

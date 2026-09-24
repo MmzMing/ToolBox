@@ -22,6 +22,7 @@ import { useTranslation } from 'react-i18next'
 
 import { ToolCard } from '@/components/tool-card'
 import { DocumentMeta } from '@/modules/seo/document-meta'
+import { siteConfig } from '@/config/site'
 import { Button } from '@/components/ui/button'
 import { useSearchStore } from '@/stores/search.store'
 import { useToolsStore } from '@/stores/tools.store'
@@ -34,13 +35,14 @@ export default function HomePage() {
   const { t } = useTranslation('home')
   const { t: tCommon } = useTranslation('common')
   const openPalette = useSearchStore((state) => state.setOpen)
+  const site = { site: siteConfig.name }
 
   return (
     <div className="mx-auto w-full max-w-6xl px-4 py-8">
-      <DocumentMeta title={t('pageTitle')} description={t('subtitle')} />
+      <DocumentMeta title={t('pageTitle', site)} description={t('subtitle')} />
 
       <section className="flex flex-col items-center gap-4 py-10 text-center md:py-14">
-        <h1 className="text-3xl font-bold tracking-tight md:text-4xl">{t('title')}</h1>
+        <h1 className="text-3xl font-bold tracking-tight md:text-4xl">{t('title', site)}</h1>
         <p className="text-muted-foreground max-w-xl text-sm text-balance md:text-base">
           {t('subtitle')}
         </p>

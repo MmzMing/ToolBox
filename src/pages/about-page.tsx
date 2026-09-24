@@ -24,17 +24,18 @@ const techStack = [
 export default function AboutPage() {
   const { t } = useTranslation('about')
   const { t: tCommon } = useTranslation('common')
+  const site = { site: siteConfig.name }
 
   return (
     <div className="mx-auto w-full max-w-4xl px-4 py-8">
       <DocumentMeta
-        title={`${t('title')} · ToolBox`}
-        description={t('intro', { count: tools.length })}
+        title={t('title', site)}
+        description={t('intro', { ...site, count: tools.length })}
       />
 
-      <h1 className="text-2xl font-bold md:text-3xl">{t('title')}</h1>
+      <h1 className="text-2xl font-bold md:text-3xl">{t('title', site)}</h1>
       <p className="text-muted-foreground mt-3 text-sm leading-relaxed md:text-base">
-        {t('intro', { count: tools.length })}
+        {t('intro', { ...site, count: tools.length })}
       </p>
 
       <h2 className="mt-10 mb-3 text-lg font-semibold">{t('whyTitle')}</h2>

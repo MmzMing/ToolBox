@@ -9,15 +9,21 @@ import type { IncomingMessage, ServerResponse } from 'node:http'
 import { siteConfig } from './src/config/site.ts'
 
 /**
- * index.html 是静态文件，读不到 TS 模块；head 里的图标与着色标签在此
- * 按 src/config/site.ts 生成，使图标路径保持 config 单一来源（dev 与 build 同一钩子）。
+ * index.html 是静态文件，读不到 TS 模块；head 里的标题、描述、图标与着色标签在此
+ * 按 src/config/site.ts 生成，使站点信息保持 config 单一来源（dev 与 build 同一钩子）。
  */
 const CHARSET_ANCHOR = '<meta charset="UTF-8" />'
+const TITLE_PLACEHOLDER = '__SITE_TITLE__'
+const DESCRIPTION_PLACEHOLDER = '__SITE_DESCRIPTION__'
+
+/** 标题与描述来自 config 的裸字符串，转义后才放进标签/属性 */
+const escapeHtml = (value: string) =>
+  value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;')
 
 const injectSiteBranding = {
   name: 'inject-site-branding',
   transformIndexHtml(html: string): string {
-    const { icons, themeColor } = siteConfig
+    const { icons, themeColor, title, description } = siteConfig
     const link = (attrs: Record<string, string>) =>
       `<link ${Object.entries(attrs)
         .map(([key, value]) => `${key}="${value}"`)
@@ -47,7 +53,15 @@ const injectSiteBranding = {
     if (!html.includes(CHARSET_ANCHOR)) {
       throw new Error('[inject-site-branding] index.html 缺少锚点 ' + CHARSET_ANCHOR)
     }
-    return html.replace(CHARSET_ANCHOR, `${CHARSET_ANCHOR}\n    ${tags}`)
+    for (const placeholder of [TITLE_PLACEHOLDER, DESCRIPTION_PLACEHOLDER]) {
+      if (!html.includes(placeholder)) {
+        throw new Error(`[inject-site-branding] index.html 缺少占位符 ${placeholder}`)
+      }
+    }
+    return html
+      .replace(CHARSET_ANCHOR, `${CHARSET_ANCHOR}\n    ${tags}`)
+      .replace(TITLE_PLACEHOLDER, escapeHtml(title))
+      .replace(DESCRIPTION_PLACEHOLDER, escapeHtml(description))
   },
 } satisfies Plugin
 
