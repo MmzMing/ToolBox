@@ -4,11 +4,9 @@ import {
   AI_PROVIDER_DEFINITIONS,
   DEFAULT_IMAGE_MODEL,
   isModelConfigured,
-  resolveSlot,
   toAIConnection,
   type AIConnection,
 } from '@/modules/ai/providers'
-import { useAIConfigStore } from '@/modules/ai/store'
 import {
   AIRequestError,
   requestAIImages,
@@ -95,27 +93,27 @@ export function resolveImageConnection(
   return isModelConfigured(connection) ? connection : null
 }
 
-export function resolveVisionConnection(): AIConnection | null {
-  const { visionApi } = useAiImageGenStore.getState()
-  const preset = AI_PROVIDER_DEFINITIONS[visionApi.provider]
+/** 识图与润色走同一套 chat 协议，只是各用一份凭证 */
+function resolveChatConnection(api: ApiConfig): AIConnection | null {
+  const preset = AI_PROVIDER_DEFINITIONS[api.provider]
   const connection = toAIConnection({
-    provider: visionApi.provider,
+    provider: api.provider,
     protocol: preset.protocol,
-    apiKey: visionApi.apiKey,
-    model: visionApi.model,
-    baseUrl: visionApi.baseUrl,
+    apiKey: api.apiKey,
+    model: api.model,
+    baseUrl: api.baseUrl,
   })
   return isModelConfigured(connection) ? connection : null
 }
 
-/** 润色不自建凭证：直接复用 AI 连接层的「文本模型」槽，与简历润色同一份配置 */
+export function resolveVisionConnection(): AIConnection | null {
+  return resolveChatConnection(useAiImageGenStore.getState().visionApi)
+}
+
+/** 润色默认蹭识图那套凭证；把开关关掉才用自己独立的 polishApi */
 export function resolvePolishConnection(): AIConnection | null {
-  const { activeProvider, picks, credentials } = useAIConfigStore.getState()
-  const model = picks[activeProvider].text
-  const profile = model
-    ? resolveSlot({ provider: activeProvider, model }, credentials[activeProvider], 'text')
-    : null
-  return profile ? toAIConnection(profile) : null
+  const { polishUsesVision, visionApi, polishApi } = useAiImageGenStore.getState()
+  return resolveChatConnection(polishUsesVision ? visionApi : polishApi)
 }
 
 const errorCode = (error: unknown): string =>

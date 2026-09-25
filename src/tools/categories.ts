@@ -11,17 +11,17 @@ import {
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 
-/** 分类 key 顺序即侧栏/首页展示顺序，展示名走 i18n：`categories.<key>` */
+/** 分类展示顺序的唯一真相：侧栏、首页与命令面板都按这里排（见 tools/index.ts） */
 export const categoryKeys = [
   'resume',
-  'crypto',
-  'web',
   'images',
   'video',
+  'crypto',
+  'web',
   'development',
-  'cheatsheet',
   'text',
   'life',
+  'cheatsheet',
 ] as const
 
 export type CategoryKey = (typeof categoryKeys)[number]

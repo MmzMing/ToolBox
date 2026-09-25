@@ -72,7 +72,7 @@
       "models": "Models",
       "textModel": "Text model (polish and proofread)",
       "pdfModel": "Vision model (PDF import)",
-      "imageModel": "Image model (AI image gen)",
+      "imageModel": "Image model (AI image gen canvas)",
       "visionModel": "Vision model (reverse prompting)",
       "modelPlaceholder": "Type a model name, e.g. deepseek-chat",
       "textHint": "Each provider keeps its own text, vision, image and reverse-vision pick, so configuring one never overwrites another. The provider that actually runs is the one chosen at the top. The vision slot feeds PDF import, the reverse-vision slot feeds prompt reverse-engineering, and the image slot only applies to OpenAI / Gemini.",

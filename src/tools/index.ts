@@ -1,5 +1,5 @@
 import { isRecentTool, type DefinedTool, type Tool } from './define-tool'
-import type { CategoryKey } from './categories'
+import { categoryKeys, type CategoryKey } from './categories'
 import type { RecentToolEntry } from '@/stores/tools.store'
 
 import { cryptoTools } from './crypto'
@@ -21,21 +21,27 @@ function attachCategory(category: CategoryKey, rawTools: readonly DefinedTool[])
   return rawTools.map((tool) => ({ ...tool, isNew: isRecentTool(tool), category }))
 }
 
+/** 每个分类的工具清单；新增工具只往对应分类的 index.ts 里注册，不碰这里 */
+const toolsOfCategory: Record<CategoryKey, readonly DefinedTool[]> = {
+  resume: resumeTools,
+  crypto: cryptoTools,
+  web: webTools,
+  images: imagesTools,
+  video: videoTools,
+  development: developmentTools,
+  cheatsheet: cheatsheetTools,
+  text: textTools,
+  life: lifeTools,
+}
+
 /**
- * 工具注册中心（按分类聚合）。新增工具：在对应分类目录下建四件套，
- * 并把 import 加入该分类的 index.ts（或用 `pnpm create:tool` 脚手架）。
+ * 工具注册中心（按分类聚合）。顺序跟着 categoryKeys 走，不再另列一份，
+ * 否则改排序要同时动两处（此前就已经对不上了）。
  */
-export const toolsByCategory: readonly ToolCategory[] = [
-  { category: 'resume', tools: attachCategory('resume', resumeTools) },
-  { category: 'crypto', tools: attachCategory('crypto', cryptoTools) },
-  { category: 'web', tools: attachCategory('web', webTools) },
-  { category: 'development', tools: attachCategory('development', developmentTools) },
-  { category: 'cheatsheet', tools: attachCategory('cheatsheet', cheatsheetTools) },
-  { category: 'images', tools: attachCategory('images', imagesTools) },
-  { category: 'video', tools: attachCategory('video', videoTools) },
-  { category: 'text', tools: attachCategory('text', textTools) },
-  { category: 'life', tools: attachCategory('life', lifeTools) },
-]
+export const toolsByCategory: readonly ToolCategory[] = categoryKeys.map((category) => ({
+  category,
+  tools: attachCategory(category, toolsOfCategory[category]),
+}))
 
 export const tools: readonly Tool[] = toolsByCategory.flatMap((group) => group.tools)
 

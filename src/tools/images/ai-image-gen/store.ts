@@ -102,8 +102,11 @@ type AiImageGenState = {
   skills: Skill[]
   genApi: ApiConfig
   visionApi: ApiConfig
+  /** 润色默认复用识图那套凭证；关掉才看 polishApi */
+  polishApi: ApiConfig
+  polishUsesVision: boolean
   modelLists: Partial<Record<AIProvider, string[]>>
-  tested: { gen: string; vision: string }
+  tested: { gen: string; vision: string; polish: string }
   /** 画布 overlay 的内存镜像，真相在 IDB canvasNodes */
   overlays: CanvasNodeRecord[]
   /** 工作区列表，真相在 IDB workspaces；顺序即列表顺序 */
@@ -115,12 +118,17 @@ type AiImageGenState = {
   selectedImageIds: string[]
   /** 出图完成提示：音效 + 页面在后台时的标题计数 */
   sound: boolean
+  /** AI 生图设置弹窗：节点工具条上的润色也要拉它，所以不能只留在页面 state 里 */
+  settingsOpen: boolean
 
   setGenApi: (patch: Partial<ApiConfig>) => void
   setVisionApi: (patch: Partial<ApiConfig>) => void
-  setTested: (slot: 'gen' | 'vision', signature: string) => void
+  setPolishApi: (patch: Partial<ApiConfig>) => void
+  setPolishUsesVision: (on: boolean) => void
+  setTested: (slot: 'gen' | 'vision' | 'polish', signature: string) => void
   setModelList: (provider: AIProvider, models: string[]) => void
   setSound: (on: boolean) => void
+  setSettingsOpen: (open: boolean) => void
   addJob: (job: Job) => void
   patchJob: (id: string, patch: Partial<Job>) => void
   patchSlot: (jobId: string, slotId: string, patch: Partial<JobSlot>) => void
@@ -161,8 +169,10 @@ export const useAiImageGenStore = create<AiImageGenState>()(
       skills: [...BUILTIN_SKILLS],
       genApi: defaultApi('openai'),
       visionApi: defaultApi('openai'),
+      polishApi: defaultApi('openai'),
+      polishUsesVision: true,
       modelLists: {},
-      tested: { gen: '', vision: '' },
+      tested: { gen: '', vision: '', polish: '' },
       overlays: [],
       workspaces: [],
       imageOwners: [],
@@ -170,6 +180,7 @@ export const useAiImageGenStore = create<AiImageGenState>()(
       viewport: null,
       selectedImageIds: [],
       sound: false,
+      settingsOpen: false,
 
       setGenApi: (patch) =>
         set((state) => {
@@ -198,6 +209,21 @@ export const useAiImageGenStore = create<AiImageGenState>()(
         }),
       setTested: (slot, signature) =>
         set((state) => ({ tested: { ...state.tested, [slot]: signature } })),
+      setPolishApi: (patch) =>
+        set((state) => {
+          const provider =
+            patch.provider && AI_PROVIDERS.includes(patch.provider)
+              ? patch.provider
+              : state.polishApi.provider
+          const next = { ...state.polishApi, ...patch, provider }
+          if (patch.provider && patch.provider !== state.polishApi.provider) {
+            next.baseUrl = AI_PROVIDER_DEFINITIONS[provider].baseUrl
+            next.model = ''
+          }
+          return { polishApi: next }
+        }),
+      setPolishUsesVision: (on) => set({ polishUsesVision: on }),
+      setSettingsOpen: (open) => set({ settingsOpen: open }),
       setSound: (on) => set({ sound: on }),
       setModelList: (provider, models) =>
         set((state) => ({
@@ -289,13 +315,15 @@ export const useAiImageGenStore = create<AiImageGenState>()(
     }),
     {
       name: 'toolbox.ai-image-gen',
-      version: 7,
-      /** 6 及更早版本没有 sound：原样交给 merge 的逐字段校验兜底 */
+      version: 8,
+      /** 7 及更早没有 polishApi / polishUsesVision：原样交给 merge 的逐字段校验兜底 */
       migrate: (persisted) => persisted,
       partialize: ({
         skills,
         genApi,
         visionApi,
+        polishApi,
+        polishUsesVision,
         modelLists,
         tested,
         viewport,
@@ -308,6 +336,8 @@ export const useAiImageGenStore = create<AiImageGenState>()(
         ),
         genApi,
         visionApi,
+        polishApi,
+        polishUsesVision,
         modelLists,
         tested,
         viewport,
@@ -322,8 +352,10 @@ export const useAiImageGenStore = create<AiImageGenState>()(
               skills?: Skill[]
               genApi?: unknown
               visionApi?: unknown
+              polishApi?: unknown
+              polishUsesVision?: unknown
               modelLists?: Partial<Record<AIProvider, string[]>>
-              tested?: { gen?: string; vision?: string }
+              tested?: { gen?: string; vision?: string; polish?: string }
               viewport?: unknown
               activeWorkspaceId?: unknown
               sound?: unknown
@@ -334,8 +366,14 @@ export const useAiImageGenStore = create<AiImageGenState>()(
           skills: mergeSkills(saved?.customs ?? saved?.skills ?? [], saved?.skillFlags ?? {}),
           genApi: readApi(saved?.genApi, defaultApi('openai')),
           visionApi: readApi(saved?.visionApi, defaultApi('openai')),
+          polishApi: readApi(saved?.polishApi, defaultApi('openai')),
+          polishUsesVision: saved?.polishUsesVision !== false,
           modelLists: saved?.modelLists ?? {},
-          tested: { gen: saved?.tested?.gen ?? '', vision: saved?.tested?.vision ?? '' },
+          tested: {
+            gen: saved?.tested?.gen ?? '',
+            vision: saved?.tested?.vision ?? '',
+            polish: saved?.tested?.polish ?? '',
+          },
           viewport: readViewport(saved?.viewport),
           activeWorkspaceId:
             typeof saved?.activeWorkspaceId === 'string' && saved.activeWorkspaceId

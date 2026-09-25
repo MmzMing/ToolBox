@@ -45,7 +45,8 @@ import { useAiImageGenStore } from './store'
 export default function AiImageGen() {
   const { t, i18n } = useTranslation('tools-images')
   const enabled = useAIConfigStore((state) => state.enabled)
-  const [settingsOpen, setSettingsOpen] = useState(false)
+  const settingsOpen = useAiImageGenStore((state) => state.settingsOpen)
+  const setSettingsOpen = useAiImageGenStore((state) => state.setSettingsOpen)
   const [interaction, setInteraction] = useState<CanvasInteraction>('select')
   const [createPromptSignal, setCreatePromptSignal] = useState(0)
 
@@ -91,6 +92,9 @@ export default function AiImageGen() {
     void refreshPrompts()
   }, [autoName])
 
+  // 开关存在 store 里（节点工具条上的润色也要拉它），离开页面时归位，免得下次进来还开着
+  useEffect(() => () => setSettingsOpen(false), [setSettingsOpen])
+
   const connection = useMemo(() => resolveImageConnection(genApi), [genApi])
 
   const workspaceCards = useMemo(
@@ -131,7 +135,7 @@ export default function AiImageGen() {
       setParams((current) => normalizeGenParams({ ...current, ...patch })),
     [],
   )
-  const openSettings = useCallback(() => setSettingsOpen(true), [])
+  const openSettings = useCallback(() => setSettingsOpen(true), [setSettingsOpen])
   const handleReference = useCallback(
     (record: ImageRecord) => void addReference(record),
     [addReference],

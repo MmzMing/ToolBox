@@ -56,9 +56,13 @@ export function AiImageSettingsDialog({ open, onOpenChange }: AiImageSettingsDia
   const markConsentSeen = useAIConfigStore((state) => state.markConsentSeen)
   const genApi = useAiImageGenStore((state) => state.genApi)
   const visionApi = useAiImageGenStore((state) => state.visionApi)
+  const polishApi = useAiImageGenStore((state) => state.polishApi)
+  const polishUsesVision = useAiImageGenStore((state) => state.polishUsesVision)
   const modelLists = useAiImageGenStore((state) => state.modelLists)
   const setGenApi = useAiImageGenStore((state) => state.setGenApi)
   const setVisionApi = useAiImageGenStore((state) => state.setVisionApi)
+  const setPolishApi = useAiImageGenStore((state) => state.setPolishApi)
+  const setPolishUsesVision = useAiImageGenStore((state) => state.setPolishUsesVision)
   const tested = useAiImageGenStore((state) => state.tested)
   const setModelList = useAiImageGenStore((state) => state.setModelList)
   const setTested = useAiImageGenStore((state) => state.setTested)
@@ -86,6 +90,12 @@ export function AiImageSettingsDialog({ open, onOpenChange }: AiImageSettingsDia
 
   const genReady = apiReady(genApi, enabled, tested.gen)
   const visionReady = apiReady(visionApi, enabled, tested.vision)
+  // 润色默认蹭识图那套凭证与测试结果，关掉开关才用自己的 polishApi
+  const polishReady = apiReady(
+    polishUsesVision ? visionApi : polishApi,
+    enabled,
+    polishUsesVision ? tested.vision : tested.polish,
+  )
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -145,13 +155,63 @@ export function AiImageSettingsDialog({ open, onOpenChange }: AiImageSettingsDia
 
         <Separator />
 
-        <VisionSection
+        <ChatApiSection
+          slot="vision"
+          title={t('ai-image-gen.settings.visionApi')}
+          modelLabel={t('ai-image-gen.settings.visionModel')}
           ready={visionReady}
           api={visionApi}
           onApiChange={setVisionApi}
           showKey={showKey}
           onToggleKey={() => setShowKey(!showKey)}
         />
+
+        <Separator />
+
+        <div className="space-y-3">
+          <p className="flex items-center gap-2 text-sm font-medium">
+            <span
+              aria-hidden
+              className={cn('size-2 rounded-full', polishReady ? 'bg-primary' : 'bg-destructive')}
+            />
+            {t('ai-image-gen.settings.polishApi')}
+          </p>
+          <div className="flex items-center gap-2">
+            <Switch
+              checked={polishUsesVision}
+              aria-label={t('ai-image-gen.settings.polishUseVision')}
+              onCheckedChange={setPolishUsesVision}
+            />
+            <Label className="text-xs">{t('ai-image-gen.settings.polishUseVision')}</Label>
+            <span className="text-muted-foreground ml-auto min-w-0 truncate text-[11px]">
+              {polishUsesVision
+                ? t('ai-image-gen.settings.polishUsesVisionNow', {
+                    model: visionApi.model || t('ai-image-gen.settings.unassigned'),
+                  })
+                : t('ai-image-gen.settings.polishOwnModelNow')}
+            </span>
+          </div>
+          <p className="text-muted-foreground text-xs">
+            {t('ai-image-gen.settings.polishUseVisionHint')}
+          </p>
+        </div>
+
+        {polishUsesVision ? null : (
+          <>
+            <Separator />
+            <ChatApiSection
+              slot="polish"
+              title={t('ai-image-gen.settings.polishApi')}
+              modelLabel={t('ai-image-gen.settings.polishModel')}
+              ready={polishReady}
+              api={polishApi}
+              onApiChange={setPolishApi}
+              showKey={showKey}
+              onToggleKey={() => setShowKey(!showKey)}
+              hideTitle
+            />
+          </>
+        )}
       </DialogContent>
 
       <AlertDialog open={consentOpen} onOpenChange={setConsentOpen}>
@@ -221,6 +281,7 @@ function ApiSection({
   showKey,
   onToggleKey,
   actions,
+  hideTitle = false,
 }: {
   title: string
   ready: boolean
@@ -232,18 +293,22 @@ function ApiSection({
   showKey: boolean
   onToggleKey: () => void
   actions?: ReactNode
+  /** 标题由外层给出时（润色那节带开关），这里不再重复画一行 */
+  hideTitle?: boolean
 }) {
   const { t } = useTranslation('tools-images')
   const preset = AI_PROVIDER_DEFINITIONS[api.provider]
   return (
     <div className="space-y-3">
-      <p className="flex items-center gap-2 text-sm font-medium">
-        <span
-          aria-hidden
-          className={cn('size-2 rounded-full', ready ? 'bg-primary' : 'bg-destructive')}
-        />
-        {title}
-      </p>
+      {hideTitle ? null : (
+        <p className="flex items-center gap-2 text-sm font-medium">
+          <span
+            aria-hidden
+            className={cn('size-2 rounded-full', ready ? 'bg-primary' : 'bg-destructive')}
+          />
+          {title}
+        </p>
+      )}
       <Row label={t('ai-image-gen.settings.provider')}>{providerSlot}</Row>
       <Row label="API Key">
         <KeyInput api={api} onApiChange={onApiChange} showKey={showKey} />
@@ -315,7 +380,18 @@ function ProviderSegment({
   )
 }
 
-function VisionSection(props: {
+/** 识图与润色同构：都是「一套 chat 凭证 + 一个模型」，只差标题与 tested 的槽位键 */
+function ChatApiSection({
+  slot,
+  title,
+  modelLabel,
+  hideTitle = false,
+  ...section
+}: {
+  slot: 'vision' | 'polish'
+  title: string
+  modelLabel: string
+  hideTitle?: boolean
   ready: boolean
   api: ApiConfig
   onApiChange: (patch: Partial<ApiConfig>) => void
@@ -323,7 +399,7 @@ function VisionSection(props: {
   onToggleKey: () => void
 }) {
   const { t } = useTranslation('tools-images')
-  const { api, onApiChange } = props
+  const { api, onApiChange } = section
   const modelLists = useAiImageGenStore((state) => state.modelLists)
   const setModelList = useAiImageGenStore((state) => state.setModelList)
   const setTested = useAiImageGenStore((state) => state.setTested)
@@ -333,9 +409,9 @@ function VisionSection(props: {
   const signature = apiSignature(api)
   useEffect(() => {
     if (testState.status === 'ok') {
-      setTested('vision', signature)
+      setTested(slot, signature)
     }
-  }, [testState.status, signature, setTested])
+  }, [testState.status, signature, setTested, slot])
 
   const handleFetch = async () => {
     try {
@@ -358,7 +434,7 @@ function VisionSection(props: {
       return
     }
     const profile: AIModelProfile = {
-      id: 'vision-api-test',
+      id: `${slot}-api-test`,
       name: api.model,
       provider: api.provider,
       protocol: AI_PROVIDER_DEFINITIONS[api.provider].protocol,
@@ -372,9 +448,10 @@ function VisionSection(props: {
 
   return (
     <ApiSection
-      {...props}
-      title={t('ai-image-gen.settings.visionApi')}
-      modelLabel={t('ai-image-gen.settings.visionModel')}
+      {...section}
+      title={title}
+      hideTitle={hideTitle}
+      modelLabel={modelLabel}
       modelOptions={modelLists[api.provider] ?? []}
       providerSlot={
         <Select

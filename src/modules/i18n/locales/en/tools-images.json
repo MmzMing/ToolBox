@@ -221,7 +221,7 @@
     }
   },
   "ai-image-gen": {
-    "title": "AI Image Gen",
+    "title": "AI Image Gen Canvas",
     "badge": "Beta",
     "description": "Bring your own key to generate images via OpenAI / Gemini, arrange results on a lineage canvas, reverse-engineer prompts with skill templates and export zips",
     "toolbar": {
@@ -333,6 +333,7 @@
       "title": "AI image settings",
       "genApi": "Image API",
       "visionApi": "Vision API",
+      "polishApi": "Polish API",
       "provider": "Provider",
       "enable": "Enable AI image gen",
       "apiKey": "API key",
@@ -343,6 +344,11 @@
       "baseUrlHint": "https only; http allowed for loopback. Compatible gateways work too.",
       "imageModel": "Image model",
       "visionModel": "Vision model",
+      "polishModel": "Polish model",
+      "polishUseVision": "Polish with the vision model",
+      "polishUseVisionHint": "On: polishing reuses the vision credentials and model. Turn it off to configure a model of its own.",
+      "polishUsesVisionNow": "Following the vision model: {{model}}",
+      "polishOwnModelNow": "Polishing uses the model configured below",
       "fetchModels": "Fetch models",
       "fetchOk": "Fetched {{count}} models",
       "test": "Test connection",
@@ -391,10 +397,11 @@
     "polish": {
       "label": "Polish",
       "model": "Polish model",
-      "start": "Start polishing",
       "hint": "Rewording and structure only — @Image N mentions, paragraph breaks and headings stay as they are.",
-      "noModels": "No model list for this provider yet — fetch one in AI settings",
-      "openSettings": "Open AI settings"
+      "usesVision": "Follows the vision API credentials and model.",
+      "usesOwn": "Uses the polish model configured below.",
+      "openSettings": "AI image settings",
+      "start": "Start polishing"
     },
     "promptNode": {
       "refs": "{{count}} / {{max}} references",

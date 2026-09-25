@@ -72,7 +72,7 @@
       "models": "模型",
       "textModel": "文本模型（润色与校对）",
       "pdfModel": "视觉模型（PDF 导入）",
-      "imageModel": "出图模型（AI 生图）",
+      "imageModel": "出图模型（AI 生图画布）",
       "visionModel": "识图模型（反推提示词）",
       "modelPlaceholder": "手输模型名，例如 deepseek-chat",
       "textHint": "每家各记一个文本、视觉、出图与识图型号，互不覆盖；实际生效的是顶部「使用厂商」选中的那家。视觉槽供导入 PDF 使用，识图槽供生图工具反推提示词使用，出图槽仅 OpenAI / Gemini 生效。",
