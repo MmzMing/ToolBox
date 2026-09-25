@@ -1,4 +1,4 @@
-import { ShieldAlert } from 'lucide-react'
+import { Gauge } from 'lucide-react'
 
 import { defineTool } from '../../define-tool'
 
@@ -17,7 +17,7 @@ export const tool = defineTool({
     '破解时间',
     '安全',
   ],
-  icon: ShieldAlert,
+  icon: Gauge,
   component: () => import('./PasswordStrengthAnalyser'),
   createdAt: '2026-09-19',
 })

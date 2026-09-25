@@ -1,4 +1,4 @@
-import { Timer } from 'lucide-react'
+import { ShieldHalf } from 'lucide-react'
 
 import { defineTool } from '../../define-tool'
 
@@ -16,7 +16,7 @@ export const tool = defineTool({
     '动态密码',
     '两步验证',
   ],
-  icon: Timer,
+  icon: ShieldHalf,
   component: () => import('./OtpCodeGeneratorAndValidator'),
   createdAt: '2026-09-19',
 })

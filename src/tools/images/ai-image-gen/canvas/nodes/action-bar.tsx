@@ -1,4 +1,6 @@
 import { Button } from '@/components/ui/button'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
+import { cn } from '@/lib/utils'
 
 /**
  * 节点上方浮出的胶囊工具条：悬停即出，选中或正在操作时常驻（可见性由调用方给类名）。
@@ -16,35 +18,50 @@ export function ActionBar({ children }: { children: React.ReactNode }) {
 }
 
 /**
- * 图标+文字的动作按钮。必须吃掉 mousedown：否则按钮先让文本框失焦，
- * 失焦即提交，提交又重挂编辑器，这次点击就打在已被替换的 DOM 上。
- * Radix 的 Popover Trigger 不要用它，吃掉 mousedown 会让弹层打不开。
+ * 图标动作按钮。默认吃掉 mousedown：否则按钮先让文本框失焦，失焦即提交，
+ * 提交又重挂编辑器，这次点击就打在已被替换的 DOM 上。
+ * `iconOnly` 收成纯图标，说明改由 tooltip 给出。
  */
 export function ActionButton({
   label,
   icon,
   onClick,
   disabled = false,
+  iconOnly = false,
 }: {
   label: string
   icon: React.ReactNode
   onClick: () => void
   disabled?: boolean
+  iconOnly?: boolean
 }) {
-  return (
+  const button = (
     <Button
       type="button"
       variant="ghost"
       size="sm"
-      className="h-6 shrink-0 gap-1 rounded-full px-2 text-[10px] font-normal"
+      className={cn(
+        'h-6 shrink-0 gap-1 rounded-full text-[10px] font-normal',
+        iconOnly ? 'w-6 px-0' : 'px-2',
+      )}
       disabled={disabled}
       aria-label={label}
-      title={label}
+      title={iconOnly ? undefined : label}
       onMouseDown={(event) => event.preventDefault()}
       onClick={onClick}
     >
       {icon}
-      <span className="hidden sm:inline">{label}</span>
+      {iconOnly ? null : <span className="hidden sm:inline">{label}</span>}
     </Button>
+  )
+
+  if (!iconOnly) {
+    return button
+  }
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>{button}</TooltipTrigger>
+      <TooltipContent side="top">{label}</TooltipContent>
+    </Tooltip>
   )
 }

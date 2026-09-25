@@ -5,7 +5,7 @@ import {
   Earth,
   IdCard,
   Images,
-  LifeBuoy,
+  House,
   Lock,
   Type,
 } from 'lucide-react'
@@ -35,5 +35,5 @@ export const categoryIcons: Record<CategoryKey, LucideIcon> = {
   development: Code2,
   cheatsheet: BookOpen,
   text: Type,
-  life: LifeBuoy,
+  life: House,
 }

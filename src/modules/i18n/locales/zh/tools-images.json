@@ -233,7 +233,6 @@
       "clearConfirmAction": "清空",
       "cancel": "取消",
       "settings": "AI 设置",
-      "library": "提示词库",
       "skills": "Skill 管理"
     },
     "gate": {
@@ -308,6 +307,7 @@
       "imageRefused": "内容被服务商安全策略拒绝：调整提示词后重试",
       "refused": "内容被服务商安全策略拒绝：调整提示词后重试",
       "emptyOutput": "模型返回为空",
+      "emptyInput": "没有可润色的文本",
       "invalidOutput": "模型输出格式无法解析",
       "truncatedOutput": "模型输出被截断",
       "unknown": "未知错误"
@@ -388,6 +388,14 @@
       "zoomIn": "放大",
       "zoomOut": "缩小"
     },
+    "polish": {
+      "label": "润色",
+      "model": "润色模型",
+      "start": "开始润色",
+      "hint": "只改写措辞与组织，@图N 标记、分段和小标题都会原样保留。",
+      "noModels": "该服务商还没有模型列表，去 AI 设置里获取",
+      "openSettings": "打开 AI 设置"
+    },
     "promptNode": {
       "refs": "{{count}} / {{max}} 张参考图",
       "chain": "←{{count}} 条上游",
@@ -413,18 +421,6 @@
       "skill": "反推 skill",
       "visionModel": "识图模型",
       "start": "开始反推"
-    },
-    "library": {
-      "title": "提示词库",
-      "search": "搜索提示词…",
-      "empty": "还没有缓存的提示词",
-      "insert": "插入",
-      "delete": "删除",
-      "source": {
-        "reverse": "反推",
-        "gen": "生成",
-        "manual": "手动"
-      }
     },
     "skillManager": {
       "title": "Skill 管理",

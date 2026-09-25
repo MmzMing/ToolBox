@@ -24,10 +24,12 @@ import {
   nextWorkspaceNumber,
   normalizeCanvasNode,
   normalizeGenParams,
+  normalizePolishedText,
   normalizeWorkspace,
   openaiSizeFor,
   parsePromptCandidates,
   parseReferenceMentions,
+  polishSystemPrompt,
   referenceLabelAt,
   remapReferenceMentions,
   summarizeWorkspaces,
@@ -903,5 +905,53 @@ describe('nextWorkspaceNumber', () => {
 
   it('ignores digits that sit anywhere but the end of the name', () => {
     expect(nextWorkspaceNumber(['2024 年度'])).toBe(1)
+  })
+})
+
+describe('polishSystemPrompt', () => {
+  it('pins the zh mention marker and the no-fence rule', () => {
+    const text = polishSystemPrompt('zh')
+    expect(text).toContain('@图N')
+    expect(text).toContain('不要代码围栏')
+  })
+
+  it('pins the en mention marker exactly as referenceLabelAt spells it', () => {
+    const text = polishSystemPrompt('en')
+    expect(text).toContain('@Image N')
+    expect(referenceLabelAt(0, 'en')).toBe('Image 1')
+  })
+
+  it('keeps the two languages apart instead of reusing one string', () => {
+    expect(polishSystemPrompt('zh')).not.toBe(polishSystemPrompt('en'))
+  })
+})
+
+describe('normalizePolishedText', () => {
+  it('returns plain model output untouched apart from trimming', () => {
+    expect(normalizePolishedText('\n  雪地里的少女，双手合拢  \n')).toBe('雪地里的少女，双手合拢')
+  })
+
+  it('strips a leading and trailing code fence', () => {
+    const raw = '```markdown\n雪地里的少女\n\n【Base Prompt】\n1girl, snow\n```'
+    expect(normalizePolishedText(raw)).toBe('雪地里的少女\n\n【Base Prompt】\n1girl, snow')
+  })
+
+  it('strips a bare fence line without eating the body', () => {
+    expect(normalizePolishedText('```\nkeep me\n```')).toBe('keep me')
+  })
+
+  it('drops a standalone "润色后：" preamble but keeps inline labels', () => {
+    expect(normalizePolishedText('润色后：\n正文一行')).toBe('正文一行')
+    expect(normalizePolishedText('【润色后】依然保留这行')).toBe('【润色后】依然保留这行')
+  })
+
+  it('preserves @Image mentions and paragraph breaks across the cleanup', () => {
+    const raw = '@Image 1 是背景\n\n第二段 @Image 2'
+    expect(normalizePolishedText(raw)).toBe(raw)
+  })
+
+  it('collapses to empty for whitespace-only or fence-only output', () => {
+    expect(normalizePolishedText('   \n\t \n ')).toBe('')
+    expect(normalizePolishedText('```')).toBe('')
   })
 })

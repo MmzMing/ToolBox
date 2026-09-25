@@ -4,9 +4,11 @@ import {
   AI_PROVIDER_DEFINITIONS,
   DEFAULT_IMAGE_MODEL,
   isModelConfigured,
+  resolveSlot,
   toAIConnection,
   type AIConnection,
 } from '@/modules/ai/providers'
+import { useAIConfigStore } from '@/modules/ai/store'
 import {
   AIRequestError,
   requestAIImages,
@@ -32,7 +34,9 @@ import {
   jobIdOfPromptNode,
   LEGACY_WORKSPACE_ID,
   MAX_REFERENCE_BYTES,
+  normalizePolishedText,
   parsePromptCandidates,
+  polishSystemPrompt,
   promptNodeIdOf,
   REFERENCE_MIMES,
   remapReferenceMentions,
@@ -102,6 +106,16 @@ export function resolveVisionConnection(): AIConnection | null {
     baseUrl: visionApi.baseUrl,
   })
   return isModelConfigured(connection) ? connection : null
+}
+
+/** 润色不自建凭证：直接复用 AI 连接层的「文本模型」槽，与简历润色同一份配置 */
+export function resolvePolishConnection(): AIConnection | null {
+  const { activeProvider, picks, credentials } = useAIConfigStore.getState()
+  const model = picks[activeProvider].text
+  const profile = model
+    ? resolveSlot({ provider: activeProvider, model }, credentials[activeProvider], 'text')
+    : null
+  return profile ? toAIConnection(profile) : null
 }
 
 const errorCode = (error: unknown): string =>
@@ -914,6 +928,37 @@ export async function submitCanvasGeneration(
     jobId,
     nodeText: overlay.text,
   })
+}
+
+/** 润色结果：成功带正文，失败带 `ai-image-gen.errors.*` 里的错误码 */
+export type PolishResult = { ok: true; text: string } | { ok: false; errorCode: string }
+
+/**
+ * 一次性润色：不进任务队列，调用方自己持有 loading。
+ * 画布节点与对话框共用它，免得两套润色各长一份状态。
+ */
+export async function polishText(text: string): Promise<PolishResult> {
+  const connection = resolvePolishConnection()
+  if (!connection) {
+    return { ok: false, errorCode: 'configRequired' }
+  }
+  if (!text.trim()) {
+    return { ok: false, errorCode: 'emptyInput' }
+  }
+  try {
+    const raw = await requestAIText(
+      connection,
+      {
+        system: polishSystemPrompt(document.documentElement.lang.startsWith('zh') ? 'zh' : 'en'),
+        text,
+      },
+      new AbortController().signal,
+    )
+    const polished = normalizePolishedText(raw)
+    return polished ? { ok: true, text: polished } : { ok: false, errorCode: 'emptyOutput' }
+  } catch (error) {
+    return { ok: false, errorCode: errorCode(error) }
+  }
 }
 
 export type ReverseInput = { dataUrl: string; name: string }

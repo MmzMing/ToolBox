@@ -323,10 +323,6 @@ export default function AiImageGen() {
           onSkillIdChange={setSkillId}
           onSubmit={handleSubmit}
           onOpenSettings={openSettings}
-          onInsertPrompt={(text) => {
-            setPrompt(text)
-            setMode('gen')
-          }}
         />
       </div>
 

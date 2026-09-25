@@ -1,4 +1,4 @@
-import { Barcode } from 'lucide-react'
+import { ArrowDownWideNarrow } from 'lucide-react'
 
 import { defineTool } from '../../define-tool'
 
@@ -16,7 +16,7 @@ export const tool = defineTool({
     '排序',
     '时间戳',
   ],
-  icon: Barcode,
+  icon: ArrowDownWideNarrow,
   component: () => import('./UlidGenerator'),
   createdAt: '2026-09-19',
 })

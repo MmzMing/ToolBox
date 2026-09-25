@@ -975,3 +975,31 @@ export function parsePromptCandidates(text: string): string[] {
   }
   return out.slice(0, 6)
 }
+
+/**
+ * 润色的系统指令：只改写措辞与组织，不许动 @图N 提及、语言与段落结构。
+ * 提及标记一旦改动，画布上的参考图就会指错，所以把它写成硬约束而不是建议。
+ */
+export function polishSystemPrompt(lang: 'zh' | 'en'): string {
+  return lang === 'zh'
+    ? '你是文生图提示词润色助手。在不改变原意的前提下让表达更精准、更具画面感、更贴合出图模型的阅读习惯。' +
+        '硬性要求：原样保留所有 @图N 标记（不增删、不改编号、不换位置的字面量）、保留原有分段与小标题、' +
+        '保持中文。只输出润色后的正文，不要解释、不要前后缀、不要代码围栏。'
+    : 'You polish text-to-image prompts. Rewrite for precision, visual clarity and model-friendly phrasing without changing the meaning. ' +
+        'Hard rules: keep every @Image N mention verbatim (same marker, same number, none added or removed), ' +
+        'keep the existing paragraph breaks and section headings, and answer in English. ' +
+        'Output only the polished text with no explanation and no code fences.'
+}
+
+/** 剥掉模型爱加的 ``` 围栏与「润色后：」这类前言，只留正文 */
+export function normalizePolishedText(raw: string): string {
+  const unfenced = raw.replace(/^\s*```[a-z]*\s*\n?/i, '').replace(/\n?```\s*$/i, '')
+  return unfenced
+    .split('\n')
+    .filter(
+      (line, index) =>
+        index !== 0 || !/^\s*(?:【)?(?:润色后|润色结果|polished|result)[：:]?\s*$/i.test(line),
+    )
+    .join('\n')
+    .trim()
+}

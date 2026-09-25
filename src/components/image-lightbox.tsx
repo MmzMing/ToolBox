@@ -36,6 +36,33 @@ export function ImageLightbox({
   const { t } = useTranslation('common', { keyPrefix: 'lightbox' })
   const [percent, setPercent] = useState(100)
   const transformRef = useRef<ReactZoomPanPinchContentRef>(null)
+  const imgRef = useRef<HTMLImageElement>(null)
+  const pointerStart = useRef<{ x: number; y: number } | null>(null)
+
+  /**
+   * 图片是 size-full + object-contain，元素框铺满这块区域、画面按等比居中并留出空白，
+   * 所以「图片外」不能靠 DOM 判断（点哪儿 target 都是 img），只能量出实际绘制的那块矩形。
+   * getBoundingClientRect 取的是变换之后的视觉框，缩放与平移同样适用。
+   */
+  const clickedOffImage = (event: React.MouseEvent) => {
+    const img = imgRef.current
+    if (!img?.naturalWidth || !img?.naturalHeight) {
+      return false
+    }
+    const box = img.getBoundingClientRect()
+    const natural = img.naturalWidth / img.naturalHeight
+    const letterboxed = box.width > box.height * natural
+    const width = letterboxed ? box.height * natural : box.width
+    const height = letterboxed ? box.height : box.width / natural
+    const left = box.left + (box.width - width) / 2
+    const top = box.top + (box.height - height) / 2
+    return (
+      event.clientX < left ||
+      event.clientX > left + width ||
+      event.clientY < top ||
+      event.clientY > top + height
+    )
+  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -94,7 +121,23 @@ export function ImageLightbox({
           </div>
         </div>
 
-        <div className="min-h-0 flex-1">
+        <div
+          className="min-h-0 flex-1"
+          onPointerDown={(event) => {
+            pointerStart.current = { x: event.clientX, y: event.clientY }
+          }}
+          onClick={(event) => {
+            const start = pointerStart.current
+            pointerStart.current = null
+            // 平移收尾也会落在空白处，移动过一段距离就不算「点空白」
+            if (start && Math.hypot(event.clientX - start.x, event.clientY - start.y) > 4) {
+              return
+            }
+            if (clickedOffImage(event)) {
+              onOpenChange(false)
+            }
+          }}
+        >
           {/* key 随开合与图片变化：换图或重新打开即重建变换实例，缩放回到刚铺好的状态 */}
           <TransformWrapper
             key={`${open}:${src}`}
@@ -113,7 +156,13 @@ export function ImageLightbox({
               wrapperStyle={{ width: '100%', height: '100%' }}
               contentStyle={{ width: '100%', height: '100%' }}
             >
-              <img src={src} alt={alt} draggable={false} className="size-full object-contain" />
+              <img
+                ref={imgRef}
+                src={src}
+                alt={alt}
+                draggable={false}
+                className="size-full object-contain"
+              />
             </TransformComponent>
           </TransformWrapper>
         </div>

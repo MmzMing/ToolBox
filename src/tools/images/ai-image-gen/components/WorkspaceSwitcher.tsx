@@ -217,7 +217,7 @@ function CanvasMap({ rects }: { rects: CanvasMapRect[] }) {
     <svg
       viewBox={`${box.x} ${box.y} ${box.width} ${box.height}`}
       preserveAspectRatio="xMidYMid meet"
-      className="text-primary/45 size-full"
+      className="text-foreground/45 size-full"
       aria-hidden
     >
       {rects.map((rect, index) => (

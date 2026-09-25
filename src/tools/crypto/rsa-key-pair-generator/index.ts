@@ -1,4 +1,4 @@
-import { KeySquare } from 'lucide-react'
+import { KeyRound } from 'lucide-react'
 
 import { defineTool } from '../../define-tool'
 
@@ -16,7 +16,7 @@ export const tool = defineTool({
     '非对称',
     '密钥对',
   ],
-  icon: KeySquare,
+  icon: KeyRound,
   component: () => import('./RsaKeyPairGenerator'),
   createdAt: '2026-09-19',
 })

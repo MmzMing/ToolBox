@@ -12,6 +12,7 @@ import {
 } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { toast } from 'sonner'
 
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
@@ -31,6 +32,8 @@ import {
   type GenParams,
 } from '../../ai-image-gen.service'
 import { ParamBar } from '../../components/ParamBar'
+import { PolishButton } from '../../components/PolishButton'
+import { polishText } from '../../orchestrator'
 import type { JobStatus } from '../../store'
 import { ActionBar, ActionButton } from './action-bar'
 import { LinkZone } from './link-zone'
@@ -384,6 +387,7 @@ function PromptEditor({
   const [focused, setFocused] = useState(false)
   const [panelOpen, setPanelOpen] = useState(false)
   const [expanded, setExpanded] = useState(false)
+  const [polishing, setPolishing] = useState(false)
 
   const running = RUNNING.includes(data.status)
   // 多选时对齐条接管工具条的位置，这里连悬停都不出
@@ -403,6 +407,21 @@ function PromptEditor({
     anchor.download = buildTextFileName(draft, data.createdAt || Date.now())
     anchor.click()
     URL.revokeObjectURL(url)
+  }
+
+  // 润色吃的是当前草稿：成功后 onRename 会改 data.text，编辑器按 key 重挂，草稿自然跟上
+  const polish = async () => {
+    setPolishing(true)
+    try {
+      const result = await polishText(draft)
+      if (!result.ok) {
+        toast.error(t(`ai-image-gen.errors.${result.errorCode}`))
+        return
+      }
+      data.onRename(data.nodeId, result.text, bindings)
+    } finally {
+      setPolishing(false)
+    }
   }
 
   const field = {
@@ -460,22 +479,6 @@ function PromptEditor({
           </span>
           <Separator orientation="vertical" className="h-4 shrink-0" />
 
-          <ActionButton
-            label={t('ai-image-gen.promptNode.expand')}
-            icon={<Maximize2 className="size-3 shrink-0" />}
-            onClick={() => setExpanded(true)}
-          />
-          <ActionButton
-            label={t('ai-image-gen.promptNode.duplicate')}
-            icon={<Copy className="size-3 shrink-0" />}
-            onClick={() => data.onDuplicate(data.nodeId)}
-          />
-          <ActionButton
-            label={t('ai-image-gen.promptNode.download')}
-            icon={<Download className="size-3 shrink-0" />}
-            disabled={!draft.trim()}
-            onClick={download}
-          />
           {data.vision ? null : (
             <Popover>
               <PopoverTrigger asChild>
@@ -500,10 +503,31 @@ function PromptEditor({
             </Popover>
           )}
           <ActionButton
+            label={t('ai-image-gen.promptNode.duplicate')}
+            icon={<Copy className="size-3 shrink-0" />}
+            iconOnly
+            onClick={() => data.onDuplicate(data.nodeId)}
+          />
+          <ActionButton
+            label={t('ai-image-gen.promptNode.expand')}
+            icon={<Maximize2 className="size-3 shrink-0" />}
+            iconOnly
+            onClick={() => setExpanded(true)}
+          />
+          <ActionButton
+            label={t('ai-image-gen.promptNode.download')}
+            icon={<Download className="size-3 shrink-0" />}
+            iconOnly
+            disabled={!draft.trim()}
+            onClick={download}
+          />
+          <ActionButton
             label={t('ai-image-gen.promptNode.delete')}
             icon={<Trash2 className="text-destructive size-3 shrink-0" />}
+            iconOnly
             onClick={() => data.onDelete(data.nodeId)}
           />
+          <PolishButton pending={polishing} disabled={running} onPolish={() => void polish()} />
           {data.status === 'failed' || data.status === 'cancelled' ? (
             <ActionButton
               label={t('ai-image-gen.card.retry')}
@@ -562,7 +586,13 @@ function PromptEditor({
             textareaClassName="min-h-0 size-full resize-none px-3 py-2 text-sm"
             onFocusChange={() => undefined}
           />
-          <div className="flex shrink-0 justify-end">
+          <div className="flex shrink-0 items-center justify-end gap-2">
+            <PolishButton
+              labeled
+              pending={polishing}
+              disabled={running}
+              onPolish={() => void polish()}
+            />
             <Button
               type="button"
               size="sm"

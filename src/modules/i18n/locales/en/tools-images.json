@@ -233,7 +233,6 @@
       "clearConfirmAction": "Clear",
       "cancel": "Cancel",
       "settings": "AI settings",
-      "library": "Prompt library",
       "skills": "Skill manager"
     },
     "gate": {
@@ -308,6 +307,7 @@
       "imageRefused": "Refused by the provider's safety policy: adjust the prompt",
       "refused": "Refused by the provider's safety policy: adjust the prompt",
       "emptyOutput": "Empty model output",
+      "emptyInput": "Nothing to polish",
       "invalidOutput": "Unparseable model output",
       "truncatedOutput": "Model output truncated",
       "unknown": "Unknown error"
@@ -388,6 +388,14 @@
       "zoomIn": "Zoom in",
       "zoomOut": "Zoom out"
     },
+    "polish": {
+      "label": "Polish",
+      "model": "Polish model",
+      "start": "Start polishing",
+      "hint": "Rewording and structure only — @Image N mentions, paragraph breaks and headings stay as they are.",
+      "noModels": "No model list for this provider yet — fetch one in AI settings",
+      "openSettings": "Open AI settings"
+    },
     "promptNode": {
       "refs": "{{count}} / {{max}} references",
       "chain": "←{{count}} upstream",
@@ -413,18 +421,6 @@
       "skill": "Reverse skill",
       "visionModel": "Vision model",
       "start": "Reverse"
-    },
-    "library": {
-      "title": "Prompt library",
-      "search": "Search prompts…",
-      "empty": "No cached prompts yet",
-      "insert": "Insert",
-      "delete": "Delete",
-      "source": {
-        "reverse": "reverse",
-        "gen": "gen",
-        "manual": "manual"
-      }
     },
     "skillManager": {
       "title": "Skill manager",

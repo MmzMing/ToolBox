@@ -1,4 +1,4 @@
-import { UserLock } from 'lucide-react'
+import { UserKey } from 'lucide-react'
 
 import { defineTool } from '../../define-tool'
 
@@ -15,7 +15,7 @@ export const tool = defineTool({
     '凭证',
     '授权',
   ],
-  icon: UserLock,
+  icon: UserKey,
   component: () => import('./BasicAuthGenerator'),
   createdAt: '2026-09-19',
 })

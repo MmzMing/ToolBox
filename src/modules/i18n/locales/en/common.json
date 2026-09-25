@@ -44,7 +44,7 @@
     "zoomOut": "Zoom out",
     "fit": "Fit to window",
     "close": "Close",
-    "hint": "Scroll to zoom · drag to pan · double-click to magnify"
+    "hint": "Scroll to zoom · drag to pan · double-click to magnify · click outside the image to close"
   },
   "ai": {
     "entry": "AI assist",

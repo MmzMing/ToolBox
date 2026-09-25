@@ -22,10 +22,11 @@ import { DEFAULT_IMAGE_MODEL } from '@/modules/ai/providers'
 import { bytesToDataUrl } from '@/utils/base64'
 
 import { MAX_REFERENCE_BYTES, REFERENCE_MIMES, type GenParams } from '../ai-image-gen.service'
+import { polishText } from '../orchestrator'
 import { useAiImageGenStore } from '../store'
 import type { Skill } from '../skills'
-import { LibraryPopover } from './LibraryPopover'
 import { ParamBar } from './ParamBar'
+import { PolishButton } from './PolishButton'
 import { SkillPicker } from './SkillPicker'
 
 export type ReferenceImage = { id: string; dataUrl: string; name: string; imageId?: string }
@@ -50,7 +51,6 @@ type ComposerProps = {
   onSkillIdChange: (id: string) => void
   onSubmit: () => void
   onOpenSettings: () => void
-  onInsertPrompt: (text: string) => void
 }
 
 export function Composer(props: ComposerProps) {
@@ -70,12 +70,12 @@ export function Composer(props: ComposerProps) {
     onSkillIdChange,
     onSubmit,
     onOpenSettings,
-    onInsertPrompt,
   } = props
   const { t } = useTranslation('tools-images')
   const refFileRef = useRef<HTMLInputElement>(null)
   const reverseFileRef = useRef<HTMLInputElement>(null)
   const [dropping, setDropping] = useState(false)
+  const [polishing, setPolishing] = useState(false)
 
   const genApi = useAiImageGenStore((state) => state.genApi)
   const visionApi = useAiImageGenStore((state) => state.visionApi)
@@ -147,6 +147,21 @@ export function Composer(props: ComposerProps) {
     onPromptChange('')
     onReferencesChange([])
     onReverseImagesChange([])
+  }
+
+  /** 润色输入框里那段话：成功后整段替换，失败只 toast，不动用户原文 */
+  const polish = async () => {
+    setPolishing(true)
+    try {
+      const result = await polishText(prompt)
+      if (!result.ok) {
+        toast.error(t(`ai-image-gen.errors.${result.errorCode}`))
+        return
+      }
+      onPromptChange(result.text)
+    } finally {
+      setPolishing(false)
+    }
   }
 
   return (
@@ -261,7 +276,14 @@ export function Composer(props: ComposerProps) {
           </PopoverContent>
         </Popover>
 
-        <LibraryPopover onInsert={onInsertPrompt} />
+        {mode === 'gen' && (
+          <PolishButton
+            bar
+            pending={polishing}
+            disabled={!prompt.trim()}
+            onPolish={() => void polish()}
+          />
+        )}
 
         {mode === 'reverse' && (
           <SkillPicker skillId={activeSkillId} onSkillIdChange={onSkillIdChange} />
