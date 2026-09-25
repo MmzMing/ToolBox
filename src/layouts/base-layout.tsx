@@ -41,6 +41,9 @@ const drawerSlideStyle = {
   '--tw-exit-translate-x': '-100%',
 } as CSSProperties
 
+/** Mac 系的快捷键徽标用 ⌘，其余用 Ctrl；与实际监听的 metaKey || ctrlKey 一致 */
+const SHORTCUT_MOD_KEY = /mac|iphone|ipad/i.test(navigator.userAgent) ? '⌘' : 'Ctrl'
+
 /**
  * 全局布局：左侧手风琴分类导航（桌面可折叠，平板与手机为抽屉）+ 顶栏 + 内容区。
  * 顶栏左侧为侧栏开关与面包屑，右侧为搜索入口（Ctrl/Cmd+K）、语言与主题切换。
@@ -183,20 +186,17 @@ export default function BaseLayout() {
                   <button
                     type="button"
                     onClick={() => openPalette(true)}
-                    className="text-muted-foreground hover:bg-muted aria-expanded:bg-muted flex h-8 items-center gap-2 rounded-md border px-2.5 text-sm transition-colors md:mr-1 md:px-3"
+                    aria-label={t('searchPlaceholder')}
+                    className="text-muted-foreground hover:bg-muted hover:text-foreground aria-expanded:bg-muted flex h-8 items-center gap-1.5 rounded-md px-1.5 transition-colors md:mr-1"
                   >
                     <Search className="size-4 shrink-0" />
-                    <span className="hidden min-w-24 text-left md:inline">
-                      {t('searchPlaceholder')}
-                    </span>
-                    <kbd className="bg-background text-muted-foreground hidden shrink-0 rounded border px-1.5 font-mono text-[10px] lg:inline">
-                      Ctrl K
+                    <kbd className="bg-muted/60 text-muted-foreground flex h-5 shrink-0 items-center gap-1 rounded border px-1.5 font-mono text-[11px] leading-none">
+                      <span>{SHORTCUT_MOD_KEY}</span>
+                      <span>K</span>
                     </kbd>
                   </button>
                 </TooltipTrigger>
-                <TooltipContent side="bottom" className="md:hidden">
-                  {t('searchPlaceholder')}
-                </TooltipContent>
+                <TooltipContent side="bottom">{t('searchPlaceholder')}</TooltipContent>
               </Tooltip>
               <LocaleSwitcher />
               <ThemeToggle />

@@ -106,8 +106,13 @@ export function CommandPalette() {
             placeholder={t('searchPlaceholder')}
           />
           <CommandList>
-            <ActionGroups goTo={goTo} />
-            {!query.trim() && <PinnedGroups goTo={goTo} />}
+            {/* 有查询词时只留搜索结果，快捷操作与收藏/最近分组一并隐藏 */}
+            {!query.trim() && (
+              <>
+                <ActionGroups goTo={goTo} />
+                <PinnedGroups goTo={goTo} />
+              </>
+            )}
 
             {toolsByCategory.map(({ category }) => {
               const groupTools = matched.filter((item) => item.category === category)
