@@ -1,17 +1,13 @@
 import type { DefinedTool } from '../define-tool'
 
+import { tool as markdownEditor } from './markdown-editor'
 import { tool as textDiff } from './text-diff'
-import { tool as textStatistics } from './text-statistics'
-import { tool as caseConverter } from './case-converter'
-import { tool as emojiPicker } from './emoji-picker'
+import { tool as textFormatter } from './text-formatter'
 import { tool as asciiTextDrawer } from './ascii-text-drawer'
-import { tool as loremIpsumGenerator } from './lorem-ipsum-generator'
 
 export const textTools: readonly DefinedTool[] = [
+  markdownEditor,
   textDiff,
-  textStatistics,
-  caseConverter,
-  emojiPicker,
+  textFormatter,
   asciiTextDrawer,
-  loremIpsumGenerator,
 ]

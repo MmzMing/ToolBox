@@ -1,75 +1,65 @@
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { TextareaCopyable } from '@/components/copyable/textarea-copyable'
-import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import { binaryToText, textToBinary, textToHex } from '../encoder-decoder.service'
+import { binaryToText, hexToText, textToBinary, textToHex } from '../encoder-decoder.service'
+import { useConversion } from '../use-conversion'
+import { EncodePair, Segmented, type Direction } from './pair-shell'
+
+/** 表示形式：按 UTF-8 字节展开的二进制串或十六进制串 */
+type BinaryForm = 'binary' | 'hex'
 
 /** 二进制 / 十六进制与文本互转（UTF-8） */
 export function BinaryPanel() {
   const { t } = useTranslation('tools-development', { keyPrefix: 'encoder-decoder.binary' })
-  const { t: tCommon } = useTranslation('common')
+  const { t: tShared } = useTranslation('tools-development', {
+    keyPrefix: 'encoder-decoder.shared',
+  })
 
-  const [text, setText] = useState('')
-  const [binaryInput, setBinaryInput] = useState('')
+  const [dir, setDir] = useState<Direction>('encode')
+  const [form, setForm] = useState<BinaryForm>('binary')
+  const [source, setSource] = useState('')
 
-  const forward = useMemo(() => ({ binary: textToBinary(text), hex: textToHex(text) }), [text])
-
-  const reverse = useMemo(() => {
-    if (binaryInput.trim() === '') {
-      return { text: '', error: null }
+  const convert = useMemo(() => {
+    if (dir === 'decode') {
+      return form === 'binary' ? binaryToText : hexToText
     }
-    try {
-      return { text: binaryToText(binaryInput), error: null }
-    } catch {
-      return { text: '', error: tCommon('error') }
-    }
-  }, [binaryInput, tCommon])
+    return form === 'binary' ? textToBinary : textToHex
+  }, [dir, form])
+  const { value, error } = useConversion(source, convert)
+
+  const encoding = dir === 'encode'
+  const formName = form === 'binary' ? t('binaryLabel') : t('hexLabel')
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex flex-col gap-2">
-        <Label>{t('textToBinaryLabel')}</Label>
-        <Textarea
-          value={text}
-          onChange={(event) => setText(event.target.value)}
-          className="min-h-24 font-mono text-sm"
-          placeholder="Hello 世界"
+    <EncodePair
+      direction={{ value: dir, onChange: setDir }}
+      controls={
+        <Segmented
+          label={tShared('form')}
+          value={form}
+          onChange={setForm}
+          options={[
+            { value: 'binary', label: t('binaryLabel') },
+            { value: 'hex', label: t('hexLabel') },
+          ]}
         />
-      </div>
-
-      <div className="flex flex-col gap-2">
-        <Label className="text-muted-foreground">{t('binaryLabel')}</Label>
-        <TextareaCopyable value={forward.binary} rows={3} />
-      </div>
-
-      <div className="flex flex-col gap-2">
-        <Label className="text-muted-foreground">{t('hexLabel')}</Label>
-        <TextareaCopyable value={forward.hex} rows={3} />
-      </div>
-
-      <div className="flex flex-col gap-2">
-        <Label>{t('binaryToTextLabel')}</Label>
-        <Textarea
-          value={binaryInput}
-          onChange={(event) => setBinaryInput(event.target.value)}
-          className="min-h-24 font-mono text-sm"
-          placeholder="01001000 01100101..."
-        />
-      </div>
-
-      {reverse.error && (
-        <Alert variant="destructive">
-          <AlertDescription>{reverse.error}</AlertDescription>
-        </Alert>
-      )}
-
-      <div className="flex flex-col gap-2">
-        <Label className="text-muted-foreground">{t('textOutput')}</Label>
-        <TextareaCopyable value={reverse.text} rows={3} />
-      </div>
-    </div>
+      }
+      input={{
+        value: source,
+        onValueChange: setSource,
+        tag: encoding ? t('tagText') : formName,
+        placeholder: encoding
+          ? 'Hello 世界'
+          : form === 'binary'
+            ? '01001000 01100101'
+            : '48 65 6c 6c 6f',
+      }}
+      output={{
+        value,
+        tag: encoding ? formName : t('tagText'),
+        placeholder: tShared('outputPlaceholder'),
+      }}
+      error={error}
+    />
   )
 }

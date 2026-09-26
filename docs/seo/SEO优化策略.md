@@ -689,7 +689,6 @@ Disallow: /resume/
 | `/encoder-decoder`                  | base64编码解码、url编码           | base64转图片、中文转base64       | base64是什么、base64会变大吗     | 信息+工具             |
 | `/timestamp`（date-time-converter） | 时间戳转换、unix时间戳在线        | 时间戳转日期、毫秒时间戳         | 时间戳10位和13位区别             | 工具                  |
 | `/regex-memo`                       | 正则表达式大全、正则在线测试      | 常用正则表达式、手机号正则       | 正则怎么匹配中文                 | 信息                  |
-| `/emoji-picker`                     | emoji表情复制、emoji大全          | 特殊符号复制、符号大全           | emoji怎么打出来                  | 工具                  |
 | `/color-converter`                  | 颜色转换、hex转rgb                | 颜色代码查询、rgb转十六进制      | 怎么把rgb换成hex                 | 工具                  |
 | `/text-diff`                        | 文本对比、在线diff工具            | 代码对比、文件差异对比           | 怎么快速对比两段文字             | 工具                  |
 | `/token-generator`                  | 随机密码生成器、token生成         | 强密码生成、随机字符串           | 多长的密码才安全                 | 交易+工具             |

@@ -23,12 +23,21 @@ export type DiffRow = {
   changeIndex: number | null
 }
 
+/** 摊平到某一栏后的一行：本栏行号 + 所属差异块（普通行为 null） */
+export type PaneCell = DiffCell & { changeIndex: number | null }
+
 export type DiffSummary = {
   added: number
   removed: number
   /** 差异块数量，即「处」 */
   changes: number
 }
+
+/** 两栏：左栏叫 original（原文），右栏叫 modified（新文） */
+export type PaneSide = 'original' | 'modified'
+
+/** 槽位与 DiffRow 两侧字段的对应：左栏取 left、右栏取 right */
+const CELL_SIDE: Record<PaneSide, 'left' | 'right'> = { original: 'left', modified: 'right' }
 
 type DiffBlock =
   { kind: 'common'; lines: string[] } | { kind: 'change'; removed: string[]; added: string[] }
@@ -169,4 +178,42 @@ export function summarizeDiff(rows: readonly DiffRow[]): DiffSummary {
   }
 
   return { added, removed, changes }
+}
+
+/** 一格的纯文本：行内高亮只是切片标记，拼起来就是整行 */
+export function cellText(cell: DiffCell): string {
+  return cell.segments.map((segment) => segment.text).join('')
+}
+
+/**
+ * 把一栏要显示的行摊平出来：本栏只显示自己那一侧，对方独有的行在本栏直接不占位。
+ *
+ * 行号按本栏重新数（与 textarea 的显示口径一致），并带上所属差异块，供跳转定位与高亮用。
+ * `lineCount` 是本栏文本按 \n 切出的行数，用来补齐结尾换行符带出的空行（diffLines 不产出它）；
+ * 空文本时差异行为空，这里同样要给出一个空行，否则没有可输入的正文。
+ */
+export function buildPaneCells(
+  rows: readonly DiffRow[],
+  side: PaneSide,
+  lineCount: number,
+): PaneCell[] {
+  const cells: PaneCell[] = []
+
+  for (const row of rows) {
+    const cell = row[CELL_SIDE[side]]
+    if (cell !== null) {
+      cells.push({ ...cell, lineNumber: cells.length + 1, changeIndex: row.changeIndex })
+    }
+  }
+
+  for (let index = cells.length; index < lineCount; index += 1) {
+    cells.push({
+      lineNumber: index + 1,
+      type: 'unchanged',
+      segments: [{ text: '', changed: false }],
+      changeIndex: null,
+    })
+  }
+
+  return cells
 }

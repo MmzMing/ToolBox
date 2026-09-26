@@ -7,7 +7,6 @@ import { tool as basicAuthGenerator } from './basic-auth-generator'
 import { tool as metaTagGenerator } from './meta-tag-generator'
 import { tool as otpCodeGeneratorAndValidator } from './otp-code-generator-and-validator'
 import { tool as slugifyString } from './slugify-string'
-import { tool as htmlWysiwygEditor } from './html-wysiwyg-editor'
 import { tool as userAgentParser } from './user-agent-parser'
 import { tool as safelinkDecoder } from './safelink-decoder'
 import { tool as ipLookup } from './ip-lookup'
@@ -20,7 +19,6 @@ export const webTools: readonly DefinedTool[] = [
   metaTagGenerator,
   otpCodeGeneratorAndValidator,
   slugifyString,
-  htmlWysiwygEditor,
   userAgentParser,
   safelinkDecoder,
   ipLookup,

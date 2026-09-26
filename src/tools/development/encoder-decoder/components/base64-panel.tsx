@@ -1,69 +1,40 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
 import { decodeFromBase64, encodeToBase64 } from '../encoder-decoder.service'
+import { useConversion } from '../use-conversion'
+import { EncodePair, type Direction } from './pair-shell'
 
-/** Base64 双向转换：编辑任一侧即时联动另一侧 */
+/** Base64：单输入单输出，方向切换决定哪一侧是原文 */
 export function Base64Panel() {
   const { t } = useTranslation('tools-development', { keyPrefix: 'encoder-decoder.base64' })
-  const { t: tCommon } = useTranslation('common')
+  const { t: tShared } = useTranslation('tools-development', {
+    keyPrefix: 'encoder-decoder.shared',
+  })
 
-  const [plain, setPlain] = useState('')
-  const [base64, setBase64] = useState('')
-  const [error, setError] = useState<string | null>(null)
+  const [dir, setDir] = useState<Direction>('encode')
+  const [source, setSource] = useState('')
 
-  const handlePlainChange = (value: string) => {
-    setPlain(value)
-    try {
-      setBase64(encodeToBase64(value))
-      setError(null)
-    } catch (err) {
-      setBase64('')
-      setError(err instanceof Error ? err.message : String(err))
-    }
-  }
+  const convert = useMemo(() => (dir === 'encode' ? encodeToBase64 : decodeFromBase64), [dir])
+  const { value, error } = useConversion(source, convert)
 
-  const handleBase64Change = (value: string) => {
-    setBase64(value)
-    try {
-      setPlain(decodeFromBase64(value))
-      setError(null)
-    } catch {
-      setPlain('')
-      setError(tCommon('error'))
-    }
-  }
+  const encoding = dir === 'encode'
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex flex-col gap-2">
-        <Label>{t('plainLabel')}</Label>
-        <Textarea
-          value={plain}
-          onChange={(event) => handlePlainChange(event.target.value)}
-          className="min-h-32 font-mono text-sm"
-          placeholder="Hello 世界 🚀"
-        />
-      </div>
-
-      {error && (
-        <Alert variant="destructive">
-          <AlertDescription>{error}</AlertDescription>
-        </Alert>
-      )}
-
-      <div className="flex flex-col gap-2">
-        <Label>{t('base64Label')}</Label>
-        <Textarea
-          value={base64}
-          onChange={(event) => handleBase64Change(event.target.value)}
-          className="min-h-32 font-mono text-sm"
-          placeholder="aGVsbG8gd29ybGQ="
-        />
-      </div>
-    </div>
+    <EncodePair
+      direction={{ value: dir, onChange: setDir }}
+      input={{
+        value: source,
+        onValueChange: setSource,
+        tag: encoding ? t('plainLabel') : t('base64Label'),
+        placeholder: encoding ? 'Hello 世界 🚀' : 'SGVsbG8g5LiW55WM',
+      }}
+      output={{
+        value,
+        tag: encoding ? t('base64Label') : t('plainLabel'),
+        placeholder: tShared('outputPlaceholder'),
+      }}
+      error={error}
+    />
   )
 }

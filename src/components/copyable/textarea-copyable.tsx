@@ -6,6 +6,7 @@ import { LineGutter } from '@/components/line-gutter'
 import { Button } from '@/components/ui/button'
 import { useCopy } from '@/composable/use-copy'
 import { useLineGutter } from '@/composable/use-line-gutter'
+import { countLines } from '@/utils/text-caret'
 import { cn } from '@/lib/utils'
 
 function escapeHtml(value: string): string {
@@ -31,6 +32,14 @@ interface TextareaCopyableProps {
   /** 左侧行号槽；开启后长行不再软换行，保证行号逐行对齐 */
   showLineNumbers?: boolean
 }
+
+/**
+ * 容器最小高度 = 行数 × 实际行高 + 上下内边距。
+ * 正文是 `text-sm leading-relaxed`，行高 0.875rem × 1.625 = 1.421875rem；`p-3` 上下共 1.5rem。
+ * 早先按 1.6rem/行 估算，每行多出 0.18rem，短内容时会在文字下方留出一条死白。
+ */
+const LINE_HEIGHT_REM = 1.421875
+const PADDING_REM = 1.5
 
 /** 只读输出区 + 右上角复制按钮（it-tools TextareaCopyable 的 shadcn 版） */
 export function TextareaCopyable({
@@ -60,9 +69,9 @@ export function TextareaCopyable({
   return (
     <div
       className={cn('bg-muted/40 relative flex overflow-hidden rounded-lg border', className)}
-      style={{ minHeight: `calc(${rows} * 1.6rem + 1.5rem)` }}
+      style={{ minHeight: `calc(${rows} * ${LINE_HEIGHT_REM}rem + ${PADDING_REM}rem)` }}
     >
-      {showLineNumbers && <LineGutter count={value.split('\n').length} innerRef={innerRef} />}
+      {showLineNumbers && <LineGutter count={countLines(value)} innerRef={innerRef} />}
       <pre
         onScroll={
           showLineNumbers ? (event) => syncScroll(event.currentTarget.scrollTop) : undefined

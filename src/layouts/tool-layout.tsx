@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 
 import { FavoriteButton } from '@/components/favorite-button'
 import { absoluteUrl, siteConfig } from '@/config/site'
+import { cn } from '@/lib/utils'
 import { DocumentMeta } from '@/modules/seo/document-meta'
 import { JsonLd } from '@/modules/seo/json-ld'
 import { breadcrumbSchema, toolSchema } from '@/modules/seo/schema'
@@ -13,10 +14,12 @@ interface ToolLayoutProps {
   children: ReactNode
   /** 整页沉浸式：高度链打通到视口，页内自管滚动区 */
   fill?: boolean
+  /** 宽版工作台：内容区放宽到 screen-2xl */
+  wide?: boolean
 }
 
 /** 工具页统一骨架：图标 + 标题 + 收藏星标 + 描述 + 内容区 */
-export function ToolLayout({ tool, children, fill = false }: ToolLayoutProps) {
+export function ToolLayout({ tool, children, fill = false, wide = false }: ToolLayoutProps) {
   const { t } = useTranslation(`tools-${tool.category}`)
   const { t: tCommon } = useTranslation('common')
   const title = t(`${tool.name}.title`)
@@ -68,7 +71,7 @@ export function ToolLayout({ tool, children, fill = false }: ToolLayoutProps) {
   }
 
   return (
-    <div className="mx-auto w-full max-w-6xl px-4 py-6">
+    <div className={cn('mx-auto w-full px-4 py-6', wide ? 'max-w-screen-2xl' : 'max-w-6xl')}>
       {meta}
       {header}
       <p className="text-muted-foreground mt-2 text-sm">{description}</p>

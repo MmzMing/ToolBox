@@ -20,7 +20,7 @@ export default function ToolPage({ tool }: { tool: Tool }) {
   const ToolComponent = tool.lazyComponent
 
   return (
-    <ToolLayout tool={tool} fill={tool.immersive}>
+    <ToolLayout tool={tool} fill={tool.immersive} wide={tool.wide}>
       <Suspense fallback={<ToolLoading />}>
         <ToolComponent />
       </Suspense>

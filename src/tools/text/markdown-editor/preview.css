@@ -1,0 +1,363 @@
+/*
+ * Markdown 预览排版。
+ *
+ * 度量取自 D:\my-blog\my-blog 的文章渲染（src/styles/markdown.css、markdown-extend.styl、
+ * expressive-code.css），块级公式与图表额外套一层带标题栏的卡片（对齐 tools.top 的观感）。
+ *
+ * 颜色一律写成 `var(--令牌, 十六进制)`：站内取语义令牌（明暗自动切），导出的独立 HTML 与
+ * 打印 iframe 里没有 :root 令牌，就落到第二个值的字面量上。同一份源码同时服务预览与导出
+ * （export/standalone-html.ts 用 ?inline 读它），所以这里的兜底色必须与博客的取值保持一致。
+ */
+
+.md-preview {
+  padding: 24px 16px 64px;
+  font-family:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
+    'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+  font-size: 1rem;
+  line-height: 1.75;
+  color: var(--foreground, #1a1a1a);
+}
+
+/* 内容列 55rem 居中：直接给块级子元素设 auto 外边距，省掉一层包裹 div（预览区只有一个 ref） */
+.md-preview > * {
+  width: min(55rem, 100%);
+  margin-inline: auto;
+}
+
+.md-preview > :first-child {
+  margin-top: 0;
+}
+
+/* --- 标题：博客的取舍是不加任何装饰线，只靠字号与字重分层级 --- */
+.md-preview h1,
+.md-preview h2,
+.md-preview h3,
+.md-preview h4,
+.md-preview h5,
+.md-preview h6 {
+  color: var(--foreground, #1a1a1a);
+  line-height: 1.25;
+}
+
+.md-preview h1 {
+  margin: 0 0 0.89em;
+  font-size: 2.25em;
+  font-weight: 800;
+  line-height: 1.11;
+}
+
+.md-preview h2 {
+  margin: 2em 0 1em;
+  font-size: 1.5em;
+  font-weight: 700;
+}
+
+.md-preview h3 {
+  margin: 1.6em 0 0.6em;
+  font-size: 1.25em;
+  font-weight: 600;
+}
+
+.md-preview h4,
+.md-preview h5,
+.md-preview h6 {
+  margin: 1.5em 0 0.5em;
+  font-weight: 600;
+}
+
+.md-preview h5 {
+  font-size: 0.875em;
+}
+
+.md-preview h6 {
+  font-size: 0.85em;
+  color: var(--muted-foreground, #6e6e6e);
+}
+
+.md-preview p {
+  margin: 1.25em 0;
+}
+
+/* --- 行内标记：博客的 em 是紫色波浪下划线、del 是红色粗删除线 --- */
+.md-preview strong {
+  font-weight: 700;
+  color: var(--foreground, #1a1a1a);
+}
+
+.md-preview em,
+.md-preview i {
+  font-style: italic;
+  text-decoration: underline wavy;
+  text-decoration-color: var(--md-italic-wavy, oklch(0.6 0.15 285));
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 4px;
+}
+
+.md-preview del,
+.md-preview s {
+  text-decoration: line-through;
+  text-decoration-color: var(--md-del-line, oklch(0.58 0.21 27));
+  text-decoration-thickness: 2px;
+}
+
+.md-preview a {
+  font-weight: 500;
+  color: var(--primary, #0969da);
+  text-decoration: underline;
+  text-decoration-color: var(--primary, #0969da);
+  text-decoration-style: dashed;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+  box-decoration-break: clone;
+  word-break: break-word;
+}
+
+.md-preview a:hover,
+.md-preview a:active {
+  text-decoration: none;
+  background: var(--accent, #eeeeee);
+  border-bottom: 1px dashed var(--primary, #0969da);
+}
+
+/* --- 列表 --- */
+.md-preview ul,
+.md-preview ol {
+  padding-left: 1.625em;
+  margin: 1.25em 0;
+}
+
+.md-preview li {
+  margin: 0.25em 0;
+}
+
+.md-preview li > ul,
+.md-preview li > ol {
+  margin: 0.25em 0;
+}
+
+.md-preview li::marker {
+  color: var(--muted-foreground, #6e6e6e);
+}
+
+/* marked 不产出 GitHub 的 .task-list-item 类，勾选框的悬挂缩进自己补 */
+.md-preview li:has(> input[type='checkbox']) {
+  list-style: none;
+  margin-left: -1.25em;
+}
+
+.md-preview input[type='checkbox'] {
+  margin-right: 0.4em;
+  accent-color: var(--primary, #0969da);
+}
+
+/* --- 行内代码：无描边，只有底色与小圆角 --- */
+.md-preview code {
+  padding: 0.125rem 0.25rem;
+  border-radius: 0.375rem;
+  background: var(--muted, #f2f2f2);
+  font-family: var(--font-mono), ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.875em;
+  font-weight: 600;
+  color: var(--foreground, #1a1a1a);
+}
+
+/* --- 代码块：0.75rem 圆角 + 1px 描边，右上角语言角标 --- */
+.md-preview pre {
+  position: relative;
+  margin: 1em 0;
+  padding: 0;
+  border: 1px solid var(--border, #d6d6d6);
+  border-radius: 0.75rem;
+  background: var(--muted, #f7f7f7);
+  overflow: hidden;
+}
+
+.md-preview pre[data-language]::before {
+  content: attr(data-language);
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  z-index: 1;
+  padding: 0.1rem 0.5rem;
+  border-radius: 0.25rem;
+  font-family: var(--font-mono), ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.025ch;
+  text-transform: uppercase;
+  color: var(--primary, #0969da);
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+
+.md-preview pre:hover::before {
+  opacity: 0.35;
+}
+
+.md-preview pre code {
+  display: block;
+  padding: 1rem 1.35rem;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  overflow-x: auto;
+  font-size: 0.875rem;
+  font-weight: 400;
+  line-height: 1.5rem;
+  color: var(--foreground, #1a1a1a);
+}
+
+/* --- 引用块：博客把底色与斜体都去掉，只留一道细左线 --- */
+.md-preview blockquote {
+  margin: 1.6em auto;
+  padding-inline-start: 1em;
+  border-inline-start: 3px solid var(--border, #d6d6d6);
+  font-style: normal;
+  font-weight: inherit;
+  color: var(--muted-foreground, #6e6e6e);
+}
+
+.md-preview blockquote p {
+  margin: 0.5em 0;
+}
+
+/* --- 表格：分隔边框 + 只画竖线 + 偶数行底色 --- */
+.md-preview table {
+  width: 100%;
+  margin: 1em 0;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 0.9375em;
+}
+
+.md-preview th,
+.md-preview td {
+  min-width: 120px;
+  padding: 0.5rem 0.75rem;
+  border: none;
+  text-align: left;
+  vertical-align: top;
+  word-break: break-word;
+}
+
+.md-preview th:not(:last-child),
+.md-preview td:not(:last-child) {
+  border-right: 1px solid var(--border, #d6d6d6);
+}
+
+.md-preview th {
+  font-weight: 600;
+  color: var(--foreground, #1a1a1a);
+  border-bottom: 1px solid var(--border, #d6d6d6);
+}
+
+.md-preview tbody tr:nth-child(even) td {
+  background: var(--muted, #f2f2f2);
+}
+
+/* 宽表格的横向滚动容器由 wrapWideTables 在渲染后注入 */
+.md-preview .md-table-scroll {
+  margin: 1em auto;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+.md-preview .md-table-scroll > table {
+  margin: 0;
+}
+
+/* --- 图片 --- */
+.md-preview img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 1.5em auto;
+  border-radius: 0.75rem;
+}
+
+.md-preview hr {
+  margin: 2em 0;
+  border: 0;
+  border-top: 1px solid var(--border, #d6d6d6);
+}
+
+/* ---------------------------------------------------------------------------
+ * 块级公式与图表卡片：描边 + 圆角 + 标题栏，正文区横向滚动
+ * ------------------------------------------------------------------------- */
+.md-preview .md-card {
+  margin: 1.5em auto;
+  border: 1px solid var(--border, #d6d6d6);
+  border-radius: 0.75rem;
+  background: var(--card, transparent);
+  overflow: hidden;
+  transition: box-shadow 0.3s ease;
+}
+
+.md-preview .md-card:hover {
+  box-shadow: 0 4px 12px rgb(0 0 0 / 8%);
+}
+
+.md-preview .md-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.375rem 0.875rem;
+  border-bottom: 1px solid var(--border, #d6d6d6);
+  background: var(--muted, #f7f7f7);
+}
+
+.md-preview .md-card-title {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  color: var(--muted-foreground, #6e6e6e);
+}
+
+.md-preview .md-card-body {
+  padding: 1.25rem 1rem;
+  overflow-x: auto;
+  text-align: center;
+}
+
+.md-preview .md-math {
+  /* 行内公式不额外装饰，跟随正文基线 */
+  font-size: 1.05em;
+}
+
+.md-preview .md-math-block {
+  display: inline-block;
+  margin: 0;
+  text-align: center;
+}
+
+/* 卡片里的降级源码不该再带代码块的描边与角标 */
+.md-preview .md-card-body pre {
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  text-align: left;
+}
+
+.md-preview .md-card-body pre code {
+  padding: 0;
+  font-size: 0.85rem;
+}
+
+.md-preview .md-mermaid svg {
+  max-width: 100%;
+  height: auto;
+}
+
+.md-preview [data-error] {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--destructive, #cf222e);
+  border-radius: 0.5rem;
+  background: color-mix(in oklab, var(--destructive, #cf222e) 10%, transparent);
+  color: var(--foreground, #1a1a1a);
+  font-size: 0.8125rem;
+  text-align: left;
+}

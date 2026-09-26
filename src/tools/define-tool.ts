@@ -24,6 +24,8 @@ export interface RawTool {
   readonly createdAt?: string
   /** 聊天式整页工具：内容区撑满剩余高度、页内自管滚动（如 AI 生图） */
   readonly immersive?: boolean
+  /** 宽版工作台：内容区放宽到 screen-2xl（左右分栏 + 大量操作按钮的工具） */
+  readonly wide?: boolean
   /** 旧路径重定向（v1 起保留机制） */
   readonly redirectFrom?: string[]
 }

@@ -9,10 +9,12 @@ import { cn } from '@/lib/utils'
 interface FavoriteButtonProps {
   tool: Tool
   className?: string
+  /** 嵌进可聚焦容器（如命令面板卡片）时置 -1，避免多出 Tab 停靠点 */
+  tabIndex?: number
 }
 
 /** 收藏星标按钮；在 Link 内使用时会阻止冒泡与默认跳转 */
-export function FavoriteButton({ tool, className }: FavoriteButtonProps) {
+export function FavoriteButton({ tool, className, tabIndex }: FavoriteButtonProps) {
   const { t } = useTranslation('common')
   const isFavorite = useToolsStore((state) => state.favorites.includes(tool.path))
   const toggleFavorite = useToolsStore((state) => state.toggleFavorite)
@@ -22,6 +24,7 @@ export function FavoriteButton({ tool, className }: FavoriteButtonProps) {
       type="button"
       variant="ghost"
       size="icon-sm"
+      tabIndex={tabIndex}
       className={cn('shrink-0', className)}
       aria-label={isFavorite ? t('favoriteRemove') : t('favoriteAdd')}
       onClick={(event) => {

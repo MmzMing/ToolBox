@@ -80,25 +80,6 @@
     "variant-snake": "snake_case",
     "variant-compact": "No separator"
   },
-  "html-wysiwyg-editor": {
-    "title": "HTML WYSIWYG Editor",
-    "description": "WYSIWYG editor that outputs HTML",
-    "cmd-bold": "Bold",
-    "cmd-italic": "Italic",
-    "cmd-underline": "Underline",
-    "cmd-strikeThrough": "Strikethrough",
-    "cmd-heading1": "Heading 1",
-    "cmd-heading2": "Heading 2",
-    "cmd-heading3": "Heading 3",
-    "cmd-unorderedList": "Bulleted list",
-    "cmd-orderedList": "Numbered list",
-    "cmd-link": "Insert link",
-    "cmd-removeFormat": "Clear formatting",
-    "editorLabel": "Editor area",
-    "editorHint": "Edit above, the HTML source updates live",
-    "linkInputLabel": "Link URL",
-    "htmlOutput": "HTML source"
-  },
   "user-agent-parser": {
     "title": "User-Agent Parser",
     "description": "Parse a user-agent into browser, OS and device info",

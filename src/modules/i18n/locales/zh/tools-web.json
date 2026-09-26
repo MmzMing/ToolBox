@@ -80,25 +80,6 @@
     "variant-snake": "snake_case",
     "variant-compact": "无分隔符"
   },
-  "html-wysiwyg-editor": {
-    "title": "富文本编辑器",
-    "description": "所见即所得编辑并输出 HTML",
-    "cmd-bold": "加粗",
-    "cmd-italic": "斜体",
-    "cmd-underline": "下划线",
-    "cmd-strikeThrough": "删除线",
-    "cmd-heading1": "标题 1",
-    "cmd-heading2": "标题 2",
-    "cmd-heading3": "标题 3",
-    "cmd-unorderedList": "无序列表",
-    "cmd-orderedList": "有序列表",
-    "cmd-link": "插入链接",
-    "cmd-removeFormat": "清除格式",
-    "editorLabel": "编辑区域",
-    "editorHint": "在上方编辑内容，HTML 源码实时更新",
-    "linkInputLabel": "链接地址",
-    "htmlOutput": "HTML 源码"
-  },
   "user-agent-parser": {
     "title": "User-Agent 解析",
     "description": "解析 UA 为浏览器、系统与设备信息",

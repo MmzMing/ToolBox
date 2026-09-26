@@ -1,119 +1,70 @@
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { TextareaCopyable } from '@/components/copyable/textarea-copyable'
-import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
 import {
   htmlEntitiesToText,
   textToHtmlEntities,
   textToUnicodeEscapes,
   unicodeEscapesToText,
 } from '../encoder-decoder.service'
+import { useConversion } from '../use-conversion'
+import { EncodePair, Segmented, type Direction } from './pair-shell'
 
-/** Unicode 转义 / HTML 实体 与文本互转 */
+/** 表示形式：Unicode 转义串或 HTML 实体串 */
+type UnicodeForm = 'escapes' | 'entities'
+
+/** Unicode 转义 / HTML 实体 与文本互转：方向与形式各自一组切换 */
 export function UnicodePanel() {
   const { t } = useTranslation('tools-development', { keyPrefix: 'encoder-decoder.unicode' })
-  const { t: tCommon } = useTranslation('common')
+  const { t: tShared } = useTranslation('tools-development', {
+    keyPrefix: 'encoder-decoder.shared',
+  })
 
-  const [text, setText] = useState('')
-  const [escapesInput, setEscapesInput] = useState('')
-  const [entitiesInput, setEntitiesInput] = useState('')
+  const [dir, setDir] = useState<Direction>('encode')
+  const [form, setForm] = useState<UnicodeForm>('escapes')
+  const [source, setSource] = useState('')
 
-  const forward = useMemo(
-    () => ({
-      escapes: textToUnicodeEscapes(text),
-      entities: textToHtmlEntities(text),
-    }),
-    [text],
-  )
+  const convert = useMemo(() => {
+    if (dir === 'decode') {
+      return form === 'escapes' ? unicodeEscapesToText : htmlEntitiesToText
+    }
+    return form === 'escapes' ? textToUnicodeEscapes : textToHtmlEntities
+  }, [dir, form])
+  const { value, error } = useConversion(source, convert)
 
-  const fromEscapes = useMemo(() => {
-    if (escapesInput.trim() === '') {
-      return { text: '', error: null }
-    }
-    try {
-      return { text: unicodeEscapesToText(escapesInput), error: null }
-    } catch {
-      return { text: '', error: tCommon('error') }
-    }
-  }, [escapesInput, tCommon])
-
-  const fromEntities = useMemo(() => {
-    if (entitiesInput.trim() === '') {
-      return { text: '', error: null }
-    }
-    try {
-      return { text: htmlEntitiesToText(entitiesInput), error: null }
-    } catch {
-      return { text: '', error: tCommon('error') }
-    }
-  }, [entitiesInput, tCommon])
+  const encoding = dir === 'encode'
+  const formName = form === 'escapes' ? t('escapesName') : t('entitiesName')
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex flex-col gap-2">
-        <Label>{t('textToEscapesLabel')}</Label>
-        <Textarea
-          value={text}
-          onChange={(event) => setText(event.target.value)}
-          className="min-h-24 font-mono text-sm"
-          placeholder="中文 English"
+    <EncodePair
+      direction={{ value: dir, onChange: setDir }}
+      controls={
+        <Segmented
+          label={tShared('form')}
+          value={form}
+          onChange={setForm}
+          options={[
+            { value: 'escapes', label: t('escapesName') },
+            { value: 'entities', label: t('entitiesName') },
+          ]}
         />
-      </div>
-
-      <div className="flex flex-col gap-2">
-        <Label className="text-muted-foreground">{t('escapesLabel')}</Label>
-        <TextareaCopyable value={forward.escapes} rows={3} />
-      </div>
-
-      <div className="flex flex-col gap-2">
-        <Label className="text-muted-foreground">{t('entitiesLabel')}</Label>
-        <TextareaCopyable value={forward.entities} rows={3} />
-      </div>
-
-      <div className="flex flex-col gap-2">
-        <Label>{t('escapesToTextLabel')}</Label>
-        <Textarea
-          value={escapesInput}
-          onChange={(event) => setEscapesInput(event.target.value)}
-          className="min-h-20 font-mono text-sm"
-          placeholder="\u4E2D\u6587 \u{1F680}"
-        />
-      </div>
-
-      {fromEscapes.error && (
-        <Alert variant="destructive">
-          <AlertDescription>{fromEscapes.error}</AlertDescription>
-        </Alert>
-      )}
-
-      <div className="flex flex-col gap-2">
-        <Label className="text-muted-foreground">{t('textOutput')}</Label>
-        <TextareaCopyable value={fromEscapes.text} rows={2} />
-      </div>
-
-      <div className="flex flex-col gap-2">
-        <Label>{t('entitiesToTextLabel')}</Label>
-        <Textarea
-          value={entitiesInput}
-          onChange={(event) => setEntitiesInput(event.target.value)}
-          className="min-h-20 font-mono text-sm"
-          placeholder={'&#20013;&#25991;'}
-        />
-      </div>
-
-      {fromEntities.error && (
-        <Alert variant="destructive">
-          <AlertDescription>{fromEntities.error}</AlertDescription>
-        </Alert>
-      )}
-
-      <div className="flex flex-col gap-2">
-        <Label className="text-muted-foreground">{t('textOutput')}</Label>
-        <TextareaCopyable value={fromEntities.text} rows={2} />
-      </div>
-    </div>
+      }
+      input={{
+        value: source,
+        onValueChange: setSource,
+        tag: encoding ? t('tagText') : formName,
+        placeholder: encoding
+          ? '中文 English'
+          : form === 'entities'
+            ? '&#20013;&#25991;'
+            : '\\u4E2D\\u6587 \\u{1F680}',
+      }}
+      output={{
+        value,
+        tag: encoding ? formName : t('tagText'),
+        placeholder: tShared('outputPlaceholder'),
+      }}
+      error={error}
+    />
   )
 }

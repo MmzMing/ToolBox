@@ -2,13 +2,13 @@
 
 # ToolBox
 
-**免费开源的开发者在线工具箱** —— 48 个工具全部在浏览器本地运行，数据不上传服务器。
+**免费开源的开发者在线工具箱** —— 52 个工具全部在浏览器本地运行，数据不上传服务器。
 
 [中文](./README.md) · [English](./README.en.md)
 
 ![License MIT](https://img.shields.io/badge/license-MIT-0ea95e)
 ![release](https://img.shields.io/badge/release-v0.1.0-orange)
-![tools](https://img.shields.io/badge/tools-48-brightgreen)
+![tools](https://img.shields.io/badge/tools-52-brightgreen)
 ![built with React](https://img.shields.io/badge/built%20with-React%2019-61dafb)
 ![Vite](https://img.shields.io/badge/Vite-8-646cff)
 ![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178c6)
@@ -29,18 +29,19 @@ UUID/令牌生成、二维码、图片压缩、Cron 与 Chmod、时间戳、正�
 
 ## 功能
 
-### 工具清单（8 个分类 / 48 个工具）
+### 工具清单（9 个分类 / 52 个工具）
 
-| 分类       | 数量 | 包含                                                        |
-| ---------- | ---- | ----------------------------------------------------------- |
-| 简历       | 1    | 简历工坊（9 套模板、分页预览、PDF 导出、本地文件夹同步）    |
-| 加密       | 10   | 文本哈希、AES/RSA、HMAC、Bcrypt、UUID、ULID、令牌、密码强度 |
-| Web        | 11   | URL 解析、HTML 实体、UA 解析、Meta 标签、Basic Auth、OTP    |
-| 开发       | 10   | 代码格式化、编解码、格式转换、Cron、Chmod、颜色、时间戳     |
-| 速查表     | 4    | HTTP 状态码、正则、Git、拍照参数                            |
-| 图片和视频 | 3    | 二维码转换、WiFi 二维码、图片压缩转换（WASM）               |
-| 文本       | 6    | 文本对比、统计、命名转换、Emoji、乱数假文、ASCII 艺术字     |
-| 生活       | 3    | 亲戚关系计算、五险一金、单位换算                            |
+| 分类   | 数量 | 包含                                                        |
+| ------ | ---- | ----------------------------------------------------------- |
+| 简历   | 1    | 简历工坊（9 套模板、分页预览、PDF 导出、本地文件夹同步）    |
+| 图片   | 6    | 二维码、WiFi 二维码、图片压缩、图片堆叠、拼豆图纸、AI 生图  |
+| 视频   | 1    | 音乐转视频                                                  |
+| 加密   | 10   | 文本哈希、AES/RSA、HMAC、Bcrypt、UUID、ULID、令牌、密码强度 |
+| Web    | 10   | URL 解析、HTML 实体、UA 解析、Meta 标签、Basic Auth、OTP    |
+| 开发   | 9    | 代码格式化、编解码、格式转换、curl 命令、Cron、颜色、时间戳 |
+| 文本   | 4    | Markdown 编辑器、文本对比、文本格式化、ASCII 艺术字         |
+| 生活   | 4    | 亲戚关系计算、五险一金、单位换算、今日运势                  |
+| 速查表 | 7    | HTTP 状态码、正则、Git、拍照参数、Maven、nvm、Docker        |
 
 完整清单见 [docs/design/功能介绍文档.md](docs/design/功能介绍文档.md)。
 

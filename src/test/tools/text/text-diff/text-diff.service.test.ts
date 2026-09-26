@@ -2,9 +2,17 @@ import { describe, expect, it } from 'vitest'
 
 import {
   buildDiffRows,
+  buildPaneCells,
+  cellText as joinCell,
   summarizeDiff,
   type DiffCell,
+  type PaneSide,
 } from '@/tools/text/text-diff/text-diff.service'
+
+/** 文本按 \n 切出的行数，与 textarea / 正文的口径一致 */
+function lineCount(text: string): number {
+  return text.split('\n').length
+}
 
 /** 把一格的行内片段拆成「相同部分」和「变化部分」两段文本，便于断言词级高亮 */
 function splitByChanged(cell: DiffCell | null) {
@@ -21,6 +29,13 @@ function splitByChanged(cell: DiffCell | null) {
 
 function cellText(cell: DiffCell | null) {
   return cell ? splitByChanged(cell).text : null
+}
+
+/** 一栏摊平后的纯文本，与 textarea 的取值口径一致 */
+function paneText(side: PaneSide, a: string, b: string) {
+  return buildPaneCells(buildDiffRows(a, b), side, lineCount(side === 'original' ? a : b))
+    .map(joinCell)
+    .join('\n')
 }
 
 describe('buildDiffRows', () => {
@@ -156,5 +171,78 @@ describe('summarizeDiff', () => {
 
   it('handles an empty diff', () => {
     expect(summarizeDiff([])).toEqual({ added: 0, removed: 0, changes: 0 })
+  })
+})
+
+describe('buildPaneCells', () => {
+  it('lists only this side of every row, numbered from one', () => {
+    const rows = buildDiffRows('a\nb\nc\nd', 'a\nX\nc\nY')
+    const cells = buildPaneCells(rows, 'original', lineCount('a\nb\nc\nd'))
+
+    expect(cells.map(joinCell)).toEqual(['a', 'b', 'c', 'd'])
+    expect(cells.map((cell) => cell.lineNumber)).toEqual([1, 2, 3, 4])
+    expect(cells.map((cell) => cell.type)).toEqual(['unchanged', 'removed', 'unchanged', 'removed'])
+    expect(cells.map((cell) => cell.changeIndex)).toEqual([null, 0, null, 1])
+  })
+
+  it('gives the modified pane the other side of the same rows', () => {
+    const rows = buildDiffRows('a\nb\nc\nd', 'a\nX\nc\nY')
+    const cells = buildPaneCells(rows, 'modified', lineCount('a\nX\nc\nY'))
+
+    expect(cells.map(joinCell)).toEqual(['a', 'X', 'c', 'Y'])
+    expect(cells.map((cell) => cell.lineNumber)).toEqual([1, 2, 3, 4])
+    expect(cells.map((cell) => cell.type)).toEqual(['unchanged', 'added', 'unchanged', 'added'])
+  })
+
+  it('skips lines that only exist on the other side', () => {
+    const cells = buildPaneCells(buildDiffRows('a\nc', 'a\nb1\nb2\nc'), 'original', 2)
+
+    // 纯新增的两行不属于原文，插进来会让行号与 textarea 对不齐
+    expect(cells.map(joinCell)).toEqual(['a', 'c'])
+    expect(cells.map((cell) => cell.changeIndex)).toEqual([null, null])
+  })
+
+  it('carries the word level highlight into the pane', () => {
+    const cells = buildPaneCells(buildDiffRows('a\nhello world', 'a\nhello there'), 'modified', 2)
+
+    expect(splitByChanged(cells[1])).toEqual({
+      plain: 'hello ',
+      changed: 'there',
+      text: 'hello there',
+    })
+  })
+
+  it('pads the trailing newline into a blank line of its own', () => {
+    const cells = buildPaneCells(buildDiffRows('a\nb\n', 'a\nc\n'), 'original', 3)
+
+    expect(cells.map(joinCell)).toEqual(['a', 'b', ''])
+    expect(cells.at(-1)?.changeIndex).toBeNull()
+  })
+
+  it('always yields one blank line for empty text', () => {
+    for (const side of ['original', 'modified'] as const) {
+      const cells = buildPaneCells(buildDiffRows('', ''), side, 1)
+
+      expect(cells).toHaveLength(1)
+      expect(joinCell(cells[0])).toBe('')
+      expect(cells[0].type).toBe('unchanged')
+    }
+  })
+
+  it('round-trips both panes back into their own text', () => {
+    const pairs: [string, string][] = [
+      ['a\nb\nc', 'a\nd\nc'],
+      ['a\nb\nc\nd', 'a\nX\nc\nY'],
+      ['', 'x\ny'],
+      ['x\ny', ''],
+      ['line\n', 'line\nline2\n'],
+      ['1\n2\n3\n4', '1\n9'],
+      ['keep\n\nold', 'keep\n\nnew\nextra'],
+    ]
+
+    for (const [a, b] of pairs) {
+      expect(paneText('original', a, b)).toBe(a)
+      expect(paneText('modified', a, b)).toBe(b)
+    }
   })
 })

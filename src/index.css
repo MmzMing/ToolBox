@@ -44,6 +44,15 @@
   --color-background: var(--background);
   --color-fortune-good: var(--fortune-good);
   --color-fortune-normal: var(--fortune-normal);
+  --color-rule-sort: var(--rule-sort);
+  --color-rule-case: var(--rule-case);
+  --color-rule-naming: var(--rule-naming);
+  --color-rule-extract: var(--rule-extract);
+  --color-rule-delimiter: var(--rule-delimiter);
+  --color-rule-wrap: var(--rule-wrap);
+  --color-rule-escape: var(--rule-escape);
+  --color-rule-clean: var(--rule-clean);
+  --color-rule-convert: var(--rule-convert);
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -87,6 +96,9 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+  /* Markdown 预览的行内强调色（博客同款：紫色波浪下划线 / 红色粗删除线） */
+  --md-italic-wavy: oklch(0.6 0.15 285);
+  --md-del-line: oklch(0.58 0.21 27);
 }
 
 .dark {
@@ -122,6 +134,8 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
+  --md-italic-wavy: oklch(0.75 0.12 285);
+  --md-del-line: oklch(0.7 0.19 25);
 }
 
 @layer base {
@@ -608,6 +622,54 @@
   color: oklch(0.75 0.12 255);
 }
 
+/* Markdown 编辑器：CodeMirror 语法着色（类名由 use-source-editor 的 HighlightStyle 指定） */
+.cm-heading {
+  font-weight: 600;
+}
+.cm-heading-1 {
+  font-size: 1.15em;
+}
+.cm-heading-2 {
+  font-size: 1.08em;
+}
+.cm-heading-3,
+.cm-heading-4 {
+  font-size: 1.02em;
+}
+.cm-strong {
+  font-weight: 700;
+}
+.cm-em {
+  font-style: italic;
+}
+.cm-del {
+  text-decoration: line-through;
+}
+.cm-link,
+.cm-url {
+  color: var(--primary);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.cm-code {
+  color: oklch(0.5 0.15 155);
+  font-family: var(--font-mono);
+}
+.dark .cm-code {
+  color: oklch(0.78 0.14 155);
+}
+.cm-quote {
+  color: var(--muted-foreground);
+  font-style: italic;
+}
+.cm-list,
+.cm-hr {
+  color: var(--primary);
+}
+.cm-meta {
+  color: var(--muted-foreground);
+}
+
 /* ---------------------------------------------------------------------------
  * 简历纸张层（#resume-preview 子树）
  *
@@ -799,6 +861,34 @@
 .dark {
   --fortune-good: oklch(0.7 0.19 24);
   --fortune-normal: oklch(0.8 0.13 85);
+}
+
+/* ---------------------------------------------------------------------------
+   文本格式化（tools/text/text-formatter）的快捷规则分组色
+   9 个色相在色环上尽量拉开，暗色主题提高明度保持同一辨识度；
+   按钮只用 `bg-rule-<组>/10` 这类透明度写法，不另写死颜色。
+--------------------------------------------------------------------------- */
+:root {
+  --rule-sort: oklch(0.6 0.13 155);
+  --rule-case: oklch(0.58 0.14 255);
+  --rule-naming: oklch(0.58 0.16 300);
+  --rule-extract: oklch(0.65 0.13 70);
+  --rule-delimiter: oklch(0.62 0.11 195);
+  --rule-wrap: oklch(0.6 0.16 330);
+  --rule-escape: oklch(0.58 0.15 265);
+  --rule-clean: oklch(0.58 0.17 20);
+  --rule-convert: oklch(0.62 0.13 45);
+}
+.dark {
+  --rule-sort: oklch(0.72 0.13 155);
+  --rule-case: oklch(0.72 0.13 255);
+  --rule-naming: oklch(0.74 0.14 300);
+  --rule-extract: oklch(0.78 0.12 70);
+  --rule-delimiter: oklch(0.75 0.1 195);
+  --rule-wrap: oklch(0.74 0.14 330);
+  --rule-escape: oklch(0.73 0.14 265);
+  --rule-clean: oklch(0.72 0.15 20);
+  --rule-convert: oklch(0.76 0.12 45);
 }
 
 /* 签筒：静置时轻摆，抽签时先快摇、再猛抖、最后缓出，像真在晃签筒 */
