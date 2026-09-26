@@ -161,7 +161,58 @@
   },
   "git-memo": {
     "title": "Git Cheatsheet",
-    "description": "Git command cheatsheet",
+    "description": "Git installation, setup options and command cheatsheet",
+    "group-install": "Install & configure (Windows)",
+    "guide": {
+      "download": {
+        "title": "Download the installer",
+        "detail": "Grab the 64-bit .exe; use the npmmirror site when git-scm.com is slow",
+        "link-official": "Git download page",
+        "link-mirror": "CN mirror site",
+        "code-note": "The version number in the filename changes"
+      },
+      "wizard": {
+        "title": "Wizard screen by screen",
+        "detail": "Fourteen screens in order; the left column names the screen, the right one the option to pick",
+        "install-dir": "Install directory",
+        "license": "License",
+        "license-value": "License Information: just Next",
+        "components": "Components",
+        "components-value": "Select Components: Desktop Icon and Windows Explorer integration are pre-checked, Next",
+        "start-menu": "Start Menu folder",
+        "start-menu-value": "Select Start Menu Folder: keep Git, Next",
+        "editor": "Editor",
+        "editor-value": "Choosing the default editor used by Git: Use Vim by default, switch to Use Notepad++ if you dislike the command line",
+        "branch": "Default branch",
+        "branch-value": "Branch name for new repositories: leave master, or type main if your team standardised on it",
+        "path": "PATH environment",
+        "path-value": "Adjusting your PATH environment: middle option, Git from the command line and also from 3rd-party software",
+        "ssh": "SSH executable",
+        "ssh-value": "Choose SSH executable: keep Use bundled OpenSSH",
+        "https": "HTTPS transport",
+        "https-value": "Choose HTTPS transport backend: Use the OpenSSL library, or the native Windows SSL library for the Windows certificate store",
+        "line-endings": "Line endings",
+        "line-endings-value": "Configuring the line ending conversions: Checkout Windows-style, commit Unix-style line endings",
+        "terminal": "Terminal emulator",
+        "terminal-value": "Choose the terminal emulator to use with Git Bash: Use MinTTY (the default terminal of MSYS2)",
+        "fetch": "git pull behaviour",
+        "fetch-value": "Choose the default behavior of git pull: keep Default (fast-forward or merge)",
+        "credential": "Credential helper",
+        "credential-value": "Choose a credential helper: Git Credential Manager, so sign-in is remembered",
+        "extras": "Extra options",
+        "extras-value": "Configuring extra options: leave Enable file system caching and friends on, then Install"
+      },
+      "verify": {
+        "title": "Verify the install",
+        "detail": "Run it in a fresh terminal; a version string means Git is on PATH"
+      },
+      "config": {
+        "title": "First-run identity",
+        "detail": "Commits are rejected without it; --global applies to every repository",
+        "scope": "Multiple identities",
+        "scope-value": "Inside a work repository run the same user.email without --global to override the global identity"
+      }
+    },
     "group-create": "Create a repository",
     "group-snapshot": "Basic snapshot",
     "group-branch": "Branch & merge",
@@ -173,8 +224,8 @@
     "item-init": "Initialize a new repository in the current directory",
     "item-clone": "Clone a remote repository",
     "item-clone-branch": "Clone a specific branch of a remote repository",
-    "item-config-name": "Set the commit author name",
-    "item-config-email": "Set the commit author email",
+    "item-config-name": "Set the commit author name for every repository",
+    "item-config-email": "Set the global author email; rerun it without --global inside a repo to switch identity",
     "item-status": "Show the working tree status",
     "item-add": "Stage a specific file",
     "item-add-all": "Stage all changes",
@@ -233,6 +284,333 @@
     "item-stash-apply": "Apply the latest stash and keep it",
     "item-stash-drop": "Drop the latest stash entry",
     "item-stash-branch": "Create a branch from a stash entry and restore it"
+  },
+  "maven-memo": {
+    "title": "Maven Cheatsheet",
+    "description": "Maven installation steps, common goals and dependency configuration",
+    "group-install": "Install (Windows)",
+    "guide": {
+      "download": {
+        "title": "Download the archive",
+        "detail": "On the download page grab only a Binary zip archive; the source packages are not needed",
+        "link": "Maven download page",
+        "code-note": "The version in the filename changes; pick anything ending in -bin.zip"
+      },
+      "extract": {
+        "title": "Extract to a fixed directory",
+        "detail": "Keep the path free of spaces and non-ASCII characters; it should contain bin / conf / lib",
+        "dir": "Extract directory"
+      },
+      "env": {
+        "title": "Set environment variables",
+        "detail": "This PC → Properties → Advanced system settings → Environment Variables → System variables: create MAVEN_HOME first, then edit Path",
+        "var-name": "New variable",
+        "var-value": "Variable value",
+        "path-append": "Append to Path"
+      },
+      "verify": {
+        "title": "Verify the install",
+        "detail": "Run it in a fresh terminal (existing ones miss the new variables); a Maven version plus Java version means it works",
+        "output": "Expected output"
+      },
+      "settings": {
+        "title": "Mirror & local repository",
+        "detail": "Edit <extract dir>\\conf\\settings.xml: localRepository goes under <settings>, the whole mirror element goes under <mirrors>",
+        "file": "conf/settings.xml snippet",
+        "note": "Mirroring only central keeps your private repositories reachable"
+      },
+      "idea": {
+        "title": "Point IDEA at this Maven",
+        "detail": "Settings → Build Tools → Maven; skip this and IDEA keeps using its bundled Maven",
+        "maven-home": "Maven home path",
+        "user-settings": "User settings file",
+        "override": "Tick",
+        "override-value": "Override, then select the settings.xml above"
+      }
+    },
+    "group-build": "Build lifecycle",
+    "item-build-clean": "Remove target and everything from the previous build",
+    "item-build-compile": "Compile src/main/java into target/classes",
+    "item-build-test": "Compile and run the unit tests",
+    "item-build-package": "Package a jar / war into target",
+    "item-build-verify": "Run tests plus integration checks, the full pre-release gate",
+    "item-build-install": "Package and install into the local repository so other projects can depend on it",
+    "item-build-deploy": "Publish to the remote repository declared in distributionManagement",
+    "item-build-clean-install": "The everyday combo: clean, then build and install",
+    "item-build-site": "Generate the project report site (target/site)",
+    "group-options": "Common flags",
+    "item-opt-update": "Force snapshot updates and retry failed downloads (failures are cached until you pass -U)",
+    "item-opt-skip-tests": "Skip running tests, but still compile them",
+    "item-opt-skip-test-compile": "Skip compiling and running tests, more thorough than -DskipTests",
+    "item-opt-offline": "Offline mode, resolve everything from the local repository",
+    "item-opt-debug": "Enable debug logging to trace dependency resolution and plugin failures",
+    "item-opt-pl": "Build only the given module, with -am also building the modules it depends on",
+    "item-opt-single-test": "Run a single test class or test method",
+    "item-opt-repo-local": "Use another local repository directory for this build only",
+    "item-opt-threads": "Build in parallel using one thread per CPU core",
+    "item-opt-batch": "Non-interactive output, cleaner CI logs",
+    "group-settings": "settings.xml",
+    "item-set-local-repository": "Move the local repository off the system drive; the default is ~/.m2/repository",
+    "item-set-mirror-aliyun": "Aliyun mirror of Central, the usual first choice; paste the whole element inside <mirrors>",
+    "item-set-mirror-huawei": "Huawei Cloud mirror, a fallback when Aliyun lags",
+    "item-set-mirror-of-central": "Proxy only Central, private repositories stay reachable (recommended)",
+    "item-set-mirror-of-all": "Proxy every repository: private repos and other sources get replaced too, use with care",
+    "item-set-server": "Credentials for deploying to a private repo; the id must match the repository id in distributionManagement",
+    "item-set-active-profiles": "Activate a profile by default, e.g. to switch JDK or repository set",
+    "item-set-effective-settings": "Print the settings that actually take effect when an edit seems ignored",
+    "item-set-effective-pom": "Print the final POM after parent and profile merging",
+    "item-set-custom-file": "Point at a specific settings file without touching the global default",
+    "group-deps": "Dependencies",
+    "item-dep-tree": "Print the dependency tree to trace conflicts and transitive sources",
+    "item-dep-tree-verbose": "Also show candidates omitted for conflict, so you see the mediation result",
+    "item-dep-tree-filter": "Show who pulls in a given group, with * as the artifactId wildcard",
+    "item-dep-analyze": "Report dependencies used but undeclared, and declared but unused",
+    "item-dep-copy": "Export runtime dependencies into a folder to assemble a classpath by hand",
+    "item-dep-purge": "Delete this project's artifacts from the local repository and re-download them, fixing corrupt jars",
+    "item-dep-exclusions": "Exclude transitive dependencies, typically for logging implementation clashes",
+    "item-dep-optional": "Do not leak this dependency downstream; consumers declare it themselves",
+    "item-dep-display-updates": "List updatable dependency versions without touching the pom",
+    "item-dep-use-latest": "Bump dependencies to their latest release versions in bulk",
+    "group-scope": "Dependency scopes",
+    "item-scope-compile": "Default: visible at compile, test and runtime, and packaged",
+    "item-scope-provided": "On the compile classpath but supplied by the container at runtime (Servlet API), not packaged",
+    "item-scope-runtime": "Not needed to compile, only at runtime (JDBC drivers)",
+    "item-scope-test": "Test compile and test run only (JUnit), never packaged",
+    "item-scope-system": "Points at an absolute local jar path; deprecated, avoid in new projects",
+    "group-project": "Project & coordinates",
+    "item-proj-archetype": "Generate a project skeleton interactively; prefer the zip from start.spring.io for Spring",
+    "item-proj-wrapper": "Generate mvnw / mvnw.cmd so the team and CI use the same Maven version",
+    "item-proj-mvnw": "Build through the wrapper (mvnw.cmd on Windows), no local Maven install required",
+    "item-proj-group-id": "Organisation identifier, usually the reversed domain name",
+    "item-proj-artifact-id": "Name of the artifact; installed as groupId:artifactId:version",
+    "item-proj-version": "Version; a -SNAPSHOT suffix marks a work-in-progress build",
+    "item-proj-packaging-pom": "Aggregator parent: only declares <modules> and shared versions, produces no jar",
+    "item-proj-dependency-management": "Pin versions centrally without actually adding the dependency; children omit <version>",
+    "group-troubleshoot": "Troubleshooting",
+    "item-ts-java-home": "\"No compiler is provided in this environment\": JAVA_HOME points at a JRE, set it to the JDK root",
+    "item-ts-cached-failure": "A failed download is cached, so retry it with -U",
+    "item-ts-last-updated": "Repeated \"failure was cached in the local repository\": delete the markers and build again",
+    "item-ts-target-release": "\"invalid target release\": the pom's java.version is above the current JDK, check which JDK mvn -version reports",
+    "item-ts-force-settings": "Bypass the IDE's bundled Maven defaults and build with the settings.xml you choose",
+    "item-ts-pkix": "\"PKIX path building failed\": import the corporate proxy certificate into the JDK cacerts truststore"
+  },
+  "nvm-memo": {
+    "title": "nvm Cheatsheet",
+    "description": "nvm-windows installation and Node version switching cheatsheet",
+    "group-install": "Install (Windows)",
+    "guide": {
+      "clean": {
+        "title": "Remove the existing Node.js first",
+        "detail": "Uninstall Node.js from Control Panel, then delete these leftovers or they will fight nvm",
+        "leftovers": "Leftover directories to delete",
+        "code-note": "It should fail with \"not recognized\" — that means the slate is clean"
+      },
+      "download": {
+        "title": "Download nvm-windows",
+        "detail": "Pick the latest setup package on the GitHub releases page",
+        "link": "coreybutler/nvm-windows releases",
+        "code-note": "nvm-noinstall.zip is the portable build and needs manual PATH setup"
+      },
+      "install": {
+        "title": "Run the setup wizard",
+        "detail": "It asks for two paths only: Location of nvm and Location of nodejs — keep both free of spaces and non-ASCII characters",
+        "nvm-dir": "Location of nvm",
+        "node-dir": "Location of nodejs",
+        "noinstall": "If setup errors",
+        "noinstall-value": "Use the noinstall archive instead and add the nvm directory to Path yourself"
+      },
+      "verify": {
+        "title": "Verify the install",
+        "detail": "In a fresh terminal: nvm version prints a number and nvm lists its subcommands",
+        "path-append": "Append to Path"
+      },
+      "mirror": {
+        "title": "Switch to faster mirrors",
+        "detail": "Append two lines to <nvm directory>\\settings.txt, or set them with nvm node_mirror / nvm npm_mirror",
+        "file": "settings.txt"
+      },
+      "first-use": {
+        "title": "Install your first Node",
+        "detail": "node and npm stay unavailable until nvm use runs; reopen the terminal after switching",
+        "commands": "First-run sequence"
+      }
+    },
+    "group-versions": "Version switching",
+    "item-list-available": "List Node versions available for download",
+    "item-ls": "List installed versions; the active one carries a *",
+    "item-install": "Install a given version, or latest",
+    "item-install-latest": "Install the latest stable release",
+    "item-install-arch": "Install 32-bit or 64-bit explicitly; defaults to the OS bitness",
+    "item-use": "Switch to a version; only then do node / npm work",
+    "item-uninstall": "Remove an installed version",
+    "item-arch": "Show whether node runs as 32-bit or 64-bit",
+    "group-mirror": "Mirrors & proxy",
+    "item-node-mirror": "Set the node download mirror; omit the url to reset",
+    "item-npm-mirror": "Set the npm download mirror; omit the url to reset",
+    "item-proxy-show": "Show the current download proxy",
+    "item-proxy-set": "Set the download proxy",
+    "item-proxy-none": "Clear the download proxy",
+    "item-root-show": "Show where Node versions are stored",
+    "item-root-set": "Change where Node versions are stored",
+    "item-on": "Enable version management",
+    "item-off": "Disable version management",
+    "group-npm": "npm side",
+    "item-npm-registry": "Point npm at a regional registry once node is installed",
+    "item-npm-registry-show": "Check which registry npm currently uses",
+    "item-npm-global": "Install a global package; reopen the terminal for PATH to refresh",
+    "item-npm-cnpm": "Install cnpm as a faster npm stand-in",
+    "item-where-node": "Show which directory node resolves to, exposing stale installs",
+    "group-troubleshoot": "Common pitfalls",
+    "item-ts-not-switched": "node \"not recognized\": installed but never activated with nvm use",
+    "item-ts-off": "Version management switched off; turn it back on",
+    "item-ts-locate-settings": "Use this to find the install directory holding settings.txt",
+    "item-ts-insecure": "Bypass the server certificate check when downloads fail on SSL errors",
+    "item-ts-proxy-stale": "A proxy set earlier blocks downloads; clear it and retry",
+    "item-ts-version": "Confirm nvm itself is reachable (also nvm v)"
+  },
+  "docker-memo": {
+    "title": "Docker Cheatsheet",
+    "description": "Docker and 1Panel installation, configuration and command cheatsheet",
+    "group-linux": "Install (Linux)",
+    "group-windows": "Install (Windows / Docker Desktop)",
+    "group-panel": "1Panel install & setup",
+    "guide": {
+      "check": {
+        "title": "Check the system",
+        "detail": "Kernel 3.10+ on 64-bit; the distribution decides whether you use apt or yum below"
+      },
+      "remove": {
+        "title": "Remove old packages",
+        "detail": "Only clears legacy packages; images and containers under /var/lib/docker stay"
+      },
+      "repo": {
+        "title": "Dependencies & CN registry",
+        "detail": "First three lines for Ubuntu/Debian, last two for CentOS/RHEL; mirrors.aliyun.com is an order of magnitude faster"
+      },
+      "install": {
+        "title": "Install the Docker engine",
+        "detail": "Include docker-compose-plugin or the docker compose subcommand will be missing"
+      },
+      "start": {
+        "title": "Start and enable on boot",
+        "detail": "status must report active (running) before anything else works"
+      },
+      "mirror": {
+        "title": "Configure registry mirrors",
+        "detail": "Write it to /etc/docker/daemon.json, then reload and restart; mirrors only proxy public images",
+        "file": "/etc/docker/daemon.json"
+      },
+      "perms": {
+        "title": "Run docker without sudo",
+        "detail": "Adds your user to the docker group; takes effect after newgrp docker or a new terminal"
+      },
+      "verify": {
+        "title": "Verify",
+        "detail": "Hello from Docker plus your mirrors listed in docker info means it is done"
+      },
+      "win-wsl": {
+        "title": "Install WSL 2 first",
+        "detail": "Docker Desktop needs the WSL 2 backend; run these in an elevated PowerShell"
+      },
+      "win-desktop": {
+        "title": "Install Docker Desktop",
+        "detail": "Tick Use WSL 2 based engine during setup and leave the rest alone",
+        "link": "Docker Desktop download page"
+      },
+      "win-mirror": {
+        "title": "Set registry mirrors",
+        "detail": "Settings → Docker Engine: paste this in, then Apply & Restart",
+        "file": "Docker Engine config"
+      },
+      "win-rescue": {
+        "title": "When it will not start",
+        "detail": "Stuck WSL: wsl --shutdown. Hyper-V conflict: disable hypervisor launch and reboot"
+      },
+      "panel-pre": {
+        "title": "Requirements",
+        "detail": "Any mainstream Debian / RedHat based Linux, at least 1GB free memory",
+        "os": "Distributions",
+        "dir": "Install directory"
+      },
+      "panel-install": {
+        "title": "One-line install",
+        "detail": "The official script asks for panel port, security entrance, username and password interactively"
+      },
+      "panel-info": {
+        "title": "Recover address and credentials",
+        "detail": "Run this whenever you lose the entrance or password; it prints port, entrance and user",
+        "format": "Access URL format"
+      },
+      "panel-firewall": {
+        "title": "Open the ports",
+        "detail": "Allow the panel port (18080 in the example) plus 80/443; cloud hosts also need the same port in their security group"
+      },
+      "panel-verify": {
+        "title": "Check the service",
+        "detail": "Once status reports running, open the address above in a browser"
+      }
+    },
+    "group-cmd-images": "Images",
+    "item-pull": "Pull an image; latest when no tag is given",
+    "item-images": "List local images with their sizes",
+    "item-rmi": "Delete a local image; remove the containers using it first",
+    "item-build": "Build from the Dockerfile here; the trailing . is the build context",
+    "item-tag": "Retag an image so it points at the target registry",
+    "item-push": "Push to a remote registry; docker login first",
+    "item-save": "Export to a tar file, then docker load -i on the offline box",
+    "item-history": "Show layer sizes when an image balloons",
+    "group-cmd-containers": "Containers",
+    "item-run-detached": "Start in the background, host port 8080 mapped to container 80",
+    "item-run-tmp": "Drop into a throwaway container that deletes itself on exit",
+    "item-run-volume": "Bind-mount a host directory so data lives outside the container",
+    "item-ps-all": "List every container, including exited ones",
+    "item-exec": "Open a shell in a running container; use sh when bash is missing",
+    "item-logs": "Follow logs starting from the last 100 lines",
+    "item-inspect": "Full details: IP, mounts, environment variables",
+    "item-stats": "Live CPU and memory usage per container",
+    "item-stop": "Graceful stop, killed after 10 seconds",
+    "item-rm": "Delete a container even while it runs",
+    "group-cmd-compose": "Compose",
+    "item-compose-up": "Start every service defined in compose.yml, in the background",
+    "item-compose-build": "Rebuild local images first, then start",
+    "item-compose-pull": "Refresh images without touching containers",
+    "item-compose-config": "Validate and render the final yml; run this after editing",
+    "item-compose-ps": "Status of this project's services",
+    "item-compose-logs": "Follow one service's logs",
+    "item-compose-restart": "Restart a single service",
+    "item-compose-exec": "Open a shell inside one service",
+    "item-compose-down": "Remove containers and network, keep volumes",
+    "item-compose-down-volumes": "Also delete volumes — this wipes database data",
+    "group-cmd-storage": "Volumes, networks & cleanup",
+    "item-volume-ls": "List volumes",
+    "item-volume-create": "Create a named volume; easier to move than a host path bind",
+    "item-volume-rm": "Delete a volume after stopping the containers using it",
+    "item-network-ls": "List networks; compose creates one per project",
+    "item-network-create": "Create a network so containers resolve each other by name",
+    "item-network-connect": "Attach a running container to another network",
+    "item-cp": "Copy files between a container and the host",
+    "item-system-df": "Show what images, containers and volumes each consume",
+    "item-volume-prune": "Delete volumes no container uses",
+    "item-system-prune": "Clear unused images, containers, networks and volumes; destroys data",
+    "group-cmd-troubleshoot": "Troubleshooting",
+    "item-ts-status": "Daemon state and the last error",
+    "item-ts-journal": "dockerd's own log; start here when the service won't come up",
+    "item-ts-mirrors": "Confirm the mirrors actually took effect",
+    "item-ts-masquerade": "Containers cannot reach the internet: add masquerade to firewalld",
+    "item-ts-dns": "Container DNS failures: check which resolver the host uses",
+    "item-ts-map-count": "Temporary fix when Elasticsearch complains about max map count",
+    "item-ts-dead": "Bulk-remove every exited container",
+    "group-cmd-panel": "1Panel admin (1pctl)",
+    "item-panel-status": "Check 1Panel service state; optionally core / agent",
+    "item-panel-user-info": "Print panel address, security entrance and account",
+    "item-panel-start": "Start the 1Panel service",
+    "item-panel-stop": "Stop the 1Panel service",
+    "item-panel-restart": "Restart the 1Panel service",
+    "item-panel-version": "Show the 1Panel version",
+    "item-panel-update-password": "Change the panel password; same for username / port",
+    "item-panel-reset-entrance": "Drop the security entrance when you cannot recall it",
+    "item-panel-listen-ip": "Switch the listening IP: ipv4 or ipv6",
+    "item-panel-uninstall": "Uninstall 1Panel"
   },
   "photo-cheatsheet": {
     "title": "Photography Cheat Sheet",

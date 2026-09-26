@@ -161,7 +161,58 @@
   },
   "git-memo": {
     "title": "Git 速查表",
-    "description": "常用 Git 命令速查",
+    "description": "Git 安装配置与常用命令速查",
+    "group-install": "安装与配置（Windows）",
+    "guide": {
+      "download": {
+        "title": "下载安装包",
+        "detail": "官网慢就走 npmmirror 镜像站，选 64-bit 的 .exe",
+        "link-official": "Git 官方下载页",
+        "link-mirror": "国内镜像站",
+        "code-note": "文件名里的版本号会变"
+      },
+      "wizard": {
+        "title": "安装向导逐屏怎么选",
+        "detail": "一共 14 屏，按顺序过；界面是英文的，左边是屏名、右边是要选的项",
+        "install-dir": "安装目录",
+        "license": "许可协议",
+        "license-value": "License Information：直接 Next",
+        "components": "组件选择",
+        "components-value": "Select Components：Desktop Icon 与 Windows Explorer integration 已默认勾上，Next",
+        "start-menu": "开始菜单文件夹",
+        "start-menu-value": "Select Start Menu Folder：保持 Git，Next",
+        "editor": "文本编辑器",
+        "editor-value": "Choosing the default editor used by Git：默认 Use Vim，不习惯命令行就换 Use Notepad++",
+        "branch": "默认分支名",
+        "branch-value": "Branch name for new repositories：保持 Override 留空的 master，团队统一 main 就填 main",
+        "path": "PATH 环境",
+        "path-value": "Adjusting your PATH environment：选中间项 Git from the command line and also from 3rd-party software",
+        "ssh": "SSH 可执行文件",
+        "ssh-value": "Choose SSH executable：保持 Use bundled OpenSSH",
+        "https": "HTTPS 传输",
+        "https-value": "Choose HTTPS transport backend：选 Use the OpenSSL library；想用 Windows 证书库就换 Use the native Windows SSL library",
+        "line-endings": "换行符转换",
+        "line-endings-value": "Configuring the line ending conversions：选 Checkout Windows-style, commit Unix-style line endings",
+        "terminal": "终端模拟器",
+        "terminal-value": "Choose the terminal emulator to use with Git Bash：选 Use MinTTY (the default terminal of MSYS2)",
+        "fetch": "pull 行为",
+        "fetch-value": "Choose the default behavior of git pull：保持 Default (fast-forward or merge)",
+        "credential": "凭据助手",
+        "credential-value": "Choose a credential helper：选 Git Credential Manager，登录态由系统保存",
+        "extras": "附加功能",
+        "extras-value": "Configuring extra options：Enable file system caching 等三项保持默认，点 Install 开装"
+      },
+      "verify": {
+        "title": "验证安装",
+        "detail": "新开一个命令行窗口执行，输出版本号即安装成功"
+      },
+      "config": {
+        "title": "首次配置身份",
+        "detail": "不配身份提交会被拒；--global 对所有仓库生效",
+        "scope": "多身份",
+        "scope-value": "公司项目里进仓库目录再执行一次不带 --global 的 user.email，即可覆盖全局身份"
+      }
+    },
     "group-create": "新建仓库",
     "group-snapshot": "基础快照",
     "group-branch": "分支与合并",
@@ -173,8 +224,8 @@
     "item-init": "在当前目录初始化新仓库",
     "item-clone": "克隆远程仓库到本地",
     "item-clone-branch": "克隆远程仓库的指定分支",
-    "item-config-name": "设置提交用户名",
-    "item-config-email": "设置提交邮箱",
+    "item-config-name": "全局设置提交用户名，对所有仓库生效",
+    "item-config-email": "全局设置提交邮箱；单个仓库要换身份就在该仓库里再执行一次不带 --global 的",
     "item-status": "查看工作区状态",
     "item-add": "添加指定文件到暂存区",
     "item-add-all": "添加全部变更到暂存区",
@@ -233,6 +284,333 @@
     "item-stash-apply": "恢复最近的暂存（保留记录）",
     "item-stash-drop": "删除最近的暂存记录",
     "item-stash-branch": "从暂存记录创建新分支并恢复"
+  },
+  "maven-memo": {
+    "title": "Maven 速查表",
+    "description": "Maven 安装步骤与常用命令、依赖配置速查",
+    "group-install": "安装步骤（Windows）",
+    "guide": {
+      "download": {
+        "title": "下载压缩包",
+        "detail": "进下载页，只拉 Binary 区的 zip archive，Source 源码包不用下",
+        "link": "Maven 官方下载页",
+        "code-note": "文件名随版本变化，认准 -bin.zip 结尾"
+      },
+      "extract": {
+        "title": "解压到固定目录",
+        "detail": "路径不要含中文与空格，解压后应能看到 bin / conf / lib 三个子目录",
+        "dir": "解压目录"
+      },
+      "env": {
+        "title": "配置环境变量",
+        "detail": "此电脑 → 属性 → 高级系统设置 → 环境变量 → 系统变量：先新建 MAVEN_HOME，再编辑 Path",
+        "var-name": "新建变量名",
+        "var-value": "变量值",
+        "path-append": "Path 追加"
+      },
+      "verify": {
+        "title": "验证安装",
+        "detail": "重开一个命令行窗口再跑（旧窗口读不到新变量），能打印版本号和 Java version 就成了",
+        "output": "预期输出"
+      },
+      "settings": {
+        "title": "换国内镜像、挪本地仓库",
+        "detail": "编辑 <解压目录>\\conf\\settings.xml：localRepository 放在 <settings> 下，mirror 整段放在 <mirrors> 下",
+        "file": "conf/settings.xml 片段",
+        "note": "只代理 central，私有仓库才不会被一起拦掉"
+      },
+      "idea": {
+        "title": "让 IDEA 用这套 Maven",
+        "detail": "Settings → Build Tools → Maven，不改这里 IDEA 会一直用自带的 Bundled Maven",
+        "maven-home": "Maven home path",
+        "user-settings": "User settings file",
+        "override": "勾选",
+        "override-value": "Override，指向上面那份 settings.xml"
+      }
+    },
+    "group-build": "构建生命周期",
+    "item-build-clean": "清理 target 目录，删掉上一次编译产物",
+    "item-build-compile": "编译 src/main/java 到 target/classes",
+    "item-build-test": "编译测试代码并运行单元测试",
+    "item-build-package": "打包为 jar / war，产物在 target 下",
+    "item-build-verify": "跑完测试与集成校验，发布前的完整检查",
+    "item-build-install": "打包并安装到本地仓库，供其他工程作为依赖引用",
+    "item-build-deploy": "发布到 distributionManagement 配置的远程仓库",
+    "item-build-clean-install": "最常用组合：先清理再完整构建并安装",
+    "item-build-site": "生成项目报告站点（输出到 target/site）",
+    "group-options": "常用参数",
+    "item-opt-update": "强制更新快照、重试此前失败的下载（失败结果会被缓存，加 -U 才会重试）",
+    "item-opt-skip-tests": "跳过测试执行，但仍然编译测试代码",
+    "item-opt-skip-test-compile": "连测试代码都不编译，比 -DskipTests 更彻底",
+    "item-opt-offline": "离线模式，只用本地仓库不联网",
+    "item-opt-debug": "输出 debug 日志，排查依赖解析与插件报错",
+    "item-opt-pl": "只构建指定模块，-am 顺带构建它所依赖的模块",
+    "item-opt-single-test": "只跑指定的测试类或测试方法",
+    "item-opt-repo-local": "本次构建临时改用另一个本地仓库目录",
+    "item-opt-threads": "按 CPU 核数并行构建，多模块工程提速",
+    "item-opt-batch": "关闭交互与进度刷新，CI 日志更干净",
+    "group-settings": "settings.xml 配置",
+    "item-set-local-repository": "把本地仓库挪出 C 盘；默认位置是 ~/.m2/repository",
+    "item-set-mirror-aliyun": "阿里云中央仓库镜像，国内首选，整段放进 <mirrors> 内",
+    "item-set-mirror-huawei": "华为云镜像，阿里云拉不动时作为备选",
+    "item-set-mirror-of-central": "只代理中央仓库，私有仓库仍能正常访问（推荐）",
+    "item-set-mirror-of-all": "拦截全部仓库请求：私有仓库、其他 source 会被一起替换掉，慎用",
+    "item-set-server": "deploy 到私有仓库的账号凭据，id 必须与 distributionManagement 中的仓库 id 一致",
+    "item-set-active-profiles": "默认激活指定 profile，用于切换 JDK、私有仓库等环境差异",
+    "item-set-effective-settings": "打印真正生效的 settings.xml，改了没生效时先看这个",
+    "item-set-effective-pom": "打印合并父 POM 与 profile 之后的最终 POM",
+    "item-set-custom-file": "显式指定配置文件，不改动全局默认",
+    "group-deps": "依赖管理",
+    "item-dep-tree": "打印依赖树，定位版本冲突与传递来源",
+    "item-dep-tree-verbose": "显示被 omitted for conflict 忽略的候选版本，看清仲裁结果",
+    "item-dep-tree-filter": "只看某个组织被谁引入，配合 * 通配 artifactId",
+    "item-dep-analyze": "找出「用了没声明」和「声明了没用」的依赖",
+    "item-dep-copy": "把运行期依赖导出到一个目录，方便手动拼 classpath",
+    "item-dep-purge": "删除本项目在本地仓库的依赖并重新下载，修复损坏的 jar",
+    "item-dep-exclusions": "排除传递依赖，常用于解决日志实现、打包冲突",
+    "item-dep-optional": "该依赖不向下游传递，由使用者自己声明（starter 常用）",
+    "item-dep-display-updates": "列出可升级的依赖版本，只报告不改 pom",
+    "item-dep-use-latest": "把依赖批量升到最新的 release 版本",
+    "group-scope": "依赖作用域",
+    "item-scope-compile": "默认值，编译 / 测试 / 运行全程可见，会打进包",
+    "item-scope-provided": "编译期可见、运行期由容器提供（如 Servlet API），不打进包",
+    "item-scope-runtime": "编译不需要、运行才需要（如 JDBC 驱动）",
+    "item-scope-test": "仅测试编译与测试运行可见（如 JUnit），不进产品包",
+    "item-scope-system": "直接指向本地 jar 路径，已废弃，新项目不要再用",
+    "group-project": "工程与坐标",
+    "item-proj-archetype": "交互式生成工程骨架；Spring 项目优先用 start.spring.io 生成的 zip",
+    "item-proj-wrapper": "生成 mvnw / mvnw.cmd，让团队与 CI 锁定同一个 Maven 版本",
+    "item-proj-mvnw": "用 wrapper 构建（Windows 换成 mvnw.cmd），不依赖本机是否装了 Maven",
+    "item-proj-group-id": "组织 / 命名空间标识，通常与域名反向对应",
+    "item-proj-artifact-id": "构件名，install 后按 groupId:artifactId:version 定位",
+    "item-proj-version": "版本号，SNAPSHOT 结尾表示开发中的快照版本",
+    "item-proj-packaging-pom": "聚合父工程：只负责 <modules> 与统一版本管理，不产出 jar",
+    "item-proj-dependency-management": "只集中锁定版本、不真正引入依赖，子模块声明时可省略 version",
+    "group-troubleshoot": "常见报错排查",
+    "item-ts-java-home": "报 No compiler is provided in this environment：JAVA_HOME 指向了 JRE，需改成 JDK 根目录",
+    "item-ts-cached-failure": "依赖下载失败过一次就会被缓存，加 -U 强制重试",
+    "item-ts-last-updated": "反复报 failure was cached in the local repository：清掉失败标记再构建",
+    "item-ts-target-release": "报 invalid target release：pom 里的 java.version 高于当前 JDK，先用 mvn -version 核对用的是哪个 JDK",
+    "item-ts-force-settings": "绕开 IDE 自带 Maven 的默认配置，强制用指定的 settings.xml 重新构建",
+    "item-ts-pkix": "报 PKIX path building failed：公司 HTTPS 代理证书需导入 JDK 的 cacerts 信任库"
+  },
+  "nvm-memo": {
+    "title": "nvm 速查表",
+    "description": "nvm-windows 安装配置与 Node 多版本管理速查",
+    "group-install": "安装步骤（Windows）",
+    "guide": {
+      "clean": {
+        "title": "先卸掉已有的 Node.js",
+        "detail": "控制面板里卸载 Node.js，再手动删掉这些残留目录，否则会和 nvm 打架",
+        "leftovers": "需要清理的残留目录",
+        "code-note": "这条要提示「不是内部或外部命令」才算干净"
+      },
+      "download": {
+        "title": "下载 nvm-windows",
+        "detail": "GitHub Releases 页选最新的 setup 包",
+        "link": "coreybutler/nvm-windows Releases",
+        "code-note": "绿色版是 nvm-noinstall.zip，需要自己配 Path"
+      },
+      "install": {
+        "title": "运行安装向导",
+        "detail": "向导只问两个目录：Location of nvm 与 Location of nodejs，都不要带中文和空格",
+        "nvm-dir": "Location of nvm",
+        "node-dir": "Location of nodejs",
+        "noinstall": "向导报错时",
+        "noinstall-value": "改用 noinstall 绿色版，解压后把 nvm 目录手动补进 Path"
+      },
+      "verify": {
+        "title": "验证安装",
+        "detail": "重开终端：nvm version 能打印版本号、nvm 能列出命令菜单就成功了",
+        "path-append": "Path 追加"
+      },
+      "mirror": {
+        "title": "换国内镜像",
+        "detail": "编辑 <nvm 目录>\\settings.txt 追加两行，也可以用 nvm node_mirror / nvm npm_mirror 命令改",
+        "file": "settings.txt"
+      },
+      "first-use": {
+        "title": "装第一个 Node",
+        "detail": "必须 nvm use 之后 node 和 npm 才可用；切换版本后要重开终端才生效",
+        "commands": "首次使用序列"
+      }
+    },
+    "group-versions": "版本切换",
+    "item-list-available": "列出可安装的 Node 版本",
+    "item-ls": "列出已安装版本，当前使用的那个前面带 *",
+    "item-install": "安装指定版本，version 也可以写 latest",
+    "item-install-latest": "安装最新稳定版",
+    "item-install-arch": "指定装 32 位还是 64 位，默认跟随系统位数",
+    "item-use": "切换到指定版本，切完 node / npm 才可用",
+    "item-uninstall": "卸载指定版本",
+    "item-arch": "查看 node 跑在 32 位还是 64 位",
+    "group-mirror": "镜像与代理",
+    "item-node-mirror": "设置 node 下载镜像，不写 url 则恢复默认",
+    "item-npm-mirror": "设置 npm 下载镜像，不写 url 则恢复默认",
+    "item-proxy-show": "查看当前下载代理",
+    "item-proxy-set": "设置下载代理",
+    "item-proxy-none": "移除代理设置",
+    "item-root-show": "查看存放各版本 node 的目录",
+    "item-root-set": "改存放各版本 node 的目录",
+    "item-on": "开启 node 版本管理",
+    "item-off": "关闭 node 版本管理",
+    "group-npm": "npm 侧配套",
+    "item-npm-registry": "node 装好后，把 npm 源也换到国内镜像",
+    "item-npm-registry-show": "确认当前 npm 源指向哪里",
+    "item-npm-global": "装全局包；装完要重开终端才会进 PATH",
+    "item-npm-cnpm": "装 cnpm 作为 npm 的加速替代",
+    "item-where-node": "查看 node 到底来自哪个目录，排查旧安装残留",
+    "group-troubleshoot": "常见坑",
+    "item-ts-not-switched": "提示 node 不是内部或外部命令：多半是装完没 use",
+    "item-ts-off": "版本管理被关掉时重新开启",
+    "item-ts-locate-settings": "找不到 settings.txt 时，用这条定位安装目录",
+    "item-ts-insecure": "下载报 SSL 证书错误时，绕过远程服务器校验",
+    "item-ts-proxy-stale": "之前设过代理导致拉不动：清掉代理再试",
+    "item-ts-version": "确认 nvm 本身装好了（可简写 nvm v）"
+  },
+  "docker-memo": {
+    "title": "Docker 速查表",
+    "description": "Docker 与 1Panel 安装配置、常用命令速查",
+    "group-linux": "安装步骤（Linux）",
+    "group-windows": "安装步骤（Windows / Docker Desktop）",
+    "group-panel": "1Panel 安装与配置",
+    "guide": {
+      "check": {
+        "title": "确认系统版本",
+        "detail": "内核 3.10 以上、64 位；发行版决定后面用 apt 还是 yum"
+      },
+      "remove": {
+        "title": "卸载旧版本",
+        "detail": "只清历史包，/var/lib/docker 里的镜像与容器会保留"
+      },
+      "repo": {
+        "title": "装依赖并配国内源",
+        "detail": "Ubuntu/Debian 用前三行，CentOS/RHEL 用后两行；换成 mirrors.aliyun.com 拉取速度差一个量级"
+      },
+      "install": {
+        "title": "安装 Docker 引擎",
+        "detail": "带上 docker-compose-plugin 才有 docker compose 子命令"
+      },
+      "start": {
+        "title": "启动并设为开机自启",
+        "detail": "status 显示 active (running) 才算起来了"
+      },
+      "mirror": {
+        "title": "配镜像加速器",
+        "detail": "写进 /etc/docker/daemon.json 后必须重载并重启才生效；加速器只代理公共镜像",
+        "file": "/etc/docker/daemon.json"
+      },
+      "perms": {
+        "title": "免 sudo 使用 docker",
+        "detail": "把当前用户加进 docker 组；newgrp docker 或重开终端后生效"
+      },
+      "verify": {
+        "title": "验证",
+        "detail": "打印 Hello from Docker，且 Mirrors 列出上面配的地址即完成"
+      },
+      "win-wsl": {
+        "title": "先装 WSL 2",
+        "detail": "Docker Desktop 依赖 WSL 2 后端，用管理员 PowerShell 执行"
+      },
+      "win-desktop": {
+        "title": "安装 Docker Desktop",
+        "detail": "安装时勾选 Use WSL 2 based engine，其余保持默认",
+        "link": "Docker Desktop 下载页"
+      },
+      "win-mirror": {
+        "title": "换镜像加速器",
+        "detail": "Settings → Docker Engine，把下面这段贴进去再 Apply & Restart",
+        "file": "Docker Engine 配置"
+      },
+      "win-rescue": {
+        "title": "起不来时",
+        "detail": "WSL 卡住先 wsl --shutdown；与 Hyper-V 冲突就关掉 hypervisor 启动再重启机器"
+      },
+      "panel-pre": {
+        "title": "前置要求",
+        "detail": "主流 Linux 发行版（Debian / RedHat 系），可用内存 1GB 以上",
+        "os": "发行版",
+        "dir": "安装目录"
+      },
+      "panel-install": {
+        "title": "一键安装",
+        "detail": "官方脚本会交互式询问面板端口、安全入口、用户名与密码，按提示填即可"
+      },
+      "panel-info": {
+        "title": "取回地址与账号",
+        "detail": "忘了入口或密码就执行这条，端口、安全入口、用户名都会打印出来",
+        "format": "访问地址格式"
+      },
+      "panel-firewall": {
+        "title": "放行端口",
+        "detail": "系统防火墙放行面板端口（示例 18080）与 80/443；云服务器还要在控制台安全组开同一端口"
+      },
+      "panel-verify": {
+        "title": "验证服务",
+        "detail": "status 显示 running 后，用浏览器打开上面的地址登录"
+      }
+    },
+    "group-cmd-images": "镜像",
+    "item-pull": "拉取镜像，不写 tag 默认 latest",
+    "item-images": "列出本地镜像与体积",
+    "item-rmi": "删除本地镜像；被容器引用时先删容器",
+    "item-build": "用当前目录的 Dockerfile 构建，末尾的 . 是构建上下文",
+    "item-tag": "给镜像打标签，改成目标仓库地址才能 push",
+    "item-push": "推送到远端仓库，执行前先 docker login",
+    "item-save": "导出成 tar 包，离线机器用 docker load -i 导入",
+    "item-history": "查看镜像各层大小，排查体积暴涨",
+    "group-cmd-containers": "容器",
+    "item-run-detached": "后台启动，把宿主机 8080 映射到容器 80",
+    "item-run-tmp": "起一个临时容器进 shell，退出即删除",
+    "item-run-volume": "挂载宿主机目录，数据落在宿主机上",
+    "item-ps-all": "列出全部容器，含已退出的",
+    "item-exec": "进入运行中的容器；镜像里没有 bash 就换 sh",
+    "item-logs": "跟踪日志，只看最后 100 行",
+    "item-inspect": "查看 IP、挂载、环境变量等完整信息",
+    "item-stats": "查看各容器的 CPU 与内存实时占用",
+    "item-stop": "优雅停止，等 10 秒后强制杀",
+    "item-rm": "连正在运行的容器一起删",
+    "group-cmd-compose": "Compose 编排",
+    "item-compose-up": "按 compose.yml 后台拉起全部服务",
+    "item-compose-build": "有本地 build 的服务先重建镜像再启动",
+    "item-compose-pull": "只拉镜像，不动容器",
+    "item-compose-config": "校验并展开最终 yml，改完配置先跑这条",
+    "item-compose-ps": "查看本项目各服务状态",
+    "item-compose-logs": "跟踪单个服务的日志",
+    "item-compose-restart": "重启单个服务",
+    "item-compose-exec": "进入某个服务的容器",
+    "item-compose-down": "停止并删除容器与网络，数据卷保留",
+    "item-compose-down-volumes": "连数据卷一起删，数据库数据会没，慎用",
+    "group-cmd-storage": "数据、网络与清理",
+    "item-volume-ls": "列出数据卷",
+    "item-volume-create": "新建命名卷，比绑定宿主机路径更好迁移",
+    "item-volume-rm": "删除数据卷，先停掉占用它的容器",
+    "item-network-ls": "列出网络，compose 会给每个项目建一个",
+    "item-network-create": "新建自定义网络，让容器之间用名字互访",
+    "item-network-connect": "把正在运行的容器加进另一个网络",
+    "item-cp": "在容器与宿主机之间互拷文件",
+    "item-system-df": "查看镜像、容器、卷各占多少，决定该清什么",
+    "item-volume-prune": "清理未被任何容器使用的卷",
+    "item-system-prune": "一键清理未使用的镜像、容器、网络与卷，会删数据",
+    "group-cmd-troubleshoot": "排障",
+    "item-ts-status": "确认守护进程状态与最近一次报错",
+    "item-ts-journal": "看 dockerd 自身日志，服务起不来先查这条",
+    "item-ts-mirrors": "确认加速器是否真的生效",
+    "item-ts-masquerade": "容器上不了外网：给 firewalld 补 masquerade 再重载",
+    "item-ts-dns": "容器内解析失败，先看宿主机用的是哪台 DNS",
+    "item-ts-map-count": "ES 等容器报 max map count 太低时的临时改法",
+    "item-ts-dead": "批量删掉所有已退出的容器",
+    "group-cmd-panel": "1Panel 管理（1pctl）",
+    "item-panel-status": "检查 1Panel 服务状态，可加 core / agent",
+    "item-panel-user-info": "打印面板地址、安全入口与账号",
+    "item-panel-start": "启动 1Panel 服务",
+    "item-panel-stop": "停止 1Panel 服务",
+    "item-panel-restart": "重启 1Panel 服务",
+    "item-panel-version": "查看 1Panel 版本信息",
+    "item-panel-update-password": "修改面板密码，username / port 同理",
+    "item-panel-reset-entrance": "取消安全入口，忘记入口时的应急手段",
+    "item-panel-listen-ip": "切换监听 IP，可选 ipv4 / ipv6",
+    "item-panel-uninstall": "卸载 1Panel 服务"
   },
   "photo-cheatsheet": {
     "title": "拍照速查表",
