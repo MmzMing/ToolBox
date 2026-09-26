@@ -448,5 +448,116 @@
       "save": "Save",
       "cancel": "Cancel"
     }
+  },
+  "image-stack": {
+    "title": "Image Stack",
+    "description": "Stitch photos into long images, grids or posters with preset templates, or slice one image into a grid; canvas ratio, margins, gaps, corner radius and export format are all adjustable, processed entirely in your browser",
+    "mode": {
+      "stitch": "Stitch",
+      "split": "Split"
+    },
+    "notes": {
+      "local": "Every image is decoded and composited inside your browser. Nothing is uploaded."
+    },
+    "upload": {
+      "dropTitle": "Drop images to start laying out",
+      "dropSubtitle": "Multi-select, drop a whole folder, or paste a screenshot",
+      "browse": "Choose images",
+      "pasteHint": "You can also paste from the clipboard with Ctrl + V"
+    },
+    "filmstrip": {
+      "count": "{{total}} images",
+      "decoding": "Decoding…",
+      "autoFill": "Fill in order",
+      "add": "Add more",
+      "clear": "Clear",
+      "remove": "Remove this image",
+      "useImage": "Use {{name}}",
+      "error": {
+        "decode": "{{name}} could not be decoded; it may be corrupt or in an unsupported format",
+        "empty": "{{name}} has no pixels and was skipped"
+      }
+    },
+    "stage": {
+      "ariaLabel": "Stitched result preview",
+      "size": "Output {{width}} × {{height}} px",
+      "hintPick": "Click a cell to select it, or drag an image from the strip into a cell",
+      "hintFocus": "Drag to reposition, scroll to zoom, drag onto another cell to move it, double-click to reset"
+    },
+    "split": {
+      "noSource": "Click an image in the strip below to pick what to slice",
+      "hint": "Drag the image to move the crop, scroll to zoom, double-click to reset",
+      "summary": "{{cols}} × {{rows}}, {{total}} slices of about {{width}} × {{height}} px"
+    },
+    "template": {
+      "stitchTitle": "Stitch templates",
+      "splitTitle": "Split templates",
+      "custom": "Custom",
+      "cols": "Columns",
+      "rows": "Rows",
+      "direction": "Layout",
+      "directionValue": {
+        "row": "Row",
+        "col": "Column",
+        "grid": "Grid"
+      },
+      "count": "Count",
+      "cellCap": "Up to {{cap}} cells: currently max {{cols}} columns × {{rows}} rows",
+      "cellCount": "{{total}} cells",
+      "imageCount": "Images",
+      "imageCountValue": "{{total}}",
+      "variant": "Layout {{index}}"
+    },
+    "canvas": {
+      "title": "Canvas",
+      "ratio": "Ratio",
+      "size": "Size",
+      "width": "Width",
+      "height": "Height",
+      "tier": {
+        "web": "Social",
+        "hd": "HD",
+        "ultra": "Print",
+        "custom": "Custom…"
+      }
+    },
+    "crop": {
+      "anchor": "Keep",
+      "anchorValue": {
+        "center": "Center",
+        "top": "Top",
+        "bottom": "Bottom"
+      },
+      "summary": "Source {{sourceWidth}} × {{sourceHeight}}, cropped to {{cropWidth}} × {{cropHeight}}"
+    },
+    "style": {
+      "title": "Style",
+      "padding": "Canvas margin",
+      "gap": "Cell gap",
+      "cellRadius": "Cell radius",
+      "canvasRadius": "Canvas radius",
+      "canvasRadiusHint": "transparent corners",
+      "background": "Background",
+      "transparent": "Transparent",
+      "pickColor": "Custom background colour"
+    },
+    "export": {
+      "title": "Export",
+      "format": "Format",
+      "quality": "Quality",
+      "alphaLost": "JPG has no alpha; rounded corners and transparent areas are filled white",
+      "download": "Download",
+      "copy": "Copy to clipboard",
+      "preview": "Full screen",
+      "previewAlt": "Stitched result",
+      "clipboardUnsupported": "This browser cannot write images to the clipboard",
+      "zip": "Download zip",
+      "each": "Download each",
+      "zipDone": "Zipped {{total}} slices",
+      "splitSummary": "{{total}} slices of about {{width}} × {{height}} px, .{{extension}}",
+      "splitEmpty": "Nothing to slice yet",
+      "copied": "Copied to clipboard",
+      "failed": "Export failed. Try another image or a smaller canvas."
+    }
   }
 }

@@ -448,5 +448,116 @@
       "save": "保存",
       "cancel": "取消"
     }
+  },
+  "image-stack": {
+    "title": "图片堆叠",
+    "description": "把多张图按预设模板拼成长图、九宫格或海报，也能把一张图按网格切成多张，画布比例、边距间距圆角与导出格式全可调，全程本地处理",
+    "mode": {
+      "stitch": "布局拼接",
+      "split": "图片拆分"
+    },
+    "notes": {
+      "local": "所有图片都在你的浏览器里解码与合成，不会上传到任何服务器。"
+    },
+    "upload": {
+      "dropTitle": "拖入图片开始排版",
+      "dropSubtitle": "支持一次多选、拖入整个文件夹，或直接粘贴截图",
+      "browse": "选择图片",
+      "pasteHint": "也可以用 Ctrl + V 粘贴剪贴板里的图"
+    },
+    "filmstrip": {
+      "count": "素材 {{total}} 张",
+      "decoding": "解码中…",
+      "autoFill": "按顺序填充",
+      "add": "继续添加",
+      "clear": "清空",
+      "remove": "移除这张",
+      "useImage": "选用 {{name}}",
+      "error": {
+        "decode": "{{name}} 无法解码，可能已损坏或格式不受支持",
+        "empty": "{{name}} 尺寸为空，已跳过"
+      }
+    },
+    "stage": {
+      "ariaLabel": "拼接成品预览",
+      "size": "成品 {{width}} × {{height}} px",
+      "hintPick": "点单元格选中，或从素材条把图拖进格子",
+      "hintFocus": "格内拖拽调显示区域，滚轮缩放，拖到别的格子可搬移，双击复位"
+    },
+    "split": {
+      "noSource": "先在下方素材条里点一张图作为切分对象",
+      "hint": "拖动图片调整裁切区域，滚轮缩放，双击复位",
+      "summary": "{{cols}} 列 × {{rows}} 行，共 {{total}} 张，每张约 {{width}} × {{height}} px"
+    },
+    "template": {
+      "stitchTitle": "拼接模板",
+      "splitTitle": "拆分模板",
+      "custom": "自定义",
+      "cols": "列数",
+      "rows": "行数",
+      "direction": "排列",
+      "directionValue": {
+        "row": "横排",
+        "col": "竖排",
+        "grid": "网格"
+      },
+      "count": "份数",
+      "cellCap": "总格数上限 {{cap}}：当前最多 {{cols}} 列 × {{rows}} 行",
+      "cellCount": "{{total}} 格",
+      "imageCount": "张数",
+      "imageCountValue": "{{total}} 张",
+      "variant": "版式 {{index}}"
+    },
+    "canvas": {
+      "title": "画布",
+      "ratio": "比例",
+      "size": "尺寸",
+      "width": "宽",
+      "height": "高",
+      "tier": {
+        "web": "社交发布",
+        "hd": "高清",
+        "ultra": "超清印刷",
+        "custom": "自定义…"
+      }
+    },
+    "crop": {
+      "anchor": "保留位置",
+      "anchorValue": {
+        "center": "居中",
+        "top": "留顶部",
+        "bottom": "留底部"
+      },
+      "summary": "原图 {{sourceWidth}} × {{sourceHeight}}，裁切后 {{cropWidth}} × {{cropHeight}}"
+    },
+    "style": {
+      "title": "样式",
+      "padding": "画布边距",
+      "gap": "单元格间距",
+      "cellRadius": "单元格圆角",
+      "canvasRadius": "画布圆角",
+      "canvasRadiusHint": "四角透明",
+      "background": "背景",
+      "transparent": "透明",
+      "pickColor": "自定义背景色"
+    },
+    "export": {
+      "title": "导出",
+      "format": "格式",
+      "quality": "质量",
+      "alphaLost": "JPG 不支持透明，圆角与透明背景的空白处会填成白色",
+      "download": "下载成品",
+      "copy": "复制到剪贴板",
+      "preview": "全屏预览",
+      "previewAlt": "拼接成品",
+      "clipboardUnsupported": "当前浏览器不支持写入剪贴板",
+      "zip": "打包下载 zip",
+      "each": "逐张下载",
+      "zipDone": "已打包 {{total}} 张切片",
+      "splitSummary": "{{total}} 张切片，每张约 {{width}} × {{height}} px，扩展名 .{{extension}}",
+      "splitEmpty": "还没有可切分的图片",
+      "copied": "已复制到剪贴板",
+      "failed": "导出失败，请换一张图或调小画布尺寸后重试"
+    }
   }
 }

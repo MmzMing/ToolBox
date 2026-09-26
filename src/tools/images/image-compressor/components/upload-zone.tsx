@@ -3,52 +3,8 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { Button } from '@/components/ui/button'
+import { filesFromDataTransfer } from '@/utils/data-transfer-files'
 import { addFilesAndDispatch } from '../use-compressor-worker'
-
-/** 从 DataTransfer 读取文件（含拖入文件夹的递归遍历） */
-async function filesFromDataTransfer(dt: DataTransfer): Promise<File[]> {
-  const files: File[] = []
-  const entries: FileSystemEntry[] = []
-  for (const item of dt.items) {
-    const entry = item.webkitGetAsEntry?.()
-    if (entry) {
-      entries.push(entry)
-    } else {
-      const file = item.getAsFile()
-      if (file) {
-        files.push(file)
-      }
-    }
-  }
-
-  async function walk(entry: FileSystemEntry): Promise<void> {
-    if (entry.isFile) {
-      const file = await new Promise<File | null>((resolve) =>
-        (entry as FileSystemFileEntry).file(resolve, () => resolve(null)),
-      )
-      if (file) {
-        files.push(file)
-      }
-    } else if (entry.isDirectory) {
-      const reader = (entry as FileSystemDirectoryEntry).createReader()
-      const readAll = async (): Promise<FileSystemEntry[]> => {
-        const results = await new Promise<FileSystemEntry[]>((resolve, reject) =>
-          reader.readEntries(resolve, reject),
-        )
-        if (results.length === 0) {
-          return []
-        }
-        return results.concat(await readAll())
-      }
-      for (const child of await readAll()) {
-        await walk(child)
-      }
-    }
-  }
-
-  await Promise.all(entries.map(walk))
-  return files
-}
 
 interface UploadZoneProps {
   compact?: boolean
