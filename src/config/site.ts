@@ -16,11 +16,11 @@ export const siteConfig = {
   name: SITE_NAME,
   /**
    * 站点标题与描述：静态 index.html 的首屏值（React 挂载后由各页 DocumentMeta 覆盖）。
-   * 与 locales/zh/home.json 的 pageTitle / subtitle 对应，中文文案改动时同步此处。
+   * 与 locales/zh/home.json 的 pageTitle / metaDescription 对应，中文文案改动时同步此处。
    */
-  title: `${SITE_NAME} - 在线工具箱`,
+  title: `${SITE_NAME} - 免费在线工具箱与开发者实用工具集`,
   description:
-    '免费开源的在线工具箱：加密、转换、编码、网络、文本处理等 80+ 实用工具，计算全部在浏览器本地完成，本站不收集、不上传数据。',
+    '免费开源的在线工具箱：加密、转换、编码、网络、文本处理等 50+ 实用工具，计算全部在浏览器本地完成，本站不收集、不上传数据。',
   /**
    * 站点正式域名（不带结尾斜杠）。sitemap.xml / robots.txt 的绝对地址以此为准，
    * 构建时可用环境变量 SITE_URL 临时覆盖（预览环境等）。
@@ -45,8 +45,9 @@ export const siteConfig = {
     appleTouch152: `${ICON_DIR}/apple-touch-icon-152x152.png`,
     appleTouch167: `${ICON_DIR}/apple-touch-icon-167x167.png`,
     appleTouch180: `${ICON_DIR}/apple-touch-icon-180x180.png`,
-    /** Android / 桌面「添加到主屏幕」（以 link rel=icon + sizes 声明，无 manifest） */
+    /** Android / 桌面「添加到主屏幕」；亦作社交分享卡片配图（og:image / twitter:image） */
     android192: `${ICON_DIR}/android-chrome-192x192.png`,
+    /** 512×512 方形图，故 DocumentMeta 用 twitter:card=summary；补出 1200×630 品牌横图后再改 large_image */
     android512: `${ICON_DIR}/android-chrome-512x512.png`,
     /** Safari 固定标签页；mask-icon 只取 alpha 通道，需要纯黑剪影 */
     mask: `${ICON_DIR}/safari-pinned-tab.svg`,
@@ -58,3 +59,12 @@ export const siteConfig = {
     source: `${ICON_DIR}/6bab8870-69ad-4e94-952d-272f83d960de.png`,
   },
 } as const
+
+/**
+ * 路由 → 绝对 URL（canonical、og:url、JSON-LD、sitemap 必须同一形态）：
+ * 只有根路径保留结尾斜杠，其余去掉尾斜杠，否则 '/tool' 与 '/tool/' 算两个可索引页面。
+ */
+export function absoluteUrl(path: string): string {
+  const normalized = path === '/' ? '/' : `/${path.replace(/^\/+/, '').replace(/\/+$/, '')}`
+  return `${siteConfig.siteUrl}${normalized}`
+}

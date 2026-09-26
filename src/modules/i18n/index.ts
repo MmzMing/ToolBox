@@ -6,6 +6,14 @@ import { usePreferencesStore, type Locale } from '@/stores/preferences.store'
 export const i18n = i18next
 
 /**
+ * 同步 <html lang>：不同步就是错误信号（英文界面下文档仍声明 zh-CN），
+ * 搜索引擎与翻译类抓取按该声明判定页面语言。zh 取 zh-CN，与静态 index.html 默认值一致。
+ */
+function applyDocumentLang(locale: Locale): void {
+  document.documentElement.lang = locale === 'zh' ? 'zh-CN' : 'en'
+}
+
+/**
  * 语言包按命名空间拆分为 locales/<lang>/*.json（文件名即命名空间），
  * 每个分类一个 tools-*.json，多分类并行开发互不冲突（agent.md §9）。
  */
@@ -49,6 +57,9 @@ export async function initI18n(locale: Locale): Promise<void> {
   // 命令面板的跨语言搜索会即时查询另一语言的键，延迟加载会产生成片缺键告警
   const other: Locale = locale === 'zh' ? 'en' : 'zh'
   await Promise.all([loadLocale(locale), loadLocale(other)])
+  applyDocumentLang(locale)
+  // 监听而非在 changeLocale 里各调一次：任何来源的语言切换（含 store 恢复）都会同步
+  i18next.on('languageChanged', (lng) => applyDocumentLang(lng === 'en' ? 'en' : 'zh'))
 }
 
 /** 切换语言：按需加载语言包后再生效（store 与 i18next 同步更新） */

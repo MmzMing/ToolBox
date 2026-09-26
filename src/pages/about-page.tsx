@@ -31,6 +31,7 @@ export default function AboutPage() {
       <DocumentMeta
         title={t('title', site)}
         description={t('intro', { ...site, count: tools.length })}
+        path="/about"
       />
 
       <h1 className="text-2xl font-bold md:text-3xl">{t('title', site)}</h1>
