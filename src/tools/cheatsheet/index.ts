@@ -7,6 +7,7 @@ import { tool as gitMemo } from './git-memo'
 import { tool as mavenMemo } from './maven-memo'
 import { tool as nvmMemo } from './nvm-memo'
 import { tool as photoCheatsheet } from './photo-cheatsheet'
+import { tool as sqlMemo } from './sql-memo'
 
 export const cheatsheetTools: readonly DefinedTool[] = [
   httpStatusCodes,
@@ -15,5 +16,6 @@ export const cheatsheetTools: readonly DefinedTool[] = [
   mavenMemo,
   nvmMemo,
   dockerMemo,
+  sqlMemo,
   photoCheatsheet,
 ]

@@ -313,6 +313,15 @@ function readValue(format: FormatId, text: string): unknown {
   }
 }
 
+/** 可整体读成 JS 值的结构化文本格式；批量扫描一类工具共用这份白名单 */
+export const structuredFormats = ['json', 'yaml', 'xml'] as const
+export type StructuredFormat = (typeof structuredFormats)[number]
+
+/** 按结构化格式把文本读成 JS 值；内容非法时抛 Error */
+export function readStructured(format: StructuredFormat, text: string): unknown {
+  return readValue(format, text)
+}
+
 /** 按格式把 JS 值写成文本（仅数据格式）；`compact` 为真时输出折叠成单行 */
 function writeValue(format: FormatId, value: unknown, compact: boolean): string {
   switch (format) {
