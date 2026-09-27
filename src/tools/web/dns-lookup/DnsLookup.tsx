@@ -21,6 +21,7 @@ import { Separator } from '@/components/ui/separator'
 import { Switch } from '@/components/ui/switch'
 import { DiagnosisPanel } from './DiagnosisPanel'
 import { AliasNote, RecordsTable, ResultSummary, SoaCard, StatusChips } from './RecordGroups'
+import { RecordGuide } from './RecordGuide'
 import { SourceCompare } from './SourceCompare'
 import {
   DNS_SOURCES,
@@ -272,6 +273,8 @@ export default function DnsLookup() {
       )}
 
       {primary && <DiagnosisPanel findings={findings} />}
+
+      <RecordGuide />
     </div>
   )
 }

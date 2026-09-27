@@ -160,6 +160,49 @@
     },
     "diagnosisTitle": "解析体检",
     "diagnosisNote": "仅供参考",
+    "guide": {
+      "title": "DNS 记录说明",
+      "A": {
+        "name": "A 记录 (Address)",
+        "description": "将域名指向 IPv4 地址，是最常见的记录类型。例如将 example.com 指向 1.1.1.1。"
+      },
+      "AAAA": {
+        "name": "AAAA 记录 (IPv6 Address)",
+        "description": "将域名指向 IPv6 地址。例如将 example.com 指向 2001:db8::1。"
+      },
+      "CNAME": {
+        "name": "CNAME 记录 (Canonical Name)",
+        "description": "别名记录，将一个域名指向另一个域名。例如将 www 指向 example.com，解析器会再去查询目标域名的地址。"
+      },
+      "MX": {
+        "name": "MX 记录 (Mail Exchange)",
+        "description": "邮件交换记录，指向处理该域名邮件的服务器，包含优先级（数值越小越优先）和服务器地址。"
+      },
+      "TXT": {
+        "name": "TXT 记录 (Text)",
+        "description": "任意文本记录，常用于 SPF 反垃圾邮件策略、DKIM 公钥与域名所有权验证（如站长平台验证）等。"
+      },
+      "NS": {
+        "name": "NS 记录 (Name Server)",
+        "description": "域名服务器记录，指定负责该域名（或子域名）权威解析的 DNS 服务器地址。"
+      },
+      "SOA": {
+        "name": "SOA 记录 (Start of Authority)",
+        "description": "起始授权机构记录，每个区域只有一条，包含主域名服务器、管理员邮箱、序列号及刷新间隔等关键参数。"
+      },
+      "SRV": {
+        "name": "SRV 记录 (Service Locator)",
+        "description": "服务位置记录，用于声明特定服务（如 SIP、XMPP）的服务器地址与端口，带优先级和权重。"
+      },
+      "CAA": {
+        "name": "CAA 记录 (Certification Authority Authorization)",
+        "description": "证书颁发机构授权记录，限定哪些 CA 可以为该域名签发 TLS 证书，用于防止误签与恶意签发。"
+      },
+      "usage": {
+        "name": "常见使用场景",
+        "description": "网站迁移、负载均衡配置、CDN 加速接入、企业邮局设置、SSL 证书签发验证、站长平台所有权验证等。"
+      }
+    },
     "levels": {
       "error": "严重",
       "warn": "注意",
