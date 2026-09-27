@@ -14,7 +14,8 @@ const DEFAULT_UI: EditorUi = {
   syncScroll: true,
   renderMermaid: true,
   renderMath: true,
-  lineWrap: true,
+  // 默认不折行：编辑区保持"一行源码 = 一行显示"，长行靠编辑区底部的横向滚动条看全
+  lineWrap: false,
 }
 
 type PersistedState = {

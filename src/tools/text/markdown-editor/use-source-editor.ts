@@ -81,10 +81,21 @@ function buildTheme(dark: boolean): Extension {
         color: 'var(--muted-foreground)',
         borderRight: '1px solid var(--border)',
       },
-      '.cm-activeLine, .cm-activeLineGutter': { backgroundColor: 'var(--accent)' },
+      // 当前行只在编辑器获得焦点时着色：失焦时 CM 出厂底色是青/靛蓝，既跟站点配色打架，
+      // 又会在不聚焦的状态下留一条像"整行被选中"的灰带。
+      '.cm-activeLine, .cm-activeLineGutter': { backgroundColor: 'transparent' },
+      '&.cm-focused .cm-activeLine': { backgroundColor: 'var(--editor-active-line)' },
+      '&.cm-focused .cm-activeLineGutter': { backgroundColor: 'var(--editor-active-line)' },
       '.cm-lineNumbers .cm-gutterElement': { padding: '0 8px 0 12px' },
       '.cm-cursor, .cm-dropCursor': { borderLeftColor: 'var(--foreground)' },
-      '.cm-selectionBackground, .cm-content ::selection': { backgroundColor: 'var(--muted)' },
+      '.cm-selectionBackground, .cm-content ::selection': {
+        backgroundColor: 'var(--editor-selection)',
+      },
+      // 聚焦时 CM 出厂规则（.cm-focused > .cm-scroller > .cm-selectionLayer ...）特异度更高，
+      // 必须同样写全选择器才能盖掉它默认的 #223333 选区色
+      '&.cm-focused > .cm-scroller > .cm-selectionLayer .cm-selectionBackground': {
+        backgroundColor: 'var(--editor-selection)',
+      },
       '.cm-panels': { backgroundColor: 'var(--card)', color: 'var(--card-foreground)' },
       '.cm-panels, .cm-panel.cm-search': { border: '1px solid var(--border)' },
       '.cm-button, .cm-textfield': {

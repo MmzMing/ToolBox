@@ -177,6 +177,8 @@
     "mode-edit": "仅编辑",
     "mode-split": "分栏",
     "mode-preview": "仅预览",
+    "tab-edit": "编辑",
+    "tab-preview": "预览",
     "syncScroll": "同步滚动",
     "lineWrap": "自动换行",
     "renderMermaid": "渲染 Mermaid 图表",

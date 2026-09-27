@@ -44,6 +44,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Separator } from '@/components/ui/separator'
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import type { LucideIcon } from 'lucide-react'
 
 import type {
@@ -154,8 +155,26 @@ export function EditorToolbar({
   }
 
   return (
-    <div className="bg-background border-border flex h-12 shrink-0 items-center gap-1 overflow-x-auto border-b px-2">
+    <div className="bg-background border-border flex min-h-12 shrink-0 flex-wrap items-center gap-1 border-b px-2 py-1">
       {leading}
+
+      {/* 窄屏放不下分栏，编辑/预览用 tab 直切，不必钻进视图下拉菜单 */}
+      <Tabs
+        value={viewMode === 'preview' ? 'preview' : 'edit'}
+        onValueChange={(value) => onViewMode(value === 'preview' ? 'preview' : 'edit')}
+        className="shrink-0 md:hidden"
+      >
+        <TabsList>
+          <TabsTrigger value="edit" className="px-2 text-xs">
+            <Pencil />
+            {t('markdown-editor.tab-edit')}
+          </TabsTrigger>
+          <TabsTrigger value="preview" className="px-2 text-xs">
+            <Eye />
+            {t('markdown-editor.tab-preview')}
+          </TabsTrigger>
+        </TabsList>
+      </Tabs>
 
       <Separator orientation="vertical" className="mx-1 h-6 shrink-0" />
 

@@ -622,6 +622,14 @@
   color: oklch(0.75 0.12 255);
 }
 
+/* Markdown 编辑器（CodeMirror）配色令牌。
+   选区必须比当前行底色明显：拖选时选区一定落在当前行上，两者同色（都用 --muted/--accent，
+   暗色下都是 oklch(0.269)）就会让选区"看不见，只看到整行高亮"。 */
+:root {
+  --editor-active-line: color-mix(in oklch, var(--foreground) 5%, transparent);
+  --editor-selection: color-mix(in oklch, var(--primary) 35%, transparent);
+}
+
 /* Markdown 编辑器：CodeMirror 语法着色（类名由 use-source-editor 的 HighlightStyle 指定） */
 .cm-heading {
   font-weight: 600;

@@ -177,6 +177,8 @@
     "mode-edit": "Editor only",
     "mode-split": "Split",
     "mode-preview": "Preview only",
+    "tab-edit": "Edit",
+    "tab-preview": "Preview",
     "syncScroll": "Sync scrolling",
     "lineWrap": "Soft wrap",
     "renderMermaid": "Render Mermaid diagrams",

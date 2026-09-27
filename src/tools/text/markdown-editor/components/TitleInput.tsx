@@ -22,7 +22,7 @@ export function TitleInput({ title, onCommit }: TitleInputProps) {
       aria-label={t('markdown-editor.docName')}
       title={t('markdown-editor.docName')}
       placeholder={t('markdown-editor.docNamePlaceholder')}
-      className="hover:border-input focus-visible:bg-background h-8 w-56 shrink border-transparent bg-transparent text-sm font-medium"
+      className="hover:border-input focus-visible:bg-background h-8 w-40 shrink-0 border-transparent bg-transparent text-sm font-medium md:w-56"
       onChange={(event) => setDraft(event.target.value)}
       onBlur={() => {
         const next = (draft ?? title).trim()
