@@ -1,4 +1,4 @@
-/** 把请求模型压进 URL hash 用 base64url；跨工具复用，故放在 utils */
+/** 把请求模型压进 URL query 用 base64url；跨工具复用，故放在 utils */
 function bytesToBinary(bytes: Uint8Array): string {
   const chunkSize = 0x8000
   let binary = ''
@@ -38,10 +38,11 @@ export function encodeSharePayload(data: unknown): string {
 }
 
 /** 解码失败或版本不符时返回 null，调用方静默忽略即可，不要抛错 */
-export function decodeSharePayload(hash: string): unknown | null {
-  const match = /[#&]req=([^&]+)/.exec(hash)
-  if (match === null) return null
-  const json = fromBase64Url(match[1])
+export function decodeSharePayload(payload: string | undefined): unknown | null {
+  if (payload === undefined) {
+    return null
+  }
+  const json = fromBase64Url(payload)
   if (json === null) return null
   try {
     const parsed: unknown = JSON.parse(json)

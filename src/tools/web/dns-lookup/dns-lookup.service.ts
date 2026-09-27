@@ -507,25 +507,7 @@ export function recordsToText(result: LookupResult): string {
   return lines.join('\n')
 }
 
-export type ShareTarget = { domain: string; sourceId: string }
-
-export type ShareParams = { domain: string; sourceId?: string }
-
-export function shareUrl(current: string, target: ShareTarget): string {
-  const url = new URL(current)
-  url.searchParams.set('domain', target.domain)
-  url.searchParams.set('source', target.sourceId)
-  return url.toString()
-}
-
-/** 首屏从 URL 恢复查询条件；未知的 source 直接忽略 */
-export function readShareParams(search: string): ShareParams {
-  const params = new URLSearchParams(search)
-  const sourceId = params.get('source')
-  return {
-    domain: params.get('domain') ?? '',
-    ...(sourceId !== null && DNS_SOURCES.some((source) => source.id === sourceId)
-      ? { sourceId }
-      : {}),
-  }
+/** 地址栏里的 source 可能来自别人手改的链接：未知 id 一律退回默认源 */
+export function pickSourceId(raw: string | undefined): string {
+  return DNS_SOURCES.find((source) => source.id === raw)?.id ?? DNS_SOURCES[0].id
 }

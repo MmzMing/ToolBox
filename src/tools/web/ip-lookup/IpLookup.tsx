@@ -1,5 +1,5 @@
 import { ExternalLink, Loader2, LocateFixed, Search } from 'lucide-react'
-import { useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { SpanCopyable } from '@/components/copyable/span-copyable'
@@ -13,6 +13,7 @@ import {
   locationSummary,
   lookupIp,
   mapMarkerUrl,
+  readIpQuery,
   type IpInfo,
 } from './ip-lookup.service'
 
@@ -25,7 +26,9 @@ const toMessage = (err: unknown) => (err instanceof Error ? err.message : String
 export default function IpLookup() {
   const { t } = useTranslation('tools-web', { keyPrefix: 'ip-lookup' })
 
-  const [query, setQuery] = useState('')
+  // 首屏条件只读一次：本工具不自动改地址栏，?ip= 只作为入参
+  const [initial] = useState(() => readIpQuery(window.location.search))
+  const [query, setQuery] = useState(initial.kind === 'ip' ? initial.ip : '')
   const [result, setResult] = useState<IpInfo | null>(null)
   const [error, setError] = useState('')
   const [queryLoading, setQueryLoading] = useState(false)
@@ -33,7 +36,7 @@ export default function IpLookup() {
 
   const busy = queryLoading || publicIpLoading
 
-  const runLookup = async (value: string) => {
+  const runLookup = useCallback(async (value: string) => {
     setQueryLoading(true)
     setError('')
     setResult(null)
@@ -44,15 +47,9 @@ export default function IpLookup() {
     } finally {
       setQueryLoading(false)
     }
-  }
+  }, [])
 
-  const handleLookup = () => {
-    if (query.trim() !== '') {
-      void runLookup(query)
-    }
-  }
-
-  const handleUseMyIp = () => {
+  const lookupMyIp = useCallback(() => {
     setPublicIpLoading(true)
     setError('')
     fetchPublicIp()
@@ -62,6 +59,21 @@ export default function IpLookup() {
       })
       .catch((err: unknown) => setError(toMessage(err)))
       .finally(() => setPublicIpLoading(false))
+  }, [runLookup])
+
+  // 首屏带 ?ip= / ?ip=me / ?ip=1.2.3.4 时直接查一次：推到微任务，避开 effect 体内同步 setState
+  useEffect(() => {
+    if (initial.kind === 'self') {
+      void Promise.resolve().then(lookupMyIp)
+    } else if (initial.kind === 'ip') {
+      void Promise.resolve().then(() => runLookup(initial.ip))
+    }
+  }, [initial, lookupMyIp, runLookup])
+
+  const handleLookup = () => {
+    if (query.trim() !== '') {
+      void runLookup(query)
+    }
   }
 
   const mapUrl = result ? mapMarkerUrl(result) : null
@@ -94,7 +106,7 @@ export default function IpLookup() {
               )}
               {queryLoading ? t('loading') : t('lookupBtn')}
             </Button>
-            <Button variant="outline" onClick={handleUseMyIp} disabled={busy} className="gap-1.5">
+            <Button variant="outline" onClick={lookupMyIp} disabled={busy} className="gap-1.5">
               {publicIpLoading ? (
                 <Loader2 className="size-4 animate-spin" />
               ) : (

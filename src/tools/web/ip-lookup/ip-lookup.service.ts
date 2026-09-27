@@ -212,3 +212,24 @@ export function mapMarkerUrl(info: IpInfo): string | null {
   })
   return `https://uri.amap.com/marker?${query.toString()}`
 }
+
+/** 「查我自己的出口 IP」的哨兵词，站内约定，不是任何标准 */
+export const MY_IP_ALIAS = 'me'
+
+export type IpQuery = { kind: 'none' } | { kind: 'self' } | { kind: 'ip'; ip: string }
+
+/**
+ * 解析地址栏的 ?ip=：没有该参数即 none；留空或写 me 都表示「查我自己的出口 IP」
+ * （真实出口 IP 属个人信息，不该出现在可分享的链接里）；其余值首屏直接自动查该 IP。
+ */
+export function readIpQuery(search: string): IpQuery {
+  const params = new URLSearchParams(search)
+  if (!params.has('ip')) {
+    return { kind: 'none' }
+  }
+  const value = (params.get('ip') ?? '').trim()
+  if (value === '' || value.toLowerCase() === MY_IP_ALIAS) {
+    return { kind: 'self' }
+  }
+  return { kind: 'ip', ip: value }
+}

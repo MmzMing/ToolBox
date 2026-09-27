@@ -9,6 +9,7 @@ import {
   lookupIp,
   mapMarkerUrl,
   publicIpSources,
+  readIpQuery,
   type IpInfo,
 } from '@/tools/web/ip-lookup/ip-lookup.service'
 
@@ -225,5 +226,24 @@ describe('mapMarkerUrl', () => {
 
   it('returns null without coordinates', () => {
     expect(mapMarkerUrl({ ...baseInfo, latitude: 1 })).toBeNull()
+  })
+})
+
+describe('readIpQuery', () => {
+  it('does nothing without the ip param', () => {
+    expect(readIpQuery('')).toEqual({ kind: 'none' })
+    expect(readIpQuery('?domain=example.com')).toEqual({ kind: 'none' })
+  })
+
+  it('treats an empty value and the me alias as a self lookup', () => {
+    expect(readIpQuery('?ip=')).toEqual({ kind: 'self' })
+    expect(readIpQuery('?ip=%20')).toEqual({ kind: 'self' })
+    expect(readIpQuery('?ip=me')).toEqual({ kind: 'self' })
+    expect(readIpQuery('?ip=ME')).toEqual({ kind: 'self' })
+  })
+
+  it('keeps any other value as the ip to look up', () => {
+    expect(readIpQuery('?ip=8.8.8.8')).toEqual({ kind: 'ip', ip: '8.8.8.8' })
+    expect(readIpQuery('?ip=2001%3Adb8%3A%3A1')).toEqual({ kind: 'ip', ip: '2001:db8::1' })
   })
 })

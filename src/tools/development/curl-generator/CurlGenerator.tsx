@@ -1,6 +1,7 @@
 import { ChevronDown, Download, Share2 } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useSearchParams } from 'react-router'
 
 import {
   AlertDialog,
@@ -27,6 +28,7 @@ import {
   encodeSharePayload,
   payloadLooksSensitive,
 } from '@/utils/share-codec'
+import { applyUrlParams, pickUrlParams, urlWithParams } from '@/utils/url-params'
 import { useCurlHistoryStore } from '@/stores/curl-history.store'
 
 import { HistoryCard } from './components/history-card'
@@ -49,8 +51,8 @@ import { PRESETS } from './presets'
 import { useCurlSender } from './use-curl-sender'
 
 /** 首屏若带分享链接进来就直接还原成表单，否则给一个空 GET */
-function initialModel(): HttpRequestModel {
-  return normalizeModel(decodeSharePayload(window.location.hash)) ?? createEmptyModel()
+function initialModel(payload: string | undefined): HttpRequestModel {
+  return normalizeModel(decodeSharePayload(payload)) ?? createEmptyModel()
 }
 
 function summaryOf(model: HttpRequestModel): string {
@@ -66,7 +68,10 @@ export default function CurlGenerator() {
   const { t } = useTranslation('tools-development')
   const ns = (key: string) => t(`curl-generator.${key}`)
 
-  const [model, setModel] = useState<HttpRequestModel>(initialModel)
+  const [searchParams, setSearchParams] = useSearchParams()
+  const [model, setModel] = useState<HttpRequestModel>(() =>
+    initialModel(pickUrlParams(searchParams, ['req']).req),
+  )
   const [parseIssues, setParseIssues] = useState<Issue[]>([])
   const [showSend, setShowSend] = useState(false)
 
@@ -90,9 +95,9 @@ export default function CurlGenerator() {
 
   const share = () => {
     const payload = encodeSharePayload(model)
-    // 地址栏同步一份，刷新即可复原；过长只提示，不静默截断
-    window.history.replaceState(null, '', `#req=${payload}`)
-    const url = `${window.location.origin}${window.location.pathname}#req=${payload}`
+    // 只在这一步同步地址栏（replace 不入历史）：边编辑边写会把 header 里的凭据落进浏览记录
+    setSearchParams(applyUrlParams(searchParams, { req: payload }), { replace: true })
+    const url = urlWithParams(window.location.href, { req: payload })
     if (url.length > SHARE_LENGTH_WARN) window.alert(ns('shareTooLong'))
     void navigator.clipboard.writeText(url)
   }

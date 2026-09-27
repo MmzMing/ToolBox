@@ -17,13 +17,12 @@ import {
   parseSoaData,
   parseSrvData,
   parseTxtData,
-  readShareParams,
+  pickSourceId,
   recordLine,
   recordsOf,
   recordsToText,
   relativeLabel,
   resolveHostAddresses,
-  shareUrl,
   toTypeResult,
   type LookupResult,
 } from '@/tools/web/dns-lookup/dns-lookup.service'
@@ -588,19 +587,13 @@ describe('recordsToText', () => {
   })
 })
 
-describe('share params', () => {
-  it('writes the domain and source into the query string', () => {
-    expect(
-      shareUrl('http://localhost/dns-lookup', { domain: 'example.com', sourceId: 'alidns' }),
-    ).toBe('http://localhost/dns-lookup?domain=example.com&source=alidns')
+describe('pickSourceId', () => {
+  it('keeps a known source from the address bar', () => {
+    expect(pickSourceId('google')).toBe('google')
   })
 
-  it('reads back only known sources', () => {
-    expect(readShareParams('?domain=example.com&source=google')).toEqual({
-      domain: 'example.com',
-      sourceId: 'google',
-    })
-    expect(readShareParams('?domain=example.com&source=evil')).toEqual({ domain: 'example.com' })
-    expect(readShareParams('')).toEqual({ domain: '' })
+  it('falls back to the default source for unknown or missing ids', () => {
+    expect(pickSourceId('evil')).toBe(DNS_SOURCES[0].id)
+    expect(pickSourceId(undefined)).toBe(DNS_SOURCES[0].id)
   })
 })

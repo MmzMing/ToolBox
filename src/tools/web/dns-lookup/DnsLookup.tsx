@@ -3,6 +3,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { useCopy } from '@/composable/use-copy'
+import { pickUrlParams, urlWithParams } from '@/utils/url-params'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -27,11 +28,10 @@ import {
   isDomainMissing,
   lookupDomain,
   normalizeDomain,
-  readShareParams,
+  pickSourceId,
   recordsOf,
   recordsToText,
   resolveHostAddresses,
-  shareUrl,
   type DnsSource,
   type LookupResult,
   type NormalizedDomain,
@@ -78,10 +78,13 @@ function SourceSelect({
 export default function DnsLookup() {
   const { t } = useTranslation('tools-web', { keyPrefix: 'dns-lookup' })
   const { copy } = useCopy()
+  // 首屏条件只读一次：之后不再自动改地址栏，可分享的链接由「复制链接」按钮产出
+  const [initial] = useState(() =>
+    pickUrlParams(new URLSearchParams(window.location.search), ['domain', 'source']),
+  )
 
-  const [shared] = useState(() => readShareParams(window.location.search))
-  const [query, setQuery] = useState(shared.domain)
-  const [sourceId, setSourceId] = useState(shared.sourceId ?? DNS_SOURCES[0].id)
+  const [query, setQuery] = useState(initial.domain ?? '')
+  const [sourceId, setSourceId] = useState(() => pickSourceId(initial.source))
   const [compareId, setCompareId] = useState(DNS_SOURCES[1].id)
   const [compareOn, setCompareOn] = useState(false)
 
@@ -132,15 +135,19 @@ export default function DnsLookup() {
     void runLookup(normalized, activeSources())
   }
 
+  // 首屏带 ?domain= 进来就直接查一次
   useEffect(() => {
-    const normalized = normalizeDomain(shared.domain)
+    if (initial.domain === undefined) {
+      return
+    }
+    const normalized = normalizeDomain(initial.domain)
     if (!normalized.ok) {
       return
     }
-    const sources = [sourceById(shared.sourceId ?? DNS_SOURCES[0].id)]
-    // 首屏从 URL 恢复查询：推到微任务，避免 effect 体内同步 setState 引发连串重渲染
+    const sources = [sourceById(pickSourceId(initial.source))]
+    // 推到微任务，避免 effect 体内同步 setState 引发连串重渲染
     void Promise.resolve().then(() => runLookup(normalized, sources))
-  }, [shared, runLookup])
+  }, [initial, runLookup])
 
   const primary = results?.[0]
   const findings = useMemo(
@@ -158,7 +165,7 @@ export default function DnsLookup() {
       return
     }
     void copy(
-      shareUrl(window.location.href, { domain: primary.domain, sourceId: primary.sourceId }),
+      urlWithParams(window.location.href, { domain: primary.domain, source: primary.sourceId }),
     )
   }
 

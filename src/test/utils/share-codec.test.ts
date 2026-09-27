@@ -24,20 +24,20 @@ describe('base64url', () => {
 })
 
 describe('share payload', () => {
-  it('encodes a model and reads it back from the hash', () => {
+  it('encodes a model and reads it back', () => {
     const payload = encodeSharePayload({ url: 'https://x.com', method: 'POST' })
-    expect(decodeSharePayload(`#req=${payload}`)).toMatchObject({ url: 'https://x.com' })
+    expect(decodeSharePayload(payload)).toMatchObject({ url: 'https://x.com' })
   })
 
-  it('ignores hashes without the payload and unknown versions', () => {
-    expect(decodeSharePayload('#other=1')).toBeNull()
-    expect(decodeSharePayload('#req=')).toBeNull()
-    expect(decodeSharePayload(`#req=${toBase64Url(JSON.stringify({ v: 99, d: {} }))}`)).toBeNull()
+  it('returns null for a missing param and for unknown versions', () => {
+    expect(decodeSharePayload(undefined)).toBeNull()
+    expect(decodeSharePayload('')).toBeNull()
+    expect(decodeSharePayload(toBase64Url(JSON.stringify({ v: 99, d: {} })))).toBeNull()
   })
 
   it('returns null for corrupted input rather than throwing', () => {
-    expect(decodeSharePayload('#req=%%%')).toBeNull()
-    expect(decodeSharePayload(`#req=${toBase64Url('not json')}`)).toBeNull()
+    expect(decodeSharePayload('%%%')).toBeNull()
+    expect(decodeSharePayload(toBase64Url('not json'))).toBeNull()
   })
 
   it('exposes the length threshold the UI warns about', () => {
