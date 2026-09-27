@@ -104,7 +104,7 @@ export default function BaseLayout() {
                   <SheetTitle>{siteConfig.name}</SheetTitle>
                   <SheetDescription>{t('openMenu')}</SheetDescription>
                 </SheetHeader>
-                <SidebarContent onNavigate={() => setMobileNavOpen(false)} />
+                <SidebarContent onNavigate={() => setMobileNavOpen(false)} withSiteLinks />
               </SheetContent>
             </Sheet>
 
@@ -126,9 +126,13 @@ export default function BaseLayout() {
               </TooltipContent>
             </Tooltip>
 
-            {/* 移动端 Logo */}
-            <Link to="/" className="md:hidden" aria-label={siteConfig.name}>
-              <BrandLogo />
+            {/* 移动端 Logo：窄屏只留图标（同一张 152px 原图，不做放大），站名交给抽屉顶部 */}
+            <Link
+              to="/"
+              className="flex shrink-0 items-center md:hidden"
+              aria-label={siteConfig.name}
+            >
+              <BrandLogo textClassName="hidden sm:inline" />
             </Link>
 
             {/* 面包屑 */}
@@ -179,7 +183,7 @@ export default function BaseLayout() {
             </Breadcrumb>
             <div className="hidden flex-1 md:block" aria-hidden="true" />
 
-            {/* 右侧：搜索 + 语言 + 主题 + 博客 + 关于 + GitHub */}
+            {/* 右侧：搜索 + 语言 + 主题；窄屏把外链收进抽屉，避免顶栏溢出 */}
             <div className="ml-auto flex shrink-0 items-center gap-1">
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -190,7 +194,7 @@ export default function BaseLayout() {
                     className="text-muted-foreground hover:bg-muted hover:text-foreground aria-expanded:bg-muted flex h-8 items-center gap-1.5 rounded-md px-1.5 transition-colors md:mr-1"
                   >
                     <Search className="size-4 shrink-0" />
-                    <kbd className="bg-muted/60 text-muted-foreground flex h-5 shrink-0 items-center gap-1 rounded border px-1.5 font-mono text-[11px] leading-none">
+                    <kbd className="bg-muted/60 text-muted-foreground hidden h-5 shrink-0 items-center gap-1 rounded border px-1.5 font-mono text-[11px] leading-none md:flex">
                       <span>{SHORTCUT_MOD_KEY}</span>
                       <span>K</span>
                     </kbd>
@@ -200,46 +204,48 @@ export default function BaseLayout() {
               </Tooltip>
               <LocaleSwitcher />
               <ThemeToggle />
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button variant="ghost" size="icon-sm" asChild>
-                    <a
-                      href={siteConfig.blogUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                      aria-label={t('blog')}
-                    >
-                      <BookOpen className="size-4" />
-                    </a>
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent side="bottom">{t('blog')}</TooltipContent>
-              </Tooltip>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button variant="ghost" size="icon-sm" asChild>
-                    <Link to="/about" aria-label={t('about')}>
-                      <Info className="size-4" />
-                    </Link>
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent side="bottom">{t('about')}</TooltipContent>
-              </Tooltip>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button variant="ghost" size="icon-sm" asChild>
-                    <a
-                      href={siteConfig.githubUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                      aria-label={t('github')}
-                    >
-                      <GithubIcon className="size-4" />
-                    </a>
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent side="bottom">{t('github')}</TooltipContent>
-              </Tooltip>
+              <div className="hidden items-center gap-1 md:flex">
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant="ghost" size="icon-sm" asChild>
+                      <a
+                        href={siteConfig.blogUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        aria-label={t('blog')}
+                      >
+                        <BookOpen className="size-4" />
+                      </a>
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom">{t('blog')}</TooltipContent>
+                </Tooltip>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant="ghost" size="icon-sm" asChild>
+                      <Link to="/about" aria-label={t('about')}>
+                        <Info className="size-4" />
+                      </Link>
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom">{t('about')}</TooltipContent>
+                </Tooltip>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant="ghost" size="icon-sm" asChild>
+                      <a
+                        href={siteConfig.githubUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        aria-label={t('github')}
+                      >
+                        <GithubIcon className="size-4" />
+                      </a>
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom">{t('github')}</TooltipContent>
+                </Tooltip>
+              </div>
             </div>
           </header>
 

@@ -6,6 +6,8 @@ type BrandLogoProps = {
   className?: string
   /** 图标尺寸类名，默认 size-7 */
   iconClassName?: string
+  /** 站名文字类名，窄屏可只留图标 */
+  textClassName?: string
 }
 
 /** 品牌图标：路径取自 src/config/site.ts，换图只改 config */
@@ -23,7 +25,7 @@ export function BrandMark({ className }: { className?: string }) {
 }
 
 /** 图标 + 站名组合，侧栏与移动端顶栏共用 */
-export function BrandLogo({ className, iconClassName }: BrandLogoProps) {
+export function BrandLogo({ className, iconClassName, textClassName }: BrandLogoProps) {
   return (
     <span className={cn('flex items-center gap-2', className)}>
       <img
@@ -34,7 +36,7 @@ export function BrandLogo({ className, iconClassName }: BrandLogoProps) {
         aria-hidden="true"
         className={cn('size-7 shrink-0 rounded-lg object-contain', iconClassName)}
       />
-      <span className="text-base font-semibold">{siteConfig.name}</span>
+      <span className={cn('text-base font-semibold', textClassName)}>{siteConfig.name}</span>
     </span>
   )
 }

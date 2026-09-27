@@ -1,7 +1,9 @@
 import { Link, NavLink } from 'react-router'
 import { useTranslation } from 'react-i18next'
+import { BookOpen, Info } from 'lucide-react'
 
 import { BrandLogo } from '@/components/brand-logo'
+import { GithubIcon } from '@/components/icons/github-icon'
 import {
   Accordion,
   AccordionContent,
@@ -25,15 +27,21 @@ const navLinkClass = ({ isActive }: { isActive: boolean }) =>
 interface SidebarContentProps {
   /** 移动端抽屉点击导航后关闭 */
   onNavigate?: () => void
+  /** 移动端抽屉补上博客/关于/GitHub：窄屏顶栏收起了这三个入口 */
+  withSiteLinks?: boolean
 }
+
+const siteLinkClass =
+  'flex items-center gap-2 rounded-md px-2 py-1.5 text-sm no-underline text-muted-foreground transition-colors hover:bg-accent hover:text-foreground hover:no-underline'
 
 /**
  * 侧栏内容：Logo（点击回首页）+ 8 个分类的手风琴导航。
  * 收藏夹与最近使用展示在首页（设计调整：侧栏只承担分类导航职责）。
  * 手风琴展开状态持久化在 preferences store（agent.md §8）。
  */
-export function SidebarContent({ onNavigate }: SidebarContentProps) {
+export function SidebarContent({ onNavigate, withSiteLinks }: SidebarContentProps) {
   const { t } = useTranslation()
+  const { t: tCommon } = useTranslation('common')
   const { t: tCategory } = useTranslation('categories')
 
   const expandedCategories = usePreferencesStore((state) => state.expandedCategories)
@@ -96,6 +104,23 @@ export function SidebarContent({ onNavigate }: SidebarContentProps) {
           })}
         </Accordion>
       </ScrollArea>
+
+      {withSiteLinks && (
+        <div className="flex shrink-0 flex-col gap-0.5 border-t px-2 py-2">
+          <a href={siteConfig.blogUrl} target="_blank" rel="noreferrer" className={siteLinkClass}>
+            <BookOpen className="size-4 shrink-0" />
+            {tCommon('blog')}
+          </a>
+          <Link to="/about" onClick={onNavigate} className={siteLinkClass}>
+            <Info className="size-4 shrink-0" />
+            {tCommon('about')}
+          </Link>
+          <a href={siteConfig.githubUrl} target="_blank" rel="noreferrer" className={siteLinkClass}>
+            <GithubIcon className="size-4 shrink-0" />
+            {tCommon('github')}
+          </a>
+        </div>
+      )}
     </div>
   )
 }
