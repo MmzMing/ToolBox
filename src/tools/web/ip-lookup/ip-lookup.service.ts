@@ -37,8 +37,8 @@ interface IpWhoResponse {
   country_code?: string
   region?: string
   city?: string
-  postal_code?: string
-  postcode?: string
+  /** ipwho.is 实际字段名为 postal（无 postal_code / postcode） */
+  postal?: string
   latitude?: number
   longitude?: number
   capital?: string
@@ -144,7 +144,7 @@ export async function lookupIp(ip: string): Promise<IpInfo> {
     countryCode: data.country_code ?? '',
     region: data.region ?? '',
     city: data.city ?? '',
-    postcode: data.postal_code ?? data.postcode ?? '',
+    postcode: data.postal ?? '',
     latitude: typeof data.latitude === 'number' ? data.latitude : null,
     longitude: typeof data.longitude === 'number' ? data.longitude : null,
     capital: data.capital ?? '',

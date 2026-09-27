@@ -76,7 +76,7 @@
 
 #### 🔴 P0-2 零结构化数据（JSON-LD）
 
-全仓 `grep "application/ld+json"` 无任何业务代码命中（仅有 `meta-tag-generator` 工具的**单测字符串**）。缺失：
+全仓 `grep "application/ld+json"` 无任何业务代码命中。缺失：
 
 - `WebSite` + `SearchAction`（丢失站内搜索框富结果）
 - `Organization`（丢失品牌知识面板基础）
@@ -680,7 +680,7 @@ Disallow: /resume/
 | `/hash-text`                        | md5加密在线、sha256在线计算       | 文件校验哈希、字符串哈希转换     | md5和sha256区别、md5还安全吗     | 信息+工具             |
 | `/qr-code`                          | 二维码生成器、在线二维码制作      | 文本转二维码、链接生成二维码     | 二维码能放多少字、二维码会过期吗 | 交易+工具             |
 | `/wifi-qr-code-generator`           | wifi二维码生成                    | 扫码连wifi、wifi密码二维码       | wifi二维码怎么扫、安卓能不能扫   | 交易+工具             |
-| `/uuid-generator`                   | uuid生成器、uuid v4在线生成       | 批量生成uuid、uuid批量导出       | uuid和guid区别、uuid会重复吗     | 工具                  |
+| `/id-generator`                     | uuid生成器、ulid生成器            | 批量生成uuid v7、uuid转ulid      | uuid和guid区别、ulid和uuid区别   | 工具                  |
 | `/chmod-calculator`                 | chmod权限计算器、linux权限计算    | 755权限、文件权限对照表          | 755和777区别、chmod怎么用        | 信息+工具             |
 | `/crontab-generator`                | crontab表达式生成、定时任务表达式 | cron表达式在线解析、每天凌晨执行 | cron表达式怎么写、0点怎么表示    | 信息+工具             |
 | `/unit-converter`                   | 单位换算、在线单位转换            | 长度单位换算表、重量换算         | 1英寸等于多少厘米                | 工具                  |

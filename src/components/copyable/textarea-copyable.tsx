@@ -77,9 +77,12 @@ export function TextareaCopyable({
           showLineNumbers ? (event) => syncScroll(event.currentTarget.scrollTop) : undefined
         }
         className={cn(
-          'h-full min-w-0 flex-1 overflow-auto p-3 text-sm leading-relaxed',
-          html === undefined &&
-            (showLineNumbers ? 'whitespace-pre' : 'break-all whitespace-pre-wrap'),
+          // 不能用 h-full：父级只有 max-height（auto 高度）时百分比高度解析成 auto，
+          // 内容会撑破容器被 overflow-hidden 裁掉且不出滚动条；交给 flex 的 stretch 取高。
+          'min-h-0 min-w-0 flex-1 overflow-auto p-3 text-sm leading-relaxed',
+          // 行号槽要求一屏一行严格对齐，只能保持硬换行 + 横向滚动；其余情况一律软换行，
+          // 高亮分支也不例外——否则单行长代码（如 Java 的 byte[] 字面量）会拖出一条横向滚动条
+          showLineNumbers ? 'whitespace-pre' : 'break-all whitespace-pre-wrap',
         )}
       >
         {html !== undefined ? (

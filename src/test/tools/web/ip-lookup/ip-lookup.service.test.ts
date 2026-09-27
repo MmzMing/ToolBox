@@ -121,7 +121,7 @@ describe('lookupIp', () => {
     country_code: 'US',
     region: 'California',
     city: 'Mountain View',
-    postal_code: '94043',
+    postal: '94043',
     latitude: 37.386,
     longitude: -122.084,
     capital: 'Washington D.C.',
@@ -170,6 +170,15 @@ describe('lookupIp', () => {
     vi.unstubAllGlobals()
   })
 
+  it('keeps a blank postcode when the response carries no postal field', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({ ok: true, json: async () => ({ success: true, ip: '1.1.1.1' }) }),
+    )
+    expect((await lookupIp('1.1.1.1')).postcode).toBe('')
+    vi.unstubAllGlobals()
+  })
+
   it('throws on service failure flag and invalid input', async () => {
     vi.stubGlobal(
       'fetch',
@@ -190,11 +199,12 @@ describe('ipInfoRows', () => {
       ...baseInfo,
       country: 'Australia',
       city: 'Sydney',
+      postcode: '2000',
       latitude: -33.87,
       longitude: 151.21,
     })
-    expect(rows.map((row) => row.label)).toEqual(['country', 'city', 'coordinates'])
-    expect(rows[2]?.value).toBe('-33.87, 151.21')
+    expect(rows.map((row) => row.label)).toEqual(['country', 'city', 'postcode', 'coordinates'])
+    expect(rows[3]?.value).toBe('-33.87, 151.21')
   })
 })
 

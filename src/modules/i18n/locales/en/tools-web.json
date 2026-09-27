@@ -29,28 +29,6 @@
     "field-online": "Online Status",
     "field-timezone": "Time Zone"
   },
-  "basic-auth-generator": {
-    "title": "Basic Auth Generator",
-    "description": "Generate HTTP Basic Authentication headers",
-    "username": "Username",
-    "password": "Password",
-    "showPassword": "Show password",
-    "hidePassword": "Hide password",
-    "headerLabel": "Authorization header",
-    "credentialsLabel": "Base64 credentials"
-  },
-  "meta-tag-generator": {
-    "title": "Meta Tag Generator",
-    "description": "Generate OpenGraph and Twitter meta tags",
-    "titleLabel": "Title",
-    "descriptionLabel": "Description",
-    "descriptionPlaceholder": "A short description of the page",
-    "siteNameLabel": "Site name",
-    "imageUrlLabel": "Image URL",
-    "pageUrlLabel": "Page URL",
-    "authorLabel": "Author",
-    "twitterCardLabel": "Twitter card type"
-  },
   "otp-code-generator-and-validator": {
     "title": "OTP Code Generator & Validator",
     "description": "Generate and validate TOTP one-time codes",
@@ -65,20 +43,6 @@
     "verifyButton": "Validate",
     "verifyMatch": "The code is valid",
     "verifyMismatch": "The code does not match"
-  },
-  "slugify-string": {
-    "title": "Slugify String",
-    "description": "Convert text to a URL-friendly slug",
-    "textLabel": "Text",
-    "lowercaseLabel": "Lowercase",
-    "separatorLabel": "Separator",
-    "separatorDash": "Dash (-)",
-    "separatorUnderscore": "Underscore (_)",
-    "stopwordsLabel": "Remove English stop words",
-    "variantsLabel": "Common variants",
-    "variant-kebab": "kebab-case",
-    "variant-snake": "snake_case",
-    "variant-compact": "No separator"
   },
   "user-agent-parser": {
     "title": "User-Agent Parser",
@@ -130,6 +94,110 @@
       "utcOffset": "UTC offset",
       "abbreviation": "Timezone abbr.",
       "localTime": "Local time"
+    }
+  },
+  "dns-lookup": {
+    "title": "DNS Lookup",
+    "description": "Query A/AAAA/CNAME/MX/TXT/NS/SOA/SRV/CAA records at once, with TTL, multi-resolver comparison and record diagnostics (requires network)",
+    "inputPlaceholder": "example.com / https://example.com/path / IDN",
+    "lookupBtn": "Lookup",
+    "loading": "Looking up…",
+    "compareLabel": "Compare resolvers",
+    "compareTitle": "Resolver comparison",
+    "compareEmpty": "Neither resolver returned any record",
+    "compareNote": "Only record values are compared: public resolvers cache at different times, so TTL gaps are not a mismatch",
+    "domainLabel": "Queried domain",
+    "shareBtn": "Copy link",
+    "copyAllBtn": "Copy all records",
+    "recordCount": "{{total}} records across {{types}} record types",
+    "otherTypes": "Other types",
+    "truncated": "Response truncated",
+    "cnameVia": "via CNAME:",
+    "networkNote": "This tool needs the network: queries go straight to the public DoH resolver you pick, which sees the domain and record types you look up. Cloudflare and Google are usually unreachable from mainland China.",
+    "onlineNote": "Answers come from public recursive DNS caches and are for reference only; your local ISP may resolve differently.",
+    "errors": {
+      "empty": "Enter a domain",
+      "invalid": "Not a valid hostname — use something like example.com"
+    },
+    "states": {
+      "empty": "no record",
+      "nxdomain": "not found",
+      "failed": "failed",
+      "unreachable": "This resolver is unreachable from the current network — pick another one",
+      "nxdomainNotice": "{{domain}} does not exist (NXDOMAIN), so no record type can return anything"
+    },
+    "columns": {
+      "type": "Type",
+      "label": "Host",
+      "value": "Value",
+      "ttl": "TTL"
+    },
+    "soa": {
+      "mname": "Primary NS",
+      "rname": "Admin mailbox",
+      "serial": "Serial",
+      "refresh": "Refresh",
+      "retry": "Retry",
+      "expire": "Expire",
+      "minimum": "Minimum TTL"
+    },
+    "sources": {
+      "alidns": "AliDNS",
+      "alidns-backup": "AliDNS backup 223.6.6.6",
+      "cloudflare": "Cloudflare",
+      "google": "Google"
+    },
+    "typeHint": {
+      "A": "IPv4 address",
+      "AAAA": "IPv6 address",
+      "CNAME": "alias",
+      "MX": "mail exchanger",
+      "TXT": "text, used for SPF and domain validation",
+      "NS": "name server",
+      "SOA": "start of authority",
+      "SRV": "service locator",
+      "CAA": "issuer restriction"
+    },
+    "diagnosisTitle": "Diagnostics",
+    "diagnosisNote": "for reference",
+    "levels": {
+      "error": "Error",
+      "warn": "Warning",
+      "info": "Info"
+    },
+    "findings": {
+      "cnameConflict": {
+        "title": "CNAME coexists with other records at the same name",
+        "detail": "RFC 1034 §3.6.2: a name with a CNAME cannot also carry A/MX/TXT records — those get ignored. For a zone apex (@), use an A record or CNAME flattening."
+      },
+      "mxNoAddress": {
+        "title": "MX target resolves to no address",
+        "detail": "Mail delivery will fail; add an A or AAAA record for the hosts below."
+      },
+      "spfMultiple": {
+        "title": "More than one v=spf1 record on the same host",
+        "detail": "RFC 7208 allows exactly one SPF record; several are a permanent error for the receiving side. Merge them."
+      },
+      "spfTooManyLookups": {
+        "title": "SPF exceeds the DNS lookup limit",
+        "detail": "RFC 7208 §4.6: include / a / mx / ptr / exists may trigger at most 10 lookups; beyond that the check fails outright."
+      },
+      "noAddress": {
+        "title": "Neither an A nor an AAAA record",
+        "detail": "The host is not directly reachable. That is expected for mail-only or validation-only names."
+      },
+      "noRecordsAtAll": {
+        "title": "This host has no records at all",
+        "detail": "All nine types came back empty. If you queried a subdomain, double-check the host name or add a record in your DNS console."
+      },
+      "caaMissing": {
+        "title": "No CAA record",
+        "detail": "Any CA may issue for this domain. Add a CAA record if you want to restrict issuers."
+      },
+      "caaPresent": {
+        "title": "Issuers allowed by CAA",
+        "detail": "Only the listed CAs may issue certificates; check this first when issuance fails."
+      }
     }
   }
 }

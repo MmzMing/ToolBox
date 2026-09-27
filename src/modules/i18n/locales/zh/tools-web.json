@@ -29,28 +29,6 @@
     "field-online": "在线状态",
     "field-timezone": "时区"
   },
-  "basic-auth-generator": {
-    "title": "Basic Auth 生成",
-    "description": "生成 HTTP Basic Authentication 请求头",
-    "username": "用户名",
-    "password": "密码",
-    "showPassword": "显示密码",
-    "hidePassword": "隐藏密码",
-    "headerLabel": "Authorization 请求头",
-    "credentialsLabel": "Base64 凭证"
-  },
-  "meta-tag-generator": {
-    "title": "Meta 标签生成",
-    "description": "生成 OpenGraph 与 Twitter 分享 meta 标签",
-    "titleLabel": "标题",
-    "descriptionLabel": "描述",
-    "descriptionPlaceholder": "一句话描述页面内容",
-    "siteNameLabel": "站点名称",
-    "imageUrlLabel": "图片 URL",
-    "pageUrlLabel": "页面 URL",
-    "authorLabel": "作者",
-    "twitterCardLabel": "Twitter 卡片类型"
-  },
   "otp-code-generator-and-validator": {
     "title": "OTP 验证码",
     "description": "生成与校验 TOTP 两步验证码",
@@ -65,20 +43,6 @@
     "verifyButton": "校验",
     "verifyMatch": "验证码正确",
     "verifyMismatch": "验证码不匹配"
-  },
-  "slugify-string": {
-    "title": "Slug 生成",
-    "description": "将文本转换为 URL 友好的 slug",
-    "textLabel": "原文",
-    "lowercaseLabel": "转为小写",
-    "separatorLabel": "分隔符",
-    "separatorDash": "连字符（-）",
-    "separatorUnderscore": "下划线（_）",
-    "stopwordsLabel": "去除英文停用词",
-    "variantsLabel": "常用变体",
-    "variant-kebab": "kebab-case",
-    "variant-snake": "snake_case",
-    "variant-compact": "无分隔符"
   },
   "user-agent-parser": {
     "title": "User-Agent 解析",
@@ -130,6 +94,110 @@
       "utcOffset": "UTC 偏移",
       "abbreviation": "时区缩写",
       "localTime": "当地时间"
+    }
+  },
+  "dns-lookup": {
+    "title": "域名解析查询",
+    "description": "一次查全 A/AAAA/CNAME/MX/TXT/NS/SOA/SRV/CAA 记录，含 TTL、多公共 DNS 对比与解析体检（需联网）",
+    "inputPlaceholder": "example.com / https://example.com/path / 中文域名",
+    "lookupBtn": "查询",
+    "loading": "查询中…",
+    "compareLabel": "多源对比",
+    "compareTitle": "多源对比",
+    "compareEmpty": "两个源都没有返回任何记录",
+    "compareNote": "只比较记录值：各公共 DNS 缓存时机不同，TTL 差异不算不一致",
+    "domainLabel": "查询域名",
+    "shareBtn": "复制链接",
+    "copyAllBtn": "复制全部记录",
+    "recordCount": "共 {{total}} 条记录，分布在 {{types}} 个类型",
+    "otherTypes": "其余类型",
+    "truncated": "响应被截断",
+    "cnameVia": "经由 CNAME：",
+    "networkNote": "本工具需要联网：查询直连所选的公共 DoH 服务，被查询的域名与记录类型会发送给该服务商。国内网络下 Cloudflare / Google 通常不可达。",
+    "onlineNote": "结果取自公共递归 DNS 的缓存，仅供参考；你本地运营商看到的解析结果可能不同。",
+    "errors": {
+      "empty": "请输入域名",
+      "invalid": "域名格式不正确，应为 example.com 这样的两级以上主机名"
+    },
+    "states": {
+      "empty": "无记录",
+      "nxdomain": "域名不存在",
+      "failed": "查询失败",
+      "unreachable": "该 DNS 服务在当前网络不可达，请换一个源重试",
+      "nxdomainNotice": "域名 {{domain}} 不存在（NXDOMAIN），任何类型都不会有记录"
+    },
+    "columns": {
+      "type": "类型",
+      "label": "主机记录",
+      "value": "记录值",
+      "ttl": "TTL"
+    },
+    "soa": {
+      "mname": "主域名服务器",
+      "rname": "管理员邮箱",
+      "serial": "序列号",
+      "refresh": "刷新",
+      "retry": "重试",
+      "expire": "过期",
+      "minimum": "最小 TTL"
+    },
+    "sources": {
+      "alidns": "阿里公共 DNS",
+      "alidns-backup": "阿里备用 223.6.6.6",
+      "cloudflare": "Cloudflare",
+      "google": "Google"
+    },
+    "typeHint": {
+      "A": "IPv4 地址",
+      "AAAA": "IPv6 地址",
+      "CNAME": "别名指向",
+      "MX": "邮件交换",
+      "TXT": "文本记录，常用于 SPF 与域名验证",
+      "NS": "域名服务器",
+      "SOA": "起始授权信息",
+      "SRV": "服务定位",
+      "CAA": "证书签发限制"
+    },
+    "diagnosisTitle": "解析体检",
+    "diagnosisNote": "仅供参考",
+    "levels": {
+      "error": "严重",
+      "warn": "注意",
+      "info": "说明"
+    },
+    "findings": {
+      "cnameConflict": {
+        "title": "CNAME 与同名其他记录共存",
+        "detail": "RFC 1034 §3.6.2：挂了 CNAME 的主机名不能再有同名的 A/MX/TXT 记录，否则那些记录会被忽略。若查询的是根域（@），请改用 A 记录或做 CNAME 展平。"
+      },
+      "mxNoAddress": {
+        "title": "MX 指向的主机名解析不到地址",
+        "detail": "邮件投递会失败，请为下列 MX 主机补 A 或 AAAA 记录。"
+      },
+      "spfMultiple": {
+        "title": "同一主机存在多条 v=spf1 记录",
+        "detail": "RFC 7208 规定只能有一条 SPF 记录，多条会被收件方判为永久错误，请合并成一条。"
+      },
+      "spfTooManyLookups": {
+        "title": "SPF 的 DNS 查询次数超过上限",
+        "detail": "RFC 7208 §4.6：include / a / mx / ptr / exists 引发的查询最多 10 次，超出会被直接判失败。"
+      },
+      "noAddress": {
+        "title": "既没有 A 也没有 AAAA 记录",
+        "detail": "该主机名无法直接访问。若它只用于发信或域名验证，属正常情况。"
+      },
+      "noRecordsAtAll": {
+        "title": "该主机名没有任何记录",
+        "detail": "9 个类型全部为空。若查的是子域名，请确认主机名拼写，或到 DNS 控制台添加记录。"
+      },
+      "caaMissing": {
+        "title": "未设置 CAA 记录",
+        "detail": "任何 CA 都可以为该域名签发证书。若需要限制签发方，可添加 CAA 记录。"
+      },
+      "caaPresent": {
+        "title": "CAA 允许的签发方",
+        "detail": "只有列出的 CA 能签发证书；签发失败时先检查这里。"
+      }
     }
   }
 }

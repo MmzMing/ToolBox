@@ -31,18 +31,19 @@ files you can host anywhere.
 
 ## Features
 
-### Tools (8 categories / 48 tools)
+### Tools (9 categories / 48 tools)
 
-| Category          | Count | Includes                                                           |
-| ----------------- | ----- | ------------------------------------------------------------------ |
-| Resume            | 1     | Resume studio (9 templates, page breaks, PDF export, folder sync)  |
-| Crypto            | 10    | Hashing, AES/RSA, HMAC, bcrypt, UUID, ULID, tokens, password check |
-| Web               | 11    | URL parser, HTML entities, UA parser, meta tags, Basic Auth, OTP   |
-| Development       | 10    | Code formatter, encoder/decoder, converters, cron, chmod, colors   |
-| Cheatsheets       | 4     | HTTP status codes, regex, git, photography                         |
-| Images and videos | 3     | QR code converter, WiFi QR code, image compress & convert (WASM)   |
-| Text              | 6     | Diff, statistics, case converter, emoji, lorem ipsum, ASCII art    |
-| Life              | 3     | Chinese kinship terms, social insurance, unit converter            |
+| Category    | Count | Includes                                                              |
+| ----------- | ----- | --------------------------------------------------------------------- |
+| Resume      | 1     | Resume studio (9 templates, page breaks, PDF export, folder sync)     |
+| Crypto      | 7     | Hashing, AES encryption, bcrypt, ID generator, key generator, entropy |
+| Web         | 8     | URL parser, HTML entities, UA parser, DNS lookup, IP lookup, OTP      |
+| Development | 9     | Format studio, encoder/decoder, cURL builder, cron, chmod, colors     |
+| Text        | 4     | Markdown editor, diff, formatter, ASCII art                           |
+| Life        | 4     | Chinese kinship terms, social insurance, unit converter, fortune draw |
+| Images      | 6     | QR code, WiFi QR, compression, perler beads, image stack, AI canvas   |
+| Video       | 1     | Music to video                                                        |
+| Cheatsheets | 8     | HTTP status codes, regex, git, SQL, Maven, nvm, Docker, photography   |
 
 The full list lives in [docs/design/功能介绍文档.md](docs/design/功能介绍文档.md) (Chinese).
 

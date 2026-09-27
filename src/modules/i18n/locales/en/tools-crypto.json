@@ -3,20 +3,105 @@
     "title": "Hash Text",
     "description": "Compute the MD5, SHA1, SHA256, SHA512, SHA3 or RIPEMD160 hash of a text"
   },
-  "uuid-generator": {
-    "title": "UUID Generator",
-    "description": "Generate random UUID v4 in bulk, one click to copy"
-  },
-  "token-generator": {
-    "title": "Token Generator",
-    "description": "Generate random secure tokens with custom charset and length",
-    "length": "Length",
-    "characterSets": "Character sets",
-    "uppercase": "Uppercase (A-Z)",
-    "lowercase": "Lowercase (a-z)",
-    "numbers": "Digits (0-9)",
-    "symbols": "Symbols (!@#$…)",
-    "errorCharset": "Select at least one character set"
+  "id-generator": {
+    "title": "UUID / ULID Generator",
+    "description": "Generate UUID v1–v7, Nil and ULID in five spellings and four join styles, and decode any ID back to its version, variant and timestamp",
+    "tab-uuid": "UUID",
+    "tab-ulid": "ULID",
+    "tab-parse": "Parse & Validate",
+    "generate": "Generate",
+    "output-format": "Format",
+    "join-label": "Join",
+    "id-count-hint": "{{total}} values",
+    "format": {
+      "default": "As emitted",
+      "upper": "Uppercase",
+      "lower": "Lowercase",
+      "raw": "Without hyphens",
+      "braces": "Braces",
+      "urn": "URN prefix"
+    },
+    "join": {
+      "newline": "One per line",
+      "comma": "Comma separated",
+      "quoted": "Quoted, comma separated",
+      "jsonArray": "JSON array"
+    },
+    "error-timestamp": "Timestamp must be a non-negative integer of milliseconds",
+    "error-namespace": "Custom namespace must be a valid UUID",
+    "error-name": "Named UUIDs need a non-empty name",
+    "error-generate": "Generation failed, check the parameters",
+    "uuid": {
+      "version": "Version",
+      "count": "Quantity",
+      "one-shot": "Same input, same output — one per run",
+      "timestamp": "Base timestamp (ms, blank means now)",
+      "namespace": "Namespace",
+      "namespace-dns": "DNS name",
+      "namespace-url": "URL",
+      "namespace-oid": "ISO OID",
+      "namespace-x500": "X.500 DN",
+      "namespace-custom": "Custom UUID",
+      "customNamespace": "Custom namespace",
+      "name": "Name (hashed byte by byte)",
+      "hint-v4": "122 random bits, the usual primary key",
+      "hint-v7": "Leads with a 48-bit millisecond clock, sorts by time",
+      "hint-v6": "Rearranged v1, sorts by time",
+      "hint-v1": "Carries node and clock sequence; browsers use a random node",
+      "hint-v5": "SHA-1 name-based, same name yields the same UUID",
+      "hint-v3": "MD5 name-based, kept for legacy systems",
+      "hint-nil": "All-zero placeholder"
+    },
+    "ulid": {
+      "count": "Quantity",
+      "timestamp": "Base timestamp (ms, blank means now)",
+      "monotonic": "Increment within a millisecond",
+      "monotonic-hint": "Random segment steps by one",
+      "batch-time": "Base time: {{time}}"
+    },
+    "parse": {
+      "input": "Paste IDs (one per line, or a whole batch)",
+      "input-hint": "Accepts hyphenated, bare, braced, urn:uuid: and ULID forms",
+      "detail-title": "Decoded",
+      "batch-title": "Batch check",
+      "kind-uuid": "UUID",
+      "kind-ulid": "ULID",
+      "kind-unknown": "Unrecognised",
+      "version-value": "v{{version}}",
+      "canonical": "Canonical",
+      "raw-hex": "Hexadecimal",
+      "variant-label": "Variant",
+      "variant-ncs": "NCS (reserved)",
+      "variant-rfc4122": "RFC 4122 / 9562",
+      "variant-microsoft": "RFC 9562 Microsoft",
+      "variant-reserved": "Reserved / future",
+      "time": "Timestamp",
+      "time-unknown": "This version carries no time",
+      "as-ulid": "Equivalent ULID",
+      "as-uuid": "Equivalent UUID",
+      "fields-title": "Field breakdown",
+      "field-timeLow": "time_low",
+      "field-timeMid": "time_mid",
+      "field-timeHiAndVersion": "time_hi_and_version",
+      "field-clockSeq": "clock_seq",
+      "field-node": "node",
+      "field-ulidTime": "Time part",
+      "field-ulidRandom": "Random part",
+      "binary": "128-bit binary",
+      "base64url": "Base64URL",
+      "col-value": "Value",
+      "col-kind": "Kind",
+      "col-version": "Version",
+      "col-time": "Time",
+      "summary-total": "Total {{total}}",
+      "summary-valid": "Valid {{valid}}",
+      "summary-invalid": "Invalid {{invalid}}",
+      "summary-duplicates": "Duplicates {{duplicates}}",
+      "row-limit": "Showing the first {{shown}} rows, counts cover the whole batch",
+      "error-empty": "Nothing to parse",
+      "error-length": "Wrong length: a UUID is 32 hex digits, a ULID is 26 characters",
+      "error-character": "Illegal character: UUIDs allow 0-9 a-f only, ULID's Crockford Base32 omits I, L, O and U"
+    }
   },
   "bcrypt": {
     "title": "Bcrypt Hash",
@@ -33,10 +118,6 @@
     "match": "The password matches the hash",
     "mismatch": "The password does not match the hash",
     "invalidHash": "Invalid hash format"
-  },
-  "ulid-generator": {
-    "title": "ULID Generator",
-    "description": "Generate ULID (Universally Unique Lexicographically Sortable Identifier) in bulk"
   },
   "encryption": {
     "title": "Text Encryption",
@@ -55,25 +136,9 @@
     "legacyNotice": "This cipher text uses the legacy AES-CBC format and was opened for you. Re-encrypt it once with the current version: the new format is authenticated, so any tampering makes decryption fail outright.",
     "insecureContext": "This page is not a secure context (https or localhost is required), so the browser has disabled WebCrypto and the new format is unavailable. Legacy AES-CBC cipher text can still be decrypted here."
   },
-  "hmac-generator": {
-    "title": "HMAC Generator",
-    "description": "Compute HMAC-MD5/SHA message authentication codes",
-    "secretKey": "Secret key",
-    "message": "Message",
-    "algorithm": "Algorithm"
-  },
-  "rsa-key-pair-generator": {
-    "title": "RSA Key Pair Generator",
-    "description": "Generate RSA public/private key pairs in PEM format",
-    "keySize": "Key size",
-    "bits": "bits",
-    "generating": "Generating…",
-    "publicKey": "Public key (PEM)",
-    "privateKey": "Private key (PEM)"
-  },
   "password-strength-analyser": {
     "title": "Password Strength Analyser",
-    "description": "Analyse password strength, entropy and crack time",
+    "description": "Generate random strong passwords, and analyse strength, entropy and crack time",
     "password": "Password",
     "showPassword": "Show password",
     "hidePassword": "Hide password",
@@ -93,6 +158,33 @@
       "digit": "Contains digits (0-9)",
       "symbol": "Contains symbols (!@#$…)",
       "noRepeatedChars": "No consecutive repeated characters"
+    },
+    "gen": {
+      "title": "Random Password Generator",
+      "length": "Random part length",
+      "characterClasses": "Character types",
+      "uppercase": "Uppercase (A-Z)",
+      "lowercase": "Lowercase (a-z)",
+      "digits": "Digits (0-9)",
+      "symbols": "Symbols (!@#$…)",
+      "minCount": "Min",
+      "prefix": "Prefix",
+      "suffix": "Suffix",
+      "prefixPlaceholder": "e.g. gh-",
+      "suffixPlaceholder": "e.g. !26",
+      "advanced": "Advanced options",
+      "excludeAmbiguous": "Exclude ambiguous characters (i l 1 L o 0 O)",
+      "excludedChars": "Additional excluded characters",
+      "excludedCharsPlaceholder": "Characters that must never appear",
+      "summary": "{{total}} characters final · {{entropy}} bit effective entropy in the random part",
+      "results": "Generated",
+      "pickForAnalysis": "Analyse this one",
+      "errors": {
+        "emptyPool": "Enable at least one character type with usable characters",
+        "lengthOutOfRange": "Length must be an integer between {{min}} and {{max}}",
+        "countOutOfRange": "Count must be an integer between {{min}} and {{max}}",
+        "minExceedsLength": "The sum of per-type minimums exceeds the random part length"
+      }
     },
     "disclaimer": "Estimates assume 10^10 brute-force guesses per second, for strength reference only"
   },
@@ -115,5 +207,95 @@
       "modified-after-signing": "Signed ranges do not cover the whole file; it may have been modified after signing"
     },
     "disclaimer": "Basic byte-level check only; it does not constitute legal verification"
+  },
+  "key-generator": {
+    "title": "Key Generator",
+    "description": "Generate HMAC secrets, RSA / ECDSA / Ed25519 key pairs and symmetric keys, exported to PEM, OpenSSH, JWK and fingerprints",
+    "tab-keypair": "Key pair",
+    "tab-hmac": "HMAC key",
+    "tab-symmetric": "Symmetric key",
+    "tab-token": "Random token",
+    "group-pem": "PEM",
+    "group-ssh": "OpenSSH",
+    "group-jwk": "JWK",
+    "group-raw": "Raw bytes",
+    "output-format": "Output format",
+    "generate": "Generate",
+    "generating": "Generating…",
+    "regenerate": "Regenerate",
+    "warning-private-key": "This page holds private keys. Everything is computed in your browser — nothing is uploaded or stored locally.",
+    "error-generate": "Generation failed",
+    "keypair": {
+      "algorithm": "Algorithm",
+      "rsa": "RSA",
+      "ecdsa": "ECDSA",
+      "ed25519": "Ed25519",
+      "x25519": "X25519",
+      "bits": "Key size",
+      "curve": "Curve",
+      "comment": "SSH comment",
+      "kid": "JWK Key ID",
+      "hint": "RSA-4096 takes about 0.2s; Ed25519 is shorter and faster, recommended for SSH and new protocols"
+    },
+    "format": {
+      "pkcs8-pem": "PKCS#8 private key (PEM)",
+      "traditional-pem": "Traditional private key (PKCS#1 / SEC1)",
+      "spki-pem": "Public key (SPKI PEM)",
+      "ssh-public": "OpenSSH public key line",
+      "ssh-private": "OpenSSH private key file",
+      "jwk-private": "JWK (private)",
+      "jwk-public": "JWK (public)",
+      "jwks": "JWKS",
+      "pkcs8-der": "PKCS#8 DER (Base64)",
+      "spki-der": "SPKI DER (Base64)",
+      "public-raw-hex": "Raw public bytes (hex)",
+      "public-raw-base64": "Raw public bytes (Base64)",
+      "public-raw-base64url": "Raw public bytes (Base64URL)",
+      "private-raw-hex": "Private seed (hex)",
+      "fingerprint-sha256": "Fingerprint (SHA256)",
+      "fingerprint-md5": "Fingerprint (MD5)"
+    },
+    "unavailable": {
+      "no-ssh": "This algorithm has no OpenSSH representation",
+      "no-traditional-pem": "This algorithm has no PKCS#1 / SEC1 traditional format",
+      "no-raw-seed": "This key is not represented by a single seed; use PKCS#8"
+    },
+    "hmac": {
+      "algorithm": "Algorithm",
+      "secret-size": "Secret size (bytes)",
+      "secret": "Generated secret",
+      "message": "Message",
+      "signature": "HMAC signature",
+      "hint": "RFC 2104: the key should be at least as long as the digest; longer keys are hashed first",
+      "signing-key": "Signing key"
+    },
+    "symmetric": {
+      "kind": "Purpose",
+      "aes-128": "AES-128 (16 bytes)",
+      "aes-192": "AES-192 (24 bytes)",
+      "aes-256": "AES-256 (32 bytes)",
+      "chacha20-poly1305": "ChaCha20-Poly1305 (32 bytes)",
+      "hmac-sha256": "HMAC-SHA256 (32 bytes)",
+      "hmac-sha512": "HMAC-SHA512 (64 bytes)",
+      "with-iv": "Also generate IV / nonce",
+      "iv-kind": "Cipher mode",
+      "iv": "Initialization vector",
+      "salt": "Salt",
+      "snippets": "Code snippets",
+      "name": "Variable name",
+      "key": "Symmetric key",
+      "salt-bytes": "Salt length (bytes)"
+    },
+    "token": {
+      "length": "Length",
+      "count": "Count",
+      "characterSets": "Character sets",
+      "uppercase": "Uppercase (A-Z)",
+      "lowercase": "Lowercase (a-z)",
+      "numbers": "Digits (0-9)",
+      "symbols": "Symbols (!@#$…)",
+      "errorCharset": "Select at least one character set",
+      "entropy": "Theoretical entropy"
+    }
   }
 }

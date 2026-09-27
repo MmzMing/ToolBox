@@ -3,20 +3,105 @@
     "title": "文本哈希计算",
     "description": "计算文本的 MD5、SHA1、SHA256、SHA512、SHA3 与 RIPEMD160 哈希值"
   },
-  "uuid-generator": {
-    "title": "UUID 生成器",
-    "description": "批量生成随机 UUID v4，可一键复制"
-  },
-  "token-generator": {
-    "title": "令牌生成器",
-    "description": "生成随机安全令牌，可自定义字符集与长度",
-    "length": "长度",
-    "characterSets": "字符集",
-    "uppercase": "大写字母 (A-Z)",
-    "lowercase": "小写字母 (a-z)",
-    "numbers": "数字 (0-9)",
-    "symbols": "符号 (!@#$…)",
-    "errorCharset": "请至少选择一个字符集"
+  "id-generator": {
+    "title": "UUID / ULID 生成器",
+    "description": "生成 UUID v1–v7、Nil 与 ULID，支持五种写法四种拼接，并可反解任意 ID 的版本、变体与时间戳",
+    "tab-uuid": "UUID",
+    "tab-ulid": "ULID",
+    "tab-parse": "解析校验",
+    "generate": "生成",
+    "output-format": "输出格式",
+    "join-label": "拼接方式",
+    "id-count-hint": "共 {{total}} 条",
+    "format": {
+      "default": "原样（默认）",
+      "upper": "大写",
+      "lower": "小写",
+      "raw": "无连字符",
+      "braces": "大括号",
+      "urn": "URN 前缀"
+    },
+    "join": {
+      "newline": "每行一条",
+      "comma": "逗号分隔",
+      "quoted": "逗号加引号",
+      "jsonArray": "JSON 数组"
+    },
+    "error-timestamp": "时间戳必须是非负整数毫秒",
+    "error-namespace": "自定义命名空间必须是合法 UUID",
+    "error-name": "命名 UUID 需要非空的名字",
+    "error-generate": "生成失败，请检查参数",
+    "uuid": {
+      "version": "版本",
+      "count": "生成数量",
+      "one-shot": "同输入同输出，一次一条",
+      "timestamp": "基准时间戳（毫秒，留空为当前）",
+      "namespace": "命名空间",
+      "namespace-dns": "DNS 域名",
+      "namespace-url": "URL",
+      "namespace-oid": "ISO OID",
+      "namespace-x500": "X.500 DN",
+      "namespace-custom": "自定义 UUID",
+      "customNamespace": "自定义命名空间",
+      "name": "名字（逐字节参与哈希）",
+      "hint-v4": "122 位随机，最常用的主键",
+      "hint-v7": "48 位毫秒打头，字典序即时间序",
+      "hint-v6": "重排过的 v1，字典序即时间序",
+      "hint-v1": "含节点与时钟序列，浏览器里节点 ID 是随机的",
+      "hint-v5": "SHA-1 名字派生，同名字同结果",
+      "hint-v3": "MD5 名字派生，仅作旧系统兼容",
+      "hint-nil": "全零占位值"
+    },
+    "ulid": {
+      "count": "生成数量",
+      "timestamp": "基准时间戳（毫秒，留空为当前）",
+      "monotonic": "同毫秒递增",
+      "monotonic-hint": "随机段逐条 +1",
+      "batch-time": "基准时间：{{time}}"
+    },
+    "parse": {
+      "input": "粘贴 ID（每行一个，可整批校验）",
+      "input-hint": "接受带横线、无横线、大括号、urn:uuid: 与 ULID",
+      "detail-title": "解析结果",
+      "batch-title": "批量校验",
+      "kind-uuid": "UUID",
+      "kind-ulid": "ULID",
+      "kind-unknown": "无法识别",
+      "version-value": "v{{version}}",
+      "canonical": "规范写法",
+      "raw-hex": "十六进制",
+      "variant-label": "变体",
+      "variant-ncs": "NCS（保留）",
+      "variant-rfc4122": "RFC 4122 / 9562",
+      "variant-microsoft": "RFC 9562 Microsoft",
+      "variant-reserved": "保留 / 未来扩展",
+      "time": "时间戳",
+      "time-unknown": "该版本不含时间",
+      "as-ulid": "等价 ULID",
+      "as-uuid": "等价 UUID",
+      "fields-title": "字段切分",
+      "field-timeLow": "time_low",
+      "field-timeMid": "time_mid",
+      "field-timeHiAndVersion": "time_hi_and_version",
+      "field-clockSeq": "clock_seq",
+      "field-node": "node",
+      "field-ulidTime": "时间段",
+      "field-ulidRandom": "随机段",
+      "binary": "128 位二进制",
+      "base64url": "Base64URL",
+      "col-value": "原值",
+      "col-kind": "类型",
+      "col-version": "版本",
+      "col-time": "时间",
+      "summary-total": "总计 {{total}}",
+      "summary-valid": "有效 {{valid}}",
+      "summary-invalid": "无效 {{invalid}}",
+      "summary-duplicates": "重复 {{duplicates}}",
+      "row-limit": "仅显示前 {{shown}} 行，统计仍按全量计算",
+      "error-empty": "没有可解析的内容",
+      "error-length": "长度不对：UUID 是 32 个十六进制字符，ULID 是 26 个字符",
+      "error-character": "含非法字符：UUID 只允许 0-9 a-f，ULID 的 Crockford Base32 不含 I、L、O、U"
+    }
   },
   "bcrypt": {
     "title": "Bcrypt 哈希",
@@ -33,10 +118,6 @@
     "match": "密码与哈希匹配",
     "mismatch": "密码与哈希不匹配",
     "invalidHash": "哈希格式无效"
-  },
-  "ulid-generator": {
-    "title": "ULID 生成器",
-    "description": "批量生成有序唯一标识符（ULID）"
   },
   "encryption": {
     "title": "文本加密",
@@ -55,25 +136,9 @@
     "legacyNotice": "这是旧版本（AES-CBC）生成的密文，已为你解开。建议用当前版本重新加密一次：新格式是认证加密，密文被改动过会直接解密失败。",
     "insecureContext": "当前页面不是安全上下文（需要 https 或 localhost），浏览器已禁用 WebCrypto，新版加密不可用；旧版 AES-CBC 密文仍可在此解密。"
   },
-  "hmac-generator": {
-    "title": "HMAC 生成器",
-    "description": "计算 HMAC-MD5/SHA 系列消息认证码",
-    "secretKey": "密钥",
-    "message": "消息",
-    "algorithm": "算法"
-  },
-  "rsa-key-pair-generator": {
-    "title": "RSA 密钥对生成",
-    "description": "生成 RSA 公私钥对（PEM 格式）",
-    "keySize": "密钥位数",
-    "bits": "位",
-    "generating": "生成中…",
-    "publicKey": "公钥 (PEM)",
-    "privateKey": "私钥 (PEM)"
-  },
   "password-strength-analyser": {
     "title": "密码强度分析",
-    "description": "分析密码强度、熵值与破解时间",
+    "description": "生成随机强密码，并分析密码强度、熵值与破解时间",
     "password": "密码",
     "showPassword": "显示密码",
     "hidePassword": "隐藏密码",
@@ -93,6 +158,33 @@
       "digit": "包含数字 (0-9)",
       "symbol": "包含符号 (!@#$…)",
       "noRepeatedChars": "无连续重复字符"
+    },
+    "gen": {
+      "title": "随机密码生成",
+      "length": "随机部分长度",
+      "characterClasses": "字符类型",
+      "uppercase": "大写字母 (A-Z)",
+      "lowercase": "小写字母 (a-z)",
+      "digits": "数字 (0-9)",
+      "symbols": "符号 (!@#$…)",
+      "minCount": "至少",
+      "prefix": "前缀",
+      "suffix": "后缀",
+      "prefixPlaceholder": "如 gh-",
+      "suffixPlaceholder": "如 !26",
+      "advanced": "高级选项",
+      "excludeAmbiguous": "排除易混淆字符 (i l 1 L o 0 O)",
+      "excludedChars": "额外排除字符",
+      "excludedCharsPlaceholder": "填入不允许出现的字符",
+      "summary": "最终 {{total}} 位 · 随机部分有效熵 {{entropy}} bit",
+      "results": "生成结果",
+      "pickForAnalysis": "用这条分析",
+      "errors": {
+        "emptyPool": "请至少选择一类可用字符",
+        "lengthOutOfRange": "长度需为 {{min}}–{{max}} 之间的整数",
+        "countOutOfRange": "生成数量需为 {{min}}–{{max}} 之间的整数",
+        "minExceedsLength": "各类「至少」之和超过了随机部分长度"
+      }
     },
     "disclaimer": "估算基于 10¹⁰ 次/秒的暴力破解假设，仅供强度参考"
   },
@@ -115,5 +207,95 @@
       "modified-after-signing": "签名区间未覆盖整个文件，签名后文件可能被修改"
     },
     "disclaimer": "仅为基础字节级检查，不构成法律效力验证"
+  },
+  "key-generator": {
+    "title": "密钥工坊",
+    "description": "生成 HMAC 密钥、RSA / ECDSA / Ed25519 密钥对与对称密钥，一次输出 PEM、OpenSSH、JWK、指纹等全部格式",
+    "tab-keypair": "密钥对",
+    "tab-hmac": "HMAC 密钥",
+    "tab-symmetric": "对称密钥",
+    "tab-token": "随机令牌",
+    "group-pem": "PEM",
+    "group-ssh": "OpenSSH",
+    "group-jwk": "JWK",
+    "group-raw": "原始字节",
+    "output-format": "输出格式",
+    "generate": "生成",
+    "generating": "生成中…",
+    "regenerate": "重新生成",
+    "warning-private-key": "本页包含私钥。所有内容只在你的浏览器里计算，不会上传，也不会写入本地存储。",
+    "error-generate": "生成失败",
+    "keypair": {
+      "algorithm": "算法",
+      "rsa": "RSA",
+      "ecdsa": "ECDSA",
+      "ed25519": "Ed25519",
+      "x25519": "X25519",
+      "bits": "密钥位数",
+      "curve": "椭圆曲线",
+      "comment": "SSH 注释",
+      "kid": "JWK Key ID",
+      "hint": "RSA 4096 位约需 0.2 秒；Ed25519 更短更快，推荐用于 SSH 与新协议"
+    },
+    "format": {
+      "pkcs8-pem": "PKCS#8 私钥（PEM）",
+      "traditional-pem": "传统私钥（PKCS#1 / SEC1）",
+      "spki-pem": "公钥（SPKI PEM）",
+      "ssh-public": "OpenSSH 公钥行",
+      "ssh-private": "OpenSSH 私钥文件",
+      "jwk-private": "JWK（私钥）",
+      "jwk-public": "JWK（公钥）",
+      "jwks": "JWKS",
+      "pkcs8-der": "PKCS#8 DER（Base64）",
+      "spki-der": "SPKI DER（Base64）",
+      "public-raw-hex": "公钥原始字节（hex）",
+      "public-raw-base64": "公钥原始字节（Base64）",
+      "public-raw-base64url": "公钥原始字节（Base64URL）",
+      "private-raw-hex": "私钥种子（hex）",
+      "fingerprint-sha256": "密钥指纹（SHA256）",
+      "fingerprint-md5": "密钥指纹（MD5）"
+    },
+    "unavailable": {
+      "no-ssh": "该算法没有 OpenSSH 表示",
+      "no-traditional-pem": "该算法不存在 PKCS#1 / SEC1 传统格式",
+      "no-raw-seed": "该算法的私钥不以单一种子表示，请使用 PKCS#8"
+    },
+    "hmac": {
+      "algorithm": "算法",
+      "secret-size": "密钥长度（字节）",
+      "secret": "生成的密钥",
+      "message": "消息",
+      "signature": "HMAC 签名",
+      "hint": "RFC 2104：密钥不应短于摘要长度；超过分组长度时会被先哈希",
+      "signing-key": "签名用的密钥"
+    },
+    "symmetric": {
+      "kind": "用途",
+      "aes-128": "AES-128（16 字节）",
+      "aes-192": "AES-192（24 字节）",
+      "aes-256": "AES-256（32 字节）",
+      "chacha20-poly1305": "ChaCha20-Poly1305（32 字节）",
+      "hmac-sha256": "HMAC-SHA256（32 字节）",
+      "hmac-sha512": "HMAC-SHA512（64 字节）",
+      "with-iv": "同时生成 IV / Nonce",
+      "iv-kind": "加密模式",
+      "iv": "初始向量",
+      "salt": "盐值",
+      "snippets": "代码片段",
+      "name": "变量名",
+      "key": "对称密钥",
+      "salt-bytes": "盐值长度（字节）"
+    },
+    "token": {
+      "length": "长度",
+      "count": "数量",
+      "characterSets": "字符集",
+      "uppercase": "大写字母 (A-Z)",
+      "lowercase": "小写字母 (a-z)",
+      "numbers": "数字 (0-9)",
+      "symbols": "符号 (!@#$…)",
+      "errorCharset": "请至少选择一个字符集",
+      "entropy": "理论熵值"
+    }
   }
 }
