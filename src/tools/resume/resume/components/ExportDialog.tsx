@@ -88,13 +88,9 @@ export function ExportDialog() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon-sm"
-          aria-label={t('resume.export.tooltip')}
-        >
+        <Button type="button" variant="ghost" size="sm" className="shrink-0 gap-1.5">
           <Download className="size-4" />
+          {t('resume.export.tooltip')}
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-lg">

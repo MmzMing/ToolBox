@@ -16,6 +16,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { useResumeStore } from '../../store'
+import { removeSection } from '../../section-actions'
 import { SectionIcon } from '../SectionIcon'
 import type { MenuSection } from '../../types'
 
@@ -38,8 +39,6 @@ export function LayoutItem({
   const dragControls = useDragControls()
   const setActiveSection = useResumeStore((state) => state.setActiveSection)
   const toggleSectionVisibility = useResumeStore((state) => state.toggleSectionVisibility)
-  const updateMenuSections = useResumeStore((state) => state.updateMenuSections)
-  const removeCustomData = useResumeStore((state) => state.removeCustomData)
 
   const active = activeSection === item.id
   const select = () => {
@@ -51,26 +50,6 @@ export function LayoutItem({
     'hover:border-primary/50 transition-colors',
     active && 'border-primary text-primary ring-1 ring-primary',
   )
-
-  const removeSection = () => {
-    const current = useResumeStore.getState().activeResume
-    if (!current) {
-      return
-    }
-
-    const index = current.menuSections.findIndex((section) => section.id === item.id)
-    const remaining = current.menuSections.filter((section) => section.id !== item.id)
-    // 删掉正在编辑的章节时把焦点落到前一章节，别停在一个已不存在的 id 上
-    const fallback = current.menuSections[index - 1] ?? remaining[0]
-
-    updateMenuSections(remaining)
-    if (item.id.startsWith('custom')) {
-      removeCustomData(item.id)
-    }
-    if (fallback) {
-      setActiveSection(fallback.id)
-    }
-  }
 
   const label = (
     <>
@@ -162,7 +141,7 @@ export function LayoutItem({
                 variant="destructive"
                 onClick={(event) => {
                   event.stopPropagation()
-                  removeSection()
+                  removeSection(item.id)
                 }}
               >
                 {t('resume.confirm.confirm')}

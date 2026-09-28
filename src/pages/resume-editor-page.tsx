@@ -1,23 +1,25 @@
-import { ArrowLeft, Download, Redo2, Undo2 } from 'lucide-react'
+import { ArrowLeft } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useNavigate, useParams } from 'react-router'
-import { toast } from 'sonner'
 
 import type { PanelImperativeHandle } from 'react-resizable-panels'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable'
-import type { PanelKey } from '@/tools/resume/resume/components/PreviewDock'
+import { LocaleSwitcher } from '@/components/locale-switcher'
+import { ThemeToggle } from '@/components/theme-toggle'
+import type { PanelKey, RailMode } from '@/tools/resume/resume/editor-ui'
 import { BackupBadge } from '@/tools/resume/resume/components/BackupBadge'
 import { EditPanel } from '@/tools/resume/resume/components/EditPanel'
-import { LayoutToolbar } from '@/tools/resume/resume/components/LayoutToolbar'
+import { EditorRail } from '@/tools/resume/resume/components/EditorRail'
+import { EditorToolbar } from '@/tools/resume/resume/components/EditorToolbar'
+import { ExportDialog } from '@/tools/resume/resume/components/ExportDialog'
+import { FaqDialog } from '@/tools/resume/resume/components/FaqDialog'
 import { MobileWorkbench } from '@/tools/resume/resume/components/MobileWorkbench'
-import { PreviewDock } from '@/tools/resume/resume/components/PreviewDock'
 import { PreviewPanel } from '@/tools/resume/resume/components/PreviewPanel'
 import { LAYOUT_CONFIG } from '@/tools/resume/resume/constants'
-import { exportPaperToLongPagePdf } from '@/tools/resume/resume/export/pdf'
 import { useResumeStore } from '@/tools/resume/resume/store'
 import { useBreakpoint } from '@/composable/use-breakpoint'
 
@@ -68,17 +70,9 @@ export default function ResumeEditorPage() {
   const breakpoint = useBreakpoint()
   const { t } = useTranslation('tools-resume')
   const resume = useResumeStore((state) => state.activeResume)
-  const canUndo = useResumeStore(
-    (state) => (state.history[state.activeResumeId ?? '']?.length ?? 0) > 0,
-  )
-  const canRedo = useResumeStore(
-    (state) => (state.future[state.activeResumeId ?? '']?.length ?? 0) > 0,
-  )
-  const undo = useResumeStore((state) => state.undo)
-  const redo = useResumeStore((state) => state.redo)
   const updateResumeTitle = useResumeStore((state) => state.updateResumeTitle)
 
-  const [exporting, setExporting] = useState(false)
+  const [mode, setMode] = useState<RailMode>('content')
   const editRef = useRef<PanelImperativeHandle | null>(null)
   const previewRef = useRef<PanelImperativeHandle | null>(null)
   const [collapsed, setCollapsed] = useState<Record<PanelKey, boolean>>({
@@ -114,25 +108,37 @@ export default function ResumeEditorPage() {
     }
   }
 
+  /** 顶栏"操作 / 预览 / 全部"：一次把两栏设成目标状态 */
+  const setPanels = (next: Record<PanelKey, boolean>) => {
+    if (next.edit !== collapsed.edit) {
+      const handle = handles.edit.current
+      if (next.edit) {
+        handle?.collapse()
+      } else {
+        handle?.expand()
+      }
+    }
+    if (next.preview !== collapsed.preview) {
+      const handle = handles.preview.current
+      if (next.preview) {
+        handle?.collapse()
+      } else {
+        handle?.expand()
+      }
+    }
+    setCollapsed(next)
+  }
+
   if (!id || !resume || resume.id !== id) {
     return null
   }
 
   const { editPanel, previewPanel } = LAYOUT_CONFIG
 
-  const handleExport = async () => {
-    setExporting(true)
-    try {
-      await exportPaperToLongPagePdf(resume.title, {
-        pagePadding: resume.globalSettings.pagePadding ?? 0,
-        fontFamily: resume.globalSettings.fontFamily ?? '',
-      })
-      toast.success(t('resume.export.done'))
-    } catch (error) {
-      console.error('[resume-export] failed', error)
-      toast.error(t('resume.export.failed'))
-    } finally {
-      setExporting(false)
+  /** 换工作区或选章节时若编辑栏被收起，顺手展开，否则点了没反应 */
+  const revealEditor = () => {
+    if (collapsed.edit) {
+      togglePanel('edit')
     }
   }
 
@@ -148,66 +154,56 @@ export default function ResumeEditorPage() {
         </Button>
         <ResumeTitleInput key={resume.id} title={resume.title} onCommit={updateResumeTitle} />
         <BackupBadge className="hidden sm:inline-flex" />
-        <LayoutToolbar />
+        <EditorToolbar collapsed={collapsed} onSetPanels={setPanels} />
         <div className="ml-auto flex items-center gap-1">
-          <Button size="sm" disabled={exporting} onClick={() => void handleExport()}>
-            <Download className="size-4" />
-            {t('resume.export.pdf')}
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon-sm"
-            disabled={!canUndo}
-            onClick={undo}
-            title={t('resume.editor.undo')}
-            aria-label={t('resume.editor.undo')}
-          >
-            <Undo2 className="size-4" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon-sm"
-            disabled={!canRedo}
-            onClick={redo}
-            title={t('resume.editor.redo')}
-            aria-label={t('resume.editor.redo')}
-          >
-            <Redo2 className="size-4" />
-          </Button>
+          <LocaleSwitcher />
+          <ThemeToggle />
+          <ExportDialog />
+          <FaqDialog />
         </div>
       </header>
 
       {breakpoint === 'mobile' ? (
         <MobileWorkbench />
       ) : (
-        <div className="relative min-h-0 flex-1">
-          <ResizablePanelGroup orientation="horizontal" className="h-full">
-            <ResizablePanel
-              panelRef={editRef}
-              defaultSize={editPanel.defaultSize}
-              minSize={editPanel.minSize}
-              collapsible
-            >
-              <EditPanel />
-            </ResizablePanel>
+        <div className="flex min-h-0 flex-1">
+          <EditorRail
+            mode={mode}
+            onModeChange={(next) => {
+              setMode(next)
+              revealEditor()
+            }}
+            activeSection={resume.activeSection}
+            onSectionSelect={revealEditor}
+          />
 
-            <ResizableHandle
-              className="hover:bg-primary bg-border mx-1 w-1"
-              hidden={collapsed.edit}
-            />
+          <div className="relative min-w-0 flex-1">
+            <ResizablePanelGroup orientation="horizontal" className="h-full">
+              <ResizablePanel
+                panelRef={editRef}
+                defaultSize={editPanel.defaultSize}
+                minSize={editPanel.minSize}
+                collapsible
+              >
+                <EditPanel mode={mode} />
+              </ResizablePanel>
 
-            {/* 预览栏只折叠不卸载：导出与打印要抓 #resume-preview，节点必须常驻 */}
-            <ResizablePanel
-              panelRef={previewRef}
-              defaultSize={previewPanel.defaultSize}
-              minSize={previewPanel.minSize}
-              collapsible
-            >
-              <PreviewPanel />
-            </ResizablePanel>
-          </ResizablePanelGroup>
+              <ResizableHandle
+                className="hover:bg-primary bg-border mx-1 w-1"
+                hidden={collapsed.edit}
+              />
 
-          <PreviewDock collapsed={collapsed} onToggle={togglePanel} />
+              {/* 预览栏只折叠不卸载：导出与打印要抓 #resume-preview，节点必须常驻 */}
+              <ResizablePanel
+                panelRef={previewRef}
+                defaultSize={previewPanel.defaultSize}
+                minSize={previewPanel.minSize}
+                collapsible
+              >
+                <PreviewPanel />
+              </ResizablePanel>
+            </ResizablePanelGroup>
+          </div>
         </div>
       )}
     </div>

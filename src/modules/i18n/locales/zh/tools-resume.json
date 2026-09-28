@@ -88,8 +88,6 @@
         "location": "所在地"
       },
       "layout": "布局",
-      "profile": "资料",
-      "avatar": "头像",
       "basicField": "基础字段",
       "customField": "自定义字段",
       "displayLabel": "显示标签",
@@ -210,7 +208,10 @@
     },
     "preview": {
       "pageEnds": "第 {{page}} 页结束",
-      "autoOnePageCannotFit": "内容过多，已缩到最小仍无法放进一页"
+      "autoOnePageCannotFit": "内容过多，已缩到最小仍无法放进一页",
+      "zoomIn": "放大预览",
+      "zoomOut": "缩小预览",
+      "zoomInput": "预览缩放比例"
     },
     "editor": {
       "back": "返回简历列表",
@@ -224,7 +225,8 @@
     "present": "至今",
     "clearDate": "清除日期",
     "section": {
-      "rename": "重命名章节"
+      "rename": "重命名章节",
+      "addItem": "添加一条"
     },
     "item": {
       "untitled": "未命名条目",
@@ -377,13 +379,20 @@
     },
     "photoConfig": {
       "title": "头像设置",
+      "upload": "选择图片",
+      "showInResume": "在简历中显示",
       "dragHint": "点击、拖拽或粘贴图片到此处",
+      "cropHint": "拖动选区移动，拖手柄缩放，选区不会超出图片",
+      "cropExternalHint": "外部链接的图片拿不到像素，无法导出裁剪结果，将按原图使用",
+      "localImage": "本地图片",
+      "rotateLeft": "向左旋转",
+      "rotateRight": "向右旋转",
+      "zoomIn": "放大",
+      "zoomOut": "缩小",
       "remove": "移除头像",
       "urlTitle": "图片链接",
       "urlPlaceholder": "https://…",
-      "size": "尺寸",
-      "width": "宽",
-      "height": "高",
+      "urlApply": "使用该链接",
       "aspectRatio": "比例",
       "ratios": {
         "custom": "自定义"
@@ -423,10 +432,6 @@
       "export": "导出",
       "copy": "复制简历",
       "copied": "已复制简历",
-      "collapseEdit": "收起编辑栏",
-      "expandEdit": "展开编辑栏",
-      "collapsePreview": "收起预览",
-      "expandPreview": "展开预览",
       "home": "返回简历列表",
       "grammar": "AI 语法检查",
       "grammarResults": "查看 {{count}} 处校对结果"
@@ -473,6 +478,22 @@
           "q": "为什么头像填了图片链接，导出却没有？",
           "a": "跨域图片在没有后端代理的情况下浏览器读不到像素，导出时会被跳过（屏幕上仍能显示）。把图片下载后作为文件上传即可。"
         }
+      }
+    },
+    "rail": {
+      "content": "内容",
+      "style": "样式",
+      "template": "模板"
+    },
+    "toolbar": {
+      "copy": "复制",
+      "autoOnePage": "智能一页",
+      "pageBreaks": "分页线",
+      "viewMode": {
+        "label": "视图",
+        "edit": "操作",
+        "preview": "预览",
+        "all": "全部"
       }
     },
     "mobile": {

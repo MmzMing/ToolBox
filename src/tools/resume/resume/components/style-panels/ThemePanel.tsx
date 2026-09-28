@@ -7,7 +7,6 @@ import { cn } from '@/lib/utils'
 import { THEME_COLORS } from '../../constants'
 import { useResumeStore } from '../../store'
 import { ColorPicker } from '../ColorPicker'
-import { PanelShell } from './PanelShell'
 
 const PRESETS = THEME_COLORS as readonly string[]
 
@@ -36,7 +35,7 @@ export function ThemePanel() {
   }
 
   return (
-    <PanelShell title={t('resume.sidePanel.theme.title')}>
+    <div className="flex flex-col gap-3">
       <div className="flex flex-wrap gap-2.5">
         {THEME_COLORS.map((preset) => (
           <button
@@ -79,6 +78,6 @@ export function ThemePanel() {
           />
         )}
       </ColorPicker>
-    </PanelShell>
+    </div>
   )
 }

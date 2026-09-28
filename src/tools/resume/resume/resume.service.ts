@@ -294,6 +294,42 @@ export function createDefaultCustomItem(title: string): CustomItem {
   }
 }
 
+export function createDefaultExperience(): Experience {
+  return {
+    id: uuidv4(),
+    company: '',
+    position: '',
+    date: '',
+    details: '',
+    visible: true,
+  }
+}
+
+export function createDefaultEducation(): Education {
+  return {
+    id: uuidv4(),
+    school: '',
+    major: '',
+    degree: '',
+    startDate: '',
+    endDate: '',
+    gpa: '',
+    description: '',
+    visible: true,
+  }
+}
+
+export function createDefaultProject(): Project {
+  return {
+    id: uuidv4(),
+    name: '',
+    role: '',
+    date: '',
+    description: '',
+    visible: true,
+  }
+}
+
 /** 下载文件名：去掉文件系统保留字符，避免标题带 `/` `:` 时导出失败 */
 export function sanitizeFileName(title: string, fallback = 'resume'): string {
   const cleaned = title

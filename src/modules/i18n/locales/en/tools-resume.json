@@ -88,8 +88,6 @@
         "location": "Location"
       },
       "layout": "Layout",
-      "profile": "Profile",
-      "avatar": "Photo",
       "basicField": "Basic fields",
       "customField": "Custom fields",
       "displayLabel": "Show label",
@@ -210,7 +208,10 @@
     },
     "preview": {
       "pageEnds": "End of page {{page}}",
-      "autoOnePageCannotFit": "Too much content — it still does not fit at the minimum scale"
+      "autoOnePageCannotFit": "Too much content — it still does not fit at the minimum scale",
+      "zoomIn": "Zoom in",
+      "zoomOut": "Zoom out",
+      "zoomInput": "Preview zoom percentage"
     },
     "editor": {
       "back": "Back to resumes",
@@ -224,7 +225,8 @@
     "present": "Present",
     "clearDate": "Clear date",
     "section": {
-      "rename": "Rename section"
+      "rename": "Rename section",
+      "addItem": "Add item"
     },
     "item": {
       "untitled": "Untitled entry",
@@ -377,13 +379,20 @@
     },
     "photoConfig": {
       "title": "Photo settings",
+      "upload": "Choose image",
+      "showInResume": "Show in resume",
       "dragHint": "Click, drop or paste an image here",
+      "cropHint": "Drag the selection to move it, drag a handle to resize — it stays inside the image",
+      "cropExternalHint": "External images can't be read pixel by pixel, so no cropped export — the original will be used",
+      "localImage": "Local image",
+      "rotateLeft": "Rotate left",
+      "rotateRight": "Rotate right",
+      "zoomIn": "Zoom in",
+      "zoomOut": "Zoom out",
       "remove": "Remove photo",
       "urlTitle": "Image URL",
       "urlPlaceholder": "https://…",
-      "size": "Size",
-      "width": "Width",
-      "height": "Height",
+      "urlApply": "Use this link",
       "aspectRatio": "Aspect ratio",
       "ratios": {
         "custom": "Custom"
@@ -423,10 +432,6 @@
       "export": "Export",
       "copy": "Duplicate resume",
       "copied": "Resume duplicated",
-      "collapseEdit": "Collapse editor",
-      "expandEdit": "Expand editor",
-      "collapsePreview": "Collapse preview",
-      "expandPreview": "Expand preview",
       "home": "Back to resumes",
       "grammar": "AI proofreading",
       "grammarResults": "Show {{count}} proofreading results"
@@ -473,6 +478,22 @@
           "q": "Why is my linked photo missing from the export?",
           "a": "Without a backend proxy the browser cannot read pixels of a cross-origin image, so export skips it (it still displays on screen). Upload the image as a file instead."
         }
+      }
+    },
+    "rail": {
+      "content": "Content",
+      "style": "Style",
+      "template": "Template"
+    },
+    "toolbar": {
+      "copy": "Duplicate",
+      "autoOnePage": "One page",
+      "pageBreaks": "Guides",
+      "viewMode": {
+        "label": "View",
+        "edit": "Edit",
+        "preview": "Preview",
+        "all": "All"
       }
     },
     "mobile": {

@@ -14,12 +14,20 @@ import { STANDARD_MODULE_IDS } from '../types'
 import { getTemplateForResume } from '../templates/registry'
 import { SectionIcon } from './SectionIcon'
 
+type AddSectionButtonProps = {
+  className?: string
+  /** 浮层弹出方向：左栏是一条通栏按钮往下开，窄操作栏要往右开才放得下菜单 */
+  side?: 'bottom' | 'right'
+  /** 自定义触发器：操作栏里用的是图标块 */
+  children?: React.ReactNode
+}
+
 /**
  * 「添加章节」：模板的 availableSections 决定能加哪些标准章节，已存在的不再列出以免重复 id。
  *
- * 左栏与 dock 的章节浮层共用，两处文案与禁用口径必须一致。
+ * 移动端左栏与桌面端左侧操作栏共用，两处文案与可加口径必须一致。
  */
-export function AddSectionButton({ className }: { className?: string }) {
+export function AddSectionButton({ className, side = 'bottom', children }: AddSectionButtonProps) {
   const { t } = useTranslation('tools-resume')
   const resume = useResumeStore((state) => state.activeResume)
   const setActiveSection = useResumeStore((state) => state.setActiveSection)
@@ -42,16 +50,22 @@ export function AddSectionButton({ className }: { className?: string }) {
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <Button
-          variant="outline"
-          size="sm"
-          className={cn('w-full gap-1.5 border-dashed', className)}
-        >
-          <Plus className="size-4" />
-          {t('resume.sidePanel.layout.addSection')}
-        </Button>
+        {children ?? (
+          <Button
+            variant="outline"
+            size="sm"
+            className={cn('w-full gap-1.5 border-dashed', className)}
+          >
+            <Plus className="size-4" />
+            {t('resume.sidePanel.layout.addSection')}
+          </Button>
+        )}
       </PopoverTrigger>
-      <PopoverContent align="center" className="w-[var(--radix-popover-trigger-width)] p-1">
+      <PopoverContent
+        side={side}
+        align="start"
+        className={cn('p-1', side === 'right' ? 'w-56' : 'w-[var(--radix-popover-trigger-width)]')}
+      >
         <div className="flex flex-col gap-1">
           {addableModules.length > 0 &&
             addableModules.map((id) => (

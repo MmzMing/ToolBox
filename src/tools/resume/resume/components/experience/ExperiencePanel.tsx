@@ -1,9 +1,9 @@
-import { v4 as uuidv4 } from 'uuid'
 import { useTranslation } from 'react-i18next'
 
 import { Field } from '../Field'
 import { ItemPanel } from '../ItemPanel'
 import { useResumeStore } from '../../store'
+import { createDefaultExperience } from '../../resume.service'
 import type { Experience } from '../../types'
 
 /** 工作经历：公司 / 职位 / 起止时间 / 描述（富文本） */
@@ -22,14 +22,7 @@ export function ExperiencePanel() {
       onItemsChange={updateExperienceBatch}
       addLabel={t('resume.experience.add')}
       emptyLabel={t('resume.experience.empty')}
-      onCreate={() => ({
-        id: uuidv4(),
-        company: '',
-        position: '',
-        date: '',
-        details: '',
-        visible: true,
-      })}
+      onCreate={createDefaultExperience}
       summary={(item) => [item.position, item.company].filter(Boolean).join(' · ')}
       editor={(item, patch) => (
         <div className="flex flex-col gap-3">

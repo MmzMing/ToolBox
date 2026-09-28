@@ -1,3 +1,6 @@
+import { canvasFitScale, cropExportSize } from './photo-crop.service'
+import type { CropRect, CropSize, CropView } from './photo-crop.service'
+
 export type CompressedImage = string
 
 /** base64 data URL 的近似字节数：去掉 `data:...;base64,` 头后按 4/3 换算 */
@@ -78,4 +81,54 @@ export async function compressToLimit(
   }
 
   return result
+}
+
+export type CropRenderInput = {
+  image: HTMLImageElement
+  imageSize: CropSize
+  canvas: CropSize
+  /** 裁剪框在画布坐标里的位置 */
+  frame: CropRect
+  /** 图片的缩放与旋转（图片恒居中在画布） */
+  view: CropView
+}
+
+/**
+ * 把画布上的排列（居中 + 旋转 + 缩放）按裁剪框原样重绘到导出画布。
+ *
+ * 变换顺序与 PhotoCropCanvas 的预览完全一致，做到所见即所得；
+ * JPEG 没有透明通道，先铺白底，透明像素与纸面白底一致。
+ */
+export function renderCroppedImage({
+  image,
+  imageSize,
+  canvas,
+  frame,
+  view,
+}: CropRenderInput): CompressedImage {
+  const size = cropExportSize(frame)
+  const output = document.createElement('canvas')
+  output.width = size.width
+  output.height = size.height
+  const context = output.getContext('2d')
+  if (!context) {
+    throw new Error('canvas unavailable')
+  }
+
+  const factor = size.width / frame.width
+  const scale = canvasFitScale(canvas, imageSize) * view.zoom
+
+  context.fillStyle = '#ffffff'
+  context.fillRect(0, 0, size.width, size.height)
+  context.translate(size.width / 2, size.height / 2)
+  context.scale(factor, factor)
+  context.translate(
+    canvas.width / 2 - (frame.x + frame.width / 2),
+    canvas.height / 2 - (frame.y + frame.height / 2),
+  )
+  context.rotate((view.rotation * Math.PI) / 180)
+  context.scale(scale, scale)
+  context.drawImage(image, -imageSize.width / 2, -imageSize.height / 2)
+
+  return output.toDataURL('image/jpeg', 0.9)
 }

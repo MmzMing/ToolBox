@@ -18,7 +18,6 @@ import {
 } from '../../constants'
 import { useResumeStore } from '../../store'
 import { FontSizeSelect } from '../FontSizeSelect'
-import { PanelShell } from './PanelShell'
 
 /** 排版浮层：字体、行高、正文 / 章节 / 小标题字号 */
 export function TypographyPanel() {
@@ -28,7 +27,7 @@ export function TypographyPanel() {
   const updateGlobalSettings = useResumeStore((state) => state.updateGlobalSettings)
 
   return (
-    <PanelShell title={t('resume.sidePanel.typography.title')}>
+    <div className="flex flex-col gap-3">
       <div className="flex flex-col gap-2">
         <Label className="text-muted-foreground">
           {t('resume.sidePanel.typography.font.title')}
@@ -89,6 +88,6 @@ export function TypographyPanel() {
           />
         </div>
       ))}
-    </PanelShell>
+    </div>
   )
 }

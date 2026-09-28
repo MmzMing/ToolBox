@@ -59,6 +59,19 @@ export function ItemPanel<T extends { id: string; visible?: boolean }>({
   emptyLabel,
 }: ItemPanelProps<T>) {
   const [expandedId, setExpandedId] = useState<string | null>(items[0]?.id ?? null)
+  // 章节头部的「添加一条」绕过了本组件，靠渲染期比对前后数组把它追加的那条展开
+  const [prevItems, setPrevItems] = useState(items)
+  if (prevItems !== items) {
+    const appended = items[items.length - 1]
+    const appendedOne =
+      Boolean(appended) &&
+      items.length === prevItems.length + 1 &&
+      !prevItems.some((each) => each.id === appended.id)
+    setPrevItems(items)
+    if (appendedOne) {
+      setExpandedId(appended.id)
+    }
+  }
 
   const patchItem = (item: T, changes: Partial<T>) => {
     onItemsChange(items.map((each) => (each.id === item.id ? { ...each, ...changes } : each)))

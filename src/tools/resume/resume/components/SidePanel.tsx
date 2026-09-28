@@ -37,8 +37,8 @@ const THEME_COLOR_PRESETS = THEME_COLORS as readonly string[]
 /**
  * 左栏：章节、主题色、排版、间距、显示模式。
  *
- * **仅移动端使用**——桌面端（`>=768px`）已改为右侧 dock 的浮层面板
- * （`components/dock-panels/*`）。加设置项时两处都要改。
+ * **仅移动端使用**——桌面端（`>=768px`）已改为左侧操作栏 + 编辑区展开
+ * （章节在 `EditorRail`，样式四组在 `StylePage` / `style-panels/*`）。加设置项时两处都要改。
  */
 export function SidePanel() {
   const { t } = useTranslation('tools-resume')

@@ -385,6 +385,18 @@
   );
 }
 
+/* 棋盘格：表示"这里什么都没有"的透明底（简历头像裁剪画布用），
+   两种灰度都从 muted-foreground 混出来，亮暗主题各自成立 */
+@utility checkerboard {
+  background-color: color-mix(in oklch, var(--muted-foreground) 10%, var(--background));
+  background-image: repeating-conic-gradient(
+    color-mix(in oklch, var(--muted-foreground) 26%, var(--background)) 0% 25%,
+    transparent 0% 50%
+  );
+  background-size: 20px 20px;
+  background-position: 50%;
+}
+
 /* 懒加载占位圆环（components/ring-loader.tsx）：四段弧线错开相位描边转动，
    描边颜色由组件上的 stroke-* 语义令牌给出，这里只负责几何动画 */
 .ring-loader__ring {

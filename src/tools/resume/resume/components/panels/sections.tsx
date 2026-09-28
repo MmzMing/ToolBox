@@ -1,10 +1,15 @@
-import { v4 as uuidv4 } from 'uuid'
 import { useTranslation } from 'react-i18next'
 
 import { Field } from '../Field'
 import { ItemPanel } from '../ItemPanel'
 import { useResumeStore } from '../../store'
-import { joinDateRange, splitDateRange } from '../../resume.service'
+import {
+  createDefaultCustomItem,
+  createDefaultEducation,
+  createDefaultProject,
+  joinDateRange,
+  splitDateRange,
+} from '../../resume.service'
 import type { CustomItem, Education, Project } from '../../types'
 
 const useActiveResume = () => useResumeStore((state) => state.activeResume)
@@ -24,17 +29,7 @@ export function EducationPanel() {
       onItemsChange={updateEducationBatch}
       addLabel={t('resume.education.add')}
       emptyLabel={t('resume.education.empty')}
-      onCreate={() => ({
-        id: uuidv4(),
-        school: '',
-        major: '',
-        degree: '',
-        startDate: '',
-        endDate: '',
-        gpa: '',
-        description: '',
-        visible: true,
-      })}
+      onCreate={createDefaultEducation}
       summary={(item) => [item.school, item.major].filter(Boolean).join(' · ')}
       editor={(item, patch) => (
         <div className="flex flex-col gap-3">
@@ -91,14 +86,7 @@ export function ProjectPanel() {
       onItemsChange={updateProjectsBatch}
       addLabel={t('resume.projects.add')}
       emptyLabel={t('resume.projects.empty')}
-      onCreate={() => ({
-        id: uuidv4(),
-        name: '',
-        role: '',
-        date: '',
-        description: '',
-        visible: true,
-      })}
+      onCreate={createDefaultProject}
       summary={(item) => [item.name, item.role].filter(Boolean).join(' · ')}
       editor={(item, patch) => (
         <div className="flex flex-col gap-3">
@@ -185,14 +173,7 @@ export function CustomSectionPanel({ sectionId }: { sectionId: string }) {
       onItemsChange={(items) => updateCustomData(sectionId, items)}
       addLabel={t('resume.custom.add')}
       emptyLabel={t('resume.custom.empty')}
-      onCreate={() => ({
-        id: uuidv4(),
-        title: '',
-        subtitle: '',
-        dateRange: '',
-        description: '',
-        visible: true,
-      })}
+      onCreate={() => createDefaultCustomItem('')}
       summary={(item) => [item.title, item.subtitle].filter(Boolean).join(' · ')}
       editor={(item, patch) => (
         <div className="flex flex-col gap-3">

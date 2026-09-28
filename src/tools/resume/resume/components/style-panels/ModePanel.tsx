@@ -4,7 +4,6 @@ import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
 
 import { useResumeStore } from '../../store'
-import { PanelShell } from './PanelShell'
 
 /** 显示模式浮层：三个影响纸张排版的开关 */
 export function ModePanel() {
@@ -14,7 +13,7 @@ export function ModePanel() {
   const updateGlobalSettings = useResumeStore((state) => state.updateGlobalSettings)
 
   return (
-    <PanelShell title={t('resume.sidePanel.mode.title')}>
+    <div className="flex flex-col gap-3">
       {(['useIconMode', 'centerSubtitle', 'flexibleHeaderLayout'] as const).map((key) => (
         <div key={key} className="flex items-center justify-between gap-3">
           <div className="min-w-0">
@@ -29,6 +28,6 @@ export function ModePanel() {
           />
         </div>
       ))}
-    </PanelShell>
+    </div>
   )
 }
