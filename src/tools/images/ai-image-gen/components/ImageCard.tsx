@@ -19,8 +19,6 @@ export type CardItem =
 
 type ImageCardProps = {
   item: CardItem
-  /** 识图取词的原图：红圈标出，只读展示，除删除外不给任何动作 */
-  vision?: boolean
   /** 选中时动作条常驻、卡片描一圈主色；未选中的节点不露动作条 */
   selected?: boolean
   /** 多选时让位给选框上方的对齐条：悬停也不出 */
@@ -41,7 +39,6 @@ type ImageCardProps = {
 
 export function ImageCard({
   item,
-  vision = false,
   selected = false,
   barHidden = false,
   dialogOpen,
@@ -91,11 +88,9 @@ export function ImageCard({
       <div
         className={cn(
           'bg-muted/40 relative h-full overflow-hidden rounded-lg border',
-          vision && 'border-destructive',
           // 选中态与提示词节点（PromptNode）同一套描边，否则点了图片节点只有动作条出来、
           // 卡片本身毫无反馈；ring 不占布局，不会把卡片撑大 1px
-          selected && 'ring-primary ring-2',
-          selected && !vision && 'border-primary',
+          selected && 'border-primary ring-primary ring-2',
         )}
       >
         <div className="block h-full w-full cursor-grab" onDoubleClick={handleDoubleClick}>
@@ -147,7 +142,7 @@ export function ImageCard({
         )}
       >
         <ActionBar>
-          {record && !vision && (
+          {record && (
             <>
               <ActionButton
                 label={t('ai-image-gen.reverse.button')}

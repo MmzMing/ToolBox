@@ -5,7 +5,6 @@ import {
   Download,
   Loader2,
   Maximize2,
-  ScanSearch,
   SlidersHorizontal,
   Sparkles,
   Trash2,
@@ -60,8 +59,8 @@ export type PromptNodeData = {
   status: JobStatus | 'idle'
   errorCode?: string
   params: GenParams
-  /** 识图取词节点：文本由模型写回，没有生图入口，也不参与 @ */
-  vision: boolean
+  /** 这个 job 是识图任务：正文由模型写回，跑完之后与手写的节点毫无区别 */
+  reading: boolean
   /** 多选时让位给选框上方的对齐条：工具条连悬停都不出 */
   barHidden: boolean
   /** 润色对话框的开关：开合状态由画布那份 store 字段决定，这里只给回写口 */
@@ -106,7 +105,6 @@ type MentionFieldProps = {
   mentions: string[]
   refs: PromptRefItem[]
   lang: string
-  vision: boolean
   placeholder: string
   ariaLabel?: string
   className?: string
@@ -128,7 +126,6 @@ function MentionField({
   mentions,
   refs,
   lang,
-  vision,
   placeholder,
   ariaLabel,
   className,
@@ -179,7 +176,7 @@ function MentionField({
   const handleChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     const next = event.target.value
     onChange(next, mentions)
-    setTrigger(vision ? null : detectTrigger(next, event.target.selectionStart ?? next.length))
+    setTrigger(detectTrigger(next, event.target.selectionStart ?? next.length))
     setActive(0)
   }
 
@@ -241,6 +238,8 @@ function MentionField({
         }}
         className={cn(
           'w-full flex-1 resize-none overflow-y-auto border-0 bg-transparent text-xs shadow-none focus-visible:ring-0 dark:bg-transparent',
+          // 圆角卡片里的滚动条收成悬浮细条，方角不再压在边框与圆角上
+          'inset-scrollbar',
           // 未编辑时不挂 nodrag：拖拽要能从文本区上直接起手挪节点（光标由 index.css 给抓取手）
           readOnly ? 'caret-transparent' : 'nodrag nowheel',
           textareaClassName,
@@ -312,7 +311,7 @@ function MentionField({
 export function PromptNode({ data, selected }: NodeProps<PromptRfNode>) {
   const { t } = useTranslation('tools-images')
   const running = RUNNING.includes(data.status)
-  const reading = data.vision && running
+  const reading = data.reading && running
   /** 润色对话框开着没：开关归那份 store 管，同一时刻只允许一个节点有它 */
   const dialogOpen = useAiImageGenStore((state) => state.dialogNodeId === data.nodeId)
   // 单击只选中（仍可就地拖拽），双击或 Enter / F2 才进入编辑
@@ -444,7 +443,6 @@ function PromptEditor({
     mentions: bindings,
     refs: data.refs,
     lang: data.lang,
-    vision: data.vision,
     placeholder: t('ai-image-gen.promptNode.placeholder'),
     onChange: (value: string, nextMentions: string[]) => {
       setDraft(value)
@@ -468,62 +466,49 @@ function PromptEditor({
       >
         <ActionBar>
           {/* 参考图数量不再报：连线与正文里的 @图N 说的是同一件事。
-              这里只留「识图取词」与上游链，两条都没得报就整块不占位 */}
-          {data.vision || data.chainCount > 0 ? (
+              这里只报上游链，没有链就连整块都不占位 */}
+          {data.chainCount > 0 ? (
             <>
               <span className="text-muted-foreground flex shrink-0 items-center gap-1 pl-1 text-[10px]">
-                {data.vision ? (
-                  <>
-                    <ScanSearch className="text-primary size-3 shrink-0" />
-                    <span>{t('ai-image-gen.promptNode.vision')}</span>
-                  </>
-                ) : (
-                  <>
-                    <Sparkles className="text-primary size-3 shrink-0" />
-                    <span className="text-primary">
-                      {t('ai-image-gen.promptNode.chain', { count: data.chainCount })}
-                    </span>
-                  </>
-                )}
+                <Sparkles className="text-primary size-3 shrink-0" />
+                <span className="text-primary">
+                  {t('ai-image-gen.promptNode.chain', { count: data.chainCount })}
+                </span>
               </span>
               <Separator orientation="vertical" className="h-4 shrink-0" />
             </>
           ) : null}
 
-          {data.vision ? null : (
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  className="h-6 max-w-36 shrink-0 gap-1 rounded-full px-2 text-[10px] font-normal"
-                >
-                  <SlidersHorizontal className="size-3 shrink-0" />
-                  <span className="truncate">
-                    {data.params.aspect === 'auto'
-                      ? t('ai-image-gen.params.aspectAuto')
-                      : data.params.aspect}{' '}
-                    · ×{data.params.count}
-                  </span>
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-80" align="center" side="top">
-                <ParamBar params={data.params} onParamsChange={data.onParamsChange} />
-              </PopoverContent>
-            </Popover>
-          )}
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="h-6 max-w-36 shrink-0 gap-1 rounded-full px-2 text-[10px] font-normal"
+              >
+                <SlidersHorizontal className="size-3 shrink-0" />
+                <span className="truncate">
+                  {data.params.aspect === 'auto'
+                    ? t('ai-image-gen.params.aspectAuto')
+                    : data.params.aspect}{' '}
+                  · ×{data.params.count}
+                </span>
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-80" align="center" side="top">
+              <ParamBar params={data.params} onParamsChange={data.onParamsChange} />
+            </PopoverContent>
+          </Popover>
           {/* 没正文就没得润，但对话框开着时按钮必须还能点，否则关不掉 */}
-          {data.vision ? null : (
-            <ActionButton
-              label={t('ai-image-gen.polish.label')}
-              icon={<WandSparkles className="size-3 shrink-0" />}
-              iconOnly
-              active={dialogOpen}
-              disabled={!data.text && !dialogOpen}
-              onClick={data.onToggleDialog}
-            />
-          )}
+          <ActionButton
+            label={t('ai-image-gen.polish.label')}
+            icon={<WandSparkles className="size-3 shrink-0" />}
+            iconOnly
+            active={dialogOpen}
+            disabled={!data.text && !dialogOpen}
+            onClick={data.onToggleDialog}
+          />
           <ActionButton
             label={t('ai-image-gen.promptNode.duplicate')}
             icon={<Copy className="size-3 shrink-0" />}
@@ -560,12 +545,12 @@ function PromptEditor({
               label={
                 data.status === 'queued'
                   ? t('ai-image-gen.card.queued')
-                  : t(data.vision ? 'ai-image-gen.card.reading' : 'ai-image-gen.card.generating')
+                  : t(data.reading ? 'ai-image-gen.card.reading' : 'ai-image-gen.card.generating')
               }
               icon={<Loader2 className="size-3 shrink-0 animate-spin" />}
               onClick={() => data.onCancel(data.jobId)}
             />
-          ) : data.vision ? null : (
+          ) : (
             <Button
               type="button"
               size="sm"

@@ -34,6 +34,7 @@ import {
   CANVAS_PROMPT_WIDTH,
   jobIdOfPromptNode,
   MAX_CANVAS_REFS,
+  promptNodeIdOf,
   REFERENCE_MIMES,
   referenceLabelAt,
   wouldCreateCycle,
@@ -167,18 +168,15 @@ export function ImageCanvas(props: ImageCanvasProps) {
     return map
   }, [jobs])
 
-  // 识图任务与图片之间没有外键，只能顺着识图节点那条 refs[0] 倒推回来
+  // 识图任务与图片之间没有外键，只能顺着那条任务自己落下的提示词节点倒推回来
   const visionJobOf = useMemo(() => {
     const map = new Map<string, Job>()
-    for (const overlay of overlays) {
-      if (!overlay.vision) {
+    for (const job of jobs) {
+      if (job.kind !== 'reverse') {
         continue
       }
-      const imageId = overlay.refs[0]
-      const job = imageId
-        ? jobs.find((item) => item.id === jobIdOfPromptNode(overlay.nodeId))
-        : undefined
-      if (imageId && job) {
+      const imageId = overlays.find((item) => item.nodeId === promptNodeIdOf(job.id))?.refs[0]
+      if (imageId) {
         map.set(imageId, job)
       }
     }
@@ -302,16 +300,12 @@ export function ImageCanvas(props: ImageCanvasProps) {
     [],
   )
 
-  /** 能不能连：只判形状、识别原图、成环与参考图上限，不合法就静默不接单 */
+  /** 能不能连：只判形状、成环与参考图上限，不合法就静默不接单 */
   const canConnect = useCallback(
     (source: string | null | undefined, target: string | null | undefined): boolean => {
       const from = source ? graph.nodes.find((node) => node.id === source) : undefined
       const to = target ? graph.nodes.find((node) => node.id === target) : undefined
       if (!from || !to || to.kind !== 'prompt' || (from.kind === 'prompt' && from.id === to.id)) {
-        return false
-      }
-      // 识图原图只服务于它自己那条识别边，拉出去当参考图会误导「这张图会进下一次生图」
-      if (from.kind === 'image' && from.vision) {
         return false
       }
       if (wouldCreateCycle(graph.edges, from.id, to.id)) {
@@ -351,7 +345,6 @@ export function ImageCanvas(props: ImageCanvasProps) {
             data: {
               card: {
                 item,
-                vision: node.vision,
                 barHidden: multiSelected,
                 onToggleDialog: () => toggleDialogNode(node.id),
                 visionJob: visionJobOf.get(node.id),
@@ -396,7 +389,7 @@ export function ImageCanvas(props: ImageCanvasProps) {
             status: job?.status ?? 'idle',
             errorCode: job?.errorCode,
             params,
-            vision: node.vision,
+            reading: job?.kind === 'reverse',
             barHidden: multiSelected,
             onToggleDialog: () => toggleDialogNode(node.id),
             createdAt: node.createdAt,

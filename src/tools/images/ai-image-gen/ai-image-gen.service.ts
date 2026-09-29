@@ -132,8 +132,6 @@ export type CanvasNodeRecord = {
   /** 手工缩放的尺寸；null = 用该类型节点的默认尺寸 */
   width: number | null
   height: number | null
-  /** 识图取词节点：连入的图片只读、不进生图参考 */
-  vision: boolean
   /** 文本里第 k 个 @图N 标记绑定的图片 id，见 referenceLabelAt 一节 */
   mentions: string[]
   createdAt: number | null
@@ -196,7 +194,6 @@ export function normalizeCanvasNode(raw: unknown): CanvasNodeRecord | null {
     chain,
     width: size?.width ?? null,
     height: size?.height ?? null,
-    vision: source.vision === true,
     mentions,
     createdAt:
       typeof source.createdAt === 'number' && Number.isFinite(source.createdAt)
@@ -315,6 +312,7 @@ function axisSpan(axis: 'x' | 'y', a: Box, b: Box) {
  * 拖动的框（可以是一批）与其余节点的边、中心两两比对，落在容差内即出一条对齐线。
  * 只报线不改位置：吸走节点会让手感变怪，用户要的是「现在正对着」这件事被看见。
  * 同一轴上多个节点本就并排时只留一条并把跨度拉长，免得叠出重影。
+ * 线位钉在静止节点的边上而不是两边中点：取中点会让线跟着手指每帧滑，容差内看着就在抖。
  */
 export function alignLinesOf(
   dragged: NodeBounds[],
@@ -343,7 +341,7 @@ export function alignLinesOf(
             hit.to = Math.max(hit.to, span.to)
             continue
           }
-          out.push({ axis, pos: (value + edge) / 2, ...span })
+          out.push({ axis, pos: edge, ...span })
         }
       }
     }
@@ -497,8 +495,6 @@ export type CanvasNode =
       jobId: string
       createdAt: number
       ratio: number
-      /** 识图取词节点的原图：只读展示，不会作为生图参考图送出去 */
-      vision: boolean
       pinned: boolean
     })
   | (CanvasBox & {
@@ -515,8 +511,6 @@ export type CanvasNode =
       createdAt: number
       /** false = IDB 无 text 记录，由该 job 的历史图片合成 */
       persisted: boolean
-      /** 由图片识别得来的提示词：不给生图入口，连入的图片也不进参考 */
-      vision: boolean
       pinned: boolean
     })
 
@@ -674,11 +668,6 @@ export function buildCanvasGraph(
     }
   }
 
-  /** 识图取词节点连入的图片：只读展示，不参与下一次生图的参考图 */
-  const visionSourceIds = new Set(
-    overlays.filter((record) => record.vision).flatMap((record) => record.refs),
-  )
-
   for (const image of images) {
     const record = overlayById.get(image.id)
     const pinned = record?.x != null && record?.y != null
@@ -694,7 +683,6 @@ export function buildCanvasGraph(
       y: pinned ? (record?.y as number) : 0,
       width,
       height: record?.height ?? imageHeightOf(image.ratio, width),
-      vision: visionSourceIds.has(image.id),
       pinned,
     })
   }
@@ -718,7 +706,6 @@ export function buildCanvasGraph(
       width: record?.width ?? CANVAS_PROMPT_WIDTH,
       height: record?.height ?? CANVAS_PROMPT_HEIGHT,
       persisted: record?.text != null,
-      vision: record?.vision ?? false,
       pinned,
     })
   }

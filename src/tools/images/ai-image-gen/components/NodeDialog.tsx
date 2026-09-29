@@ -72,7 +72,7 @@ export function NodeDialog({
               ? 'ai-image-gen.dialog.visionPlaceholder'
               : 'ai-image-gen.dialog.polishPlaceholder',
           )}
-          className="max-h-96 min-h-28 resize-none overflow-y-auto border-0 bg-transparent shadow-none focus-visible:ring-0 dark:bg-transparent"
+          className="inset-scrollbar max-h-96 min-h-28 resize-none overflow-y-auto border-0 bg-transparent shadow-none focus-visible:ring-0 dark:bg-transparent"
           autoFocus
           onChange={(event) => setInstruction(event.target.value)}
           onKeyDown={(event) => {

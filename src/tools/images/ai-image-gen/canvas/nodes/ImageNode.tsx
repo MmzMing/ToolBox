@@ -25,15 +25,13 @@ export type ImageRfNode = Node<ImageNodeData, 'image'>
 
 /** 图片节点：卡片本体照搬，左侧 target 只承接派生的产出入边，右侧 source 才允许用户拖出 */
 export function ImageNode({ id, data, selected }: NodeProps<ImageRfNode>) {
-  // 识图原图只用来显示：不给拖出参考图的热区，它永远不会进下一次生图
-  const vision = data.card.vision === true
   const dialogOpen = useAiImageGenStore((state) => state.dialogNodeId === id)
   return (
     <>
       <ImageCard {...data.card} selected={selected} dialogOpen={dialogOpen} />
       {/* 产出边由提示词派生，用户连不上，所以这一侧不可见也不吃事件 */}
       <LinkZone type="target" position={Position.Left} invisible />
-      <LinkZone type="source" position={Position.Right} invisible={vision} />
+      <LinkZone type="source" position={Position.Right} />
       {/* 等比缩放：只改显示尺寸，不裁剪也不拉伸 */}
       <ResizeControls
         keepAspectRatio

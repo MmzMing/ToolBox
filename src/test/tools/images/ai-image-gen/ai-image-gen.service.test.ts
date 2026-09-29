@@ -194,7 +194,6 @@ describe('normalizeCanvasNode', () => {
       y: -40,
       text: 'a cat',
       refs: ['01IMG'],
-      vision: true,
       createdAt: 1700000000000,
     })
     expect(result).toEqual({
@@ -207,16 +206,16 @@ describe('normalizeCanvasNode', () => {
       chain: [],
       width: null,
       height: null,
-      vision: true,
       mentions: [],
       createdAt: 1700000000000,
     })
     expect(normalizeCanvasNode({ nodeId: 'p:1', workspaceId: 'W7' })?.workspaceId).toBe('W7')
   })
 
-  it('treats a missing or tampered vision flag as false', () => {
-    expect(normalizeCanvasNode({ nodeId: 'p:a', text: '' })?.vision).toBe(false)
-    expect(normalizeCanvasNode({ nodeId: 'p:a', text: '', vision: 'yes' })?.vision).toBe(false)
+  it('reads a stored vision flag as nothing at all, so old records regain the prompt node', () => {
+    expect(
+      normalizeCanvasNode({ nodeId: 'p:a', text: '', refs: ['seed'], vision: true }),
+    ).not.toHaveProperty('vision')
   })
 
   it('rounds a manual size and caps it per node kind', () => {
@@ -472,7 +471,6 @@ const overlay = (nodeId: string, over: Partial<CanvasNodeRecord> = {}): CanvasNo
   chain: [],
   width: null,
   height: null,
-  vision: false,
   mentions: [],
   createdAt: null,
   ...over,
@@ -548,9 +546,12 @@ describe('alignLinesOf', () => {
     ])
   })
 
-  it('counts a near miss inside the tolerance and takes its midpoint', () => {
+  it('pins a near miss to the stationary node edge so the line does not slide', () => {
     expect(alignLinesOf([box('a', 4, 0)], [box('b', 0, 200, 200)], 6)).toEqual([
-      { axis: 'x', pos: 2, from: 0, to: 250 },
+      { axis: 'x', pos: 0, from: 0, to: 250 },
+    ])
+    expect(alignLinesOf([box('a', 0, 0)], [box('b', 0, 200, 200)], 6)).toEqual([
+      { axis: 'x', pos: 0, from: 0, to: 250 },
     ])
     expect(alignLinesOf([box('a', 7, 0)], [box('b', 0, 200, 200)], 6)).toEqual([])
   })
@@ -617,25 +618,6 @@ describe('buildCanvasGraph', () => {
     expect(prompt?.kind === 'prompt' && prompt.x).toBeGreaterThan(
       (graph.nodes.find((node) => node.id === 'seed') as CanvasNode).x,
     )
-  })
-
-  it('marks a vision node and its source image, keeping the pair out of generation', () => {
-    const graph = buildCanvasGraph(
-      [img('seed', 'seed'), img('out', 'J1')],
-      [overlay('p:J1', { text: 'from image', refs: ['seed'], vision: true })],
-    )
-    const prompt = graph.nodes.find((node) => node.id === 'p:J1')
-    const seed = graph.nodes.find((node) => node.id === 'seed')
-    expect(prompt?.kind === 'prompt' && prompt.vision).toBe(true)
-    expect(seed?.kind === 'image' && seed.vision).toBe(true)
-    const out = graph.nodes.find((node) => node.id === 'out')
-    expect(out?.kind === 'image' && out.vision).toBe(false)
-    expect(graph.edges).toContainEqual({
-      id: 'ref:seed>p:J1',
-      source: 'seed',
-      target: 'p:J1',
-      kind: 'reference',
-    })
   })
 
   it('drops a dangling ref and a self referencing ref without breaking the node', () => {

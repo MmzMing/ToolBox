@@ -396,6 +396,35 @@
   );
 }
 
+/* 圆角框里的原生滚动条是方的，压到圆角上就像边框被啃掉一块。
+   这层把它收成一条悬浮细条：轨道透明，滑块用 background-clip 让出一圈空隙，
+   于是永远碰不到边框与圆角；hover 才加深，平时几乎不占注意力。
+   Firefox 只认 scrollbar-color，所以那两行是它的等价写法。 */
+@utility inset-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in oklch, var(--muted-foreground) 35%, transparent) transparent;
+
+  &::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: color-mix(in oklch, var(--muted-foreground) 35%, transparent);
+    background-clip: content-box;
+    border: 3px solid transparent;
+    border-radius: 9999px;
+  }
+
+  &:hover::-webkit-scrollbar-thumb {
+    background-color: color-mix(in oklch, var(--muted-foreground) 60%, transparent);
+  }
+}
+
 /* 棋盘格：表示"这里什么都没有"的透明底（简历头像裁剪画布用），
    两种灰度都从 muted-foreground 混出来，亮暗主题各自成立 */
 @utility checkerboard {

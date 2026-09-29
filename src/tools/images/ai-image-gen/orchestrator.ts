@@ -25,9 +25,11 @@ import {
   CANVAS_IMAGE_WIDTH,
   CANVAS_PROMPT_HEIGHT,
   CANVAS_PROMPT_JOINER,
+  CANVAS_PROMPT_WIDTH,
   clampCanvasSize,
   composePromptText,
   defaultGenParams,
+  findFreeSlot,
   jobIdOfPromptNode,
   LEGACY_WORKSPACE_ID,
   MAX_REFERENCE_BYTES,
@@ -380,7 +382,6 @@ const overlayRecord = (
     chain: [],
     width: null,
     height: null,
-    vision: false,
     mentions: [],
     createdAt,
     ...patch,
@@ -928,6 +929,9 @@ export function submitGeneration(
       existing?.createdAt ?? Date.now(),
     ),
   )
+  // 同一节点可以反复生图，jobId 又是节点 id：不留一条就变成两条同 id 的任务，
+  // patchJob 按 id 广播会把状态串到那条已经跑完的旧任务上。
+  store.removeJob(jobId)
   store.addJob({
     id: jobId,
     kind: 'gen',
@@ -997,15 +1001,10 @@ export async function polishText(text: string, instruction: string): Promise<Pol
   }
 }
 
-/** 识图节点与图片节点的连线形状：一个识图节点只吃一张原图 */
-const visionNodeOf = (imageId: string) =>
-  useAiImageGenStore
-    .getState()
-    .overlays.find((item) => item.vision && item.text !== null && item.refs.includes(imageId))
-
 /**
- * 就地识别画布上的一张图：已有识图节点就沿用它的 jobId（位置与血缘都不动），
- * 否则在图片右侧落一个新节点。instruction 留空即回落到默认 skill 的四候选反推。
+ * 就地识别画布上的一张图：正文落在图片右侧新建的普通提示词节点里，原图作为它的参考图
+ * 连一条边——带着这条边生图是图生图，手动断开即纯文生图。
+ * instruction 留空即回落到默认 skill 的四候选反推。
  */
 export async function runVisionOnImage(
   imageId: string,
@@ -1016,7 +1015,8 @@ export async function runVisionOnImage(
   if (!connection) {
     return 'configRequired'
   }
-  const image = canvasGraphFromHistory().nodes.find((node) => node.id === imageId)
+  const graph = canvasGraphFromHistory()
+  const image = graph.nodes.find((node) => node.id === imageId)
   if (!image || image.kind !== 'image') {
     return null
   }
@@ -1024,28 +1024,18 @@ export async function runVisionOnImage(
   const skillId = custom
     ? ''
     : store.visionSkillId || store.skills.find((item) => item.enabled)?.id || ''
-  const existing = visionNodeOf(imageId)
-  const jobId = existing ? jobIdOfPromptNode(existing.nodeId) : ulid()
-  await saveOverlay(
-    overlayRecord(
-      promptNodeIdOf(jobId),
-      {
-        ...existing,
-        refs: [imageId],
-        vision: true,
-        text: existing?.text ?? '',
-        x: Math.round(existing?.x ?? image.x + image.width + CANVAS_GAP_X),
-        y: Math.round(existing?.y ?? image.y),
-      },
-      existing?.createdAt ?? Date.now(),
-    ),
+  const jobId = ulid()
+  const spot = findFreeSlot(
+    {
+      x: Math.round(image.x + image.width + CANVAS_GAP_X),
+      y: Math.round(image.y),
+      width: CANVAS_PROMPT_WIDTH,
+      height: CANVAS_PROMPT_HEIGHT,
+    },
+    graph.nodes,
   )
-  const job = store.jobs.find((item) => item.id === jobId)
-  if (job) {
-    store.patchJob(jobId, { prompt: custom, skillId })
-    retryJob(jobId)
-    return null
-  }
+  pushHistory()
+  await saveOverlay(overlayRecord(promptNodeIdOf(jobId), { text: '', refs: [imageId], ...spot }))
   store.addJob({
     id: jobId,
     kind: 'reverse',

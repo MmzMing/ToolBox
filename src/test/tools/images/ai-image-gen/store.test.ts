@@ -14,7 +14,6 @@ const node = (nodeId: string): CanvasNodeRecord => ({
   chain: [],
   width: null,
   height: null,
-  vision: false,
   mentions: [],
   createdAt: null,
 })
