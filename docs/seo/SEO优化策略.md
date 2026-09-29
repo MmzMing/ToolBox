@@ -694,7 +694,7 @@ Disallow: /resume/
 | `/token-generator`                  | 随机密码生成器、token生成         | 强密码生成、随机字符串           | 多长的密码才安全                 | 交易+工具             |
 | `/password-strength-analyser`       | 密码强度检测                      | 密码安全检测、弱密码查询         | 我的密码够安全吗                 | 工具                  |
 | `/image-to-beads`                   | 拼豆图纸生成、像素画生成器        | 图片转拼豆、照片转像素图         | 拼豆图纸怎么画                   | 交易+工具（差异化强） |
-| `/social-insurance-calculator`      | 社保计算器、五险一金计算          | 社保缴费基数计算、到手工资       | 社保要交多少年                   | 交易+工具             |
+| `/salary-calculator`                | 到手工资计算器、税后工资计算      | 个税计算器、五险一金计算         | 2026年到手工资怎么算             | 交易+工具             |
 | `/chinese-kinship-calculator`       | 亲戚称呼计算器                    | 亲戚关系称呼、怎么称呼           | 爸爸的哥哥叫什么                 | 工具（易出圈）        |
 
 **差异化优先项**：`image-to-beads`、`chinese-kinship-calculator`、`fortune-draw`、`photo-cheatsheet` 这类**垂直小众工具**，竞争度远低于「md5加密」，是**最容易拿到首页排名**的切入点。建议把它们作为第一波内容深化的对象——先赢容易赢的。

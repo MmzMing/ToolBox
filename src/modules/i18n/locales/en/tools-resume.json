@@ -557,5 +557,181 @@
         "grammar": "Grammar"
       }
     }
+  },
+  "salary-calculator": {
+    "title": "Salary Calculator",
+    "description": "China IIT withheld cumulatively, social insurance, housing fund and year-end bonus, then living costs - see what you actually keep each month and can save per year.",
+    "mode": {
+      "forward": "Forward: gross to net",
+      "reverse": "Reverse: net to gross"
+    },
+    "groups": {
+      "income": "Income & city",
+      "employment": "Months employed",
+      "bonus": "Year-end bonus",
+      "deductions": "Special additional deductions",
+      "other": "Other deductions",
+      "living": "Living costs (monthly)",
+      "rates": "Contribution rates (editable)",
+      "ratesEmployee": "Employee",
+      "ratesEmployer": "Employer"
+    },
+    "fields": {
+      "city": "City",
+      "grossMonthly": "Gross salary (CNY)",
+      "targetNet": "Desired monthly net (CNY)",
+      "socialBase": "Social base (CNY)",
+      "fundBase": "Fund base (CNY)",
+      "fundRate": "Fund rate (%)",
+      "startMonth": "First paid month",
+      "firstSalaryInYear": "First pay this year",
+      "childEducation": "Children (people)",
+      "infantCare": "Infants (people)",
+      "continuingEducation": "Education",
+      "mortgage": "Mortgage interest",
+      "rentTier": "Rent",
+      "elderSupport": "Elder parents (CNY/mo)",
+      "seriousIllness": "Illness self-paid (CNY/yr)",
+      "personalPension": "Personal pension (CNY/yr)",
+      "taxPreferredInsurance": "Tax health ins. (CNY/yr)",
+      "bonusAmount": "Bonus (CNY)",
+      "bonusMode": "Tax method",
+      "rent": "Rent (CNY/mo)",
+      "commute": "Commute (CNY/mo)",
+      "food": "Food (CNY/mo)",
+      "misc": "Other costs (CNY/mo)",
+      "fixedMedical": "Mutual aid (CNY/mo)",
+      "ratePension": "Pension (%)",
+      "rateMedical": "Medical (%)",
+      "rateUnemployment": "Unemployment (%)",
+      "rateEmployerPension": "Pension (%)",
+      "rateEmployerMedical": "Medical (%)",
+      "rateEmployerUnemployment": "Unemployment (%)",
+      "rateEmployerInjury": "Injury (%)",
+      "rateEmployerMaternity": "Maternity (%)"
+    },
+    "placeholders": {
+      "followSalary": "Follows gross salary"
+    },
+    "hints": {
+      "baseBounds": "Local range {{min}} – {{max}}",
+      "baseMax": "Capped at {{max}}",
+      "fundRateMax": "Local cap {{max}}%",
+      "firstSalary": "Basic deduction counts calendar months, which lowers tax for a mid-year start",
+      "mortgageExclusive": "Cannot combine with mortgage interest",
+      "annualOnly": "Annual figure: affects settlement, not monthly pay",
+      "capAnnual": "Annual limit {{cap}}",
+      "ratesEditable": "Unemployment and injury rates are temporary reductions; check the current local notice"
+    },
+    "options": {
+      "none": "None",
+      "academic": "Academic (400/month)",
+      "qualification": "Vocational certificate (3600/year)",
+      "rentAuto": "By city ({{tier}}/month)",
+      "rentValue": "{{tier}}/month",
+      "bonusAuto": "Automatically pick the cheaper",
+      "bonusSeparate": "Taxed separately",
+      "bonusMerged": "Merged into comprehensive income"
+    },
+    "warnings": {
+      "bonusTrap": "Bonuses between {{from}} and {{to}} are a cliff: a larger bonus nets less. Dropping just below the threshold pays better."
+    },
+    "months": {
+      "value": "Month {{n}}",
+      "count": "{{n}} months"
+    },
+    "results": {
+      "solvedGross": "Gross to negotiate",
+      "takeHome": "Monthly net (average)",
+      "living": "Monthly living costs",
+      "disposable": "Disposable income",
+      "savingRate": "Saving rate",
+      "range": "First month {{first}} → last {{last}}",
+      "annualSaving": "Annual saving {{amount}}",
+      "breakdownTitle": "Where the monthly net goes",
+      "tableTitle": "Month by month (cumulative withholding)",
+      "tableSubtitle": "Same salary, different pay: IIT is withheld cumulatively across the year",
+      "summaryTitle": "Annual summary",
+      "matrixTitle": "Social insurance & housing fund split",
+      "segment": {
+        "rent": "Rent",
+        "commute": "Commute",
+        "food": "Food",
+        "misc": "Other",
+        "saving": "Left to save"
+      }
+    },
+    "table": {
+      "month": "Month",
+      "cumulative": "Cumulative taxable",
+      "rate": "Rate",
+      "tax": "Tax",
+      "insurance": "Insurance",
+      "takeHome": "Net"
+    },
+    "summary": {
+      "annualGross": "Annual gross",
+      "monthsWorked": "Months worked",
+      "annualInsurance": "Employee contributions",
+      "salaryTaxPrepaid": "IIT withheld on salary",
+      "settlementRefund": "Expected settlement refund",
+      "bonusTax": "Bonus IIT",
+      "effectiveTaxRate": "Effective tax rate",
+      "takeHomeRate": "Take-home rate",
+      "annualNetCash": "Annual net cash",
+      "annualSaving": "Annual saving"
+    },
+    "notes": {
+      "housingFund": "{{monthly}}/month goes into your housing fund account (employee + employer); not counted as cash above",
+      "housingExcess": "{{amount}}/month of over-contributed housing fund is added back to taxable income",
+      "basePeriod": "Contribution base effective from {{period}}",
+      "clamped": "{{label}} adjusted to the local limit {{bound}}",
+      "bonusAlternative": "Switching to {{mode}} changes the bonus tax by {{amount}}"
+    },
+    "matrix": {
+      "item": "Item",
+      "employee": "Employee",
+      "employer": "Employer",
+      "total": "Total",
+      "bases": "Social base {{social}} · housing fund base {{fund}} (different rules)",
+      "employerCost": "Employer cost about {{cost}}/month"
+    },
+    "items": {
+      "pension": "Pension",
+      "medical": "Medical",
+      "unemployment": "Unemployment",
+      "injury": "Work injury",
+      "maternity": "Maternity",
+      "housing": "Housing fund"
+    },
+    "cities": {
+      "beijing": "Beijing",
+      "shanghai": "Shanghai",
+      "guangzhou": "Guangzhou",
+      "shenzhen": "Shenzhen",
+      "hangzhou": "Hangzhou",
+      "nanjing": "Nanjing",
+      "suzhou": "Suzhou",
+      "chengdu": "Chengdu",
+      "wuhan": "Wuhan",
+      "xian": "Xi'an",
+      "changsha": "Changsha",
+      "chongqing": "Chongqing",
+      "tianjin": "Tianjin",
+      "zhengzhou": "Zhengzhou",
+      "qingdao": "Qingdao",
+      "dongguan": "Dongguan",
+      "foshan": "Foshan",
+      "hefei": "Hefei",
+      "other": "Other city"
+    },
+    "actions": {
+      "resetAll": "Reset to defaults"
+    },
+    "errors": {
+      "invalid": "Some input is missing or invalid, so nothing was calculated",
+      "range": "That target net pay is above the searchable range"
+    },
+    "disclaimer": "Figures are an estimate on a withholding basis; the annual settlement may add or refund tax. Data version 2026-09 - confirm with the local social security, housing fund and tax authorities."
   }
 }

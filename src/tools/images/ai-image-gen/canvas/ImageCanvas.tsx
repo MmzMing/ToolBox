@@ -22,6 +22,8 @@ import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 
 import {
+  ALIGN_TOLERANCE_PX,
+  alignLinesOf,
   aspectRatioOf,
   boundingBoxOf,
   buildCanvasGraph,
@@ -35,11 +37,13 @@ import {
   REFERENCE_MIMES,
   referenceLabelAt,
   wouldCreateCycle,
+  type AlignLine,
   type CanvasImageInput,
   type CanvasMapInput,
   type GenParams,
   type NodeBounds,
 } from '../ai-image-gen.service'
+import { AlignLines } from '../components/AlignLines'
 import type { CardItem } from '../components/ImageCard'
 import type { ImageRecord } from '../idb'
 import { objectUrlOf } from '../object-url'
@@ -78,8 +82,11 @@ type RfNode = ImageRfNode | PromptRfNode
 /** 左键行为：框选，或拖拽平移 */
 export type CanvasInteraction = 'select' | 'pan'
 
-/** 地图快照的防抖窗口：拖动途中每帧都在变，要落的是松手后的最终形状 */
-const MAP_SNAPSHOT_DELAY_MS = 900
+/**
+ * 地图快照的防抖窗口：拖动途中每帧都在改位置，计时器跟着每帧重置，所以窗口再短也
+ * 落不到中途的形状上。150ms 只是等松手那一下，让左上角缩略图几乎即时跟上。
+ */
+const MAP_SNAPSHOT_DELAY_MS = 150
 
 /** 右键菜单的落点：screen 用于定位菜单，flow 用于放新节点 */
 type ContextMenuState = {
@@ -97,8 +104,9 @@ type ImageCanvasProps = {
   createPromptSignal: number
   /** 拖放到画布上的文件交由宿主导入，反馈也统一在宿主做 */
   onImportFiles: (files: File[], position: { x: number; y: number }) => void
+  /** 识图对话框的提交：宿主要落 toast，也要拉设置弹窗补凭证 */
+  onVision: (imageId: string, instruction: string) => void
   onParamsChange: (patch: Partial<GenParams>) => void
-  onReference: (record: ImageRecord) => void
   onOpenLightbox: (record: ImageRecord) => void
   onOpenSettings: () => void
 }
@@ -111,8 +119,8 @@ export function ImageCanvas(props: ImageCanvasProps) {
     interaction,
     createPromptSignal,
     onImportFiles,
+    onVision,
     onParamsChange,
-    onReference,
     onOpenLightbox,
     onOpenSettings,
   } = props
@@ -132,11 +140,16 @@ export function ImageCanvas(props: ImageCanvasProps) {
   const viewport = useAiImageGenStore((state) => state.viewport)
   const setViewport = useAiImageGenStore((state) => state.setViewport)
   const setSelected = useAiImageGenStore((state) => state.setSelected)
+  const toggleDialogNode = useAiImageGenStore((state) => state.toggleDialogNode)
+  const setDialogNode = useAiImageGenStore((state) => state.setDialogNode)
+  const alignOn = useAiImageGenStore((state) => state.alignOn)
 
   const [rfNodes, setRfNodes, onNodesChange] = useNodesState<RfNode>([])
   const [rfEdges, setRfEdges, onEdgesChange] = useEdgesState<Edge>([])
   const [dropping, setDropping] = useState(false)
   const [menu, setMenu] = useState<ContextMenuState | null>(null)
+  /** 拖拽途中的对齐线：只在 onNodeDrag 里算，空闲时是空数组、组件根本不挂载 */
+  const [alignLines, setAlignLines] = useState<AlignLine[]>([])
 
   const recordIndex = useMemo(
     () => new Map(records.map((record) => [record.id, record])),
@@ -153,6 +166,24 @@ export function ImageCanvas(props: ImageCanvasProps) {
     }
     return map
   }, [jobs])
+
+  // 识图任务与图片之间没有外键，只能顺着识图节点那条 refs[0] 倒推回来
+  const visionJobOf = useMemo(() => {
+    const map = new Map<string, Job>()
+    for (const overlay of overlays) {
+      if (!overlay.vision) {
+        continue
+      }
+      const imageId = overlay.refs[0]
+      const job = imageId
+        ? jobs.find((item) => item.id === jobIdOfPromptNode(overlay.nodeId))
+        : undefined
+      if (imageId && job) {
+        map.set(imageId, job)
+      }
+    }
+    return map
+  }, [overlays, jobs])
 
   // 已回填库存记录的槽位不再插占位节点，否则同一张图会在图上出现两次
   const imageInputs = useMemo<CanvasImageInput[]>(
@@ -322,10 +353,13 @@ export function ImageCanvas(props: ImageCanvasProps) {
                 item,
                 vision: node.vision,
                 barHidden: multiSelected,
+                onToggleDialog: () => toggleDialogNode(node.id),
+                visionJob: visionJobOf.get(node.id),
                 onOpen: onOpenLightbox,
                 onRetry: retryJob,
                 onCancel: cancelJob,
-                onReference,
+                onVision,
+                onOpenSettings,
                 onDelete: () => handleDeleteImage(node.id),
               },
               onResize: handleResize,
@@ -364,6 +398,7 @@ export function ImageCanvas(props: ImageCanvasProps) {
             params,
             vision: node.vision,
             barHidden: multiSelected,
+            onToggleDialog: () => toggleDialogNode(node.id),
             createdAt: node.createdAt,
             lang,
             onRename: (nodeId: string, text: string, mentions: string[]) =>
@@ -374,6 +409,7 @@ export function ImageCanvas(props: ImageCanvasProps) {
             onDelete: handleDeletePrompt,
             onDuplicate: handleDuplicatePrompt,
             onParamsChange,
+            onOpenSettings,
             onResize: handleResize,
           },
         })
@@ -389,13 +425,16 @@ export function ImageCanvas(props: ImageCanvasProps) {
     params,
     lang,
     multiSelected,
+    toggleDialogNode,
     onOpenLightbox,
-    onReference,
+    onVision,
+    visionJobOf,
     handleDeleteImage,
     handleGenerate,
     handleDeletePrompt,
     handleDuplicatePrompt,
     onParamsChange,
+    onOpenSettings,
     handleResize,
   ])
 
@@ -443,11 +482,33 @@ export function ImageCanvas(props: ImageCanvasProps) {
   }, [])
 
   /**
+   * 拖动途中算对齐线：容差按屏幕像素给，除以当前缩放换成画布单位，于是缩到多小
+   * 都是那 6 个像素的手感。只报线不改位置，松手即清空。
+   */
+  const handleNodeDrag = useCallback(
+    (_event: unknown, _node: Node, nodes: Node[]) => {
+      if (!alignOn) {
+        return
+      }
+      const dragged = new Set(nodes.map((item) => item.id))
+      setAlignLines(
+        alignLinesOf(
+          nodes.map(rfNodeBounds),
+          rfNodes.filter((item) => !dragged.has(item.id)).map(rfNodeBounds),
+          ALIGN_TOLERANCE_PX / instance.getViewport().zoom,
+        ),
+      )
+    },
+    [alignOn, instance, rfNodes],
+  )
+
+  /**
    * 落库必须吃第三个参数 nodes：RF 把这一批被拖动的节点全传进来，node 只是被按住的那个，
    * 拖选框整体时它甚至是空的。只存 node 的话其余节点下次图重建会各自弹回原位，
    * 表现为一组节点被拉开、彼此错位。
    */
   const handleDragStop = useCallback((_event: unknown, _node: Node, nodes: Node[]) => {
+    setAlignLines([])
     void moveCanvasNodes(
       nodes.map((item) => ({ nodeId: item.id, x: item.position.x, y: item.position.y })),
     )
@@ -456,8 +517,14 @@ export function ImageCanvas(props: ImageCanvasProps) {
   const handleSelectionChange = useCallback(
     ({ nodes }: { nodes: Node[] }) => {
       setSelected(nodes.filter((node) => node.type === 'image').map((node) => node.id))
+      // 对话框跟着选区走：它服务的节点不再被选中就收起。那颗开关只活在选中节点的
+      // 工具条里，所以不会出现「刚点开就被这一刀抹掉」。
+      const { dialogNodeId } = useAiImageGenStore.getState()
+      if (dialogNodeId && !nodes.some((node) => node.id === dialogNodeId)) {
+        setDialogNode(null)
+      }
     },
-    [setSelected],
+    [setSelected, setDialogNode],
   )
 
   const addPrompt = useCallback(() => {
@@ -677,6 +744,7 @@ export function ImageCanvas(props: ImageCanvasProps) {
         onEdgesChange={onEdgesChange}
         onConnect={handleConnect}
         onEdgeClick={handleEdgeClick}
+        onNodeDrag={handleNodeDrag}
         onNodeDragStop={handleDragStop}
         onSelectionChange={handleSelectionChange}
         isValidConnection={(connection) => canConnect(connection.source, connection.target)}
@@ -699,6 +767,8 @@ export function ImageCanvas(props: ImageCanvasProps) {
       >
         <Background variant={BackgroundVariant.Dots} gap={22} size={2} />
       </ReactFlow>
+
+      {alignLines.length ? <AlignLines lines={alignLines} /> : null}
 
       {multiSelected ? (
         <>
@@ -814,6 +884,23 @@ const TOOLBAR_EDGE = 8
 const TOOLBAR_MIN_TOP = 40
 
 const clamp = (value: number, min: number, max: number) => Math.min(Math.max(value, min), max)
+
+/** RF 节点里能拿到的几何：显式宽高没写时，量出来的尺寸在 measured 上 */
+type BoundsSource = {
+  id: string
+  position: { x: number; y: number }
+  width?: number
+  height?: number
+  measured?: { width?: number; height?: number }
+}
+
+const rfNodeBounds = (node: BoundsSource): NodeBounds => ({
+  id: node.id,
+  x: node.position.x,
+  y: node.position.y,
+  width: node.width ?? node.measured?.width ?? 0,
+  height: node.height ?? node.measured?.height ?? 0,
+})
 
 /**
  * 多选时圈住选区的边框：位置由选中节点的包围盒换算到容器像素，跟着平移缩放实时走。

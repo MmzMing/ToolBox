@@ -5,13 +5,14 @@ import { useTranslation } from 'react-i18next'
 import { InputCopyable } from '@/components/copyable/input-copyable'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { ParamField } from '@/components/param-field'
-import { Separator } from '@/components/ui/separator'
-import { Switch } from '@/components/ui/switch'
-import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
+import {
+  PanelGroup,
+  PanelRadioField,
+  PanelSection,
+  PanelSwitchField,
+  PanelTextField,
+} from '@/components/panel-fields'
 import {
   buildWifiString,
   generateWifiQrDataUrl,
@@ -82,7 +83,7 @@ export default function WifiQrCodeGenerator() {
   }
 
   return (
-    <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_20rem]">
+    <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_24rem]">
       <div className="flex flex-col gap-3">
         <div className="flex min-h-64 items-center justify-center rounded-xl border border-dashed p-4 md:min-h-80">
           {dataUrl === '' ? (
@@ -102,72 +103,46 @@ export default function WifiQrCodeGenerator() {
         )}
       </div>
 
-      <Card className="gap-4">
-        <CardHeader className="border-b pb-0">
-          <CardTitle className="text-sm">{t('paramsTitle')}</CardTitle>
-        </CardHeader>
-        <CardContent className="flex flex-col gap-4">
-          <ParamField label={t('ssidLabel')} htmlFor="wifi-ssid">
-            <Input
-              id="wifi-ssid"
-              value={ssid}
-              onChange={(event) => setSsid(event.target.value)}
-              placeholder="My-WiFi"
-            />
-          </ParamField>
-
-          <ParamField
+      <PanelGroup>
+        <PanelSection title={t('sectionNetwork')}>
+          <PanelTextField
+            label={t('ssidLabel')}
+            value={ssid}
+            onChange={setSsid}
+            placeholder="My-WiFi"
+          />
+          <PanelTextField
             label={t('passwordLabel')}
-            htmlFor="wifi-password"
+            type="password"
+            value={password}
+            onChange={setPassword}
+            placeholder="••••••••"
+            disabled={encryption === 'nopass'}
             hint={encryption === 'nopass' ? t('passwordSkipped') : undefined}
-          >
-            <Input
-              id="wifi-password"
-              type="password"
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
-              placeholder="••••••••"
-              disabled={encryption === 'nopass'}
-            />
-          </ParamField>
+          />
+        </PanelSection>
 
-          <Separator />
+        <PanelSection title={t('sectionSecurity')}>
+          <PanelRadioField
+            label={t('encryptionLabel')}
+            hint={t(`encryption-${encryption}`)}
+            value={encryption}
+            onChange={(value) => setEncryption(value as WifiEncryption)}
+            options={wifiEncryptionTypes.map((type) => ({
+              value: type,
+              label: t(`enc-${type}`),
+            }))}
+          />
+          <PanelSwitchField label={t('hiddenLabel')} checked={hidden} onChange={setHidden} />
+        </PanelSection>
 
-          <ParamField label={t('encryptionLabel')} hint={t(`encryption-${encryption}`)}>
-            <ToggleGroup
-              type="single"
-              variant="outline"
-              spacing={0}
-              value={encryption}
-              onValueChange={(value) => {
-                if (value) {
-                  setEncryption(value as WifiEncryption)
-                }
-              }}
-              className="w-full"
-            >
-              {wifiEncryptionTypes.map((type) => (
-                <ToggleGroupItem key={type} value={type} className="flex-1">
-                  {t(`enc-${type}`)}
-                </ToggleGroupItem>
-              ))}
-            </ToggleGroup>
-          </ParamField>
-
-          <div className="flex items-center justify-between gap-2">
-            <Label htmlFor="wifi-hidden" className="text-muted-foreground text-xs">
-              {t('hiddenLabel')}
-            </Label>
-            <Switch id="wifi-hidden" checked={hidden} onCheckedChange={setHidden} />
-          </div>
-        </CardContent>
-        <CardFooter className="border-t pt-4">
+        <div className="p-4">
           <Button className="w-full" disabled={dataUrl === ''} onClick={handleDownload}>
             <Download data-icon="inline-start" />
             {t('download')}
           </Button>
-        </CardFooter>
-      </Card>
+        </div>
+      </PanelGroup>
     </div>
   )
 }

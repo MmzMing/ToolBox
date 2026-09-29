@@ -557,5 +557,181 @@
         "grammar": "语法"
       }
     }
+  },
+  "salary-calculator": {
+    "title": "工资计算器",
+    "description": "按累计预扣法算清五险一金、个税与年终奖，再减掉房租通勤，看每月真实能支配多少、全年能存多少",
+    "mode": {
+      "forward": "正算：税前 → 到手",
+      "reverse": "反算：到手 → 税前"
+    },
+    "groups": {
+      "income": "收入与城市",
+      "employment": "在职月份",
+      "bonus": "年终奖",
+      "deductions": "专项附加扣除",
+      "other": "其他扣除",
+      "living": "生活成本（每月）",
+      "rates": "缴费比例（各地不同，可改）",
+      "ratesEmployee": "个人缴纳",
+      "ratesEmployer": "单位缴纳"
+    },
+    "fields": {
+      "city": "城市",
+      "grossMonthly": "税前月薪(元)",
+      "targetNet": "期望每月到手(元)",
+      "socialBase": "社保基数(元)",
+      "fundBase": "公积金基数(元)",
+      "fundRate": "公积金比例(%)",
+      "startMonth": "发薪起始月",
+      "firstSalaryInYear": "本年度首笔工资",
+      "childEducation": "子女教育(人)",
+      "infantCare": "婴幼儿(人)",
+      "continuingEducation": "继续教育",
+      "mortgage": "住房贷款利息",
+      "rentTier": "住房租金",
+      "elderSupport": "赡养老人(元/月)",
+      "seriousIllness": "大病医疗自付(元/年)",
+      "personalPension": "个人养老金(元/年)",
+      "taxPreferredInsurance": "税优健康险(元/年)",
+      "bonusAmount": "年终奖(元)",
+      "bonusMode": "计税方式",
+      "rent": "房租(元/月)",
+      "commute": "通勤(元/月)",
+      "food": "餐饮(元/月)",
+      "misc": "其他支出(元/月)",
+      "fixedMedical": "大病互助(元/月)",
+      "ratePension": "养老(%)",
+      "rateMedical": "医疗(%)",
+      "rateUnemployment": "失业(%)",
+      "rateEmployerPension": "养老(%)",
+      "rateEmployerMedical": "医疗(%)",
+      "rateEmployerUnemployment": "失业(%)",
+      "rateEmployerInjury": "工伤(%)",
+      "rateEmployerMaternity": "生育(%)"
+    },
+    "placeholders": {
+      "followSalary": "跟随税前月薪"
+    },
+    "hints": {
+      "baseBounds": "当地区间 {{min}} – {{max}}",
+      "baseMax": "上限 {{max}}",
+      "fundRateMax": "当地上限 {{max}}%",
+      "firstSalary": "累计减除费用改按日历月份数计，年中入职会低不少",
+      "mortgageExclusive": "与房贷利息不可同时享受",
+      "annualOnly": "按年计算，只影响汇算，不改每月到手",
+      "capAnnual": "年限额 {{cap}}",
+      "ratesEditable": "多地失业、工伤为阶段性降费，比例以当地当月公布为准"
+    },
+    "options": {
+      "none": "无",
+      "academic": "学历继续教育（400/月）",
+      "qualification": "职业资格（3600/年）",
+      "rentAuto": "按城市（{{tier}} 元/月）",
+      "rentValue": "{{tier}} 元/月",
+      "bonusAuto": "自动选更省的",
+      "bonusSeparate": "单独计税",
+      "bonusMerged": "并入综合所得"
+    },
+    "warnings": {
+      "bonusTrap": "年终奖 {{from}} – {{to}} 是临界区间，多发反而到手更少，减到临界点前一档更划算"
+    },
+    "months": {
+      "value": "{{n}} 月",
+      "count": "{{n}} 个月"
+    },
+    "results": {
+      "solvedGross": "需要谈的税前",
+      "takeHome": "每月到手（均摊）",
+      "living": "每月生活成本",
+      "disposable": "真实可支配",
+      "savingRate": "存钱率",
+      "range": "首月 {{first}} → 年末 {{last}}",
+      "annualSaving": "全年能存 {{amount}}",
+      "breakdownTitle": "每月到手怎么花掉",
+      "tableTitle": "逐月明细（累计预扣）",
+      "tableSubtitle": "同样月薪，年初与年末实发不同，因为个税按累计预扣",
+      "summaryTitle": "年度汇总",
+      "matrixTitle": "五险一金缴费对照",
+      "segment": {
+        "rent": "房租",
+        "commute": "通勤",
+        "food": "餐饮",
+        "misc": "其他",
+        "saving": "可存"
+      }
+    },
+    "table": {
+      "month": "月",
+      "cumulative": "累计应纳税所得",
+      "rate": "税率",
+      "tax": "个税",
+      "insurance": "五险一金",
+      "takeHome": "到手"
+    },
+    "summary": {
+      "annualGross": "全年税前",
+      "monthsWorked": "在职月份",
+      "annualInsurance": "个人五险一金",
+      "salaryTaxPrepaid": "工资已预扣个税",
+      "settlementRefund": "汇算预计可退",
+      "bonusTax": "年终奖个税",
+      "effectiveTaxRate": "实际税率",
+      "takeHomeRate": "到手率",
+      "annualNetCash": "全年到手现金",
+      "annualSaving": "全年能存"
+    },
+    "notes": {
+      "housingFund": "个人 + 单位合计 {{monthly}} 元/月进入你的公积金账户，不计入上面的现金到手",
+      "housingExcess": "公积金超额缴存 {{amount}} 元/月已并入应税所得（财税〔2006〕10 号）",
+      "basePeriod": "缴费基数标准自 {{period}} 起执行",
+      "clamped": "{{label}} 已按当地限额调整为 {{bound}}",
+      "bonusAlternative": "若改为{{mode}}，年终奖个税会相差 {{amount}} 元"
+    },
+    "matrix": {
+      "item": "险种",
+      "employee": "个人",
+      "employer": "单位",
+      "total": "合计",
+      "bases": "社保基数 {{social}} · 公积金基数 {{fund}}（两者口径不同）",
+      "employerCost": "公司用工成本约 {{cost}} 元/月"
+    },
+    "items": {
+      "pension": "养老保险",
+      "medical": "医疗保险",
+      "unemployment": "失业保险",
+      "injury": "工伤保险",
+      "maternity": "生育保险",
+      "housing": "住房公积金"
+    },
+    "cities": {
+      "beijing": "北京",
+      "shanghai": "上海",
+      "guangzhou": "广州",
+      "shenzhen": "深圳",
+      "hangzhou": "杭州",
+      "nanjing": "南京",
+      "suzhou": "苏州",
+      "chengdu": "成都",
+      "wuhan": "武汉",
+      "xian": "西安",
+      "changsha": "长沙",
+      "chongqing": "重庆",
+      "tianjin": "天津",
+      "zhengzhou": "郑州",
+      "qingdao": "青岛",
+      "dongguan": "东莞",
+      "foshan": "佛山",
+      "hefei": "合肥",
+      "other": "其他城市"
+    },
+    "actions": {
+      "resetAll": "恢复默认"
+    },
+    "errors": {
+      "invalid": "输入不完整或有误，暂时算不出结果",
+      "range": "目标到手金额超出可求解范围，请调低一些"
+    },
+    "disclaimer": "结果为预扣口径的估算，年度汇算清缴可能补退；数据版本 2026-09，各地政策与年度调基有差异，以社保局、公积金中心与税务局公布为准。"
   }
 }

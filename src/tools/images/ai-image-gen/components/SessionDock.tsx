@@ -1,14 +1,12 @@
-import { useReactFlow, useViewport } from '@xyflow/react'
+import { useReactFlow } from '@xyflow/react'
 import { useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
   Archive,
   Hand,
   Layers,
-  Maximize,
-  Minus,
   MousePointer2,
-  Plus,
+  Settings2,
   SquarePlus,
   Trash2,
   Upload,
@@ -31,18 +29,11 @@ import { useIsMobile } from '@/composable/use-breakpoint'
 import { Button } from '@/components/ui/button'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { cn } from '@/lib/utils'
+import { useAIConfigStore } from '@/modules/ai/store'
 
-import {
-  CANVAS_MAX_ZOOM,
-  CANVAS_MIN_ZOOM,
-  CANVAS_ZOOM_STEP,
-  REFERENCE_MIMES,
-} from '../ai-image-gen.service'
+import { REFERENCE_MIMES, apiConfigured } from '../ai-image-gen.service'
 import type { CanvasInteraction } from '../canvas/ImageCanvas'
 import { useAiImageGenStore } from '../store'
-
-/** 全览两次点击之间的最短间隔：小于它会被吞掉，避免 fitView 动画互相打断 */
-const FIT_VIEW_COOLDOWN_MS = 3000
 
 type SessionDockProps = {
   hasSelection: boolean
@@ -55,7 +46,7 @@ type SessionDockProps = {
   onImportFiles: (files: File[], position: { x: number; y: number }) => void
 }
 
-/** 画布右侧悬浮 dock：左键模式切换 + 画布任务操作 + 缩放（返回工作区在左上角） */
+/** 画布右侧悬浮 dock：左键模式切换 + AI 设置 + 画布任务操作（缩放与视图工具在左下角的 ZoomBar） */
 export function SessionDock({
   hasSelection,
   interaction,
@@ -69,21 +60,16 @@ export function SessionDock({
   const { t } = useTranslation('tools-images')
   const isMobile = useIsMobile()
   const instance = useReactFlow()
-  const { zoom } = useViewport()
   const sound = useAiImageGenStore((state) => state.sound)
   const setSound = useAiImageGenStore((state) => state.setSound)
+  const setSettingsOpen = useAiImageGenStore((state) => state.setSettingsOpen)
+  const enabled = useAIConfigStore((state) => state.enabled)
+  const genApi = useAiImageGenStore((state) => state.genApi)
+  const visionApi = useAiImageGenStore((state) => state.visionApi)
   const fileRef = useRef<HTMLInputElement>(null)
-  const lastFitAt = useRef(0)
 
-  /** 全览冷却：图还在陆续落板时反复 fitView 会让视口来回抖，3 秒内只认第一次 */
-  const fitView = () => {
-    const now = Date.now()
-    if (now - lastFitAt.current < FIT_VIEW_COOLDOWN_MS) {
-      return
-    }
-    lastFitAt.current = now
-    void instance.fitView({ padding: 0.15, duration: 600 })
-  }
+  // 绿即「填全了，点一下就能出图」：识图是画布上的常驻动作，所以它和生图一起算
+  const settingsReady = enabled && apiConfigured(genApi) && apiConfigured(visionApi)
 
   const upload = () => {
     const rect = document.querySelector('.react-flow')?.getBoundingClientRect()
@@ -125,17 +111,24 @@ export function SessionDock({
           <Hand className="size-4" />
         )}
       </DockButton>
+      <DockButton
+        label={t('ai-image-gen.toolbar.settings')}
+        dot={settingsReady ? 'ok' : 'warn'}
+        onClick={() => setSettingsOpen(true)}
+      >
+        <Settings2 className="size-4" />
+      </DockButton>
       {/* 触屏没有右键菜单，落点类操作只能靠 dock；桌面端走右键与拖拽 */}
       {isMobile ? (
         <>
+          <DockButton label={t('ai-image-gen.canvas.newPrompt')} onClick={onAddPrompt}>
+            <SquarePlus className="size-4" />
+          </DockButton>
           <DockButton
             label={t('ai-image-gen.canvas.upload')}
             onClick={() => fileRef.current?.click()}
           >
             <Upload className="size-4" />
-          </DockButton>
-          <DockButton label={t('ai-image-gen.canvas.newPrompt')} onClick={onAddPrompt}>
-            <SquarePlus className="size-4" />
           </DockButton>
         </>
       ) : null}
@@ -198,27 +191,6 @@ export function SessionDock({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-      <div className="bg-border mx-1 my-0.5 h-px w-6" />
-      <DockButton
-        label={t('ai-image-gen.canvas.zoomOut')}
-        disabled={zoom <= CANVAS_MIN_ZOOM}
-        onClick={() => void instance.zoomTo(Math.max(CANVAS_MIN_ZOOM, zoom / CANVAS_ZOOM_STEP))}
-      >
-        <Minus className="size-4" />
-      </DockButton>
-      <span className="text-muted-foreground text-[10px] tabular-nums">
-        {Math.round(zoom * 100)}
-      </span>
-      <DockButton
-        label={t('ai-image-gen.canvas.zoomIn')}
-        disabled={zoom >= CANVAS_MAX_ZOOM}
-        onClick={() => void instance.zoomTo(Math.min(CANVAS_MAX_ZOOM, zoom * CANVAS_ZOOM_STEP))}
-      >
-        <Plus className="size-4" />
-      </DockButton>
-      <DockButton label={t('ai-image-gen.canvas.fitView')} onClick={fitView}>
-        <Maximize className="size-4" />
-      </DockButton>
     </div>
   )
 }
@@ -229,6 +201,7 @@ function DockButton({
   destructive = false,
   disabled = false,
   active = false,
+  dot,
   children,
 }: {
   label: string
@@ -236,6 +209,8 @@ function DockButton({
   destructive?: boolean
   disabled?: boolean
   active?: boolean
+  /** 右上角状态点：warn 红 = 还没配，ok 绿 = 可以直接用 */
+  dot?: 'ok' | 'warn'
   children: React.ReactNode
 }) {
   return (
@@ -245,13 +220,22 @@ function DockButton({
           type="button"
           variant={active ? 'secondary' : 'ghost'}
           size="icon"
-          className={cn('size-8', destructive && 'text-destructive')}
+          className={cn('size-8', dot && 'relative', destructive && 'text-destructive')}
           aria-label={label}
           aria-pressed={active}
           disabled={disabled}
           onClick={onClick}
         >
           {children}
+          {dot ? (
+            <span
+              aria-hidden
+              className={cn(
+                'ring-card absolute top-1 right-1 size-1.5 rounded-full ring-2',
+                dot === 'ok' ? 'bg-primary' : 'bg-destructive',
+              )}
+            />
+          ) : null}
         </Button>
       </TooltipTrigger>
       <TooltipContent side="left" align="center" sideOffset={8}>

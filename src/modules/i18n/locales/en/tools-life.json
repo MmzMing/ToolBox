@@ -71,28 +71,6 @@
     "copy": "Copy fortune",
     "disclaimer": "For fun only | Trust science | No superstition"
   },
-  "social-insurance-calculator": {
-    "title": "Five Insurances & Housing Fund",
-    "description": "Calculate employee/employer contributions and take-home pay from a base salary",
-    "baseLabel": "Monthly base (¥)",
-    "employeeTitle": "Employee",
-    "employerTitle": "Employer",
-    "employeeTotal": "Employee total",
-    "employerTotal": "Employer total",
-    "takeHome": "Take-home (before tax)",
-    "employerCost": "Employer cost",
-    "itemHeader": "Item",
-    "totalHeader": "Total",
-    "note": "Default rates are common ranges for reference only — check your local policy",
-    "rates": {
-      "pension": "Pension",
-      "medical": "Medical",
-      "unemployment": "Unemployment",
-      "injury": "Work injury",
-      "maternity": "Maternity",
-      "housing": "Housing fund"
-    }
-  },
   "unit-converter": {
     "title": "Unit Converter",
     "description": "Convert length, weight, data size, speed and area units",

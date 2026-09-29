@@ -10,77 +10,22 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Separator } from '@/components/ui/separator'
-import { AI_PROVIDERS, AI_PROVIDER_DEFINITIONS, IMAGE_MODEL_CATALOG } from '@/modules/ai/providers'
+import { IMAGE_MODEL_CATALOG } from '@/modules/ai/providers'
 
 import { ASPECT_KEYS, MAX_COUNT, type GenParams } from '../ai-image-gen.service'
 import { useAiImageGenStore } from '../store'
 
 type ParamBarProps = {
-  mode: 'gen' | 'reverse'
   params: GenParams
   onParamsChange: (patch: Partial<GenParams>) => void
 }
 
-/** 模型芯片 Popover：生图模式管服务商/出图模型/出图参数；反推模式管识图服务商/识图模型 */
-export function ParamBar({ mode, params, onParamsChange }: ParamBarProps) {
+/** 出图参数 Popover：服务商 / 出图模型 / 比例与各家协议特有的参数 */
+export function ParamBar({ params, onParamsChange }: ParamBarProps) {
   const { t } = useTranslation('tools-images')
   const genApi = useAiImageGenStore((state) => state.genApi)
   const setGenApi = useAiImageGenStore((state) => state.setGenApi)
-  const visionApi = useAiImageGenStore((state) => state.visionApi)
-  const setVisionApi = useAiImageGenStore((state) => state.setVisionApi)
   const modelLists = useAiImageGenStore((state) => state.modelLists)
-
-  if (mode === 'reverse') {
-    const visionOptions = [
-      ...new Set([
-        ...(modelLists[visionApi.provider] ?? []),
-        ...(visionApi.model ? [visionApi.model] : []),
-      ]),
-    ]
-    return (
-      <div className="space-y-3">
-        <Field label={t('ai-image-gen.settings.provider')}>
-          <Select
-            value={visionApi.provider}
-            onValueChange={(provider) =>
-              setVisionApi({ provider: provider as typeof visionApi.provider })
-            }
-          >
-            <SelectTrigger className="h-8 w-full text-xs">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {AI_PROVIDERS.map((provider) => (
-                <SelectItem key={provider} value={provider}>
-                  {AI_PROVIDER_DEFINITIONS[provider].name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </Field>
-        <Field label={t('ai-image-gen.settings.visionModel')}>
-          <Select
-            value={visionApi.model || '__none__'}
-            onValueChange={(value) => setVisionApi({ model: value === '__none__' ? '' : value })}
-          >
-            <SelectTrigger className="h-8 w-full text-xs">
-              <SelectValue placeholder={t('ai-image-gen.settings.unassigned')} />
-            </SelectTrigger>
-            <SelectContent>
-              {!visionApi.model && (
-                <SelectItem value="__none__">{t('ai-image-gen.settings.unassigned')}</SelectItem>
-              )}
-              {visionOptions.map((model) => (
-                <SelectItem key={model} value={model}>
-                  {model}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </Field>
-      </div>
-    )
-  }
 
   const provider = genApi.provider === 'gemini' ? 'gemini' : 'openai'
   const modelOptions = [

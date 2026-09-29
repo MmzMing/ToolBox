@@ -21,4 +21,6 @@ export const tool = defineTool({
   icon: Minimize2,
   component: () => import('./ImageCompressor'),
   createdAt: '2026-09-19',
+  // 右侧选项栏是百分比宽度的 Resizable 面板，内容区放宽后两列字段才排得开
+  wide: true,
 })

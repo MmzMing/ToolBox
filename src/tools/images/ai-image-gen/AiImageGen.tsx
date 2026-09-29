@@ -1,16 +1,11 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { ReactFlowProvider, useReactFlow, type ReactFlowInstance } from '@xyflow/react'
+import { ReactFlowProvider } from '@xyflow/react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 
 import { useAIConfigStore } from '@/modules/ai/store'
-import { bytesToDataUrl } from '@/utils/base64'
 
 import {
-  CANVAS_GAP_X,
-  CANVAS_IMAGE_WIDTH,
-  CANVAS_PROMPT_HEIGHT,
-  CANVAS_PROMPT_WIDTH,
   LEGACY_WORKSPACE_ID,
   nextWorkspaceNumber,
   normalizeGenParams,
@@ -18,8 +13,9 @@ import {
   type GenParams,
 } from './ai-image-gen.service'
 import { AiImageSettingsDialog } from './components/AiImageSettingsDialog'
-import { Composer, type ReferenceImage } from './components/Composer'
 import { ImageLightbox } from './components/ImageLightbox'
+import { Rulers } from './components/Rulers'
+import { ZoomBar } from './components/ZoomBar'
 import { SessionDock } from './components/SessionDock'
 import { WorkspaceSwitcher } from './components/WorkspaceSwitcher'
 import { ImageCanvas, type CanvasInteraction } from './canvas/ImageCanvas'
@@ -34,11 +30,12 @@ import {
   loadCanvas,
   loadHistory,
   importImages,
+  redoCanvas,
   refreshPrompts,
   removeWorkspace,
   resolveImageConnection,
-  submitGeneration,
-  submitReverse,
+  runVisionOnImage,
+  undoCanvas,
 } from './orchestrator'
 import { useAiImageGenStore } from './store'
 
@@ -58,23 +55,13 @@ export default function AiImageGen() {
   const setActiveWorkspace = useAiImageGenStore((state) => state.setActiveWorkspace)
   const selectedImageIds = useAiImageGenStore((state) => state.selectedImageIds)
   const clearSelection = useAiImageGenStore((state) => state.clearSelection)
-  const skills = useAiImageGenStore((state) => state.skills)
   const genApi = useAiImageGenStore((state) => state.genApi)
   const sound = useAiImageGenStore((state) => state.sound)
 
   useImageNotify(sound)
 
-  const [prompt, setPrompt] = useState('')
   const [params, setParams] = useState<GenParams>(() => normalizeGenParams(null))
-  const [references, setReferences] = useState<ReferenceImage[]>([])
   const [lightbox, setLightbox] = useState<ImageRecord | null>(null)
-  const [mode, setMode] = useState<'gen' | 'reverse'>('gen')
-  const [reverseImages, setReverseImages] = useState<ReferenceImage[]>([])
-  const [skillId, setSkillId] = useState('')
-  const flowRef = useRef<ReactFlowInstance | null>(null)
-  const rememberFlow = useCallback((instance: ReactFlowInstance) => {
-    flowRef.current = instance
-  }, [])
   const booted = useRef(false)
 
   /** 自动命名按界面语言落进记录，落定后即为固定文本，之后切语言不会跟着改 */
@@ -92,8 +79,29 @@ export default function AiImageGen() {
     void refreshPrompts()
   }, [autoName])
 
-  // 开关存在 store 里（节点工具条上的润色也要拉它），离开页面时归位，免得下次进来还开着
+  // 开关存在 store 里（节点里的润色与识图也要拉它），离开页面时归位，免得下次进来还开着
   useEffect(() => () => setSettingsOpen(false), [setSettingsOpen])
+
+  // Ctrl/⌘+Z 撤销、Ctrl/⌘+Shift+Z 或 ⌘++Z、Ctrl/⌘+Y 重做；焦点在输入控件里时不抢键
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => {
+      if (!(event.ctrlKey || event.metaKey) || event.altKey) {
+        return
+      }
+      const field = event.target instanceof HTMLElement ? event.target : null
+      if (field && (field.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(field.tagName))) {
+        return
+      }
+      const key = event.key.toLowerCase()
+      if (key !== 'z' && key !== 'y') {
+        return
+      }
+      event.preventDefault()
+      void (key === 'y' && !event.shiftKey ? redoCanvas() : undoCanvas())
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [])
 
   const connection = useMemo(() => resolveImageConnection(genApi), [genApi])
 
@@ -115,31 +123,12 @@ export default function AiImageGen() {
     [jobs, activeWorkspaceId],
   )
 
-  const addReference = useCallback(async (record: ImageRecord) => {
-    const bytes = new Uint8Array(await record.blob.arrayBuffer())
-    setReferences((current) =>
-      [
-        ...current,
-        {
-          id: record.id,
-          imageId: record.id,
-          dataUrl: bytesToDataUrl(bytes, record.mimeType),
-          name: record.meta.prompt.slice(0, 20),
-        },
-      ].slice(0, 4),
-    )
-  }, [])
-
   const applyParams = useCallback(
     (patch: Partial<GenParams>) =>
       setParams((current) => normalizeGenParams({ ...current, ...patch })),
     [],
   )
   const openSettings = useCallback(() => setSettingsOpen(true), [setSettingsOpen])
-  const handleReference = useCallback(
-    (record: ImageRecord) => void addReference(record),
-    [addReference],
-  )
 
   const handleImportFiles = useCallback(
     (files: File[], position: { x: number; y: number }) => {
@@ -155,62 +144,18 @@ export default function AiImageGen() {
     [t],
   )
 
-  /** 视口中央的流坐标：Composer 在画布之外，落点只能借 useReactFlow 换算 */
-  const canvasCenter = useCallback(() => {
-    const rect = document.querySelector('.react-flow')?.getBoundingClientRect()
-    const instance = flowRef.current
-    if (!instance || !rect) {
-      return { x: 0, y: 0 }
-    }
-    const point = instance.screenToFlowPosition({
-      x: rect.left + rect.width / 2,
-      y: rect.top + rect.height / 2,
-    })
-    return {
-      x: point.x - (CANVAS_IMAGE_WIDTH + CANVAS_GAP_X + CANVAS_PROMPT_WIDTH) / 2,
-      y: point.y - CANVAS_PROMPT_HEIGHT / 2,
-    }
-  }, [])
-
-  const handleSubmit = () => {
-    if (!enabled) {
-      setSettingsOpen(true)
-      return
-    }
-    if (mode === 'reverse') {
-      if (!reverseImages.length) {
-        return
-      }
-      const target = skillId || skills.find((skill) => skill.enabled)?.id || ''
-      void submitReverse(reverseImages, target, canvasCenter()).then((error) => {
+  /** 识图失败多半是缺凭证：toast 之外直接把设置弹窗拉起来，省用户一次找入口 */
+  const handleVision = useCallback(
+    (imageId: string, instruction: string) => {
+      void runVisionOnImage(imageId, instruction).then((error) => {
         if (error) {
           toast.error(t(`ai-image-gen.errors.${error}`))
           setSettingsOpen(true)
-          return
         }
-        setReverseImages([])
       })
-      return
-    }
-    const trimmed = prompt.trim()
-    if (!trimmed) {
-      return
-    }
-    const error = submitGeneration(
-      trimmed,
-      params,
-      references.map((reference) => reference.dataUrl),
-      {
-        refImageIds: references.flatMap((reference) => reference.imageId ?? []),
-      },
-    )
-    if (error) {
-      toast.error(t(`ai-image-gen.errors.${error}`))
-      setSettingsOpen(true)
-      return
-    }
-    setReferences([])
-  }
+    },
+    [t, setSettingsOpen],
+  )
 
   const handleExport = useCallback(async () => {
     const targets = selectedImageIds.length
@@ -260,7 +205,6 @@ export default function AiImageGen() {
   return (
     <div className="relative h-full min-h-0 overflow-hidden">
       <ReactFlowProvider>
-        <FlowReady onReady={rememberFlow} />
         <SessionDock
           hasSelection={selectedImageIds.length > 0}
           interaction={interaction}
@@ -271,6 +215,8 @@ export default function AiImageGen() {
           onClearAll={() => void handleClearAll()}
           onImportFiles={handleImportFiles}
         />
+        <Rulers />
+        <ZoomBar />
         <ImageCanvas
           key={activeWorkspaceId ?? LEGACY_WORKSPACE_ID}
           records={history}
@@ -279,8 +225,8 @@ export default function AiImageGen() {
           interaction={interaction}
           createPromptSignal={createPromptSignal}
           onImportFiles={handleImportFiles}
+          onVision={handleVision}
           onParamsChange={applyParams}
-          onReference={handleReference}
           onOpenLightbox={setLightbox}
           onOpenSettings={openSettings}
         />
@@ -294,51 +240,22 @@ export default function AiImageGen() {
         onDelete={handleCloseWorkspace}
       />
 
-      <div className="absolute inset-x-3 bottom-3 z-10 mx-auto flex max-w-3xl flex-col gap-2">
-        {/* 配置提示贴在输入框上方：顶栏离手元操作太远，出图时看不见。
-            底色用 destructive 淡染而非实色：项目没有 destructive-foreground 令牌，
-            实色红底在亮主题下会拿近黑的继承色写字，细边框也无处可显 */}
-        {!enabled ? (
+      {/* 配置提示贴在顶栏：对话框已经挂到各节点底下了，底部不再占一整格。
+          窄屏靠右，左边让开工作区卡片（w-40）、右边让开 dock（56px），否则三条会叠在一起 */}
+      {!enabled || !connection ? (
+        <div className="pointer-events-none absolute inset-x-3 top-3 z-20 flex justify-end pr-14 md:justify-center md:pr-0">
           <button
             type="button"
-            className="border-destructive/60 bg-destructive/15 text-destructive w-fit max-w-full self-center rounded-xl border px-3 py-2 text-left text-xs backdrop-blur"
-            onClick={() => setSettingsOpen(true)}
+            onClick={openSettings}
+            className="border-destructive/60 bg-destructive/15 text-destructive pointer-events-auto w-fit max-w-[calc(100%-11rem)] rounded-xl border px-3 py-2 text-left text-xs break-words whitespace-normal backdrop-blur md:max-w-xl"
           >
-            {t('ai-image-gen.composer.enableHint')}
+            {t(`ai-image-gen.hint.${enabled ? 'config' : 'enable'}`)}
           </button>
-        ) : !connection ? (
-          <p className="border-destructive/60 bg-destructive/15 text-destructive w-fit max-w-full self-center rounded-xl border px-3 py-2 text-xs backdrop-blur">
-            {t('ai-image-gen.composer.configHint')}
-          </p>
-        ) : null}
-        <Composer
-          mode={mode}
-          onModeChange={setMode}
-          prompt={prompt}
-          onPromptChange={setPrompt}
-          params={params}
-          onParamsChange={applyParams}
-          references={references}
-          onReferencesChange={setReferences}
-          reverseImages={reverseImages}
-          onReverseImagesChange={setReverseImages}
-          skills={skills}
-          skillId={skillId}
-          onSkillIdChange={setSkillId}
-          onSubmit={handleSubmit}
-          onOpenSettings={openSettings}
-        />
-      </div>
+        </div>
+      ) : null}
 
       <ImageLightbox record={lightbox} onClose={() => setLightbox(null)} />
       <AiImageSettingsDialog open={settingsOpen} onOpenChange={setSettingsOpen} />
     </div>
   )
-}
-
-/** 把 React Flow 实例交给外层：Composer 不在 Provider 内，落点换算要用到它 */
-function FlowReady({ onReady }: { onReady: (instance: ReactFlowInstance) => void }) {
-  const instance = useReactFlow()
-  useEffect(() => onReady(instance), [instance, onReady])
-  return null
 }

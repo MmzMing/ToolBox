@@ -9,4 +9,6 @@ export const tool = defineTool({
   icon: Wifi,
   component: () => import('./WifiQrCodeGenerator'),
   createdAt: '2026-09-19',
+  // 右侧参数栏放宽到 24rem 才装得下两列字段，需要配套的宽版内容区
+  wide: true,
 })

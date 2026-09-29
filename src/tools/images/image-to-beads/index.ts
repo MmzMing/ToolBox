@@ -21,4 +21,6 @@ export const tool = defineTool({
   icon: Grid3x3,
   component: () => import('./ImageToBeads'),
   createdAt: '2026-09-21',
+  // 右侧分段参数栏需要 24rem 才排得下两列滑块
+  wide: true,
 })

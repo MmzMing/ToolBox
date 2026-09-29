@@ -31,4 +31,6 @@ export const tool = defineTool({
   icon: Images,
   component: () => import('./ImageStack'),
   createdAt: '2026-09-25',
+  // 右侧模板栏与样式栏合并成一整块分段面板，需要 24rem 才排得下两列滑块
+  wide: true,
 })

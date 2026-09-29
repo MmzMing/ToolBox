@@ -2,10 +2,14 @@ import { Columns2, Grid3x3, Rows2, type LucideIcon } from 'lucide-react'
 import { type ReactNode, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { ParamField } from '@/components/param-field'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Select, SelectContent, SelectItem, SelectTrigger } from '@/components/ui/select'
-import { Slider } from '@/components/ui/slider'
+import { PanelField, PanelSection, PanelSliderField } from '@/components/panel-fields'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { cn } from '@/lib/utils'
 import {
@@ -127,7 +131,7 @@ function GridControls({
 
   return (
     <>
-      <ParamField label={t('template.direction')}>
+      <PanelField label={t('template.direction')} span={2}>
         <ToggleGroup
           type="single"
           variant="outline"
@@ -161,46 +165,39 @@ function GridControls({
             )
           })}
         </ToggleGroup>
-      </ParamField>
+      </PanelField>
 
       {direction === 'grid' ? (
         <>
-          <ParamField label={t('template.cols')} hint={`${cols}`}>
-            <Slider
-              min={1}
-              max={colsCap}
-              step={1}
-              value={[cols]}
-              onValueChange={([value = 1]) => onApply(value, rows)}
-            />
-          </ParamField>
-          <ParamField label={t('template.rows')} hint={`${rows}`}>
-            <Slider
-              min={1}
-              max={rowsCap}
-              step={1}
-              value={[rows]}
-              onValueChange={([value = 1]) => onApply(cols, value)}
-            />
-          </ParamField>
+          <PanelSliderField
+            label={t('template.cols')}
+            value={cols}
+            onChange={(value) => onApply(value, rows)}
+            min={1}
+            max={colsCap}
+          />
+          <PanelSliderField
+            label={t('template.rows')}
+            value={rows}
+            onChange={(value) => onApply(cols, value)}
+            min={1}
+            max={rowsCap}
+          />
           {capped ? (
-            <p className="text-muted-foreground text-xs">
+            <p className="text-muted-foreground col-span-2 text-xs leading-tight">
               {t('template.cellCap', { cap: MAX_CELLS, cols: colsCap, rows: rowsCap })}
             </p>
           ) : null}
         </>
       ) : (
-        <ParamField label={t('template.count')} hint={`${count}`}>
-          <Slider
-            min={MIN_COUNT}
-            max={MAX_TRACKS}
-            step={1}
-            value={[count]}
-            onValueChange={([value = MIN_COUNT]) =>
-              direction === 'row' ? onApply(value, 1) : onApply(1, value)
-            }
-          />
-        </ParamField>
+        <PanelSliderField
+          label={t('template.count')}
+          value={count}
+          onChange={(value) => (direction === 'row' ? onApply(value, 1) : onApply(1, value))}
+          min={MIN_COUNT}
+          max={MAX_TRACKS}
+          span={2}
+        />
       )}
     </>
   )
@@ -213,7 +210,7 @@ function TemplatePicker({
   captions,
   customTemplate,
   customId,
-  hint,
+  extra,
   cols,
   rows,
   aspectRatio,
@@ -229,8 +226,8 @@ function TemplatePicker({
   captions: boolean
   customTemplate: GridTemplate
   customId: string
-  /** 标题右侧的位置：拆分放格数说明，拼接放张数选择器 */
-  hint: ReactNode
+  /** 段内首行：拆分放格数说明，拼接放张数选择器 */
+  extra: ReactNode
   cols: number
   rows: number
   aspectRatio: string
@@ -241,40 +238,35 @@ function TemplatePicker({
   const { t } = useTranslation('tools-images', { keyPrefix: 'image-stack' })
 
   return (
-    <Card className="gap-3">
-      <CardHeader className="border-border flex-row items-center justify-between border-b pb-0">
-        <CardTitle className="text-sm">{title}</CardTitle>
-        {hint}
-      </CardHeader>
-      <CardContent className="flex flex-col gap-4">
-        <div className="grid grid-cols-4 gap-1.5 sm:grid-cols-5">
-          {templates.map((template, index) => (
-            <TemplateButton
-              key={template.id}
-              template={template}
-              aspectRatio={aspectRatio}
-              selected={template.id === selectedId}
-              onSelect={() => onSelect(template.id)}
-              label={labelFor(template, index)}
-              caption={captions ? labelFor(template, index) : undefined}
-            />
-          ))}
+    <PanelSection title={title}>
+      {extra}
+      <div className="col-span-2 grid grid-cols-4 gap-1.5 sm:grid-cols-5">
+        {templates.map((template, index) => (
           <TemplateButton
-            template={customTemplate}
+            key={template.id}
+            template={template}
             aspectRatio={aspectRatio}
-            selected={selectedId === customId}
-            onSelect={() => onSelect(customId)}
-            label={t('template.custom')}
-            caption={captions ? t('template.custom') : undefined}
+            selected={template.id === selectedId}
+            onSelect={() => onSelect(template.id)}
+            label={labelFor(template, index)}
+            caption={captions ? labelFor(template, index) : undefined}
           />
-        </div>
+        ))}
+        <TemplateButton
+          template={customTemplate}
+          aspectRatio={aspectRatio}
+          selected={selectedId === customId}
+          onSelect={() => onSelect(customId)}
+          label={t('template.custom')}
+          caption={captions ? t('template.custom') : undefined}
+        />
+      </div>
 
-        {/* 行列只服务于自定义档；预设档显示一排 slider 既没用又白占半屏高度 */}
-        {selectedId === customId ? (
-          <GridControls cols={cols} rows={rows} onApply={onApplyGrid} />
-        ) : null}
-      </CardContent>
-    </Card>
+      {/* 行列只服务于自定义档；预设档显示一排 slider 既没用又白占半屏高度 */}
+      {selectedId === customId ? (
+        <GridControls cols={cols} rows={rows} onApply={onApplyGrid} />
+      ) : null}
+    </PanelSection>
   )
 }
 
@@ -304,20 +296,21 @@ function StitchGallery() {
       captions={false}
       customTemplate={stitchTemplateOf(STITCH_CUSTOM_TEMPLATE, cells, cols, rows)}
       customId={STITCH_CUSTOM_TEMPLATE}
-      hint={
-        <Select value={`${cells}`} onValueChange={(value) => setStitchCells(Number(value))}>
-          <SelectTrigger size="sm" className="w-24">
-            <span className="text-muted-foreground">{t('template.imageCount')}</span>
-            <span className="font-medium">{t('template.imageCountValue', { total: cells })}</span>
-          </SelectTrigger>
-          <SelectContent>
-            {LAYOUT_COUNTS.map((count) => (
-              <SelectItem key={count} value={`${count}`}>
-                {t('template.imageCountValue', { total: count })}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+      extra={
+        <PanelField label={t('template.imageCount')} span={2}>
+          <Select value={`${cells}`} onValueChange={(value) => setStitchCells(Number(value))}>
+            <SelectTrigger className="w-full">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {LAYOUT_COUNTS.map((count) => (
+                <SelectItem key={count} value={`${count}`}>
+                  {t('template.imageCountValue', { total: count })}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </PanelField>
       }
       cols={cols}
       rows={rows}
@@ -347,10 +340,10 @@ function SplitGallery() {
       captions
       customTemplate={splitTemplateOf(SPLIT_CUSTOM_TEMPLATE, cols, rows)}
       customId={SPLIT_CUSTOM_TEMPLATE}
-      hint={
-        <span className="text-muted-foreground text-xs">
+      extra={
+        <p className="text-muted-foreground col-span-2 text-xs leading-tight">
           {t('template.cellCount', { total: active.cells.length })}
-        </span>
+        </p>
       }
       cols={cols}
       rows={rows}

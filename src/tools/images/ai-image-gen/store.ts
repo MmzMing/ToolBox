@@ -9,7 +9,12 @@ import {
 } from '@/modules/ai/providers'
 import type { ImageUsage } from '@/modules/ai/transport'
 
-import { type CanvasMapRect, type CanvasNodeRecord, type GenParams } from './ai-image-gen.service'
+import {
+  HISTORY_LIMIT,
+  type CanvasMapRect,
+  type CanvasNodeRecord,
+  type GenParams,
+} from './ai-image-gen.service'
 import type { ImageRecord, PromptEntry, WorkspaceRecord } from './idb'
 import { BUILTIN_SKILLS, mergeSkills, type Skill } from './skills'
 
@@ -76,6 +81,9 @@ const readApi = (value: unknown, fallback: ApiConfig): ApiConfig => {
 
 export type Viewport = { x: number; y: number; zoom: number }
 
+/** 参考线：axis 是它自己的坐标轴，x = 竖线（按 x 定位），y = 横线（按 y 定位） */
+export type Guide = { id: string; axis: 'x' | 'y'; pos: number }
+
 const finite = (value: unknown, fallback: number): number =>
   typeof value === 'number' && Number.isFinite(value) ? value : fallback
 
@@ -100,6 +108,8 @@ type AiImageGenState = {
   historyLoaded: boolean
   prompts: PromptEntry[]
   skills: Skill[]
+  /** 识图留空指令时用的那个 skill；空串表示取第一个已启用的 */
+  visionSkillId: string
   genApi: ApiConfig
   visionApi: ApiConfig
   /** 润色默认复用识图那套凭证；关掉才看 polishApi */
@@ -116,6 +126,17 @@ type AiImageGenState = {
   activeWorkspaceId: string | null
   viewport: Viewport | null
   selectedImageIds: string[]
+  /** 正下方那个上下文对话框归哪个节点：同一时刻只开一个，刷新即清，不进 persist */
+  dialogNodeId: string | null
+  /** 参考线与两把开关：都只活在本次会话，刷新即清，不进 persist */
+  guides: Guide[]
+  rulersOn: boolean
+  guidesOn: boolean
+  /** 拖节点时的对齐辅助线：只管画不画，不参与落位 */
+  alignOn: boolean
+  /** 节点图快照栈：撤销/重做只走它，生成产出与图片删除不进栈 */
+  past: CanvasNodeRecord[][]
+  future: CanvasNodeRecord[][]
   /** 出图完成提示：音效 + 页面在后台时的标题计数 */
   sound: boolean
   /** AI 生图设置弹窗：节点工具条上的润色也要拉它，所以不能只留在页面 state 里 */
@@ -150,23 +171,39 @@ type AiImageGenState = {
   removePrompt: (id: string) => void
 
   setSkills: (skills: Skill[]) => void
+  setVisionSkillId: (id: string) => void
   setOverlays: (records: CanvasNodeRecord[]) => void
   upsertOverlay: (record: CanvasNodeRecord) => void
   dropOverlay: (nodeId: string) => void
   setViewport: (viewport: Viewport | null) => void
   toggleSelected: (id: string) => void
   setSelected: (ids: string[]) => void
+  /** 工具条那颗按钮的开关：再点同一个节点即收起 */
+  toggleDialogNode: (id: string) => void
+  setDialogNode: (id: string | null) => void
+  setGuides: (guides: Guide[]) => void
+  toggleRulers: () => void
+  toggleGuides: () => void
+  toggleAlign: () => void
+  /** 动节点图之前先叫它；一次连续操作（拖完一批节点）算一步 */
+  pushHistory: () => void
+  /**
+   * 换栈并交出要落回去的那份快照；没有可换即 null。
+   * 只动栈不动 overlays：写库由 orchestrator 做完再 setOverlays，免得界面比 IDB 先走一步。
+   */
+  stepHistory: (dir: 'undo' | 'redo') => CanvasNodeRecord[] | null
   clearSelection: () => void
 }
 
 export const useAiImageGenStore = create<AiImageGenState>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       jobs: [],
       history: [],
       historyLoaded: false,
       prompts: [],
       skills: [...BUILTIN_SKILLS],
+      visionSkillId: '',
       genApi: defaultApi('openai'),
       visionApi: defaultApi('openai'),
       polishApi: defaultApi('openai'),
@@ -179,6 +216,13 @@ export const useAiImageGenStore = create<AiImageGenState>()(
       activeWorkspaceId: null,
       viewport: null,
       selectedImageIds: [],
+      dialogNodeId: null,
+      guides: [],
+      rulersOn: false,
+      guidesOn: false,
+      alignOn: true,
+      past: [],
+      future: [],
       sound: false,
       settingsOpen: false,
 
@@ -276,6 +320,7 @@ export const useAiImageGenStore = create<AiImageGenState>()(
         set((state) => ({ prompts: state.prompts.filter((item) => item.id !== id) })),
 
       setSkills: (skills) => set({ skills }),
+      setVisionSkillId: (id) => set({ visionSkillId: id }),
       setWorkspaces: (records) => set({ workspaces: records }),
       setImageOwners: (owners) => set({ imageOwners: owners }),
       upsertWorkspace: (record) =>
@@ -292,10 +337,19 @@ export const useAiImageGenStore = create<AiImageGenState>()(
           workspaces: state.workspaces.filter((item) => item.id !== id),
           activeWorkspaceId: state.activeWorkspaceId === id ? null : state.activeWorkspaceId,
           selectedImageIds: state.activeWorkspaceId === id ? [] : state.selectedImageIds,
+          past: [],
+          future: [],
         })),
-      /** 切区即清视口：视口是全局一份，留着上一区的坐标会让新工作区看着像张空画布 */
+      /** 切区即清视口与历史：视口是全局一份，历史快照又只装着本区的节点 */
       setActiveWorkspace: (id) =>
-        set({ activeWorkspaceId: id, selectedImageIds: [], viewport: null }),
+        set({
+          activeWorkspaceId: id,
+          selectedImageIds: [],
+          dialogNodeId: null,
+          viewport: null,
+          past: [],
+          future: [],
+        }),
       setOverlays: (records) => set({ overlays: records }),
       upsertOverlay: (record) =>
         set((state) => ({
@@ -311,15 +365,40 @@ export const useAiImageGenStore = create<AiImageGenState>()(
             : [...state.selectedImageIds, id],
         })),
       setSelected: (ids) => set({ selectedImageIds: ids }),
+      toggleDialogNode: (id) =>
+        set((state) => ({ dialogNodeId: state.dialogNodeId === id ? null : id })),
+      setDialogNode: (id) => set({ dialogNodeId: id }),
+      setGuides: (guides) => set({ guides }),
+      toggleRulers: () => set((state) => ({ rulersOn: !state.rulersOn })),
+      toggleGuides: () => set((state) => ({ guidesOn: !state.guidesOn })),
+      toggleAlign: () => set((state) => ({ alignOn: !state.alignOn })),
+      pushHistory: () =>
+        set((state) => ({
+          past: [...state.past, state.overlays].slice(-HISTORY_LIMIT),
+          future: [],
+        })),
+      stepHistory: (dir) => {
+        const { past, future, overlays } = get()
+        const from = dir === 'undo' ? past : future
+        const target = from[from.length - 1]
+        if (!target) {
+          return null
+        }
+        const rest = from.slice(0, -1)
+        const keep = [...(dir === 'undo' ? future : past), overlays].slice(-HISTORY_LIMIT)
+        set(dir === 'undo' ? { past: rest, future: keep } : { future: rest, past: keep })
+        return target
+      },
       clearSelection: () => set({ selectedImageIds: [] }),
     }),
     {
       name: 'toolbox.ai-image-gen',
-      version: 8,
-      /** 7 及更早没有 polishApi / polishUsesVision：原样交给 merge 的逐字段校验兜底 */
+      version: 9,
+      /** 8 及更早没有 visionSkillId：原样交给 merge 的逐字段校验兜底 */
       migrate: (persisted) => persisted,
       partialize: ({
         skills,
+        visionSkillId,
         genApi,
         visionApi,
         polishApi,
@@ -334,6 +413,7 @@ export const useAiImageGenStore = create<AiImageGenState>()(
         skillFlags: Object.fromEntries(
           skills.filter((skill) => skill.builtin).map((skill) => [skill.id, skill.enabled]),
         ),
+        visionSkillId,
         genApi,
         visionApi,
         polishApi,
@@ -350,6 +430,7 @@ export const useAiImageGenStore = create<AiImageGenState>()(
               customs?: unknown[]
               skillFlags?: Record<string, boolean>
               skills?: Skill[]
+              visionSkillId?: unknown
               genApi?: unknown
               visionApi?: unknown
               polishApi?: unknown
@@ -364,6 +445,7 @@ export const useAiImageGenStore = create<AiImageGenState>()(
         return {
           ...current,
           skills: mergeSkills(saved?.customs ?? saved?.skills ?? [], saved?.skillFlags ?? {}),
+          visionSkillId: typeof saved?.visionSkillId === 'string' ? saved.visionSkillId : '',
           genApi: readApi(saved?.genApi, defaultApi('openai')),
           visionApi: readApi(saved?.visionApi, defaultApi('openai')),
           polishApi: readApi(saved?.polishApi, defaultApi('openai')),

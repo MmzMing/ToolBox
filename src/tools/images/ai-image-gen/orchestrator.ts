@@ -28,7 +28,6 @@ import {
   clampCanvasSize,
   composePromptText,
   defaultGenParams,
-  imageHeightOf,
   jobIdOfPromptNode,
   LEGACY_WORKSPACE_ID,
   MAX_REFERENCE_BYTES,
@@ -40,6 +39,7 @@ import {
   remapReferenceMentions,
   toImageRequestParams,
   usableReferenceIds,
+  visionInstructionPrompt,
   type CanvasGraph,
   type CanvasImageInput,
   type CanvasMapInput,
@@ -394,8 +394,12 @@ async function saveOverlay(record: CanvasNodeRecord) {
   return record
 }
 
+/** 动节点图之前先留一份快照：撤销只回滚 overlay，图片本体与生成任务不进栈 */
+const pushHistory = () => useAiImageGenStore.getState().pushHistory()
+
 /** 新建提示词节点：坐标来自画布投影，因此新节点落在用户眼前而不是自动布局区 */
 export async function createPromptNode(text: string, position: { x: number; y: number }) {
+  pushHistory()
   const nodeId = promptNodeIdOf(ulid())
   return saveOverlay(
     overlayRecord(nodeId, { text, x: Math.round(position.x), y: Math.round(position.y) }),
@@ -412,6 +416,7 @@ export async function duplicatePromptNode(nodeId: string) {
   if (!source || source.text === null) {
     return null
   }
+  pushHistory()
   const copyId = promptNodeIdOf(ulid())
   const pinned = source.x !== null && source.y !== null
   return saveOverlay(
@@ -448,6 +453,7 @@ const reconcileMentions = (nodeId: string, text: string, mentions: string[], ref
   remapReferenceMentions({ text, mentions, refs: usableRefs(nodeId, refs), lang: canvasLang() })
 
 export async function renamePromptNode(nodeId: string, text: string, mentions?: string[]) {
+  pushHistory()
   const existing = useAiImageGenStore.getState().overlays.find((item) => item.nodeId === nodeId)
   const remapped = reconcileMentions(
     nodeId,
@@ -466,6 +472,7 @@ export async function renamePromptNode(nodeId: string, text: string, mentions?: 
 
 /** 连入/断开一张参考图：refs 顺序即参考图顺序，上限由 service 夹紧 */
 export async function linkReference(nodeId: string, imageId: string, linked: boolean) {
+  pushHistory()
   const existing = useAiImageGenStore.getState().overlays.find((item) => item.nodeId === nodeId)
   const refs = existing?.refs ?? []
   const next = linked ? [...refs, imageId] : refs.filter((ref) => ref !== imageId)
@@ -485,6 +492,7 @@ export async function linkReference(nodeId: string, imageId: string, linked: boo
 
 /** 接上/断开一条提示词链：上游的文本会按链路顺序拼进下游的最终提示词 */
 export async function linkChain(nodeId: string, upstreamId: string, linked: boolean) {
+  pushHistory()
   const existing = useAiImageGenStore.getState().overlays.find((item) => item.nodeId === nodeId)
   const chain = existing?.chain ?? []
   const next = linked ? [...chain, upstreamId] : chain.filter((link) => link !== upstreamId)
@@ -506,17 +514,6 @@ export function canvasGraphFromHistory(): CanvasGraph {
   return buildCanvasGraph(images, store.overlays)
 }
 
-export async function moveCanvasNode(nodeId: string, x: number, y: number) {
-  const existing = useAiImageGenStore.getState().overlays.find((item) => item.nodeId === nodeId)
-  return saveOverlay(
-    overlayRecord(
-      nodeId,
-      { ...existing, x: Math.round(x), y: Math.round(y) },
-      existing?.createdAt ?? Date.now(),
-    ),
-  )
-}
-
 /**
  * 批量落位：对齐一次挪多个节点，逐条写会触发同样次数的重渲染与图重建，
  * 所以 IDB 开一个事务、内存只 set 一次。
@@ -527,6 +524,7 @@ export async function moveCanvasNodes(
   if (!updates.length) {
     return
   }
+  pushHistory()
   const store = useAiImageGenStore.getState()
   const next = updates.map((update) => {
     const existing = store.overlays.find((item) => item.nodeId === update.nodeId)
@@ -556,6 +554,7 @@ export async function resizeCanvasNode(
   size: { width: number; height: number },
   position: { x: number; y: number },
 ) {
+  pushHistory()
   const existing = useAiImageGenStore.getState().overlays.find((item) => item.nodeId === nodeId)
   const { width, height } = clampCanvasSize(nodeId, size.width, size.height)
   return saveOverlay(
@@ -568,11 +567,33 @@ export async function resizeCanvasNode(
 }
 
 /**
+ * 回退 / 前进一格节点图。快照只覆盖 overlay（摆位、尺寸、文本、连线、节点增删），
+ * 所以撤销不会找回被删的图，也不会撤回已经跑掉的生成任务。
+ */
+async function stepCanvas(dir: 'undo' | 'redo'): Promise<boolean> {
+  const store = useAiImageGenStore.getState()
+  const snapshot = store.stepHistory(dir)
+  if (!snapshot) {
+    return false
+  }
+  const workspaceId = activeId()
+  await deleteCanvasNodesOfWorkspace(workspaceId)
+  await putCanvasNodes(snapshot)
+  store.setOverlays(snapshot)
+  return true
+}
+
+export const undoCanvas = () => stepCanvas('undo')
+
+export const redoCanvas = () => stepCanvas('redo')
+
+/**
  * 清掉手工坐标，让自动布局按血缘重新铺开。
  * 传 nodeIds 就只放开选中的那批，其余节点的手摆位置不动。
  */
 export async function clearCanvasLayout(nodeIds?: string[]) {
   const store = useAiImageGenStore.getState()
+  pushHistory()
   const targets = nodeIds
     ? store.overlays.filter((record) => nodeIds.includes(record.nodeId))
     : store.overlays
@@ -633,10 +654,15 @@ async function saveImage(job: Job, result: ImageGenerationResult, index: number)
     return undefined
   }
   const { bytes } = dataUrlToBytes(`data:${part.mimeType};base64,${part.base64}`)
+  const blob = new Blob([bytes], { type: part.mimeType })
+  // 节点盒子按图片真实比例摆，否则比例一不符，object-contain 的留白会让选中描边看着像断了
+  const dimensions = await readDimensions(blob)
   const record: ImageRecord = {
     id: ulid(),
-    blob: new Blob([bytes], { type: part.mimeType }),
+    blob,
     mimeType: part.mimeType,
+    width: dimensions?.width,
+    height: dimensions?.height,
     meta: {
       jobId: job.id,
       workspaceId: job.workspaceId,
@@ -795,9 +821,17 @@ async function runJob(jobId: string) {
 async function runReverse(job: Job, controller: AbortController) {
   const store = useAiImageGenStore.getState()
   const connection = resolveVisionConnection()
+  const lang = document.documentElement.lang.startsWith('zh') ? 'zh' : 'en'
+  // 卡片上写了指令就以它为准；留空才回落到 skill 的四候选反推契约
+  const instruction = job.prompt.trim()
   const skill = store.skills.find((item) => item.id === job.skillId)
+  const system = instruction
+    ? visionInstructionPrompt(lang, instruction)
+    : skill
+      ? renderSkillSystem(skill, lang)
+      : ''
   store.patchSlot(job.id, job.slots[0].id, { status: 'generating' })
-  if (!connection || !skill) {
+  if (!connection || !system) {
     store.patchSlot(job.id, job.slots[0].id, {
       status: 'failed',
       errorCode: 'configRequired',
@@ -809,28 +843,29 @@ async function runReverse(job: Job, controller: AbortController) {
     const text = await requestAIText(
       connection,
       {
-        system: renderSkillSystem(
-          skill,
-          document.documentElement.lang.startsWith('zh') ? 'zh' : 'en',
-        ),
+        system,
         text: 'Reverse-engineer this image now.',
         images: await resolveReferences(job.id),
       },
       controller.signal,
     )
-    const candidates = parsePromptCandidates(text)
-    if (!candidates.length) {
+    const candidates = instruction ? [] : parsePromptCandidates(text)
+    const output = instruction ? normalizePolishedText(text) : candidates.join(CANVAS_PROMPT_JOINER)
+    if (!output) {
       store.patchSlot(job.id, job.slots[0].id, { status: 'failed', errorCode: 'emptyOutput' })
       store.patchJob(job.id, { errorCode: 'emptyOutput' })
       return
     }
     // 结果就地写回识图节点：候选之间空行分段，用户可在节点里删掉不要的那几条
-    await renamePromptNode(promptNodeIdOf(job.id), candidates.join(CANVAS_PROMPT_JOINER))
+    await renamePromptNode(promptNodeIdOf(job.id), output)
     store.patchSlot(job.id, job.slots[0].id, { status: 'done' })
-    for (const candidate of candidates) {
-      rememberPrompt(candidate, 'reverse', skill.id)
+    // 自由指令的回复是描述而非提示词，进提示词库只会被下次误当成可复用素材
+    if (skill && candidates.length) {
+      for (const candidate of candidates) {
+        rememberPrompt(candidate, 'reverse', skill.id)
+      }
+      void refreshPrompts()
     }
-    void refreshPrompts()
   } catch (error) {
     const code = errorCode(error)
     store.patchSlot(job.id, job.slots[0].id, {
@@ -933,21 +968,24 @@ export type PolishResult = { ok: true; text: string } | { ok: false; errorCode: 
 
 /**
  * 一次性润色：不进任务队列，调用方自己持有 loading。
- * 画布节点与对话框共用它，免得两套润色各长一份状态。
+ * 润色要做什么由节点底部那行指令给出，这里不兜默认文案。
  */
-export async function polishText(text: string): Promise<PolishResult> {
+export async function polishText(text: string, instruction: string): Promise<PolishResult> {
   const connection = resolvePolishConnection()
   if (!connection) {
     return { ok: false, errorCode: 'configRequired' }
   }
-  if (!text.trim()) {
+  if (!text.trim() || !instruction.trim()) {
     return { ok: false, errorCode: 'emptyInput' }
   }
   try {
     const raw = await requestAIText(
       connection,
       {
-        system: polishSystemPrompt(document.documentElement.lang.startsWith('zh') ? 'zh' : 'en'),
+        system: polishSystemPrompt(
+          document.documentElement.lang.startsWith('zh') ? 'zh' : 'en',
+          instruction,
+        ),
         text,
       },
       new AbortController().signal,
@@ -959,58 +997,69 @@ export async function polishText(text: string): Promise<PolishResult> {
   }
 }
 
-export type ReverseInput = { dataUrl: string; name: string }
+/** 识图节点与图片节点的连线形状：一个识图节点只吃一张原图 */
+const visionNodeOf = (imageId: string) =>
+  useAiImageGenStore
+    .getState()
+    .overlays.find((item) => item.vision && item.text !== null && item.refs.includes(imageId))
 
 /**
- * 识图取词：每张图落成一对节点（左侧只读原图 + 右侧识图提示词），再各起一个 reverse 任务。
- * 成对坐标写进 overlay，因此自动布局不会把图和词拆散；参考图只用于识别，
- * 任务自己也不给出图入口，所以这些图片永远不会进下一次生图的参考。
+ * 就地识别画布上的一张图：已有识图节点就沿用它的 jobId（位置与血缘都不动），
+ * 否则在图片右侧落一个新节点。instruction 留空即回落到默认 skill 的四候选反推。
  */
-export async function submitReverse(
-  images: ReverseInput[],
-  skillId: string,
-  position: { x: number; y: number },
+export async function runVisionOnImage(
+  imageId: string,
+  instruction: string,
 ): Promise<SubmitError | null> {
   const store = useAiImageGenStore.getState()
   const connection = resolveVisionConnection()
   if (!connection) {
     return 'configRequired'
   }
-  const files = images.map((image) => {
-    const { bytes, mimeType } = dataUrlToBytes(image.dataUrl)
-    return new File([bytes], image.name, { type: mimeType })
-  })
-  const { accepted } = await importImages(files)
-  let y = position.y
-  for (const record of accepted) {
-    const jobId = ulid()
-    const ratio = record.width && record.height ? record.width / record.height : 1
-    await moveCanvasNode(record.id, position.x, y)
-    await saveOverlay(
-      overlayRecord(promptNodeIdOf(jobId), {
-        text: '',
-        refs: [record.id],
-        vision: true,
-        x: Math.round(position.x + CANVAS_IMAGE_WIDTH + CANVAS_GAP_X),
-        y: Math.round(y),
-      }),
-    )
-    store.addJob({
-      id: jobId,
-      kind: 'reverse',
-      workspaceId: activeId(),
-      prompt: '',
-      provider: connection.provider,
-      model: connection.model,
-      params: defaultGenParams(),
-      referenceCount: 1,
-      skillId,
-      slots: [{ id: ulid(), status: 'pending' }],
-      status: 'queued',
-      createdAt: Date.now(),
-    })
-    y += imageHeightOf(ratio, CANVAS_IMAGE_WIDTH) + CANVAS_GAP_Y
+  const image = canvasGraphFromHistory().nodes.find((node) => node.id === imageId)
+  if (!image || image.kind !== 'image') {
+    return null
   }
+  const custom = instruction.trim()
+  const skillId = custom
+    ? ''
+    : store.visionSkillId || store.skills.find((item) => item.enabled)?.id || ''
+  const existing = visionNodeOf(imageId)
+  const jobId = existing ? jobIdOfPromptNode(existing.nodeId) : ulid()
+  await saveOverlay(
+    overlayRecord(
+      promptNodeIdOf(jobId),
+      {
+        ...existing,
+        refs: [imageId],
+        vision: true,
+        text: existing?.text ?? '',
+        x: Math.round(existing?.x ?? image.x + image.width + CANVAS_GAP_X),
+        y: Math.round(existing?.y ?? image.y),
+      },
+      existing?.createdAt ?? Date.now(),
+    ),
+  )
+  const job = store.jobs.find((item) => item.id === jobId)
+  if (job) {
+    store.patchJob(jobId, { prompt: custom, skillId })
+    retryJob(jobId)
+    return null
+  }
+  store.addJob({
+    id: jobId,
+    kind: 'reverse',
+    workspaceId: activeId(),
+    prompt: custom,
+    provider: connection.provider,
+    model: connection.model,
+    params: defaultGenParams(),
+    referenceCount: 1,
+    skillId,
+    slots: [{ id: ulid(), status: 'pending' }],
+    status: 'queued',
+    createdAt: Date.now(),
+  })
   pumpQueue()
   return null
 }

@@ -252,8 +252,8 @@
   cursor: text;
 }
 
-/* 节点右下角的缩放手柄（canvas/nodes/*）：平时隐身，悬停或选中才露出，
-   否则满屏节点都顶着一个方块太吵。库默认只有 5px，命中不到，这里放大到 12px。 */
+/* 四角的缩放手柄（canvas/nodes/resize-controls.tsx）：鼠标压到哪个角，哪个角的点才现身，
+   否则满屏节点都顶着四个方块太吵。库默认只有 5px，命中不到，这里放大到 12px。 */
 .react-flow .react-flow__node .react-flow__resize-control.handle.canvas-resize-handle {
   width: 12px;
   height: 12px;
@@ -265,13 +265,17 @@
     opacity 120ms,
     box-shadow 120ms;
 }
-.react-flow .react-flow__node:hover .canvas-resize-handle,
-.react-flow .react-flow__node.selected .canvas-resize-handle {
+/* 命中区用 ::after 向外扩 4px：12px 的点在缩小的画布上太薄，光靠它没人点得到 */
+.react-flow .react-flow__node .react-flow__resize-control.handle.canvas-resize-handle::after {
+  content: '';
+  position: absolute;
+  inset: -4px;
+}
+/* 必须带满 .react-flow__resize-control.handle：上一条有 5 个类，
+   少一个就被它的 opacity: 0 压住，表现为手柄永远不显示 */
+.react-flow .react-flow__node .react-flow__resize-control.handle.canvas-resize-handle:hover {
   opacity: 1;
   box-shadow: inset 0 0 0 2px color-mix(in oklch, var(--muted-foreground) 70%, transparent);
-}
-.react-flow .react-flow__node .canvas-resize-handle:hover {
-  box-shadow: inset 0 0 0 2px var(--primary);
 }
 
 /* @ 参考图面板从输入框下方划入：只给一个短促的落位感，不抢输入节奏 */
@@ -290,8 +294,9 @@
 }
 
 /* 连接热区（canvas/nodes/link-zone.tsx）：贴着侧边中点的一小块活动区，不是整条边。
-   热区中心压在侧边中点上，所以 React Flow 按把手外框算出的连线端点不变；
-   ::after 只朝外侧撑开，内侧仅探进 8px，避免吃掉正文点击。 */
+   把手外框宽 22px、中心压在侧边中点上，所以 React Flow 算出的连线端点不变；
+   但它左右各探进节点 11px，会把图片与正文的点击吃掉。
+   于是让把手本体不吃事件，只留 ::after 那块区域起手，并把它的内边界正好收在节点边框上。 */
 .react-flow .react-flow__node .react-flow__handle.canvas-link-zone {
   width: 22px;
   height: 120px;
@@ -301,6 +306,11 @@
   border: none;
   background-color: transparent;
   transform: translateY(-50%);
+  pointer-events: none;
+}
+.react-flow .react-flow__node .react-flow__handle.canvas-link-zone::after {
+  pointer-events: auto;
+  cursor: crosshair;
 }
 .react-flow .react-flow__node .react-flow__handle-left.canvas-link-zone {
   left: -11px;
@@ -311,11 +321,12 @@
   left: auto;
   --kx: 18px;
 }
+/* 内侧 inset 取 +11px（= 把手半宽），正好把热区内边界落在节点边框上 */
 .react-flow .react-flow__node .react-flow__handle-left.canvas-link-zone::after {
-  inset: -10px -8px -10px -30px;
+  inset: -10px 11px -10px -30px;
 }
 .react-flow .react-flow__node .react-flow__handle-right.canvas-link-zone::after {
-  inset: -10px -30px -10px -8px;
+  inset: -10px -30px -10px 11px;
 }
 .react-flow .react-flow__node .canvas-link-zone:hover {
   background-color: transparent;

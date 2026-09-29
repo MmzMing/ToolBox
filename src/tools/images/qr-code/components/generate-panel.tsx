@@ -4,13 +4,15 @@ import { useTranslation } from 'react-i18next'
 
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
-import { ParamField } from '@/components/param-field'
-import { Separator } from '@/components/ui/separator'
-import { Slider } from '@/components/ui/slider'
+import {
+  PanelField,
+  PanelGroup,
+  PanelRadioField,
+  PanelSection,
+  PanelSliderField,
+} from '@/components/panel-fields'
 import { Textarea } from '@/components/ui/textarea'
-import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import {
   QR_MARGIN_RANGE,
   QR_WIDTH_RANGE,
@@ -24,7 +26,7 @@ const outputFormats = ['png', 'svg'] as const
 
 type OutputFormat = (typeof outputFormats)[number]
 
-/** 生成侧：左侧实时预览，右侧参数卡片 */
+/** 生成侧：左侧实时预览，右侧分节参数栏 */
 export function GeneratePanel() {
   const { t } = useTranslation('tools-images', { keyPrefix: 'qr-code.generate' })
   const { t: tCommon } = useTranslation('common')
@@ -99,7 +101,7 @@ export function GeneratePanel() {
   }
 
   return (
-    <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_20rem]">
+    <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_24rem]">
       <div className="flex flex-col gap-3">
         <div className="flex min-h-64 flex-col items-center justify-center gap-3 rounded-xl border border-dashed p-4 md:min-h-80">
           {previewSrc === '' ? (
@@ -122,108 +124,77 @@ export function GeneratePanel() {
         )}
       </div>
 
-      <Card className="gap-4">
-        <CardHeader className="border-b pb-0">
-          <CardTitle className="text-sm">{t('paramsTitle')}</CardTitle>
-        </CardHeader>
-        <CardContent className="flex flex-col gap-4">
-          <ParamField label={t('textLabel')}>
+      <PanelGroup>
+        <PanelSection title={t('sectionContent')}>
+          <PanelField label={t('textLabel')} span={2} htmlFor="qr-text">
             <Textarea
+              id="qr-text"
               value={text}
               onChange={(event) => setText(event.target.value)}
               placeholder={t('textPlaceholder')}
               className="min-h-20 font-mono text-sm"
             />
-          </ParamField>
+          </PanelField>
+        </PanelSection>
 
-          <Separator />
-
-          <ParamField label={t('levelLabel')} hint={t(`level-${errorCorrectionLevel}`)}>
-            <ToggleGroup
-              type="single"
-              variant="outline"
-              spacing={0}
-              value={errorCorrectionLevel}
-              onValueChange={(value) => {
-                if (value) {
-                  setErrorCorrectionLevel(value as QrErrorCorrectionLevel)
-                }
-              }}
-              className="w-full"
-            >
-              {qrErrorCorrectionLevels.map((level) => (
-                <ToggleGroupItem key={level} value={level} className="flex-1">
-                  {level}
-                </ToggleGroupItem>
-              ))}
-            </ToggleGroup>
-          </ParamField>
-
-          <ParamField label={t('sizeLabel')} hint={`${width} px`}>
-            <Slider
-              min={QR_WIDTH_RANGE.min}
-              max={QR_WIDTH_RANGE.max}
-              step={16}
-              value={[width]}
-              onValueChange={(values) => setWidth(values[0] ?? width)}
+        <PanelSection title={t('sectionStyle')}>
+          <PanelRadioField
+            label={t('levelLabel')}
+            hint={t(`level-${errorCorrectionLevel}`)}
+            value={errorCorrectionLevel}
+            onChange={(value) => setErrorCorrectionLevel(value as QrErrorCorrectionLevel)}
+            options={qrErrorCorrectionLevels.map((level) => ({ value: level, label: level }))}
+          />
+          <PanelSliderField
+            label={t('sizeLabel')}
+            value={width}
+            onChange={setWidth}
+            min={QR_WIDTH_RANGE.min}
+            max={QR_WIDTH_RANGE.max}
+            step={16}
+            format={(value) => `${value} px`}
+          />
+          <PanelSliderField
+            label={t('marginLabel')}
+            value={margin}
+            onChange={setMargin}
+            min={QR_MARGIN_RANGE.min}
+            max={QR_MARGIN_RANGE.max}
+            step={1}
+            format={(value) => t('marginValue', { n: value })}
+          />
+          <PanelField label={t('darkColorLabel')} htmlFor="qr-dark-color">
+            <Input
+              id="qr-dark-color"
+              type="color"
+              value={darkColor}
+              onChange={(event) => setDarkColor(event.target.value)}
+              aria-label={t('darkColorLabel')}
+              className="h-8 w-full cursor-pointer p-1"
             />
-          </ParamField>
-
-          <ParamField label={t('marginLabel')} hint={String(margin)}>
-            <Slider
-              min={QR_MARGIN_RANGE.min}
-              max={QR_MARGIN_RANGE.max}
-              step={1}
-              value={[margin]}
-              onValueChange={(values) => setMargin(values[0] ?? margin)}
+          </PanelField>
+          <PanelField label={t('lightColorLabel')} htmlFor="qr-light-color">
+            <Input
+              id="qr-light-color"
+              type="color"
+              value={lightColor}
+              onChange={(event) => setLightColor(event.target.value)}
+              aria-label={t('lightColorLabel')}
+              className="h-8 w-full cursor-pointer p-1"
             />
-          </ParamField>
+          </PanelField>
+        </PanelSection>
 
-          <div className="grid grid-cols-2 gap-3">
-            <ParamField label={t('darkColorLabel')}>
-              <Input
-                type="color"
-                value={darkColor}
-                onChange={(event) => setDarkColor(event.target.value)}
-                aria-label={t('darkColorLabel')}
-                className="h-8 w-full cursor-pointer p-1"
-              />
-            </ParamField>
-            <ParamField label={t('lightColorLabel')}>
-              <Input
-                type="color"
-                value={lightColor}
-                onChange={(event) => setLightColor(event.target.value)}
-                aria-label={t('lightColorLabel')}
-                className="h-8 w-full cursor-pointer p-1"
-              />
-            </ParamField>
-          </div>
+        <PanelSection title={t('sectionExport')}>
+          <PanelRadioField
+            label={t('formatLabel')}
+            value={format}
+            onChange={(value) => setFormat(value as OutputFormat)}
+            options={outputFormats.map((value) => ({ value, label: value.toUpperCase() }))}
+          />
+        </PanelSection>
 
-          <Separator />
-
-          <ParamField label={t('formatLabel')}>
-            <ToggleGroup
-              type="single"
-              variant="outline"
-              spacing={0}
-              value={format}
-              onValueChange={(value) => {
-                if (value) {
-                  setFormat(value as OutputFormat)
-                }
-              }}
-              className="w-full"
-            >
-              {outputFormats.map((value) => (
-                <ToggleGroupItem key={value} value={value} className="flex-1">
-                  {value.toUpperCase()}
-                </ToggleGroupItem>
-              ))}
-            </ToggleGroup>
-          </ParamField>
-        </CardContent>
-        <CardFooter className="border-t pt-4">
+        <div className="p-4">
           <Button
             className="w-full"
             disabled={previewSrc === ''}
@@ -232,8 +203,8 @@ export function GeneratePanel() {
             <Download data-icon="inline-start" />
             {format === 'svg' ? t('downloadSvg') : t('downloadPng')}
           </Button>
-        </CardFooter>
-      </Card>
+        </div>
+      </PanelGroup>
     </div>
   )
 }

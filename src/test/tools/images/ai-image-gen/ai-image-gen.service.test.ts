@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest'
 
 import {
+  alignLinesOf,
+  apiConfigured,
   aspectRatioOf,
   boundingBoxOf,
   buildCanvasGraph,
@@ -32,8 +34,11 @@ import {
   polishSystemPrompt,
   referenceLabelAt,
   remapReferenceMentions,
+  rulerStepOf,
+  rulerTicksOf,
   summarizeWorkspaces,
   toImageRequestParams,
+  visionInstructionPrompt,
   WORKSPACE_NAME_LIMIT,
   wouldCreateCycle,
   zipReferenceMentions,
@@ -522,6 +527,63 @@ describe('boundingBoxOf', () => {
   })
 })
 
+describe('alignLinesOf', () => {
+  const box = (id: string, x: number, y: number, width = 40, height = 50) => ({
+    id,
+    x,
+    y,
+    width,
+    height,
+  })
+
+  it('reports a vertical line where a dragged edge lines up with another node', () => {
+    expect(alignLinesOf([box('a', 0, 0, 100)], [box('b', 0, 200)], 6)).toEqual([
+      { axis: 'x', pos: 0, from: 0, to: 250 },
+    ])
+  })
+
+  it('reports the centre of a node against the centre of another', () => {
+    expect(alignLinesOf([box('a', 20, 0)], [box('c', 0, 200, 80)], 6)).toEqual([
+      { axis: 'x', pos: 40, from: 0, to: 250 },
+    ])
+  })
+
+  it('counts a near miss inside the tolerance and takes its midpoint', () => {
+    expect(alignLinesOf([box('a', 4, 0)], [box('b', 0, 200, 200)], 6)).toEqual([
+      { axis: 'x', pos: 2, from: 0, to: 250 },
+    ])
+    expect(alignLinesOf([box('a', 7, 0)], [box('b', 0, 200, 200)], 6)).toEqual([])
+  })
+
+  it('keeps one line and stretches it across every node sharing that edge', () => {
+    const lines = alignLinesOf(
+      [box('a', 0, 0, 100)],
+      [box('b', 0, 200, 40), box('c', 0, 300, 60)],
+      6,
+    )
+    expect(lines).toEqual([{ axis: 'x', pos: 0, from: 0, to: 350 }])
+  })
+
+  it('aligns the union box of a dragged group', () => {
+    const dragged = [box('a', 0, 0), box('b', 100, 0)]
+    expect(alignLinesOf(dragged, [box('c', 70, 200)], 6)).toEqual([
+      { axis: 'x', pos: 70, from: 0, to: 250 },
+    ])
+  })
+
+  it('reports a horizontal line for the other axis', () => {
+    expect(alignLinesOf([box('a', 0, 200, 40, 60)], [box('b', 500, 200, 80, 120)], 6)).toEqual([
+      { axis: 'y', pos: 200, from: 0, to: 580 },
+      { axis: 'y', pos: 260, from: 0, to: 580 },
+    ])
+  })
+
+  it('stays quiet when there is nothing to align against', () => {
+    expect(alignLinesOf([box('a', 0, 0)], [], 6)).toEqual([])
+    expect(alignLinesOf([], [box('b', 0, 0)], 6)).toEqual([])
+  })
+})
+
 describe('buildCanvasGraph', () => {
   it('synthesizes one prompt node per job and wires every output image to it', () => {
     const graph = buildCanvasGraph([img('a', 'J'), img('b', 'J')], [])
@@ -852,7 +914,7 @@ describe('canvasMapBox', () => {
         { x: 0, y: 0, width: 100, height: 100 },
         { x: 300, y: 200, width: 100, height: 100 },
       ]),
-    ).toEqual({ x: -48, y: -48, width: 496, height: 396 })
+    ).toEqual({ x: -48, y: -48, width: 496, height: 396, pad: 48 })
   })
 
   it('keeps a minimum padding so a single node is not blown up to fill the tile', () => {
@@ -861,7 +923,14 @@ describe('canvasMapBox', () => {
       y: -48,
       width: 106,
       height: 106,
+      pad: 48,
     })
+  })
+
+  it('grows the padding with the spread and reports it so callers can recover the union', () => {
+    const box = canvasMapBox([{ x: 0, y: 0, width: 2000, height: 1000 }])
+    expect(box).toEqual({ x: -120, y: -120, width: 2240, height: 1240, pad: 120 })
+    expect(box && [box.x + box.pad, box.y + box.pad, box.width - box.pad * 2]).toEqual([0, 0, 2000])
   })
 })
 
@@ -909,20 +978,91 @@ describe('nextWorkspaceNumber', () => {
 })
 
 describe('polishSystemPrompt', () => {
+  it('puts the user instruction ahead of the guard rails', () => {
+    const text = polishSystemPrompt('zh', '把主体写得更具体')
+    expect(text.startsWith('把主体写得更具体')).toBe(true)
+    expect(text).toContain('硬性要求')
+  })
+
   it('pins the zh mention marker and the no-fence rule', () => {
-    const text = polishSystemPrompt('zh')
+    const text = polishSystemPrompt('zh', '更精炼')
     expect(text).toContain('@图N')
     expect(text).toContain('不要代码围栏')
   })
 
   it('pins the en mention marker exactly as referenceLabelAt spells it', () => {
-    const text = polishSystemPrompt('en')
+    const text = polishSystemPrompt('en', 'make it tighter')
     expect(text).toContain('@Image N')
     expect(referenceLabelAt(0, 'en')).toBe('Image 1')
   })
 
   it('keeps the two languages apart instead of reusing one string', () => {
-    expect(polishSystemPrompt('zh')).not.toBe(polishSystemPrompt('en'))
+    expect(polishSystemPrompt('zh', 'x')).not.toBe(polishSystemPrompt('en', 'x'))
+  })
+})
+
+describe('visionInstructionPrompt', () => {
+  it('sends the user instruction verbatim as the task', () => {
+    expect(visionInstructionPrompt('zh', '把图里的文字逐行抄出来')).toContain(
+      '把图里的文字逐行抄出来',
+    )
+  })
+
+  it('closes with a result-only rule so the node never gets a code fence', () => {
+    expect(visionInstructionPrompt('en', 'describe the lighting')).toContain('no code fences')
+  })
+})
+
+describe('rulerStepOf', () => {
+  it('picks a rounder step as the canvas zooms out', () => {
+    expect(rulerStepOf(2.5)).toBe(50)
+    expect(rulerStepOf(1)).toBe(100)
+    expect(rulerStepOf(0.2)).toBe(500)
+  })
+
+  it('never divides by a zero zoom', () => {
+    expect(rulerStepOf(0)).toBe(5000)
+  })
+})
+
+describe('rulerTicksOf', () => {
+  it('includes both endpoints when they land on the step', () => {
+    expect(rulerTicksOf(0, 40, 20)).toEqual([0, 20, 40])
+  })
+
+  it('starts at the first multiple inside the window', () => {
+    expect(rulerTicksOf(5, 45, 20)).toEqual([20, 40])
+  })
+
+  it('covers negative coordinates the same way', () => {
+    expect(rulerTicksOf(-40, -10, 20)).toEqual([-40, -20])
+  })
+
+  it('returns nothing for an inverted window or a broken step', () => {
+    expect(rulerTicksOf(40, 0, 20)).toEqual([])
+    expect(rulerTicksOf(0, 40, 0)).toEqual([])
+  })
+})
+
+describe('apiConfigured', () => {
+  const filled = {
+    provider: 'openai' as const,
+    apiKey: 'sk-test',
+    baseUrl: 'https://api.openai.com/v1',
+    model: 'gpt-image-2',
+  }
+
+  it('is green only with key, model and a valid base url', () => {
+    expect(apiConfigured(filled)).toBe(true)
+  })
+
+  it('treats a blank key or model as unconfigured', () => {
+    expect(apiConfigured({ ...filled, apiKey: '  ' })).toBe(false)
+    expect(apiConfigured({ ...filled, model: '' })).toBe(false)
+  })
+
+  it('rejects a base url that the transport would refuse to call', () => {
+    expect(apiConfigured({ ...filled, baseUrl: 'http://evil.example.com' })).toBe(false)
   })
 })
 

@@ -23,6 +23,11 @@ export function apiReady(api: ApiLike, enabled: boolean, testedSignature: string
   return testedSignature === apiSignature(api)
 }
 
+/** 只问「填全了没」，不要求连接测试通过：dock 上的设置状态灯用它 */
+export function apiConfigured(api: ApiLike): boolean {
+  return !!api.apiKey.trim() && !!api.model.trim() && isValidBaseUrl(api.baseUrl)
+}
+
 export const ASPECT_KEYS = ['auto', '1:1', '3:2', '2:3', '16:9', '9:16', '4:3', '3:4'] as const
 export type AspectKey = (typeof ASPECT_KEYS)[number]
 
@@ -206,10 +211,34 @@ export const aspectRatioOf = (aspect: string): number => {
   return width && height && Number.isFinite(width) && Number.isFinite(height) ? width / height : 1
 }
 
-/** 画布缩放上下限：ImageCanvas 的 min/maxZoom 与 dock 的缩放按钮共用一份 */
+/** 画布缩放上下限：ImageCanvas 的 min/maxZoom 与缩放条的缩放按钮共用一份 */
 export const CANVAS_MIN_ZOOM = 0.1
 export const CANVAS_MAX_ZOOM = 2.5
 export const CANVAS_ZOOM_STEP = 1.2
+
+/** 标尺想达到的刻度屏幕间距：太密读不清，太疏对不准 */
+export const RULER_TARGET_GAP_PX = 72
+/** 刻度间隔只取这几档，读起来才是「整」数 */
+const RULER_STEPS = [1, 2, 5, 10, 20, 25, 50, 100, 200, 250, 500, 1000, 2000, 5000]
+
+/** 当前缩放下该用多大的画布坐标间隔 */
+export function rulerStepOf(zoom: number, targetPx = RULER_TARGET_GAP_PX): number {
+  const flow = targetPx / Math.max(zoom, 0.01)
+  return RULER_STEPS.find((step) => step >= flow) ?? RULER_STEPS[RULER_STEPS.length - 1]
+}
+
+/** [from, to] 之间所有 step 的整数倍，含两端；空区间即空数组 */
+export function rulerTicksOf(from: number, to: number, step: number): number[] {
+  if (!(step > 0) || to < from) {
+    return []
+  }
+  const first = Math.ceil(from / step)
+  const last = Math.floor(to / step)
+  return Array.from({ length: Math.max(0, last - first + 1) }, (_, index) => (first + index) * step)
+}
+
+/** 撤销栈深度：再深也只是堆内存里的 overlay 快照，没必要留那么多 */
+export const HISTORY_LIMIT = 50
 
 export const CANVAS_IMAGE_WIDTH = 240
 export const CANVAS_PROMPT_WIDTH = 260
@@ -255,6 +284,71 @@ export function boundingBoxOf(nodes: NodeBounds[]) {
   const top = Math.min(...nodes.map((node) => node.y))
   const bottom = Math.max(...nodes.map((node) => node.y + node.height))
   return { left, top, right, bottom, width: right - left, height: bottom - top }
+}
+
+/** 对齐容差：按屏幕像素给，调用方除以缩放换算成画布单位，缩得再小也是那 6 个像素的手感 */
+export const ALIGN_TOLERANCE_PX = 6
+
+/**
+ * 一条对齐线：axis 沿用参考线的约定，x 是竖线、y 是横线。
+ * from / to 是它在另一根轴上的跨度，只盖住对齐的那两张卡片，不铺满视口。
+ */
+export type AlignLine = { axis: 'x' | 'y'; pos: number; from: number; to: number }
+
+type Box = { left: number; top: number; right: number; bottom: number }
+
+/** 矩形在某轴上的三条候选位：两条边与中心 */
+function axisEdges(axis: 'x' | 'y', box: Box) {
+  return axis === 'x'
+    ? [box.left, box.right, (box.left + box.right) / 2]
+    : [box.top, box.bottom, (box.top + box.bottom) / 2]
+}
+
+/** 两张卡片在另一根轴上的并集，即对齐线该画多长 */
+function axisSpan(axis: 'x' | 'y', a: Box, b: Box) {
+  return axis === 'x'
+    ? { from: Math.min(a.top, b.top), to: Math.max(a.bottom, b.bottom) }
+    : { from: Math.min(a.left, b.left), to: Math.max(a.right, b.right) }
+}
+
+/**
+ * 拖动的框（可以是一批）与其余节点的边、中心两两比对，落在容差内即出一条对齐线。
+ * 只报线不改位置：吸走节点会让手感变怪，用户要的是「现在正对着」这件事被看见。
+ * 同一轴上多个节点本就并排时只留一条并把跨度拉长，免得叠出重影。
+ */
+export function alignLinesOf(
+  dragged: NodeBounds[],
+  others: NodeBounds[],
+  tolerance: number,
+): AlignLine[] {
+  if (!dragged.length || !others.length) {
+    return []
+  }
+  const moving = boundingBoxOf(dragged)
+  const out: AlignLine[] = []
+  for (const axis of ['x', 'y'] as const) {
+    for (const value of axisEdges(axis, moving)) {
+      for (const node of others) {
+        const target = boundingBoxOf([node])
+        for (const edge of axisEdges(axis, target)) {
+          if (Math.abs(value - edge) > tolerance) {
+            continue
+          }
+          const span = axisSpan(axis, moving, target)
+          const hit = out.find(
+            (line) => line.axis === axis && Math.abs(line.pos - edge) <= tolerance,
+          )
+          if (hit) {
+            hit.from = Math.min(hit.from, span.from)
+            hit.to = Math.max(hit.to, span.to)
+            continue
+          }
+          out.push({ axis, pos: (value + edge) / 2, ...span })
+        }
+      }
+    }
+  }
+  return out
 }
 
 /** 提及标记的上限：同一张图可以反复 @，但手改坏的记录不能把 IDB 撑爆 */
@@ -857,7 +951,10 @@ export function buildCanvasMap(raw: unknown): CanvasMapRect[] {
   return out
 }
 
-/** 地图取景框：节点并集外扩一圈留白，空画布返回 null 交给调用方画占位 */
+/**
+ * 地图取景框：节点并集外扩一圈留白，空画布返回 null 交给调用方画占位。
+ * pad 一并给出，调用方减回去就是节点并集本身（缩略图上那圈虚线外接框）。
+ */
 export function canvasMapBox(rects: CanvasMapRect[]) {
   if (!rects.length) {
     return null
@@ -872,6 +969,7 @@ export function canvasMapBox(rects: CanvasMapRect[]) {
     y: top - pad,
     width: right - left + pad * 2,
     height: bottom - top + pad * 2,
+    pad,
   }
 }
 
@@ -977,18 +1075,28 @@ export function parsePromptCandidates(text: string): string[] {
 }
 
 /**
- * 润色的系统指令：只改写措辞与组织，不许动 @图N 提及、语言与段落结构。
- * 提及标记一旦改动，画布上的参考图就会指错，所以把它写成硬约束而不是建议。
+ * 润色的系统指令：要做什么由用户在节点底部现写，这里只钉死不能动的护栏。
+ * 提及标记一旦改动，画布上的参考图就会指错，所以它写成硬约束而不是建议。
  */
-export function polishSystemPrompt(lang: 'zh' | 'en'): string {
-  return lang === 'zh'
-    ? '你是文生图提示词润色助手。在不改变原意的前提下让表达更精准、更具画面感、更贴合出图模型的阅读习惯。' +
-        '硬性要求：原样保留所有 @图N 标记（不增删、不改编号、不换位置的字面量）、保留原有分段与小标题、' +
-        '保持中文。只输出润色后的正文，不要解释、不要前后缀、不要代码围栏。'
-    : 'You polish text-to-image prompts. Rewrite for precision, visual clarity and model-friendly phrasing without changing the meaning. ' +
-        'Hard rules: keep every @Image N mention verbatim (same marker, same number, none added or removed), ' +
+export function polishSystemPrompt(lang: 'zh' | 'en', instruction: string): string {
+  const guard =
+    lang === 'zh'
+      ? '硬性要求：原样保留所有 @图N 标记（不增删、不改编号、不换位置的字面量）、保留原有分段与小标题、' +
+        '保持中文。只输出结果正文，不要解释、不要前后缀、不要代码围栏。'
+      : 'Hard rules: keep every @Image N mention verbatim (same marker, same number, none added or removed), ' +
         'keep the existing paragraph breaks and section headings, and answer in English. ' +
-        'Output only the polished text with no explanation and no code fences.'
+        'Output only the result with no explanation and no code fences.'
+  return `${instruction.trim()}\n\n${guard}`
+}
+
+/**
+ * 自定义识图指令：用户在图片卡片上写了什么就以它为准，不再套 skill 的四候选 JSON 契约，
+ * 只补一句收口，免得模型把答案包进围栏或加一段前言。
+ */
+export function visionInstructionPrompt(lang: 'zh' | 'en', instruction: string): string {
+  return lang === 'zh'
+    ? `${instruction.trim()}\n\n直接给出结果正文，不要解释你做了什么，不要代码围栏。`
+    : `${instruction.trim()}\n\nAnswer with the result only — no preamble about what you did, no code fences.`
 }
 
 /** 剥掉模型爱加的 ``` 围栏与「润色后：」这类前言，只留正文 */

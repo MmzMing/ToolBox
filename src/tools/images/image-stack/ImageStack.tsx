@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next'
 
+import { PanelGroup } from '@/components/panel-fields'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Filmstrip } from './components/Filmstrip'
 import { SplitPreview } from './components/SplitPreview'
@@ -34,16 +35,16 @@ export default function ImageStack() {
       </Tabs>
 
       {hasItems ? (
-        <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_20rem]">
+        <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_24rem]">
           <div className="flex min-w-0 flex-col gap-3">
             <StageToolbar />
             {isStitch ? <StageCanvas /> : <SplitPreview />}
             <Filmstrip />
           </div>
-          <div className="flex min-w-0 flex-col gap-4">
+          <PanelGroup className="min-w-0">
             <TemplateGallery />
             {isStitch ? <StylePanel /> : null}
-          </div>
+          </PanelGroup>
         </div>
       ) : (
         <UploadZone />

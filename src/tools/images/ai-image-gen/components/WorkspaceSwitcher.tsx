@@ -152,7 +152,7 @@ function WorkspaceTile({
         aria-expanded={expanded}
         className="block w-full cursor-pointer text-left"
       >
-        <span className="bg-muted/60 relative block aspect-[3/2] overflow-hidden rounded-lg">
+        <span className="relative block aspect-[3/2] overflow-hidden rounded-lg">
           <CanvasMap rects={card.map} />
           {card.activeCount > 0 ? (
             <span
@@ -203,23 +203,37 @@ function WorkspaceTile({
   )
 }
 
-/** 画布布局的缩放示意图：viewBox 直接取节点并集，因此不需要换算坐标就能铺满这一格 */
+/** 画布布局的缩放示意图：底色跟画布同源，虚线框圈出节点并集，让一格缩略图读得出「内容在哪」 */
 function CanvasMap({ rects }: { rects: CanvasMapRect[] }) {
   const box = useMemo(() => canvasMapBox(rects), [rects])
   if (!box) {
     return (
-      <span className="text-muted-foreground absolute inset-0 flex items-center justify-center">
+      <span className="bg-background text-muted-foreground absolute inset-0 flex items-center justify-center rounded-lg">
         <ImageIcon className="size-5 opacity-40" />
       </span>
     )
   }
+  // viewBox 是几百到几千的画布坐标，线宽与圆角必须按画幅取单位，写死 1px 会细到看不见
+  const unit = Math.max(box.width, box.height) / 100
+  // 虚线框落在并集外留半格余量：贴着节点画会把它们咬掉一圈
+  const inset = box.pad * 0.6
   return (
     <svg
       viewBox={`${box.x} ${box.y} ${box.width} ${box.height}`}
       preserveAspectRatio="xMidYMid meet"
-      className="text-foreground/45 size-full"
+      className="bg-background size-full rounded-lg"
       aria-hidden
     >
+      <rect
+        x={box.x + inset}
+        y={box.y + inset}
+        width={box.width - inset * 2}
+        height={box.height - inset * 2}
+        rx={unit * 1.4}
+        className="stroke-foreground/50 fill-none"
+        strokeWidth={unit * 0.5}
+        strokeDasharray={`${unit * 2.4} ${unit * 1.8}`}
+      />
       {rects.map((rect, index) => (
         <rect
           key={`${index}:${rect.x}:${rect.y}`}
@@ -227,8 +241,9 @@ function CanvasMap({ rects }: { rects: CanvasMapRect[] }) {
           y={rect.y}
           width={rect.width}
           height={rect.height}
-          rx={26}
-          fill="currentColor"
+          rx={unit * 1.4}
+          className="stroke-border fill-muted-foreground/45"
+          strokeWidth={unit * 0.5}
         />
       ))}
     </svg>

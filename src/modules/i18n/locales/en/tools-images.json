@@ -5,7 +5,9 @@
     "tab-generate": "Generate",
     "tab-detect": "Detect",
     "generate": {
-      "paramsTitle": "Options",
+      "sectionContent": "Content",
+      "sectionStyle": "Style",
+      "sectionExport": "Export",
       "textLabel": "Text / URL",
       "textPlaceholder": "https://example.com",
       "levelLabel": "Error correction level",
@@ -15,6 +17,7 @@
       "level-H": "H - High (30%)",
       "sizeLabel": "Size",
       "marginLabel": "Margin",
+      "marginValue": "{{n}} modules",
       "darkColorLabel": "Foreground",
       "lightColorLabel": "Background",
       "formatLabel": "Output format",
@@ -37,7 +40,8 @@
   "wifi-qr-code-generator": {
     "title": "WiFi QR Code Generator",
     "description": "Scan to connect to a WiFi network",
-    "paramsTitle": "Options",
+    "sectionNetwork": "Network",
+    "sectionSecurity": "Security",
     "ssidLabel": "Network name (SSID)",
     "passwordLabel": "Password",
     "passwordSkipped": "Not needed on open networks",
@@ -100,7 +104,6 @@
       "dragHint": "Drag the divider to compare"
     },
     "panel": {
-      "title": "Options",
       "resizeLabel": "Resize",
       "resizePlaceholder": "Pick a resize mode",
       "resizeOriginal": "Keep original size",
@@ -145,6 +148,8 @@
   },
   "image-to-beads": {
     "title": "Image to Perler Beads",
+    "sectionColors": "Colors & background",
+    "sectionOutput": "Chart output",
     "description": "Frame the working area on the full image, turn it into a bead grid mapped to real Hama, Perler, Artkal or Mard colors, and export the chart plus a shopping list — all local",
     "stage": {
       "badge": "{{cols}} × {{rows}} beads · {{boardsX}} × {{boardsY}} boards",
@@ -233,26 +238,17 @@
       "clearConfirmAction": "Clear",
       "cancel": "Cancel",
       "settings": "AI settings",
-      "skills": "Skill manager"
+      "skills": "Skill manager",
+      "undo": "Undo",
+      "redo": "Redo",
+      "rulers": "Rulers",
+      "guides": "Guide lines",
+      "align": "Alignment lines"
     },
     "gate": {
       "title": "AI image generation is off",
       "body": "Once enabled, your prompts and uploaded images are sent to the provider you configure. API keys stay in this browser's localStorage; there is no relay on our side.",
       "cta": "Enable and configure"
-    },
-    "composer": {
-      "placeholder": "Describe the image you want… (Enter to send, Shift+Enter for newline)",
-      "send": "Send",
-      "sendHint": "Send (Enter)",
-      "needPrompt": "Write a prompt first",
-      "needImage": "Add an image to reverse-engineer first",
-      "addReference": "Reference",
-      "removeImage": "Remove image",
-      "dropReference": "Drop to add as reference",
-      "dropImage": "Drop to set the image to reverse",
-      "clearAll": "Clear text and images",
-      "enableHint": "AI image gen is off: click here to configure a provider and enable it (content goes straight to your API; the key stays local).",
-      "configHint": "No usable credentials or model for this provider: open AI settings to fill in a key and pick an image model (only OpenAI and Gemini generate images)."
     },
     "params": {
       "model": "Model",
@@ -261,7 +257,6 @@
       "quality": "Quality",
       "count": "Count",
       "aspectAuto": "Auto",
-      "advanced": "Advanced",
       "imageSize": "Resolution",
       "seed": "Seed",
       "seedPlaceholder": "Empty = random",
@@ -279,9 +274,9 @@
       "retry": "Retry",
       "cancel": "Cancel",
       "download": "Download",
-      "reference": "Add to input",
       "details": "Details",
-      "delete": "Delete"
+      "delete": "Delete",
+      "vision": "Read this image"
     },
     "notify": {
       "on": "Completion sound on",
@@ -357,11 +352,9 @@
       "modelPlaceholder": "Model name",
       "consentTitle": "Enable AI image gen?",
       "consentBody": "Once enabled, your prompts and uploaded images go straight to the provider you configure (never through this site). The API key stays in this browser's localStorage.",
-      "consentAccept": "I understand, enable"
-    },
-    "mode": {
-      "switchToGen": "Switch to generate",
-      "switchToReverse": "Switch to reverse prompt"
+      "consentAccept": "I understand, enable",
+      "visionSkill": "Vision skill",
+      "visionSkillHint": "Used whenever the vision input on an image card is left empty."
     },
     "workspace": {
       "new": "New workspace",
@@ -395,16 +388,9 @@
       "zoomOut": "Zoom out"
     },
     "polish": {
-      "label": "Polish",
-      "model": "Polish model",
-      "hint": "Rewording and structure only — @Image N mentions, paragraph breaks and headings stay as they are.",
-      "usesVision": "Follows the vision API credentials and model.",
-      "usesOwn": "Uses the polish model configured below.",
-      "openSettings": "AI image settings",
-      "start": "Start polishing"
+      "label": "Polish"
     },
     "promptNode": {
-      "refs": "{{count}} / {{max}} references",
       "chain": "←{{count}} upstream",
       "placeholder": "Double-click to edit, or link images from the canvas as references",
       "generate": "Generate",
@@ -421,13 +407,8 @@
       "mentionNone": "No matching reference"
     },
     "reverse": {
-      "badFile": "PNG / JPEG / WebP only, up to 20MB",
-      "dropzone": "Click or drag an image here",
-      "dropHint": "PNG / JPEG / WebP, up to 20MB; pasting also works",
-      "add": "Add another",
-      "skill": "Reverse skill",
-      "visionModel": "Vision model",
-      "start": "Reverse"
+      "button": "Reverse",
+      "skill": "Reverse skill"
     },
     "skillManager": {
       "title": "Skill manager",
@@ -447,6 +428,16 @@
       "empty": "No enabled skills",
       "save": "Save",
       "cancel": "Cancel"
+    },
+    "hint": {
+      "enable": "AI image generation is off. Click to configure a provider and turn it on (requests go straight to your own API; keys stay in this browser).",
+      "config": "No usable credential or model for this provider: open AI settings to add a key / pick an image model (only OpenAI and Gemini generate images)."
+    },
+    "dialog": {
+      "visionPlaceholder": "Ask something about this image; leave it empty to reverse-engineer with the default skill (Enter sends, Shift+Enter breaks the line)",
+      "polishPlaceholder": "Say how to rewrite this prompt — empty means no polishing (Enter sends, Shift+Enter breaks the line)",
+      "sendHint": "Send (Enter)",
+      "needInstruction": "Write an instruction first"
     }
   },
   "image-stack": {

@@ -1,4 +1,4 @@
-import { NodeResizeControl, Position, type Node, type NodeProps } from '@xyflow/react'
+import { Position, type Node, type NodeProps } from '@xyflow/react'
 import {
   AlertTriangle,
   Copy,
@@ -9,6 +9,7 @@ import {
   SlidersHorizontal,
   Sparkles,
   Trash2,
+  WandSparkles,
 } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -27,16 +28,16 @@ import {
   CANVAS_NODE_MIN_HEIGHT,
   CANVAS_NODE_MIN_WIDTH,
   CANVAS_PROMPT_MAX_HEIGHT,
-  MAX_CANVAS_REFS,
   insertReferenceMention,
   type GenParams,
 } from '../../ai-image-gen.service'
 import { ParamBar } from '../../components/ParamBar'
-import { PolishButton } from '../../components/PolishButton'
+import { NodeDialog } from '../../components/NodeDialog'
 import { polishText } from '../../orchestrator'
-import type { JobStatus } from '../../store'
+import { useAiImageGenStore, type JobStatus } from '../../store'
 import { ActionBar, ActionButton } from './action-bar'
 import { LinkZone } from './link-zone'
+import { ResizeControls } from './resize-controls'
 
 /** 一张已连入的参考图：label 与 url 都由画布按当前顺序算好 */
 export type PromptRefItem = {
@@ -63,6 +64,8 @@ export type PromptNodeData = {
   vision: boolean
   /** 多选时让位给选框上方的对齐条：工具条连悬停都不出 */
   barHidden: boolean
+  /** 润色对话框的开关：开合状态由画布那份 store 字段决定，这里只给回写口 */
+  onToggleDialog: () => void
   createdAt: number
   lang: string
   onRename: (nodeId: string, text: string, mentions: string[]) => void
@@ -73,6 +76,8 @@ export type PromptNodeData = {
   /** 复制：在正下方落一个内容相同的新提示词节点 */
   onDuplicate: (nodeId: string) => void
   onParamsChange: (patch: Partial<GenParams>) => void
+  /** 润色凭证不在这里填，对话框那颗模型芯片只负责把人送进设置弹窗 */
+  onOpenSettings: () => void
   onResize: (
     nodeId: string,
     size: { width: number; height: number },
@@ -308,13 +313,28 @@ export function PromptNode({ data, selected }: NodeProps<PromptRfNode>) {
   const { t } = useTranslation('tools-images')
   const running = RUNNING.includes(data.status)
   const reading = data.vision && running
+  /** 润色对话框开着没：开关归那份 store 管，同一时刻只允许一个节点有它 */
+  const dialogOpen = useAiImageGenStore((state) => state.dialogNodeId === data.nodeId)
   // 单击只选中（仍可就地拖拽），双击或 Enter / F2 才进入编辑
   const [editing, setEditing] = useState(false)
+  const [polishing, setPolishing] = useState(false)
+
+  const polish = (instruction: string) => {
+    setPolishing(true)
+    void polishText(data.text, instruction).then((result) => {
+      setPolishing(false)
+      if (!result.ok) {
+        toast.error(t(`ai-image-gen.errors.${result.errorCode}`))
+        return
+      }
+      data.onRename(data.nodeId, result.text, data.mentions)
+    })
+  }
 
   return (
     <div
       className={cn(
-        'bg-card group flex h-full flex-col rounded-xl border shadow-sm',
+        'bg-card flex h-full flex-col rounded-xl border shadow-sm',
         // 选中态描一圈主色：ring 不占布局，避免加粗边框把节点撑大 1px
         selected && 'border-primary ring-primary ring-2',
       )}
@@ -338,6 +358,7 @@ export function PromptNode({ data, selected }: NodeProps<PromptRfNode>) {
           data={data}
           revealed={selected}
           editing={editing}
+          dialogOpen={dialogOpen}
           onEditStart={() => setEditing(true)}
           onEditEnd={() => setEditing(false)}
         />
@@ -349,19 +370,26 @@ export function PromptNode({ data, selected }: NodeProps<PromptRfNode>) {
         </p>
       ) : null}
 
+      {/* 工具条那颗按钮才开对话框：多选时说不清要润色哪一段，所以一并藏掉 */}
+      {dialogOpen && !data.barHidden ? (
+        <NodeDialog
+          key={data.nodeId}
+          target={{ kind: 'polish', text: data.text }}
+          busy={polishing || running}
+          onSubmit={polish}
+          onClose={data.onToggleDialog}
+          onOpenSettings={data.onOpenSettings}
+        />
+      ) : null}
+
       <LinkZone type="source" position={Position.Right} />
 
-      <NodeResizeControl
-        position="bottom-right"
-        color="transparent"
-        className="canvas-resize-handle"
+      <ResizeControls
         minWidth={CANVAS_NODE_MIN_WIDTH}
         maxWidth={CANVAS_NODE_MAX_WIDTH}
         minHeight={CANVAS_NODE_MIN_HEIGHT}
         maxHeight={CANVAS_PROMPT_MAX_HEIGHT}
-        onResizeEnd={(_event, { width, height, x, y }) =>
-          data.onResize(data.nodeId, { width, height }, { x, y })
-        }
+        onResizeEnd={(size, position) => data.onResize(data.nodeId, size, position)}
       />
     </div>
   )
@@ -372,12 +400,15 @@ function PromptEditor({
   data,
   revealed,
   editing,
+  dialogOpen,
   onEditStart,
   onEditEnd,
 }: {
   data: PromptNodeData
   revealed: boolean
   editing: boolean
+  /** 润色对话框开着没：状态在 PromptNode 订阅，这里只用来点亮按钮 */
+  dialogOpen: boolean
   onEditStart: () => void
   onEditEnd: () => void
 }) {
@@ -387,11 +418,10 @@ function PromptEditor({
   const [focused, setFocused] = useState(false)
   const [panelOpen, setPanelOpen] = useState(false)
   const [expanded, setExpanded] = useState(false)
-  const [polishing, setPolishing] = useState(false)
 
   const running = RUNNING.includes(data.status)
-  // 多选时对齐条接管工具条的位置，这里连悬停都不出
-  const showBar = !data.barHidden && (revealed || focused || panelOpen || expanded)
+  // 工具条只在选中（或正在编辑、开着对话框）时常驻：悬停不浮出，免得挡图
+  const showBar = !data.barHidden && (revealed || focused || panelOpen || expanded || dialogOpen)
 
   const commit = () => {
     const next = draft.trim()
@@ -407,21 +437,6 @@ function PromptEditor({
     anchor.download = buildTextFileName(draft, data.createdAt || Date.now())
     anchor.click()
     URL.revokeObjectURL(url)
-  }
-
-  // 润色吃的是当前草稿：成功后 onRename 会改 data.text，编辑器按 key 重挂，草稿自然跟上
-  const polish = async () => {
-    setPolishing(true)
-    try {
-      const result = await polishText(draft)
-      if (!result.ok) {
-        toast.error(t(`ai-image-gen.errors.${result.errorCode}`))
-        return
-      }
-      data.onRename(data.nodeId, result.text, bindings)
-    } finally {
-      setPolishing(false)
-    }
   }
 
   const field = {
@@ -444,40 +459,36 @@ function PromptEditor({
 
   return (
     <>
-      {/* 悬停即出，与图片卡片同一套手感；选中、编辑、面板或弹窗开着时常驻 */}
+      {/* 选中、编辑、面板或弹窗开着时常驻；悬停不浮出，免得挡图 */}
       <div
         className={cn(
           'transition-opacity',
-          showBar
-            ? 'opacity-100'
-            : 'pointer-events-none opacity-0 group-hover:pointer-events-auto group-hover:opacity-100',
+          showBar ? 'opacity-100' : 'pointer-events-none opacity-0',
         )}
       >
         <ActionBar>
-          <span className="text-muted-foreground flex shrink-0 items-center gap-1 pl-1 text-[10px]">
-            {data.vision ? (
-              <>
-                <ScanSearch className="text-primary size-3 shrink-0" />
-                <span>{t('ai-image-gen.promptNode.vision')}</span>
-              </>
-            ) : (
-              <>
-                <Sparkles className="text-primary size-3 shrink-0" />
-                {data.chainCount > 0 ? (
-                  <span className="text-primary">
-                    {t('ai-image-gen.promptNode.chain', { count: data.chainCount })}
-                  </span>
-                ) : null}
-                <span>
-                  {t('ai-image-gen.promptNode.refs', {
-                    count: data.refs.length,
-                    max: MAX_CANVAS_REFS,
-                  })}
-                </span>
-              </>
-            )}
-          </span>
-          <Separator orientation="vertical" className="h-4 shrink-0" />
+          {/* 参考图数量不再报：连线与正文里的 @图N 说的是同一件事。
+              这里只留「识图取词」与上游链，两条都没得报就整块不占位 */}
+          {data.vision || data.chainCount > 0 ? (
+            <>
+              <span className="text-muted-foreground flex shrink-0 items-center gap-1 pl-1 text-[10px]">
+                {data.vision ? (
+                  <>
+                    <ScanSearch className="text-primary size-3 shrink-0" />
+                    <span>{t('ai-image-gen.promptNode.vision')}</span>
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="text-primary size-3 shrink-0" />
+                    <span className="text-primary">
+                      {t('ai-image-gen.promptNode.chain', { count: data.chainCount })}
+                    </span>
+                  </>
+                )}
+              </span>
+              <Separator orientation="vertical" className="h-4 shrink-0" />
+            </>
+          ) : null}
 
           {data.vision ? null : (
             <Popover>
@@ -498,9 +509,20 @@ function PromptEditor({
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-80" align="center" side="top">
-                <ParamBar mode="gen" params={data.params} onParamsChange={data.onParamsChange} />
+                <ParamBar params={data.params} onParamsChange={data.onParamsChange} />
               </PopoverContent>
             </Popover>
+          )}
+          {/* 没正文就没得润，但对话框开着时按钮必须还能点，否则关不掉 */}
+          {data.vision ? null : (
+            <ActionButton
+              label={t('ai-image-gen.polish.label')}
+              icon={<WandSparkles className="size-3 shrink-0" />}
+              iconOnly
+              active={dialogOpen}
+              disabled={!data.text && !dialogOpen}
+              onClick={data.onToggleDialog}
+            />
           )}
           <ActionButton
             label={t('ai-image-gen.promptNode.duplicate')}
@@ -527,7 +549,6 @@ function PromptEditor({
             iconOnly
             onClick={() => data.onDelete(data.nodeId)}
           />
-          <PolishButton pending={polishing} disabled={running} onPolish={() => void polish()} />
           {data.status === 'failed' || data.status === 'cancelled' ? (
             <ActionButton
               label={t('ai-image-gen.card.retry')}
@@ -587,12 +608,6 @@ function PromptEditor({
             onFocusChange={() => undefined}
           />
           <div className="flex shrink-0 items-center justify-end gap-2">
-            <PolishButton
-              labeled
-              pending={polishing}
-              disabled={running}
-              onPolish={() => void polish()}
-            />
             <Button
               type="button"
               size="sm"

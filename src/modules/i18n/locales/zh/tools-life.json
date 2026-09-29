@@ -71,28 +71,6 @@
     "copy": "复制签文",
     "disclaimer": "仅供娱乐 | 相信科学 | 请勿迷信"
   },
-  "social-insurance-calculator": {
-    "title": "五险一金计算",
-    "description": "按缴费基数与比例计算五险一金个人/公司缴纳明细与到手工资",
-    "baseLabel": "月缴费基数（元）",
-    "employeeTitle": "个人缴纳",
-    "employerTitle": "公司缴纳",
-    "employeeTotal": "个人缴纳合计",
-    "employerTotal": "公司缴纳合计",
-    "takeHome": "税前到手（未计个税）",
-    "employerCost": "公司用工成本",
-    "itemHeader": "险种",
-    "totalHeader": "合计",
-    "note": "比例默认值仅为常见区间参考，各地政策不同请以当地社保局公布为准",
-    "rates": {
-      "pension": "养老保险",
-      "medical": "医疗保险",
-      "unemployment": "失业保险",
-      "injury": "工伤保险",
-      "maternity": "生育保险",
-      "housing": "住房公积金"
-    }
-  },
   "unit-converter": {
     "title": "单位换算",
     "description": "长度、重量、数据大小、速度、面积的常用单位互转",

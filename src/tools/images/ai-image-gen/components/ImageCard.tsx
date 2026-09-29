@@ -1,15 +1,6 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import {
-  AlertTriangle,
-  Ban,
-  Download,
-  Eye,
-  Loader2,
-  MessageSquarePlus,
-  Trash2,
-  X,
-} from 'lucide-react'
+import { AlertTriangle, Ban, Download, Eye, Loader2, ScanSearch, Trash2, X } from 'lucide-react'
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -21,6 +12,8 @@ import type { ImageRecord } from '../idb'
 import { objectUrlOf } from '../object-url'
 import type { Job, JobSlot } from '../store'
 
+import { NodeDialog } from './NodeDialog'
+
 export type CardItem =
   { kind: 'slot'; job: Job; slot: JobSlot } | { kind: 'image'; record: ImageRecord }
 
@@ -28,14 +21,21 @@ type ImageCardProps = {
   item: CardItem
   /** 识图取词的原图：红圈标出，只读展示，除删除外不给任何动作 */
   vision?: boolean
-  /** 节点被选中时动作条常驻、卡片描一圈主色，否则悬停才出动作条 */
+  /** 选中时动作条常驻、卡片描一圈主色；未选中的节点不露动作条 */
   selected?: boolean
   /** 多选时让位给选框上方的对齐条：悬停也不出 */
   barHidden?: boolean
+  /** 反推对话框开着没：开关归画布管，同一时刻只允许一个节点有它 */
+  dialogOpen: boolean
+  onToggleDialog: () => void
+  /** 这张图当前那条识图任务：决定对话框的转圈与取消 */
+  visionJob?: Job
   onOpen: (record: ImageRecord) => void
   onRetry: (jobId: string) => void
   onCancel: (jobId: string) => void
-  onReference: (record: ImageRecord) => void
+  /** 识别这张图：指令留空即回落到默认 skill 的四候选反推 */
+  onVision: (imageId: string, instruction: string) => void
+  onOpenSettings: () => void
   onDelete: () => void
 }
 
@@ -44,10 +44,14 @@ export function ImageCard({
   vision = false,
   selected = false,
   barHidden = false,
+  dialogOpen,
+  onToggleDialog,
+  visionJob,
   onOpen,
   onRetry,
   onCancel,
-  onReference,
+  onVision,
+  onOpenSettings,
   onDelete,
 }: ImageCardProps) {
   const { t } = useTranslation('tools-images')
@@ -70,7 +74,8 @@ export function ImageCard({
         .join(' · ')
     : ''
 
-  const handleClick = () => {
+  /** 单击只用来选中节点，看图与重试都放双击，否则想选卡片就先误开灯箱 */
+  const handleDoubleClick = () => {
     if (record) {
       onOpen(record)
     } else if (job && (status === 'failed' || status === 'cancelled')) {
@@ -79,11 +84,13 @@ export function ImageCard({
   }
 
   return (
-    <div className="group relative h-full">
-      {/* 裁剪层单独一层：动作条要浮到卡片上方，根节点不能 overflow-hidden */}
+    <div className="relative h-full">
+      {/* 裁剪层单独一层：动作条要浮到卡片上方，根节点不能 overflow-hidden。
+          它必须 own 定位上下文，否则底下那条 absolute 的元信息带会跳过它的圆角裁剪，
+          直角压在选中描边上，看着就像圆角被啃掉了一块 */}
       <div
         className={cn(
-          'bg-muted/40 h-full overflow-hidden rounded-lg border',
+          'bg-muted/40 relative h-full overflow-hidden rounded-lg border',
           vision && 'border-destructive',
           // 选中态与提示词节点（PromptNode）同一套描边，否则点了图片节点只有动作条出来、
           // 卡片本身毫无反馈；ring 不占布局，不会把卡片撑大 1px
@@ -91,7 +98,7 @@ export function ImageCard({
           selected && !vision && 'border-primary',
         )}
       >
-        <button type="button" className="block h-full w-full cursor-grab" onClick={handleClick}>
+        <div className="block h-full w-full cursor-grab" onDoubleClick={handleDoubleClick}>
           {record && src ? (
             <img
               src={src}
@@ -124,7 +131,7 @@ export function ImageCard({
               </p>
             </div>
           )}
-        </button>
+        </div>
 
         {metaLine && (
           <p className="absolute inset-x-0 bottom-0 truncate bg-gradient-to-t from-black/60 to-transparent px-2 pt-4 pb-1 text-[10px] text-white/90">
@@ -136,25 +143,22 @@ export function ImageCard({
       <div
         className={cn(
           'transition-opacity',
-          barHidden
-            ? 'pointer-events-none opacity-0'
-            : selected
-              ? 'opacity-100'
-              : 'pointer-events-none opacity-0 group-hover:pointer-events-auto group-hover:opacity-100',
+          !barHidden && (selected || dialogOpen) ? 'opacity-100' : 'pointer-events-none opacity-0',
         )}
       >
         <ActionBar>
           {record && !vision && (
             <>
               <ActionButton
+                label={t('ai-image-gen.reverse.button')}
+                icon={<ScanSearch className="size-3 shrink-0" />}
+                active={dialogOpen}
+                onClick={onToggleDialog}
+              />
+              <ActionButton
                 label={t('ai-image-gen.card.download')}
                 icon={<Download className="size-3 shrink-0" />}
                 onClick={() => void downloadRecord(record)}
-              />
-              <ActionButton
-                label={t('ai-image-gen.card.reference')}
-                icon={<MessageSquarePlus className="size-3 shrink-0" />}
-                onClick={() => onReference(record)}
               />
               <ActionButton
                 label={t('ai-image-gen.card.details')}
@@ -184,6 +188,19 @@ export function ImageCard({
           />
         </ActionBar>
       </div>
+
+      {/* 工具条那颗按钮才开对话框：多选时说不清要反推哪一张，所以一并藏掉 */}
+      {record && dialogOpen && !barHidden ? (
+        <NodeDialog
+          key={record.id}
+          target={{ kind: 'vision', record }}
+          busy={visionJob?.status === 'queued' || visionJob?.status === 'running'}
+          onCancel={visionJob ? () => onCancel(visionJob.id) : undefined}
+          onClose={onToggleDialog}
+          onSubmit={(instruction) => onVision(record.id, instruction)}
+          onOpenSettings={onOpenSettings}
+        />
+      ) : null}
 
       {record && (
         <Dialog open={detailsOpen} onOpenChange={setDetailsOpen}>

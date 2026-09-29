@@ -5,8 +5,15 @@ import { useTranslation } from 'react-i18next'
 
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { ParamField } from '@/components/param-field'
+import {
+  PanelField,
+  PanelGroup,
+  PanelRadioField,
+  PanelSection,
+  PanelSelectField,
+  PanelSliderField,
+  PanelSwitchField,
+} from '@/components/panel-fields'
 import {
   Select,
   SelectContent,
@@ -15,10 +22,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Separator } from '@/components/ui/separator'
-import { Slider } from '@/components/ui/slider'
-import { Switch } from '@/components/ui/switch'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { cn } from '@/lib/utils'
 import { BEAD_BRANDS, loadBrandColors } from './palettes'
@@ -299,7 +303,7 @@ export default function ImageToBeads() {
   }
 
   return (
-    <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_20rem]">
+    <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_24rem]">
       {/* 中：图片操作台（原图圈选 / 成品预览共用这一块位置） */}
       <div className="flex min-w-0 flex-col gap-3">
         {source ? (
@@ -499,127 +503,85 @@ export default function ImageToBeads() {
       </div>
 
       {/* 右：参数、成品预览与用色清单 */}
-      <div className="flex min-w-0 flex-col gap-4">
-        <Card className="gap-4">
-          <CardHeader className="border-border border-b pb-0">
-            <CardTitle className="text-sm">{t('panel.title')}</CardTitle>
-          </CardHeader>
-          <CardContent className="flex flex-col gap-4">
-            <ParamField
-              label={t('panel.brand')}
-              hint={t('panel.brandHint', { count: palette.length })}
-            >
-              <Select value={brandKey} onValueChange={setBrandKey}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {BEAD_BRANDS.map((entry) => (
-                    <SelectItem key={entry.key} value={entry.key}>
-                      {entry.label} · {entry.beadSizeMm} mm · {entry.colorCount}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </ParamField>
+      <PanelGroup className="min-w-0">
+        <PanelSection title={t('panel.title')}>
+          <PanelSelectField
+            label={t('panel.brand')}
+            hint={t('panel.brandHint', { count: palette.length })}
+            span={2}
+            value={brandKey}
+            onChange={setBrandKey}
+            options={BEAD_BRANDS.map((entry) => ({
+              value: entry.key,
+              label: `${entry.label} · ${entry.beadSizeMm} mm · ${entry.colorCount}`,
+            }))}
+          />
+          <PanelSliderField
+            label={t('panel.grain')}
+            value={pixelsPerBead}
+            onChange={setPixelsPerBead}
+            min={2}
+            max={40}
+            format={(value) => t('panel.grainValue', { px: value })}
+          />
+          {rect ? (
+            <PanelField label={t('panel.width')}>
+              <p className="text-muted-foreground font-mono text-xs">
+                {t('panel.widthValue', { cols, spanX: boards.cols, spanY: boards.rows })}
+              </p>
+            </PanelField>
+          ) : null}
+        </PanelSection>
 
-            <ParamField
-              label={t('panel.grain')}
-              hint={t('panel.grainValue', { px: pixelsPerBead })}
-              htmlFor="beads-grain"
-            >
-              <Slider
-                id="beads-grain"
-                min={2}
-                max={40}
-                step={1}
-                value={[pixelsPerBead]}
-                onValueChange={([value = 8]) => setPixelsPerBead(value)}
-              />
-            </ParamField>
+        <PanelSection title={t('sectionColors')}>
+          <PanelSliderField
+            label={t('panel.colors')}
+            span={2}
+            value={maxColors}
+            onChange={setMaxColors}
+            min={0}
+            max={64}
+            step={4}
+            format={(value) =>
+              value === 0
+                ? t('panel.unlimited')
+                : t('panel.colorsValue', { count: value, used: usage.length })
+            }
+          />
+          <PanelSliderField
+            label={t('panel.alpha')}
+            value={alphaThreshold}
+            onChange={setAlphaThreshold}
+            min={0}
+            max={255}
+            step={5}
+            format={(value) => `${Math.round((value / 255) * 100)}%`}
+          />
+          <PanelSwitchField label={t('panel.dither')} checked={dither} onChange={setDither} />
+        </PanelSection>
 
-            {rect ? (
-              <ParamField
-                label={t('panel.width')}
-                hint={t('panel.widthValue', { cols, spanX: boards.cols, spanY: boards.rows })}
-                inline
-              />
-            ) : null}
-
-            <Separator />
-
-            <ParamField
-              label={t('panel.colors')}
-              hint={
-                maxColors === 0
-                  ? t('panel.unlimited')
-                  : t('panel.colorsValue', { count: maxColors, used: usage.length })
-              }
-            >
-              <Slider
-                min={0}
-                max={64}
-                step={4}
-                value={[maxColors]}
-                onValueChange={([value = 24]) => setMaxColors(value)}
-              />
-            </ParamField>
-
-            <ParamField label={t('panel.dither')} inline>
-              <Switch checked={dither} onCheckedChange={setDither} />
-            </ParamField>
-
-            <ParamField
-              label={t('panel.alpha')}
-              hint={`${Math.round((alphaThreshold / 255) * 100)}%`}
-            >
-              <Slider
-                min={0}
-                max={255}
-                step={5}
-                value={[alphaThreshold]}
-                onValueChange={([value = 0]) => setAlphaThreshold(value)}
-              />
-            </ParamField>
-
-            <Separator />
-
-            <ParamField label={t('panel.refs')} inline>
-              <Switch checked={showRefs} onCheckedChange={setShowRefs} />
-            </ParamField>
-
-            <ParamField label={t('panel.background')} inline>
-              <ToggleGroup
-                type="single"
-                variant="outline"
-                spacing={0}
-                value={backgroundWhite ? 'white' : 'transparent'}
-                onValueChange={(value) => value && setBackgroundWhite(value === 'white')}
-              >
-                <ToggleGroupItem value="white" className="text-xs">
-                  {t('panel.white')}
-                </ToggleGroupItem>
-                <ToggleGroupItem value="transparent" className="text-xs">
-                  {t('panel.transparent')}
-                </ToggleGroupItem>
-              </ToggleGroup>
-            </ParamField>
-          </CardContent>
-        </Card>
+        <PanelSection title={t('sectionOutput')}>
+          <PanelSwitchField label={t('panel.refs')} checked={showRefs} onChange={setShowRefs} />
+          <PanelRadioField
+            label={t('panel.background')}
+            value={backgroundWhite ? 'white' : 'transparent'}
+            onChange={(value) => setBackgroundWhite(value === 'white')}
+            options={[
+              { value: 'white', label: t('panel.white') },
+              { value: 'transparent', label: t('panel.transparent') },
+            ]}
+          />
+        </PanelSection>
 
         {grid ? (
-          <Card className="gap-3 pb-0">
-            <CardHeader className="border-border flex-row items-center justify-between border-b pb-0">
-              <CardTitle className="text-sm">{t('usage.title')}</CardTitle>
-              <span className="text-muted-foreground text-xs">
+          <PanelSection title={t('usage.title')}>
+            <div className="col-span-2 flex flex-col gap-1">
+              <p className="text-muted-foreground text-xs">
                 {t('usage.total', { count: totalBeads })} ·{' '}
                 {t('preview.colorsUsed', { count: usage.length })}
-              </span>
-            </CardHeader>
-            {/* 滚动区贴到卡片下沿：卡片自身去掉下内边距，表头靠这一层做 sticky */}
-            <CardContent className="min-h-0 px-4 pb-0">
+              </p>
               {usage.length === 0 ? (
-                <p className="text-muted-foreground pb-4 text-sm">{t('usage.empty')}</p>
+                <p className="text-muted-foreground text-sm">{t('usage.empty')}</p>
               ) : (
                 <div className="max-h-72 min-h-0 overflow-y-auto">
                   <div className="text-muted-foreground bg-card sticky top-0 grid grid-cols-[minmax(0,1fr)_3.5rem_3.5rem_4rem] gap-2 py-2 text-xs font-medium">
@@ -647,10 +609,10 @@ export default function ImageToBeads() {
                   ))}
                 </div>
               )}
-            </CardContent>
-          </Card>
+            </div>
+          </PanelSection>
         ) : null}
-      </div>
+      </PanelGroup>
     </div>
   )
 }

@@ -29,6 +29,7 @@ import {
 } from '@/components/ui/select'
 import { Separator } from '@/components/ui/separator'
 import { Switch } from '@/components/ui/switch'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { cn } from '@/lib/utils'
 import {
   AI_PROVIDERS,
@@ -42,12 +43,13 @@ import { useAIConfigStore } from '@/modules/ai/store'
 
 import { apiReady, apiSignature } from '../ai-image-gen.service'
 import { useAiImageGenStore, type ApiConfig } from '../store'
+import { SkillPicker } from './SkillPicker'
 
 const MANUAL = '__manual__'
 
 type AiImageSettingsDialogProps = { open: boolean; onOpenChange: (open: boolean) => void }
 
-/** 生图与识图各一套独立 API：左标签右控件，逐行排布 */
+/** 生图、识图、润色各一套独立 API：一个 tab 填一套，key/地址/模型互不牵连 */
 export function AiImageSettingsDialog({ open, onOpenChange }: AiImageSettingsDialogProps) {
   const { t } = useTranslation('tools-images')
   const enabled = useAIConfigStore((state) => state.enabled)
@@ -58,11 +60,13 @@ export function AiImageSettingsDialog({ open, onOpenChange }: AiImageSettingsDia
   const visionApi = useAiImageGenStore((state) => state.visionApi)
   const polishApi = useAiImageGenStore((state) => state.polishApi)
   const polishUsesVision = useAiImageGenStore((state) => state.polishUsesVision)
+  const visionSkillId = useAiImageGenStore((state) => state.visionSkillId)
   const modelLists = useAiImageGenStore((state) => state.modelLists)
   const setGenApi = useAiImageGenStore((state) => state.setGenApi)
   const setVisionApi = useAiImageGenStore((state) => state.setVisionApi)
   const setPolishApi = useAiImageGenStore((state) => state.setPolishApi)
   const setPolishUsesVision = useAiImageGenStore((state) => state.setPolishUsesVision)
+  const setVisionSkillId = useAiImageGenStore((state) => state.setVisionSkillId)
   const tested = useAiImageGenStore((state) => state.tested)
   const setModelList = useAiImageGenStore((state) => state.setModelList)
   const setTested = useAiImageGenStore((state) => state.setTested)
@@ -117,101 +121,109 @@ export function AiImageSettingsDialog({ open, onOpenChange }: AiImageSettingsDia
           </DialogTitle>
         </DialogHeader>
 
-        <ApiSection
-          title={t('ai-image-gen.settings.genApi')}
-          ready={genReady}
-          api={genApi}
-          onApiChange={setGenApi}
-          modelLabel={t('ai-image-gen.settings.imageModel')}
-          modelOptions={[
-            ...new Set([
-              ...IMAGE_MODEL_CATALOG[genApi.provider === 'gemini' ? 'gemini' : 'openai'],
-              ...(modelLists[genApi.provider] ?? []),
-            ]),
-          ]}
-          providerSlot={
-            <ProviderSegment
-              value={genApi.provider}
-              onChange={(provider) => setGenApi({ provider })}
-            />
-          }
-          showKey={showKey}
-          onToggleKey={() => setShowKey(!showKey)}
-          actions={
-            <Button
-              variant="outline"
-              size="sm"
-              className="gap-1 text-xs"
-              disabled={
-                genList.fetching || !genApi.apiKey.trim() || !isValidBaseUrl(genApi.baseUrl)
+        <Tabs defaultValue="gen">
+          <TabsList className="w-full">
+            <TabsTrigger value="gen" className="gap-1.5">
+              <ReadyDot ready={genReady} />
+              {t('ai-image-gen.settings.genApi')}
+            </TabsTrigger>
+            <TabsTrigger value="vision" className="gap-1.5">
+              <ReadyDot ready={visionReady} />
+              {t('ai-image-gen.settings.visionApi')}
+            </TabsTrigger>
+            <TabsTrigger value="polish" className="gap-1.5">
+              <ReadyDot ready={polishReady} />
+              {t('ai-image-gen.settings.polishApi')}
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="gen" className="pt-1">
+            <ApiSection
+              api={genApi}
+              onApiChange={setGenApi}
+              modelLabel={t('ai-image-gen.settings.imageModel')}
+              modelOptions={[
+                ...new Set([
+                  ...IMAGE_MODEL_CATALOG[genApi.provider === 'gemini' ? 'gemini' : 'openai'],
+                  ...(modelLists[genApi.provider] ?? []),
+                ]),
+              ]}
+              providerSlot={
+                <ProviderSegment
+                  value={genApi.provider}
+                  onChange={(provider) => setGenApi({ provider })}
+                />
               }
-              onClick={() => void handleGenFetch()}
-            >
-              {genList.fetching && <Loader2 className="size-3.5 animate-spin" />}
-              {t('ai-image-gen.settings.fetchModels')}
-            </Button>
-          }
-        />
-
-        <Separator />
-
-        <ChatApiSection
-          slot="vision"
-          title={t('ai-image-gen.settings.visionApi')}
-          modelLabel={t('ai-image-gen.settings.visionModel')}
-          ready={visionReady}
-          api={visionApi}
-          onApiChange={setVisionApi}
-          showKey={showKey}
-          onToggleKey={() => setShowKey(!showKey)}
-        />
-
-        <Separator />
-
-        <div className="space-y-3">
-          <p className="flex items-center gap-2 text-sm font-medium">
-            <span
-              aria-hidden
-              className={cn('size-2 rounded-full', polishReady ? 'bg-primary' : 'bg-destructive')}
+              showKey={showKey}
+              onToggleKey={() => setShowKey(!showKey)}
+              actions={
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="gap-1 text-xs"
+                  disabled={
+                    genList.fetching || !genApi.apiKey.trim() || !isValidBaseUrl(genApi.baseUrl)
+                  }
+                  onClick={() => void handleGenFetch()}
+                >
+                  {genList.fetching && <Loader2 className="size-3.5 animate-spin" />}
+                  {t('ai-image-gen.settings.fetchModels')}
+                </Button>
+              }
             />
-            {t('ai-image-gen.settings.polishApi')}
-          </p>
-          <div className="flex items-center gap-2">
-            <Switch
-              checked={polishUsesVision}
-              aria-label={t('ai-image-gen.settings.polishUseVision')}
-              onCheckedChange={setPolishUsesVision}
+          </TabsContent>
+
+          <TabsContent value="vision" className="space-y-3 pt-1">
+            <ChatApiSection
+              slot="vision"
+              api={visionApi}
+              onApiChange={setVisionApi}
+              showKey={showKey}
+              onToggleKey={() => setShowKey(!showKey)}
             />
-            <Label className="text-xs">{t('ai-image-gen.settings.polishUseVision')}</Label>
-            <span className="text-muted-foreground ml-auto min-w-0 truncate text-[11px]">
+            <Separator className="my-3" />
+            <div className="space-y-2">
+              <p className="text-sm font-medium">{t('ai-image-gen.settings.visionSkill')}</p>
+              <p className="text-muted-foreground text-xs">
+                {t('ai-image-gen.settings.visionSkillHint')}
+              </p>
+              <SkillPicker skillId={visionSkillId} onSkillIdChange={setVisionSkillId} />
+            </div>
+          </TabsContent>
+
+          <TabsContent value="polish" className="space-y-3 pt-1">
+            <div className="flex items-center gap-2">
+              <Switch
+                checked={polishUsesVision}
+                aria-label={t('ai-image-gen.settings.polishUseVision')}
+                onCheckedChange={setPolishUsesVision}
+              />
+              <Label className="text-xs">{t('ai-image-gen.settings.polishUseVision')}</Label>
+            </div>
+            <p className="text-muted-foreground text-xs">
+              {t('ai-image-gen.settings.polishUseVisionHint')}
+            </p>
+            <p className="text-muted-foreground text-xs">
               {polishUsesVision
                 ? t('ai-image-gen.settings.polishUsesVisionNow', {
                     model: visionApi.model || t('ai-image-gen.settings.unassigned'),
                   })
                 : t('ai-image-gen.settings.polishOwnModelNow')}
-            </span>
-          </div>
-          <p className="text-muted-foreground text-xs">
-            {t('ai-image-gen.settings.polishUseVisionHint')}
-          </p>
-        </div>
-
-        {polishUsesVision ? null : (
-          <>
-            <Separator />
-            <ChatApiSection
-              slot="polish"
-              title={t('ai-image-gen.settings.polishApi')}
-              modelLabel={t('ai-image-gen.settings.polishModel')}
-              ready={polishReady}
-              api={polishApi}
-              onApiChange={setPolishApi}
-              showKey={showKey}
-              onToggleKey={() => setShowKey(!showKey)}
-              hideTitle
-            />
-          </>
-        )}
+            </p>
+            {polishUsesVision ? null : (
+              <>
+                <Separator />
+                <ChatApiSection
+                  slot="polish"
+                  api={polishApi}
+                  onApiChange={setPolishApi}
+                  showKey={showKey}
+                  onToggleKey={() => setShowKey(!showKey)}
+                />
+              </>
+            )}
+          </TabsContent>
+        </Tabs>
       </DialogContent>
 
       <AlertDialog open={consentOpen} onOpenChange={setConsentOpen}>
@@ -248,6 +260,16 @@ function Row({ label, children }: { label: string; children: ReactNode }) {
   )
 }
 
+/** tab 标签上的红/绿点：与右侧 dock 那颗同源，绿 = 配置齐且连接测过 */
+function ReadyDot({ ready }: { ready: boolean }) {
+  return (
+    <span
+      aria-hidden
+      className={cn('size-1.5 shrink-0 rounded-full', ready ? 'bg-primary' : 'bg-destructive')}
+    />
+  )
+}
+
 function KeyInput({
   api,
   onApiChange,
@@ -271,8 +293,6 @@ function KeyInput({
 }
 
 function ApiSection({
-  title,
-  ready,
   api,
   onApiChange,
   modelLabel,
@@ -281,10 +301,7 @@ function ApiSection({
   showKey,
   onToggleKey,
   actions,
-  hideTitle = false,
 }: {
-  title: string
-  ready: boolean
   api: ApiConfig
   onApiChange: (patch: Partial<ApiConfig>) => void
   modelLabel: string
@@ -293,22 +310,11 @@ function ApiSection({
   showKey: boolean
   onToggleKey: () => void
   actions?: ReactNode
-  /** 标题由外层给出时（润色那节带开关），这里不再重复画一行 */
-  hideTitle?: boolean
 }) {
   const { t } = useTranslation('tools-images')
   const preset = AI_PROVIDER_DEFINITIONS[api.provider]
   return (
     <div className="space-y-3">
-      {hideTitle ? null : (
-        <p className="flex items-center gap-2 text-sm font-medium">
-          <span
-            aria-hidden
-            className={cn('size-2 rounded-full', ready ? 'bg-primary' : 'bg-destructive')}
-          />
-          {title}
-        </p>
-      )}
       <Row label={t('ai-image-gen.settings.provider')}>{providerSlot}</Row>
       <Row label="API Key">
         <KeyInput api={api} onApiChange={onApiChange} showKey={showKey} />
@@ -380,19 +386,12 @@ function ProviderSegment({
   )
 }
 
-/** 识图与润色同构：都是「一套 chat 凭证 + 一个模型」，只差标题与 tested 的槽位键 */
+/** 识图与润色同构：都是「一套 chat 凭证 + 一个模型」，只差 tested 的槽位键与模型标签 */
 function ChatApiSection({
   slot,
-  title,
-  modelLabel,
-  hideTitle = false,
   ...section
 }: {
   slot: 'vision' | 'polish'
-  title: string
-  modelLabel: string
-  hideTitle?: boolean
-  ready: boolean
   api: ApiConfig
   onApiChange: (patch: Partial<ApiConfig>) => void
   showKey: boolean
@@ -449,9 +448,11 @@ function ChatApiSection({
   return (
     <ApiSection
       {...section}
-      title={title}
-      hideTitle={hideTitle}
-      modelLabel={modelLabel}
+      modelLabel={t(
+        slot === 'vision'
+          ? 'ai-image-gen.settings.visionModel'
+          : 'ai-image-gen.settings.polishModel',
+      )}
       modelOptions={modelLists[api.provider] ?? []}
       providerSlot={
         <Select

@@ -1,10 +1,16 @@
-import { RotateCcw, Settings2 } from 'lucide-react'
+import { RotateCcw } from 'lucide-react'
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
+import { Card } from '@/components/ui/card'
+import {
+  PanelField,
+  PanelNumberField,
+  PanelSection,
+  PanelSliderField,
+  PanelSwitchField,
+} from '@/components/panel-fields'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import {
   Select,
@@ -13,9 +19,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Separator } from '@/components/ui/separator'
-import { Slider } from '@/components/ui/slider'
-import { Switch } from '@/components/ui/switch'
 import { OutputFormats, type CompressOption } from '../options'
 import { getCompressionOptionVisibility } from '../options'
 import type { ImageItem } from '../store'
@@ -66,41 +69,36 @@ export function OptionsPanel() {
   )
 
   return (
-    <div className="flex h-full flex-col overflow-hidden rounded-lg border">
-      <div className="flex h-11 shrink-0 items-center gap-2 border-b px-4">
-        <Settings2 className="text-muted-foreground size-4" />
-        <span className="text-sm font-semibold">{t('panel.title')}</span>
-      </div>
-
+    <Card className="flex h-full min-h-0 flex-col overflow-hidden">
       <ScrollArea className="min-h-0 flex-1">
-        <div className="flex flex-col gap-5 p-4">
-          {/* 调整图片尺寸 */}
-          <section className="flex flex-col gap-3">
-            <Label className="text-sm font-semibold">{t('panel.resizeLabel')}</Label>
-            <Select
-              value={resize.method ?? ''}
-              onValueChange={(value) =>
-                update((draft) => {
-                  draft.resize.method =
-                    value === '' ? undefined : (value as CompressOption['resize']['method'])
-                })
-              }
-            >
-              <SelectTrigger>
-                <SelectValue placeholder={t('panel.resizePlaceholder')} />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="">{t('panel.resizeOriginal')}</SelectItem>
-                {RESIZE_METHODS.map((method) => (
-                  <SelectItem key={method} value={method}>
-                    {t(`panel.resizeMethod.${method}`)}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+        <div className="divide-y">
+          <PanelSection title={t('panel.resizeLabel')}>
+            <div className="col-span-2">
+              <Select
+                value={resize.method ?? ''}
+                onValueChange={(value) =>
+                  update((draft) => {
+                    draft.resize.method =
+                      value === '' ? undefined : (value as CompressOption['resize']['method'])
+                  })
+                }
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder={t('panel.resizePlaceholder')} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">{t('panel.resizeOriginal')}</SelectItem>
+                  {RESIZE_METHODS.map((method) => (
+                    <SelectItem key={method} value={method}>
+                      {t(`panel.resizeMethod.${method}`)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
 
             {methodNeedsValue && (
-              <p className="text-xs text-amber-500">{t('panel.resizeParamsHint')}</p>
+              <p className="text-destructive col-span-2 text-xs">{t('panel.resizeParamsHint')}</p>
             )}
 
             {(resize.method === 'fitWidth' || resize.method === 'setCropRatio') && (
@@ -182,9 +180,8 @@ export function OptionsPanel() {
               </div>
             )}
             {resize.method === 'presetCrop' && resize.presetCrop && (
-              <div className="grid grid-cols-2 gap-2">
-                <div className="flex flex-col gap-1.5">
-                  <Label className="text-muted-foreground text-xs">{t('panel.paperSize')}</Label>
+              <>
+                <PanelField label={t('panel.paperSize')}>
                   <Select
                     value={resize.presetCrop.paperSize}
                     onValueChange={(value) =>
@@ -193,7 +190,7 @@ export function OptionsPanel() {
                       })
                     }
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className="w-full">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -204,9 +201,8 @@ export function OptionsPanel() {
                       ))}
                     </SelectContent>
                   </Select>
-                </div>
-                <div className="flex flex-col gap-1.5">
-                  <Label className="text-muted-foreground text-xs">{t('panel.orientation')}</Label>
+                </PanelField>
+                <PanelField label={t('panel.orientation')}>
                   <Select
                     value={resize.presetCrop.orientation}
                     onValueChange={(value) =>
@@ -215,7 +211,7 @@ export function OptionsPanel() {
                       })
                     }
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className="w-full">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -223,62 +219,55 @@ export function OptionsPanel() {
                       <SelectItem value="landscape">{t('panel.landscape')}</SelectItem>
                     </SelectContent>
                   </Select>
-                </div>
-                <div className="col-span-2 grid grid-cols-2 gap-2">
-                  <NumberField
-                    label={t('panel.cropPx')}
-                    value={resize.presetCrop.cropPx}
-                    onChange={(value) =>
-                      update((draft) => {
-                        draft.resize.presetCrop!.cropPx = value ?? 0
-                      })
-                    }
-                  />
-                  <NumberField
-                    label={t('panel.offsetPx')}
-                    value={resize.presetCrop.offsetPx}
-                    onChange={(value) =>
-                      update((draft) => {
-                        draft.resize.presetCrop!.offsetPx = value ?? 0
-                      })
-                    }
-                  />
-                </div>
-              </div>
+                </PanelField>
+                <NumberField
+                  label={t('panel.cropPx')}
+                  value={resize.presetCrop.cropPx}
+                  onChange={(value) =>
+                    update((draft) => {
+                      draft.resize.presetCrop!.cropPx = value ?? 0
+                    })
+                  }
+                />
+                <NumberField
+                  label={t('panel.offsetPx')}
+                  value={resize.presetCrop.offsetPx}
+                  onChange={(value) =>
+                    update((draft) => {
+                      draft.resize.presetCrop!.offsetPx = value ?? 0
+                    })
+                  }
+                />
+              </>
             )}
-          </section>
+          </PanelSection>
 
-          <Separator />
-
-          {/* 输出格式 */}
-          <section className="flex flex-col gap-3">
-            <Label className="text-sm font-semibold">{t('panel.formatLabel')}</Label>
-            <Select
-              value={option.format.target ?? ''}
-              onValueChange={(value) =>
-                update((draft) => {
-                  draft.format.target =
-                    value === '' ? undefined : (value as CompressOption['format']['target'])
-                })
-              }
-            >
-              <SelectTrigger>
-                <SelectValue placeholder={t('panel.formatKeep')} />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="">{t('panel.formatKeep')}</SelectItem>
-                {OutputFormats.map((format) => (
-                  <SelectItem key={format} value={format}>
-                    {format.toUpperCase()}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+          <PanelSection title={t('panel.formatLabel')}>
+            <div className="col-span-2">
+              <Select
+                value={option.format.target ?? ''}
+                onValueChange={(value) =>
+                  update((draft) => {
+                    draft.format.target =
+                      value === '' ? undefined : (value as CompressOption['format']['target'])
+                  })
+                }
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder={t('panel.formatKeep')} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">{t('panel.formatKeep')}</SelectItem>
+                  {OutputFormats.map((format) => (
+                    <SelectItem key={format} value={format}>
+                      {format.toUpperCase()}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
             {option.format.target === 'jpg' && (
-              <div className="flex items-center gap-3">
-                <Label className="text-muted-foreground text-xs">
-                  {t('panel.transparentFill')}
-                </Label>
+              <PanelField label={t('panel.transparentFill')}>
                 <input
                   type="color"
                   value={option.format.transparentFill}
@@ -287,19 +276,17 @@ export function OptionsPanel() {
                       draft.format.transparentFill = event.target.value.toUpperCase()
                     })
                   }
-                  className="size-7 cursor-pointer rounded border"
                   aria-label={t('panel.transparentFill')}
+                  className="border-border size-8 w-full cursor-pointer rounded-md border bg-transparent p-1"
                 />
-              </div>
+              </PanelField>
             )}
-          </section>
+          </PanelSection>
 
           {/* JPEG/WEBP */}
           {visibility.jpeg && (
             <>
-              <Separator />
-              <section className="flex flex-col gap-3">
-                <Label className="text-sm font-semibold">{t('panel.jpegLabel')}</Label>
+              <PanelSection title={t('panel.jpegLabel')}>
                 <SliderField
                   label={t('panel.quality')}
                   value={option.jpeg.quality}
@@ -321,16 +308,14 @@ export function OptionsPanel() {
                     })
                   }
                 />
-              </section>
+              </PanelSection>
             </>
           )}
 
           {/* PNG */}
           {visibility.png && (
             <>
-              <Separator />
-              <section className="flex flex-col gap-3">
-                <Label className="text-sm font-semibold">{t('panel.pngLabel')}</Label>
+              <PanelSection title={t('panel.pngLabel')}>
                 <SliderField
                   label={t('panel.colors')}
                   value={option.png.colors}
@@ -364,16 +349,14 @@ export function OptionsPanel() {
                     })
                   }
                 />
-              </section>
+              </PanelSection>
             </>
           )}
 
           {/* GIF */}
           {visibility.gif && (
             <>
-              <Separator />
-              <section className="flex flex-col gap-3">
-                <Label className="text-sm font-semibold">{t('panel.gifLabel')}</Label>
+              <PanelSection title={t('panel.gifLabel')}>
                 <SliderField
                   label={t('panel.colors')}
                   value={option.gif.colors}
@@ -395,16 +378,14 @@ export function OptionsPanel() {
                     })
                   }
                 />
-              </section>
+              </PanelSection>
             </>
           )}
 
           {/* AVIF */}
           {visibility.avif && (
             <>
-              <Separator />
-              <section className="flex flex-col gap-3">
-                <Label className="text-sm font-semibold">{t('panel.avifLabel')}</Label>
+              <PanelSection title={t('panel.avifLabel')}>
                 <SliderField
                   label={t('panel.avifQuality')}
                   value={option.avif.quality}
@@ -429,7 +410,7 @@ export function OptionsPanel() {
                     })
                   }
                 />
-              </section>
+              </PanelSection>
             </>
           )}
         </div>
@@ -448,10 +429,14 @@ export function OptionsPanel() {
           {t('panel.apply')}
         </Button>
       </div>
-    </div>
+    </Card>
   )
 }
 
+/**
+ * 三个私有壳只负责类型适配（压缩选项里的数值允许 undefined），
+ * 排版一律交给共享原语，避免再长出一套侧栏控件。
+ */
 function NumberField({
   label,
   value,
@@ -462,19 +447,18 @@ function NumberField({
   onChange: (value: number | undefined) => void
 }) {
   return (
-    <div className="flex flex-col gap-1.5">
-      <Label className="text-muted-foreground text-xs">{label}</Label>
-      <Input
-        type="number"
-        value={value ?? ''}
-        onChange={(event) => {
-          const raw = event.target.value
-          const parsed = raw === '' ? undefined : Number(raw)
-          onChange(Number.isFinite(parsed) ? parsed : undefined)
-        }}
-        className="h-8"
-      />
-    </div>
+    <PanelNumberField
+      label={label}
+      value={value === undefined ? '' : String(value)}
+      onChange={(raw) => {
+        if (raw.trim() === '') {
+          onChange(undefined)
+          return
+        }
+        const parsed = Number(raw)
+        onChange(Number.isFinite(parsed) ? parsed : undefined)
+      }}
+    />
   )
 }
 
@@ -494,19 +478,15 @@ function SliderField({
   onChange: (value: number) => void
 }) {
   return (
-    <div className="flex flex-col gap-1.5">
-      <div className="flex items-center justify-between">
-        <Label className="text-muted-foreground text-xs">{label}</Label>
-        <span className="text-xs font-medium">{value}</span>
-      </div>
-      <Slider
-        value={[value]}
-        min={min}
-        max={max}
-        step={step}
-        onValueChange={([next]) => onChange(next)}
-      />
-    </div>
+    <PanelSliderField
+      label={label}
+      value={value}
+      onChange={onChange}
+      min={min}
+      max={max}
+      step={step}
+      format={(current) => String(current)}
+    />
   )
 }
 
@@ -519,10 +499,5 @@ function SwitchField({
   checked: boolean
   onChange: (checked: boolean) => void
 }) {
-  return (
-    <div className="flex items-center justify-between">
-      <Label className="text-muted-foreground text-xs">{label}</Label>
-      <Switch checked={checked} onCheckedChange={onChange} />
-    </div>
-  )
+  return <PanelSwitchField label={label} checked={checked} onChange={onChange} />
 }

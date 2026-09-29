@@ -4,9 +4,9 @@ import { Plus } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 /** ::after 撑出的可点击余量，与 index.css 里的 inset 保持一致：
- *  朝节点外给足，探进节点内只留一点，上下各留一点 */
+ *  只朝节点外给，内侧正好收在边框上，不探进图片与正文；上下各留一点 */
 const OUTWARD = 30
-const INWARD = 8
+const INWARD = 0
 const PAD = 10
 
 const clamp = (value: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, value))

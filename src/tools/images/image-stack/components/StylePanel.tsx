@@ -1,10 +1,8 @@
 import { Slash } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
-import { ParamField } from '@/components/param-field'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { PanelField, PanelSection, PanelSliderField } from '@/components/panel-fields'
 import { Separator } from '@/components/ui/separator'
-import { Slider } from '@/components/ui/slider'
 import { cn } from '@/lib/utils'
 import { MAX_GAP, MAX_PADDING, MAX_RADIUS } from '../image-stack.service'
 import { useImageStackStore } from '../store'
@@ -22,115 +20,89 @@ export function StylePanel() {
   const color = style.background.type === 'color' ? style.background.value : '#ffffff'
 
   return (
-    <Card className="gap-3">
-      <CardHeader className="border-border border-b pb-0">
-        <CardTitle className="text-sm">{t('style.title')}</CardTitle>
-      </CardHeader>
-      <CardContent className="flex flex-col gap-4">
-        <ParamField label={t('style.padding')} hint={`${style.padding} px`} htmlFor="stack-padding">
-          <Slider
-            id="stack-padding"
-            min={0}
-            max={MAX_PADDING}
-            step={1}
-            value={[style.padding]}
-            onValueChange={([value = 0]) => setStyle({ padding: value })}
-          />
-        </ParamField>
+    <PanelSection title={t('style.title')}>
+      <PanelSliderField
+        label={t('style.padding')}
+        value={style.padding}
+        onChange={(value) => setStyle({ padding: value })}
+        min={0}
+        max={MAX_PADDING}
+        format={(value) => `${value} px`}
+      />
+      <PanelSliderField
+        label={t('style.gap')}
+        value={style.gap}
+        onChange={(value) => setStyle({ gap: value })}
+        min={0}
+        max={MAX_GAP}
+        format={(value) => `${value} px`}
+      />
+      <PanelSliderField
+        label={t('style.cellRadius')}
+        value={style.cellRadius}
+        onChange={(value) => setStyle({ cellRadius: value })}
+        min={0}
+        max={MAX_RADIUS}
+        format={(value) => `${value} px`}
+      />
+      <PanelSliderField
+        label={t('style.canvasRadius')}
+        value={style.canvasRadius}
+        onChange={(value) => setStyle({ canvasRadius: value })}
+        min={0}
+        max={MAX_RADIUS}
+        format={(value) => `${value} px · ${t('style.canvasRadiusHint')}`}
+      />
 
-        <ParamField label={t('style.gap')} hint={`${style.gap} px`} htmlFor="stack-gap">
-          <Slider
-            id="stack-gap"
-            min={0}
-            max={MAX_GAP}
-            step={1}
-            value={[style.gap]}
-            onValueChange={([value = 0]) => setStyle({ gap: value })}
-          />
-        </ParamField>
+      <PanelField label={t('style.background')} span={2}>
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            aria-label={t('style.transparent')}
+            title={t('style.transparent')}
+            aria-pressed={!isColor}
+            onClick={() => setStyle({ background: { type: 'transparent' } })}
+            className={cn(
+              'border-border text-muted-foreground flex size-7 cursor-pointer items-center justify-center rounded-md border bg-transparent transition-transform hover:scale-110',
+              !isColor && 'ring-primary ring-2',
+            )}
+          >
+            <Slash className="size-3.5" />
+          </button>
 
-        <ParamField
-          label={t('style.cellRadius')}
-          hint={`${style.cellRadius} px`}
-          htmlFor="stack-cell-radius"
-        >
-          <Slider
-            id="stack-cell-radius"
-            min={0}
-            max={MAX_RADIUS}
-            step={1}
-            value={[style.cellRadius]}
-            onValueChange={([value = 0]) => setStyle({ cellRadius: value })}
-          />
-        </ParamField>
+          <Separator orientation="vertical" className="h-5" />
 
-        <ParamField
-          label={t('style.canvasRadius')}
-          hint={`${style.canvasRadius} px · ${t('style.canvasRadiusHint')}`}
-          htmlFor="stack-canvas-radius"
-        >
-          <Slider
-            id="stack-canvas-radius"
-            min={0}
-            max={MAX_RADIUS}
-            step={1}
-            value={[style.canvasRadius]}
-            onValueChange={([value = 0]) => setStyle({ canvasRadius: value })}
-          />
-        </ParamField>
-
-        <Separator />
-
-        <ParamField label={t('style.background')}>
-          <div className="flex flex-wrap items-center gap-2">
+          {SWATCHES.map((swatch) => (
             <button
+              key={swatch}
               type="button"
-              aria-label={t('style.transparent')}
-              title={t('style.transparent')}
-              aria-pressed={!isColor}
-              onClick={() => setStyle({ background: { type: 'transparent' } })}
+              aria-label={swatch}
+              title={swatch}
+              aria-pressed={isColor && swatch.toLowerCase() === color.toLowerCase()}
+              onClick={() => setStyle({ background: { type: 'color', value: swatch } })}
               className={cn(
-                'border-border text-muted-foreground flex size-7 cursor-pointer items-center justify-center rounded-md border bg-transparent transition-transform hover:scale-110',
-                !isColor && 'ring-primary ring-2',
+                'border-border size-7 cursor-pointer rounded-md border transition-transform hover:scale-110',
+                isColor && swatch.toLowerCase() === color.toLowerCase() && 'ring-primary ring-2',
               )}
-            >
-              <Slash className="size-3.5" />
-            </button>
+              style={{ backgroundColor: swatch }}
+            />
+          ))}
 
-            <Separator orientation="vertical" className="h-5" />
-
-            {SWATCHES.map((swatch) => (
-              <button
-                key={swatch}
-                type="button"
-                aria-label={swatch}
-                title={swatch}
-                aria-pressed={isColor && swatch.toLowerCase() === color.toLowerCase()}
-                onClick={() => setStyle({ background: { type: 'color', value: swatch } })}
-                className={cn(
-                  'border-border size-7 cursor-pointer rounded-md border transition-transform hover:scale-110',
-                  isColor && swatch.toLowerCase() === color.toLowerCase() && 'ring-primary ring-2',
-                )}
-                style={{ backgroundColor: swatch }}
-              />
-            ))}
-
-            <label className="ml-auto flex items-center gap-1.5">
-              <span className="sr-only">{t('style.pickColor')}</span>
-              <input
-                type="color"
-                value={color}
-                aria-label={t('style.pickColor')}
-                onChange={(event) =>
-                  setStyle({ background: { type: 'color', value: event.target.value } })
-                }
-                className="border-border size-7 cursor-pointer rounded-md border bg-transparent p-0.5"
-              />
-              <span className="text-muted-foreground font-mono text-xs uppercase">{color}</span>
-            </label>
-          </div>
-        </ParamField>
-      </CardContent>
-    </Card>
+          <label className="ml-auto flex items-center gap-1.5">
+            <span className="sr-only">{t('style.pickColor')}</span>
+            <input
+              type="color"
+              value={color}
+              aria-label={t('style.pickColor')}
+              onChange={(event) =>
+                setStyle({ background: { type: 'color', value: event.target.value } })
+              }
+              className="border-border size-7 cursor-pointer rounded-md border bg-transparent p-0.5"
+            />
+            <span className="text-muted-foreground font-mono text-xs uppercase">{color}</span>
+          </label>
+        </div>
+      </PanelField>
+    </PanelSection>
   )
 }
