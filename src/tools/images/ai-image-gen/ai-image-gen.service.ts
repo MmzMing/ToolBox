@@ -15,9 +15,9 @@ export function apiSignature(api: ApiLike): string {
   )
 }
 
-/** 红/绿状态：未开启或未配置为红；配置齐且当前指纹测试通过才绿 */
-export function apiReady(api: ApiLike, enabled: boolean, testedSignature: string): boolean {
-  if (!enabled || !api.apiKey.trim() || !api.model.trim() || !isValidBaseUrl(api.baseUrl)) {
+/** 红/绿状态：未配置为红；配置齐且当前指纹测试通过才绿 */
+export function apiReady(api: ApiLike, testedSignature: string): boolean {
+  if (!api.apiKey.trim() || !api.model.trim() || !isValidBaseUrl(api.baseUrl)) {
     return false
   }
   return testedSignature === apiSignature(api)

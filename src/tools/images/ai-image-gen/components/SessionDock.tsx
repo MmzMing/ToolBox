@@ -29,7 +29,6 @@ import { useIsMobile } from '@/composable/use-breakpoint'
 import { Button } from '@/components/ui/button'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { cn } from '@/lib/utils'
-import { useAIConfigStore } from '@/modules/ai/store'
 
 import { REFERENCE_MIMES, apiConfigured } from '../ai-image-gen.service'
 import type { CanvasInteraction } from '../canvas/ImageCanvas'
@@ -63,13 +62,12 @@ export function SessionDock({
   const sound = useAiImageGenStore((state) => state.sound)
   const setSound = useAiImageGenStore((state) => state.setSound)
   const setSettingsOpen = useAiImageGenStore((state) => state.setSettingsOpen)
-  const enabled = useAIConfigStore((state) => state.enabled)
   const genApi = useAiImageGenStore((state) => state.genApi)
   const visionApi = useAiImageGenStore((state) => state.visionApi)
   const fileRef = useRef<HTMLInputElement>(null)
 
   // 绿即「填全了，点一下就能出图」：识图是画布上的常驻动作，所以它和生图一起算
-  const settingsReady = enabled && apiConfigured(genApi) && apiConfigured(visionApi)
+  const settingsReady = apiConfigured(genApi) && apiConfigured(visionApi)
 
   const upload = () => {
     const rect = document.querySelector('.react-flow')?.getBoundingClientRect()

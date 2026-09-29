@@ -3,8 +3,6 @@ import { ReactFlowProvider } from '@xyflow/react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 
-import { useAIConfigStore } from '@/modules/ai/store'
-
 import {
   LEGACY_WORKSPACE_ID,
   nextWorkspaceNumber,
@@ -41,7 +39,6 @@ import { useAiImageGenStore } from './store'
 
 export default function AiImageGen() {
   const { t, i18n } = useTranslation('tools-images')
-  const enabled = useAIConfigStore((state) => state.enabled)
   const settingsOpen = useAiImageGenStore((state) => state.settingsOpen)
   const setSettingsOpen = useAiImageGenStore((state) => state.setSettingsOpen)
   const [interaction, setInteraction] = useState<CanvasInteraction>('select')
@@ -242,14 +239,14 @@ export default function AiImageGen() {
 
       {/* 配置提示贴在顶栏：对话框已经挂到各节点底下了，底部不再占一整格。
           窄屏靠右，左边让开工作区卡片（w-40）、右边让开 dock（56px），否则三条会叠在一起 */}
-      {!enabled || !connection ? (
+      {!connection ? (
         <div className="pointer-events-none absolute inset-x-3 top-3 z-20 flex justify-end pr-14 md:justify-center md:pr-0">
           <button
             type="button"
             onClick={openSettings}
             className="border-destructive/60 bg-destructive/15 text-destructive pointer-events-auto w-fit max-w-[calc(100%-11rem)] rounded-xl border px-3 py-2 text-left text-xs break-words whitespace-normal backdrop-blur md:max-w-xl"
           >
-            {t(`ai-image-gen.hint.${enabled ? 'config' : 'enable'}`)}
+            {t('ai-image-gen.hint.config')}
           </button>
         </div>
       ) : null}

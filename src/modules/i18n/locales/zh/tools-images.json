@@ -330,12 +330,11 @@
       "visionApi": "识图 API",
       "polishApi": "润色 API",
       "provider": "服务商",
-      "enable": "启用 AI 生图",
       "apiKey": "API Key",
       "showKey": "显示密钥",
       "hideKey": "隐藏密钥",
       "keyLink": "获取密钥",
-      "baseUrl": "服务地址（Base URL）",
+      "baseUrl": "服务地址",
       "baseUrlHint": "仅 https；回环地址可用 http。可填兼容网关。",
       "imageModel": "生图模型",
       "visionModel": "识图模型",
@@ -429,7 +428,6 @@
       "cancel": "取消"
     },
     "hint": {
-      "enable": "AI 生图未开启：点击这里配置服务商并开启（内容直连你配置的 API，key 只存本地）。",
       "config": "当前厂商缺少可用凭证或模型：请到 AI 设置填写 key / 选择出图模型（仅 OpenAI 与 Gemini 支持出图）。"
     },
     "dialog": {

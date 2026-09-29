@@ -330,7 +330,6 @@
       "visionApi": "Vision API",
       "polishApi": "Polish API",
       "provider": "Provider",
-      "enable": "Enable AI image gen",
       "apiKey": "API key",
       "showKey": "Show key",
       "hideKey": "Hide key",
@@ -429,7 +428,6 @@
       "cancel": "Cancel"
     },
     "hint": {
-      "enable": "AI image generation is off. Click to configure a provider and turn it on (requests go straight to your own API; keys stay in this browser).",
       "config": "No usable credential or model for this provider: open AI settings to add a key / pick an image model (only OpenAI and Gemini generate images)."
     },
     "dialog": {
