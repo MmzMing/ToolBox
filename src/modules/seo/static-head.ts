@@ -88,18 +88,16 @@ export function buildSeoHead({
 const ROOT_SLOT = '<div id="root"></div>'
 
 /**
- * 把静态正文写进 #root 内部，让不执行 JS 的爬虫拿到可索引正文与内链。
- * 结构与 ToolLayout / HomePage 的真实头部一致（同一份文案、同一组类名），
- * React 挂载会清空并重建 #root，因此首屏只是同位置内容被替换，不产生明显跳动。
+ * 把可爬正文写进 `<noscript>`，**#root 保持为空**。
  *
- * 长清单（首页全站工具目录、工具页内容层）走 `noscript`：脚本开启时浏览器不渲染它，
- * 用户不会在 React 挂载前看到一整屏纯文字，而按源码解析的爬虫（百度、AI 抓取）
- * 照样能读到这些带锚文本的内链。放在 #root 之外，React 也不会去动它。
+ * 为什么不放进 #root：React 挂载前要等主包下载并执行，这段时间用户看到的就是容器里的内容。
+ * 放正文进去，首屏就是一屏没有排版的纯文字（线上实测 2–4 秒），看着像页面坏了；
+ * 放进 `#root` 之外的 `<noscript>`，脚本开启时浏览器不渲染它，用户什么也不会看到，
+ * 而按源码解析的爬虫（百度、AI 抓取）照样读到标题、描述与带锚文本的内链。
  */
-export function injectShellBody(html: string, body: string, noscript = ''): string {
+export function injectShellBody(html: string, content: string): string {
   if (!html.includes(ROOT_SLOT)) {
     throw new Error(`[prerender] HTML 缺少容器 ${ROOT_SLOT}`)
   }
-  const hidden = noscript ? `\n    <noscript>\n      ${noscript}\n    </noscript>` : ''
-  return html.replace(ROOT_SLOT, `<div id="root">\n      ${body}\n    </div>${hidden}`)
+  return html.replace(ROOT_SLOT, `${ROOT_SLOT}\n    <noscript>\n      ${content}\n    </noscript>`)
 }

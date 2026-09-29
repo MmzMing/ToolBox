@@ -6,10 +6,9 @@ import { initI18n, resolveInitialLocale } from '@/modules/i18n'
 import { AppProviders } from '@/plugins/app-providers'
 import './index.css'
 
-/** 先完成语言包加载再挂载，避免首屏文案闪语言 key */
-async function bootstrap() {
-  const locale = resolveInitialLocale()
-  await initI18n(locale)
+/** 语言包已随主包一起加载（modules/i18n 的 eager glob），挂载不再需要 await */
+function bootstrap() {
+  initI18n(resolveInitialLocale())
 
   const rootElement = document.getElementById('root')
   if (!rootElement) {
@@ -26,8 +25,8 @@ async function bootstrap() {
 }
 
 /**
- * 启动期失败的兜底：语言包分片 404 之类的异常发生在 React 与 i18n 之前，
- * 所以这里只能用裸 DOM 和写死的双语文案，否则页面永远是一片空白。
+ * 启动期失败的兜底：这里的异常发生在 React 挂载之前，所以只能用裸 DOM 和写死的
+ * 双语文案，否则页面永远是一片空白。
  */
 function renderBootstrapFailure() {
   const host = document.getElementById('root') ?? document.body
@@ -44,7 +43,9 @@ function renderBootstrapFailure() {
   host.querySelector('button')?.addEventListener('click', () => window.location.reload())
 }
 
-void bootstrap().catch((error: unknown) => {
+try {
+  bootstrap()
+} catch (error: unknown) {
   console.error('[app-bootstrap] failed', error)
   renderBootstrapFailure()
-})
+}

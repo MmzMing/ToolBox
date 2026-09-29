@@ -35,21 +35,21 @@ src/modules/i18n/locales/{zh,en}/tools-<分类>.json（title / description）
                           └─ prerender-shells.mjs：build 末尾按路由改写 → dist/<路由>/index.html
 ```
 
-| 层次               | 负责什么                                                                                                                                                | 关键文件                                       |
-| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------- |
-| 构建期静态壳       | 每条路由自己的 title/description/keywords/canonical/OG/Twitter/robots、`WebApplication`+`BreadcrumbList` 数据块、`#root` 内的页头镜像与源码里的目录内链 | `scripts/prerender-shells.mjs`                 |
-| 运行时接管         | 语言切换后按当前界面语言重写同一批标签与数据块                                                                                                          | `modules/seo/document-meta.tsx`、`json-ld.tsx` |
-| head 单一来源      | 两层共用一个生成器，避免两套 TDK 规则漂移                                                                                                               | `modules/seo/static-head.ts`                   |
-| 路由与文案单一来源 | sitemap / llms / 静态壳三处 URL 与文案必须同源                                                                                                          | `scripts/lib/site-routes.mjs`                  |
+| 层次               | 负责什么                                                                                                                                                                  | 关键文件                                       |
+| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------- |
+| 构建期静态壳       | 每条路由自己的 title/description/keywords/canonical/OG/Twitter/robots、`WebApplication`+`BreadcrumbList` 数据块，以及 `<noscript>` 里的可爬正文与内链（`#root` 保持为空） | `scripts/prerender-shells.mjs`                 |
+| 运行时接管         | 语言切换后按当前界面语言重写同一批标签与数据块                                                                                                                            | `modules/seo/document-meta.tsx`、`json-ld.tsx` |
+| head 单一来源      | 两层共用一个生成器，避免两套 TDK 规则漂移                                                                                                                                 | `modules/seo/static-head.ts`                   |
+| 路由与文案单一来源 | sitemap / llms / 静态壳三处 URL 与文案必须同源                                                                                                                            | `scripts/lib/site-routes.mjs`                  |
 
 约束与理由：
 
 - **不引入 Puppeteer/浏览器渲染**。静态壳要落盘的只有 TDK 与一段与真实页头同构的正文，全部来自
   i18n 与工具定义这些静态数据；跑浏览器只是把同样的东西再算一遍，还要背 Chromium 依赖（AGENTS.md §12）。
-- **可见的只有页头镜像，长清单进 `<noscript>`**。#root 里只放与最终页面同构的标题区（首页 Hero、
-  工具页 H1 + 一句话描述）；首页那 48 条分类内链写在 `#root` 外的 `<noscript>` 里。
-  脚本开启时浏览器不渲染 noscript，用户在 React 挂载前看到的就是一屏标题区而不是一整屏纯文字，
-  而按源码解析的爬虫（百度、AI 抓取）照样读到这些带锚文本的内链。
+- **可爬正文一律进 `<noscript>`，`#root` 保持为空**。React 挂载前要等主包下载并执行，这段时间用户
+  看到的就是容器里的内容——把正文放进去，首屏就是一屏没有排版的纯文字，像页面坏了。`noscript` 放在
+  `#root` 之外：脚本开启时浏览器不渲染它，用户看到的是空白到真实首页；按源码解析的爬虫（百度、AI 抓取）
+  照样读到标题、描述与 48 条带锚文本的内链。
 - **`DocumentMeta` 对 head 做原位 upsert**，不用 React 19 的声明式标签提升：静态壳里已有一份同名标签，
   再插入就会留下两条 href 不同的 canonical，而 Google 对冲突 canonical 是一概忽略。
 - **运行时 `JsonLd` 挂载时移除静态块**（`script[data-seo-static]`）：静态壳固定是中文，切到英文后
@@ -211,14 +211,18 @@ GEO 与 SEO 的分歧只有一处——**AI 引擎不执行 JS，也不看渲染
 
 ## 12. 性能（Core Web Vitals）
 
-- 静态壳让 LCP 内容不再依赖「JS 下载 → i18n await → React 挂载」，是最大的一项改善。
+- **语言包在构建期进模块图**：`modules/i18n/index.ts` 用 `import.meta.glob(..., { eager: true })`
+  把中英两套一次性打进来，`initI18n` 因此是同步的，挂载不再 await 网络。此前是 28 个运行时请求——
+  它们要等主包执行完（线上实测 ≈2s）才发出，每个再吃一次边缘延迟，把首屏拖到 ≈3.7s。
+  代价是两套语言都进主包（gzip 后约 180 KB），换掉 28 个往返在高延迟边缘上明显划算；
+  顺带让切换语言变成即时（不再等另一套语言包下载）。
+- 静态壳不往 `#root` 放可见正文（§2），所以首屏只有"空白 → 真实首页"这一条路径，
+  不存在半渲染的文字态。
 - HTML 缓存建议：`max-age=0, s-maxage=600, stale-while-revalidate=86400`（CDN 边缘缓存，降低回源与 TTFB 抖动）。
-- 已知取舍：`initI18n` 首屏**同时加载中英文两套语言包**（命令面板要跨语言即时搜索），代价由首屏承担；
-  语言路由化落地后应改为按语言加载。
 - 待办：`public/fonts/` 约 111 MB 的 CJK 全字重字体转 woff2 子集，并确保只在用户选用字体时按需加载
   （`resume` 与 `music-to-video` 需要完整字表渲染任意文本，不能砍字）。
-- 静态壳与首屏之间仍有一次内容重绘（`createRoot` 会清空容器）；要消除需换 `hydrateRoot`，
-  前提是语言由 URL 决定，否则 hydration 不匹配会整树回退。
+- 若将来要把正文放回用户可见区（做真正的 SSG 首屏），前提是换 `hydrateRoot` 且语言由 URL 决定，
+  否则 `createRoot` 会清空容器造成重绘、hydration 不匹配还会整树回退。
 
 ---
 

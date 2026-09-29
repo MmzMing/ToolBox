@@ -103,24 +103,23 @@ const homeBody = () => {
       '  </section>',
     ].join('\n'),
   )
-  return {
-    // 可见部分只镜像真实首屏的 Hero（同一份文案、同一组类名），React 接管时同位替换，不跳版
-    visible: [
-      '<main class="mx-auto w-full max-w-6xl px-4 py-8">',
-      '  <section class="flex flex-col items-center gap-6 py-14 text-center md:gap-8 md:py-20">',
-      `    <h1 class="max-w-3xl text-4xl font-bold tracking-tighter text-balance sm:text-5xl md:text-6xl">${escapeHtml(
-        interpolate(requireCopy(zhHome, 'title', 'home'), { site: siteName }),
-      )}</h1>`,
-      `    <p class="text-muted-foreground max-w-2xl text-base leading-relaxed text-pretty md:text-lg">${escapeHtml(
-        requireCopy(zhHome, 'subtitle', 'home'),
-      )}</p>`,
-      '  </section>',
-      '</main>',
-    ].join('\n'),
-    // 48 条带锚文本的内链改放 noscript：按源码解析的爬虫读得到，
-    // 浏览器开着 JS 时不渲染，用户不会在挂载前看到一整屏纯文字清单
-    noscript: ['<nav aria-label="工具分类">', sections.join('\n'), '</nav>'].join('\n'),
-  }
+  // 整段进 <noscript>：脚本开启时浏览器不渲染，用户在 React 挂载前看到空白而不是
+  // 一屏无排版文字；按源码解析的爬虫照样读到 Hero 与 48 条带锚文本的分类内链
+  return [
+    '<main class="mx-auto w-full max-w-6xl px-4 py-8">',
+    '  <section class="flex flex-col items-center gap-6 py-14 text-center md:gap-8 md:py-20">',
+    `    <h1 class="max-w-3xl text-4xl font-bold tracking-tighter text-balance sm:text-5xl md:text-6xl">${escapeHtml(
+      interpolate(requireCopy(zhHome, 'title', 'home'), { site: siteName }),
+    )}</h1>`,
+    `    <p class="text-muted-foreground max-w-2xl text-base leading-relaxed text-pretty md:text-lg">${escapeHtml(
+      requireCopy(zhHome, 'subtitle', 'home'),
+    )}</p>`,
+    '  </section>',
+    '</main>',
+    '<nav aria-label="工具分类">',
+    sections.join('\n'),
+    '</nav>',
+  ].join('\n')
 }
 
 const toolBody = (tool) =>
@@ -147,16 +146,15 @@ const aboutBody = (title, intro) =>
 let written = 0
 
 /** head 省略时保留模板里 vite 已注入的首页 SEO 块，只换正文 */
-function emit(route, body, head, noscript) {
-  const html = injectShellBody(head ? replaceSeoBlock(template, head) : template, body, noscript)
+function emit(route, content, head) {
+  const html = injectShellBody(head ? replaceSeoBlock(template, head) : template, content)
   const outDir = route === '' ? dist : path.join(dist, route)
   mkdirSync(outDir, { recursive: true })
   writeFileSync(path.join(outDir, 'index.html'), html, 'utf8')
   written += 1
 }
 
-const home = homeBody()
-emit('', home.visible, undefined, home.noscript)
+emit('', homeBody())
 
 for (const tool of tools) {
   const { title, description } = tool.copy.zh

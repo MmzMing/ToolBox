@@ -34,7 +34,7 @@ export function LocaleSwitcher() {
         {supportedLocales.map((value) => (
           <DropdownMenuItem
             key={value}
-            onClick={() => void changeLocale(value)}
+            onClick={() => changeLocale(value)}
             disabled={value === i18n.resolvedLanguage}
           >
             {localeLabels[value]}
