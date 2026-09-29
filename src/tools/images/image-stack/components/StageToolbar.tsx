@@ -18,7 +18,7 @@ import {
   type RatioKey,
 } from '../image-stack.service'
 import { useImageStackStore } from '../store'
-import { useSplitGeometry } from '../use-scene'
+import { useLongGeometry, useSplitGeometry } from '../use-scene'
 import { ExportDialog } from './ExportDialog'
 
 /**
@@ -184,8 +184,31 @@ function CropControls() {
 }
 
 /**
- * 画布正上方的工具条：比例、尺寸（拼接）或锚点（拆分）、导出。
- * 这些控件都只作用于当前画布，放右侧栏里要来回视线对齐，所以搬到画布边上。
+ * 长图：高度由内容推导，比例与尺寸档都没有意义，所以工具条只报成品像素，
+ * 可调的参数都在左侧配置栏里。
+ */
+function LongSummary() {
+  const { t } = useTranslation('tools-images', { keyPrefix: 'image-stack' })
+  const { layout } = useLongGeometry()
+
+  return (
+    <>
+      <FieldLabel>{t('long.output')}</FieldLabel>
+      <span className="text-muted-foreground font-mono text-xs">
+        {layout.width} × {layout.height}
+      </span>
+      {layout.segments.length > 1 ? (
+        <span className="text-muted-foreground text-xs">
+          · {t('long.segmentsShort', { total: layout.segments.length })}
+        </span>
+      ) : null}
+    </>
+  )
+}
+
+/**
+ * 画布正上方的工具条：比例、尺寸（拼接）、锚点（拆分）或成品像素（长图）、导出。
+ * 这些控件都只作用于当前画布，放侧栏里要来回视线对齐，所以搬到画布边上。
  */
 export function StageToolbar() {
   const mode = useImageStackStore((state) => state.mode)
@@ -193,8 +216,14 @@ export function StageToolbar() {
   return (
     <div className="border-border bg-card flex flex-wrap items-center gap-2 rounded-lg border px-3 py-2">
       <div className="flex flex-wrap items-center gap-2">
-        <RatioPicker />
-        {mode === 'stitch' ? <CanvasControls /> : <CropControls />}
+        {mode === 'long' ? (
+          <LongSummary />
+        ) : (
+          <>
+            <RatioPicker />
+            {mode === 'stitch' ? <CanvasControls /> : <CropControls />}
+          </>
+        )}
       </div>
       <div className="ml-auto">
         <ExportDialog />

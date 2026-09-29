@@ -47,7 +47,7 @@ function buildTagSpecs({
   noindex: boolean
   ogLocale: string
 }): TagSpec[] {
-  const image = absoluteUrl(siteConfig.icons.android512)
+  const image = absoluteUrl(siteConfig.ogImage)
   const specs = [
     metaTag('description', description),
     // 只 noindex 不 nofollow：这些页面仍要把链接信号传给工具页
@@ -58,8 +58,7 @@ function buildTagSpecs({
     ogTag('og:title', title),
     ogTag('og:description', description),
     ogTag('og:image', image),
-    // 分享图现为 512×512 方形图标，故 twitter:card 用 summary；换 1200×630 横图后改 large_image
-    metaTag('twitter:card', 'summary'),
+    metaTag('twitter:card', 'summary_large_image'),
     metaTag('twitter:title', title),
     metaTag('twitter:description', description),
     metaTag('twitter:image', image),

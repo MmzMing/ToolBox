@@ -1,7 +1,30 @@
 {
   "hash-text": {
     "title": "文本哈希计算",
-    "description": "计算文本的 MD5、SHA1、SHA256、SHA512、SHA3 与 RIPEMD160 哈希值"
+    "description": "计算文本的 MD5、SHA1、SHA256、SHA512、SHA3 与 RIPEMD160 哈希值",
+    "seo": {
+      "intro": "粘贴一段文本，一次算出 MD5、SHA1、SHA256、SHA512、SHA3 与 RIPEMD160 的摘要，输入变化即时重算。哈希是单向的，本站不做反查，也不发出任何网络请求。",
+      "steps": [
+        "在输入框输入或粘贴要计算的文本，空格、换行与大小写都会改变结果。",
+        "在结果列表里找到目标算法，点击复制取走摘要值。",
+        "校验文件时，用本地命令算出同一算法的摘要再比对，两边一致才说明内容未被改动。"
+      ],
+      "faq": [
+        {
+          "q": "MD5 能还原成原文吗？",
+          "a": "不能。哈希是单向函数，只能拿候选值反复计算再比对，这也是密码库存储口令时用加盐哈希而不是加密的原因。"
+        },
+        {
+          "q": "为什么同一段文本每次算出来都一样？",
+          "a": "摘要只取决于输入的字节序列，任何一位变化（包括换行、空格和字符编码）都会让结果完全不同，这正是它能用来做完整性校验的原理。"
+        },
+        {
+          "q": "该选哪个算法？",
+          "a": "只做去重和校验，MD5 或 SHA1 足够；涉及签名、防篡改与口令派生，请用 SHA-256 及以上；存储用户密码则应该用 bcrypt 这类自带盐值和代价因子的算法。"
+        }
+      ],
+      "related": ["bcrypt", "encryption", "encoder-decoder"]
+    }
   },
   "id-generator": {
     "title": "UUID / ULID 生成器",
@@ -105,7 +128,7 @@
   },
   "bcrypt": {
     "title": "Bcrypt 哈希",
-    "description": "Bcrypt 密码哈希与校验",
+    "description": "生成 Bcrypt 密码哈希并校验明文是否匹配，可调 cost 轮数，结果可直接写进配置文件的 password 字段，全程本地计算。",
     "tabHash": "加密",
     "tabVerify": "校验",
     "password": "密码",
@@ -121,7 +144,7 @@
   },
   "encryption": {
     "title": "文本加密",
-    "description": "使用 AES 对称加密解密文本",
+    "description": "用 AES-256-GCM 加解密文本，密钥由 PBKDF2 高轮次派生，密文带版本前缀；旧的 AES-CBC 密文仍可解密取回，数据不出本机。",
     "algorithm": "算法",
     "secretKey": "密钥",
     "showKey": "显示密钥",
@@ -138,7 +161,7 @@
   },
   "password-strength-analyser": {
     "title": "密码强度分析",
-    "description": "生成随机强密码，并分析密码强度、熵值与破解时间",
+    "description": "生成随机强密码，并给出现有密码的强度评估：字符集覆盖、熵值与离线、在线两种场景的破解耗时估算，全部本地计算。",
     "password": "密码",
     "showPassword": "显示密码",
     "hidePassword": "隐藏密码",
@@ -190,7 +213,7 @@
   },
   "pdf-signature-checker": {
     "title": "PDF 签名校验",
-    "description": "检查 PDF 文件中的数字签名信息",
+    "description": "读取 PDF 中的数字签名信息，列出发行人、证书链与有效期、签名时间与摘要算法，判断签名后文档是否被改动，文件不上传。",
     "pickFile": "选择 PDF 文件",
     "dropHint": "拖入 PDF 文件，或点击选择",
     "hasAcroForm": "包含 AcroForm 表单字典",

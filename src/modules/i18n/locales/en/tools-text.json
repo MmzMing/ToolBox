@@ -18,7 +18,7 @@
   },
   "ascii-text-drawer": {
     "title": "ASCII Text Drawer",
-    "description": "Turn text into ASCII art",
+    "description": "Render text as ASCII art in a choice of figlet fonts with live preview and one-click copy, for READMEs, terminal banners and code comments.",
     "textLabel": "Text",
     "fontLabel": "Font",
     "errorEmpty": "Enter some text to draw",

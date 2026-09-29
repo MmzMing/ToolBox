@@ -1,7 +1,7 @@
 {
   "crontab-generator": {
     "title": "Cron 表达式生成",
-    "description": "生成 cron 表达式并附带人类可读描述，含字段与常用表达式速查",
+    "description": "点选或输入生成 cron 表达式，实时给出人类可读的运行说明与最近几次触发时间，附五个字段的含义与常用表达式速查。",
     "minute": "分钟",
     "hour": "小时",
     "dayOfMonth": "日",
@@ -45,11 +45,34 @@
     "ref-workdayHoursTenth": "工作日 09:00-18:50 每 10 分钟",
     "ref-sundayMidnight": "每周日 00:00",
     "ref-monthFirstMidnight": "每月 1 日 00:00",
-    "ref-newYearMidnight": "每年 1 月 1 日 00:00"
+    "ref-newYearMidnight": "每年 1 月 1 日 00:00",
+    "seo": {
+      "intro": "按分钟、小时、日、月、星期五个字段点选生成 cron 表达式，旁边同步给出人类可读的执行计划，下方还附了字段顺序、特殊字符、系统快捷字面量与常用表达式速查。",
+      "steps": [
+        "依次设置五个字段，星号表示该位任意值，区间与步进可以写成 1-5 或 */5。",
+        "用常用预设一键填入每分钟、每小时、每天零点、每周一零点等高频组合。",
+        "复制表达式贴进 crontab -e 或 CI 配置，再对照执行计划确认触发时间。"
+      ],
+      "faq": [
+        {
+          "q": "星期那一位为什么 0 和 7 都是周日？",
+          "a": "传统 cron 用 0 表示周日，不少实现把 7 也当作周日以兼容 ISO 习惯，所以两者等价；星期与月份还可以直接写英文缩写。"
+        },
+        {
+          "q": "日和星期同时限定会怎样？",
+          "a": "标准 cron 在这两位都不是星号时按「或」处理，满足任意一位就会执行，这是最容易踩的坑。"
+        },
+        {
+          "q": "生成的表达式到处都能用吗？",
+          "a": "五位字段的基础语法在 Linux crontab 里通用，但 Kubernetes CronJob、Jenkins 等可能使用六位（含秒）或自己的扩展语法，落地前以对应产品的文档为准。"
+        }
+      ],
+      "related": ["docker-memo", "curl-generator", "regex-memo"]
+    }
   },
   "chmod-calculator": {
     "title": "Chmod 计算",
-    "description": "数字与符号权限模式互转",
+    "description": "勾选读、写、执行权限位即可换算 chmod 数字模式与 rwx 符号写法，也能从 755 这类数字反向还原每一位含义，附常见取值参考。",
     "owner": "所有者",
     "group": "组",
     "others": "其他",
@@ -61,7 +84,7 @@
   },
   "docker-run-to-docker-compose-converter": {
     "title": "Docker Run 转 Compose",
-    "description": "将 docker run 命令转换为 compose 配置",
+    "description": "粘贴 docker run 命令，自动映射为 compose 服务片段，还原镜像、端口映射、挂载卷、环境变量、网络与重启策略等参数。",
     "inputPlaceholder": "docker run -d --name web -p 8080:80 -v /data:/app/data nginx:latest"
   },
   "format-studio": {
@@ -74,11 +97,34 @@
     "expandAll": "全部展开",
     "noComments": "该格式没有注释语法",
     "outputOnly": "只影响结果，不回写左侧源文本",
-    "stripCommentsHint": "转换前先去掉源文本里的注释，左侧文本框保持原样"
+    "stripCommentsHint": "转换前先去掉源文本里的注释，左侧文本框保持原样",
+    "seo": {
+      "intro": "左边选输入格式、右边选输出格式，即可在 JSON、YAML、TOML、XML、CSV、Markdown、HTML 与 SQL 之间互转并格式化。去注释、折叠与展开只作用于输出结果，不会回写你粘贴的源文本。",
+      "steps": [
+        "粘贴数据或直接在编辑器里输入，先在左侧选定它的格式。",
+        "把右侧切到目标格式，缩进与风格即时重排，同格式美化也可以只做这一步。",
+        "需要清理时勾选去除注释或点全部折叠，确认右侧结果后再复制。"
+      ],
+      "faq": [
+        {
+          "q": "转换会改动我的源文本吗？",
+          "a": "不会。所有清理与折叠选项只作用在右侧输出上，左侧文本保持原样，你可以反复换格式重试。"
+        },
+        {
+          "q": "支持哪些格式？",
+          "a": "JSON、YAML、TOML、XML、CSV、Markdown、HTML 与 SQL，两两互转，也可以只做同种格式的格式化。"
+        },
+        {
+          "q": "数据会被上传到服务器吗？",
+          "a": "不会。解析与转换全部在浏览器本地完成，关掉页面就不留任何痕迹。"
+        }
+      ],
+      "related": ["encoder-decoder", "hash-text", "regex-memo"]
+    }
   },
   "github-accelerator": {
     "title": "GitHub 加速下载",
-    "description": "粘贴 GitHub 链接，生成走加速节点的下载直链",
+    "description": "粘贴 GitHub 仓库、Release 或 raw 链接，生成走加速节点的下载直链，可在多个加速源之间切换并一键复制链接。",
     "inputLabel": "GitHub 链接",
     "inputPlaceholder": "https://github.com/owner/repo/releases/download/v1.0/app.zip",
     "clear": "清空",
@@ -117,7 +163,7 @@
   },
   "encoder-decoder": {
     "title": "编解码",
-    "description": "Base64、JWT、URL、Unicode、二进制编解码，五个页签合一",
+    "description": "Base64、JWT、URL、Unicode 与二进制五类编解码合在一页，输入即时出结果，可正反互转也能拆解 JWT 声明，无需联网。",
     "tab-base64": "Base64",
     "tab-jwt": "JWT",
     "tab-url": "URL",
@@ -169,7 +215,7 @@
   },
   "color-converter": {
     "title": "颜色格式转换",
-    "description": "HEX、RGB、HSL、HWB、LCH、CMYK 与颜色名互转，带取色器",
+    "description": "HEX、RGB、HSL、HWB、LCH、CMYK 与颜色名之间互转，带取色器和明暗色阶预览，可复制格式化后的颜色字符串，全部本地换算。",
     "pickerLabel": "取色器",
     "preview": "颜色预览",
     "invalidFormat": "{{format}} 格式无效",

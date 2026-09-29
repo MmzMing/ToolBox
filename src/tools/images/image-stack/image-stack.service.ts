@@ -6,6 +6,31 @@ export const MAX_CANVAS_SIDE = 8192
 export const MAX_CANVAS_AREA = 33_554_432
 /** 自定义画布的边长下限，再小就没法看了 */
 export const MIN_CANVAS_SIDE = 16
+
+/**
+ * 长图放宽单边上限：20 张手机截图竖排必然超过 8192。
+ * Chrome 单边 65535、Firefox 32767，16384 谁都够画，真正的天花板是下面的面积。
+ */
+export const MAX_LONG_CANVAS_SIDE = 16_384
+/**
+ * iOS Safari 的画布总面积约 1677 万像素，超了**不报错**，只画出一张纯背景图。
+ * 长图按这个更保守的面积守门，代价由「自动降宽」与「按接缝分段」吸收。
+ */
+export const MAX_CANVAS_AREA_SAFE = 16_777_216
+
+/** 画布封顶策略；网格档与长图档用不同的一组数 */
+export type CanvasLimits = { side: number; area: number }
+
+export const CANVAS_LIMITS: CanvasLimits = {
+  side: MAX_CANVAS_SIDE,
+  area: MAX_CANVAS_AREA,
+}
+
+export const LONG_CANVAS_LIMITS: CanvasLimits = {
+  side: MAX_LONG_CANVAS_SIDE,
+  area: MAX_CANVAS_AREA_SAFE,
+}
+
 /** 预览位图的最长边：够看清构图即可，导出另用原图 */
 export const PREVIEW_MAX_SIDE = 1600
 /** 自定义行列数的单轴上限，再密格子就没法看了 */
@@ -27,6 +52,19 @@ export const MIN_ZOOM = 1
 export const MAX_ZOOM = 4
 
 export const CUSTOM_SIZE_KEY = 'custom'
+
+/** 三档模式：布局拼接（网格）/ 超长图堆叠（纵向流）/ 图片拆分（网格出图） */
+export type Mode = 'stitch' | 'long' | 'split'
+
+/** tab 顺序与持久化白名单共用这一张表，加档不会漏改 */
+export const MODES: readonly Mode[] = ['stitch', 'long', 'split']
+
+export const DEFAULT_MODE: Mode = 'stitch'
+
+/** 恢复持久化时的白名单收敛；未知值归默认档，不能顺手把新增的档吞掉 */
+export function normalizeMode(raw: unknown): Mode {
+  return MODES.includes(raw as Mode) ? (raw as Mode) : DEFAULT_MODE
+}
 
 export type Rect = { x: number; y: number; width: number; height: number }
 export type Size = { width: number; height: number }
@@ -112,11 +150,11 @@ export const DEFAULT_STYLE: SceneStyle = {
   background: { type: 'color', value: '#ffffff' },
 }
 
-function clamp(value: number, min: number, max: number): number {
+export function clamp(value: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, value))
 }
 
-function clamp01(value: number): number {
+export function clamp01(value: number): number {
   return clamp(value, 0, 1)
 }
 
@@ -126,16 +164,16 @@ export function ratioValue(key: RatioKey): number {
 }
 
 /** 校验并取整画布尺寸；非法值直接抛错，由 UI 层捕获降级 */
-export function assertCanvasSize(size: Size): Size {
+export function assertCanvasSize(size: Size, limits: CanvasLimits = CANVAS_LIMITS): Size {
   const { width, height } = size
   if (!Number.isFinite(width) || !Number.isFinite(height) || width <= 0 || height <= 0) {
     throw new Error(`Invalid canvas size: ${width}x${height}`)
   }
-  if (width > MAX_CANVAS_SIDE || height > MAX_CANVAS_SIDE) {
-    throw new Error(`Canvas side exceeds ${MAX_CANVAS_SIDE}px: ${width}x${height}`)
+  if (width > limits.side || height > limits.side) {
+    throw new Error(`Canvas side exceeds ${limits.side}px: ${width}x${height}`)
   }
-  if (width * height > MAX_CANVAS_AREA) {
-    throw new Error(`Canvas area exceeds ${MAX_CANVAS_AREA}px: ${width}x${height}`)
+  if (width * height > limits.area) {
+    throw new Error(`Canvas area exceeds ${limits.area}px: ${width}x${height}`)
   }
   return { width: Math.round(width), height: Math.round(height) }
 }
@@ -153,27 +191,27 @@ export function resolveCanvasSize(ratioKey: RatioKey, presetKey: string, custom:
  * 自定义尺寸的入口收敛：夹进合法区间，超面积时等比缩回上限内。
  * 走过这里的尺寸必然能通过 assertCanvasSize，UI 层因此不必再兜异常。
  */
-export function clampCustomSize(width: number, height: number): Size {
-  const w = clampSide(width)
-  const h = clampSide(height)
+export function clampCustomSize(
+  width: number,
+  height: number,
+  limits: CanvasLimits = CANVAS_LIMITS,
+): Size {
+  const w = clampSide(width, limits.side)
+  const h = clampSide(height, limits.side)
   const area = w * h
-  if (area <= MAX_CANVAS_AREA) {
+  if (area <= limits.area) {
     return { width: w, height: h }
   }
-  const scale = Math.sqrt(MAX_CANVAS_AREA / area)
+  const scale = Math.sqrt(limits.area / area)
   return {
     width: Math.max(MIN_CANVAS_SIDE, Math.floor(w * scale)),
     height: Math.max(MIN_CANVAS_SIDE, Math.floor(h * scale)),
   }
 }
 
-function clampSide(value: number): number {
+function clampSide(value: number, maxSide: number): number {
   const rounded = Math.round(value)
-  return clamp(
-    Number.isFinite(rounded) ? rounded : MIN_CANVAS_SIDE,
-    MIN_CANVAS_SIDE,
-    MAX_CANVAS_SIDE,
-  )
+  return clamp(Number.isFinite(rounded) ? rounded : MIN_CANVAS_SIDE, MIN_CANVAS_SIDE, maxSide)
 }
 
 /**
@@ -609,7 +647,8 @@ export function buildSliceZipName(sourceName: string): string {
   return `${sanitizeFileName(stripExtension(sourceName), 'image')}-slices.zip`
 }
 
-function readNumber(value: unknown, fallback: number, min: number, max: number): number {
+/** px 数值的持久化兜底：非有限归 fallback，取整后截断 */
+export function readNumber(value: unknown, fallback: number, min: number, max: number): number {
   const numeric = typeof value === 'number' && Number.isFinite(value) ? value : fallback
   return clamp(Math.round(numeric), min, max)
 }
@@ -627,7 +666,12 @@ export function clampStyleBounds(style: SceneStyle): SceneStyle {
 
 const HEX_COLOR = /^#[0-9a-fA-F]{6}$/
 
-function readBackground(value: unknown): Background {
+/** 单个十六进制色的兜底：长图角标那种「一色一值」的字段用它 */
+export function readHexColor(value: unknown, fallback: string): string {
+  return typeof value === 'string' && HEX_COLOR.test(value) ? value : fallback
+}
+
+export function readBackground(value: unknown): Background {
   if (typeof value !== 'object' || value === null) {
     return { type: 'color', value: '#ffffff' }
   }
@@ -635,11 +679,7 @@ function readBackground(value: unknown): Background {
   if (candidate.type === 'transparent') {
     return { type: 'transparent' }
   }
-  const color =
-    typeof candidate.value === 'string' && HEX_COLOR.test(candidate.value)
-      ? candidate.value
-      : '#ffffff'
-  return { type: 'color', value: color }
+  return { type: 'color', value: readHexColor(candidate.value, '#ffffff') }
 }
 
 /** localStorage 可能被手工改坏，读取后逐字段兜底（AGENTS.md §8） */

@@ -25,6 +25,7 @@ describe('absoluteUrl', () => {
 describe('toolSchema', () => {
   it('describes a tool as a free WebApplication on its canonical url', () => {
     expect(toolSchema({ title: '文本哈希', description: '算 MD5', path: '/hash-text' })).toEqual({
+      '@context': 'https://schema.org',
       '@type': 'WebApplication',
       name: '文本哈希',
       url: `${siteConfig.siteUrl}/hash-text`,
@@ -69,6 +70,20 @@ describe('site entities', () => {
 
   it('exposes both site entities in the graph', () => {
     expect(siteGraph().map((node) => node['@type'])).toEqual(['WebSite', 'Organization'])
+  })
+})
+
+describe('every schema node', () => {
+  it('carries @context, without which search engines discard the whole block', () => {
+    const nodes = [
+      organizationSchema(),
+      webSiteSchema(),
+      toolSchema({ title: 't', description: 'd', path: '/t' }),
+      breadcrumbSchema([{ name: 'Home', url: 'https://x.dev/' }]),
+    ]
+    for (const node of nodes) {
+      expect(node['@context']).toBe('https://schema.org')
+    }
   })
 })
 

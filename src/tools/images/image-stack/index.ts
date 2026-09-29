@@ -12,6 +12,9 @@ export const tool = defineTool({
     'stitch',
     'merge',
     'long image',
+    'long screenshot',
+    'scrolling screenshot',
+    'subtitle stack',
     'split',
     'slice',
     'nine grid',
@@ -21,6 +24,9 @@ export const tool = defineTool({
     '拼图',
     '图片堆叠',
     '长图',
+    '超长图',
+    '滚动截图',
+    '字幕堆叠',
     '海报',
     '九宫格',
     '图片拆分',
@@ -31,6 +37,6 @@ export const tool = defineTool({
   icon: Images,
   component: () => import('./ImageStack'),
   createdAt: '2026-09-25',
-  // 右侧模板栏与样式栏合并成一整块分段面板，需要 24rem 才排得下两列滑块
+  // 模板栏/样式栏与长图配置栏都要排得下两列滑块，窄了会挤成一行一个
   wide: true,
 })

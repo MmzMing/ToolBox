@@ -33,17 +33,17 @@ files you can host anywhere.
 
 ### Tools (9 categories / 48 tools)
 
-| Category    | Count | Includes                                                              |
-| ----------- | ----- | --------------------------------------------------------------------- |
-| Resume      | 1     | Resume studio (9 templates, page breaks, PDF export, folder sync)     |
-| Crypto      | 7     | Hashing, AES encryption, bcrypt, ID generator, key generator, entropy |
-| Web         | 8     | URL parser, HTML entities, UA parser, DNS lookup, IP lookup, OTP      |
-| Development | 9     | Format studio, encoder/decoder, cURL builder, cron, chmod, colors     |
-| Text        | 4     | Markdown editor, diff, formatter, ASCII art                           |
-| Life        | 4     | Chinese kinship terms, social insurance, unit converter, fortune draw |
-| Images      | 6     | QR code, WiFi QR, compression, perler beads, image stack, AI canvas   |
-| Video       | 1     | Music to video                                                        |
-| Cheatsheets | 8     | HTTP status codes, regex, git, SQL, Maven, nvm, Docker, photography   |
+| Category    | Count | Includes                                                                                                                                                      |
+| ----------- | ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Job Search  | 2     | Resume Studio (9 templates, page breaks, PDF export, folder sync), Salary Calculator                                                                          |
+| Images      | 6     | QR Code Converter, WiFi QR, Image Compress & Convert, Image Stack, Image to Perler Beads, AI Image Gen Canvas                                                 |
+| Video       | 1     | Text PV (storyboard music video; online music library off by default)                                                                                         |
+| Crypto      | 7     | Hash Text, Text Encryption, Bcrypt Hash, UUID / ULID Generator, Key Generator, Password Strength, PDF Signature Checker                                       |
+| Web         | 8     | URL Parser, User-Agent Parser, Device Information, Safelink Decoder, HTML Entities, OTP, DNS Lookup, IP Lookup                                                |
+| Development | 9     | Format Studio, Encoder / Decoder, Timestamp Converter, cURL Command Builder, Cron, Chmod, Color Converter, Docker Run to Compose, GitHub Download Accelerator |
+| Text        | 4     | Markdown Editor, Text Diff, Text Formatter, ASCII Text Drawer                                                                                                 |
+| Life        | 3     | Chinese Kinship Calculator, Unit Converter, Daily Fortune Draw                                                                                                |
+| Cheatsheets | 8     | HTTP Status Codes, Regex, Git, SQL, Docker, Maven, nvm, Photography                                                                                           |
 
 The full list lives in [docs/design/功能介绍文档.md](docs/design/功能介绍文档.md) (Chinese).
 
@@ -56,17 +56,27 @@ The full list lives in [docs/design/功能介绍文档.md](docs/design/功能介
 - **Theming**: light / dark / system, semantic tokens only — no hard-coded colors.
 - **Three responsive tiers**: phone `<768`, tablet `768–1279`, desktop `≥1280`, app-shell layout
   where the content area is the only scroll container.
-- **SEO**: history routing, one URL per tool, `sitemap.xml` and `robots.txt` generated at build time.
+- **SEO / GEO**: history routing with one URL per tool. The build emits a **static shell per route**
+  (its own title / description / canonical / OG, `WebApplication` and `BreadcrumbList` JSON-LD, plus
+  crawlable body text), so crawlers that never run JavaScript — Baidu, AI fetchers — still see the
+  page topic. `llms.txt` and `llms-full.txt` give AI engines a site index. Details in
+  [docs/seo/SEO与GEO策略.md](docs/seo/SEO与GEO策略.md) (Chinese).
 
 ### What leaves the browser
 
-Exactly two features touch the network; everything else is local:
+These are the only features that touch the network, and none of them is proxied through this site;
+everything else stays local:
 
 1. **IP lookup**: resolves your egress IP through a fallback chain of echo services (so one provider
    being unreachable doesn't break it) and looks up geolocation via `ipwho.is`.
-2. **AI in the resume studio**: off by default. Enabling it shows a one-time notice about where data
-   goes; you supply the provider's base URL and API key yourself, the browser talks to that provider
-   directly with no proxy in between, and the key never leaves your machine.
+2. **DNS lookup**: queries public DoH resolvers (AliDNS / Cloudflare / Google, grouped by region).
+3. **The cURL builder's "send" action**: only on your click, straight from the browser to the target
+   URL, so you can test a request you just described.
+4. **AI in Resume Studio and AI Image Gen Canvas**: off by default. Enabling them shows a one-time
+   notice about where data goes; you supply the provider's base URL and API key yourself, the browser
+   talks to that provider directly with no proxy in between, and the key never leaves your machine.
+5. **The online music library in Text PV**: off by default. Once enabled, the playlist id you type is
+   sent to the Meting instance you configure to resolve a playable audio URL.
 
 ## Quick start
 
@@ -77,15 +87,15 @@ pnpm install
 pnpm dev            # http://localhost:5173
 ```
 
-| Command            | Purpose                                           |
-| ------------------ | ------------------------------------------------- |
-| `pnpm dev`         | Dev server                                        |
-| `pnpm build`       | Build `dist/` and generate `sitemap.xml`          |
-| `pnpm preview`     | Preview the build locally                         |
-| `pnpm test`        | Vitest unit tests (plus i18n duplicate-key check) |
-| `pnpm lint`        | ESLint with `--max-warnings 0`                    |
-| `pnpm typecheck`   | `tsc -b`                                          |
-| `pnpm create:tool` | Scaffold a new tool (files + mirrored test dir)   |
+| Command            | Purpose                                                                                                         |
+| ------------------ | --------------------------------------------------------------------------------------------------------------- |
+| `pnpm dev`         | Dev server                                                                                                      |
+| `pnpm build`       | Build `dist/`: emits `sitemap.xml` / `robots.txt` / `llms.txt` and one static shell per route                   |
+| `pnpm preview`     | Preview the build locally                                                                                       |
+| `pnpm test`        | Vitest unit tests + three static checks (i18n duplicate keys, tool SEO keys and content layer, innerHTML sinks) |
+| `pnpm lint`        | ESLint with `--max-warnings 0`                                                                                  |
+| `pnpm typecheck`   | `tsc -b`                                                                                                        |
+| `pnpm create:tool` | Scaffold a new tool (files + mirrored test dir)                                                                 |
 
 To add a tool, create `src/tools/<category>/<tool-name>/` with `index.ts` (registration),
 `<Name>.tsx` (UI) and `<tool-name>.service.ts` (pure logic), then register it in that category's
@@ -98,7 +108,7 @@ Conventions are in [AGENTS.md](AGENTS.md); the reference implementation is `src/
 pnpm build   # emits dist/
 ```
 
-Two hard requirements:
+Three hard requirements:
 
 1. **SPA fallback is mandatory.** The app uses history routing, so unmatched paths must serve
    `index.html` — otherwise deep links and refreshes return 404.
@@ -106,6 +116,11 @@ Two hard requirements:
    glue at runtime. Some hosts (Tencent EdgeOne Pages, stock Nginx `mime.types`) don't know `.mjs`
    and fall back to `application/octet-stream`, which the browser refuses to load as a module — so
    `scripts/prepare-codecs.mjs` rewrites every codec entry point to a `.js` extension before the build.
+3. **The host must check the filesystem before rewriting**, otherwise the per-route static shells in
+   `dist/<route>/index.html` never get served. nginx's `try_files $uri $uri/ /index.html` and the
+   static-first behaviour of Vercel and Netlify both qualify; with a plain SPA fallback a deep link
+   falls back to the home shell and every page shows the same title and body again. Verify with
+   `curl -s https://<host>/hash-text | grep "<title>"`.
 
 | Host                  | Build command | Output                  | SPA fallback                                          |
 | --------------------- | ------------- | ----------------------- | ----------------------------------------------------- |
@@ -116,16 +131,19 @@ Two hard requirements:
 | Tencent EdgeOne Pages | `pnpm build`  | `dist`                  | Configured in the console; mind the MIME note above   |
 
 The domain comes from `siteUrl` in [`src/config/site.ts`](src/config/site.ts)
-(currently `https://tool.mmzhiku.xyz`), which is what `sitemap.xml` and `robots.txt` are generated
-from; the `SITE_URL` environment variable only overrides it temporarily (preview deployments).
+(currently `https://tool.mmzhiku.xyz`), which is what `sitemap.xml`, `robots.txt` and `llms.txt` are
+generated from; the `SITE_URL` environment variable only overrides it temporarily (preview deployments).
 The Dockerfile, `nginx.conf`, per-platform configuration and the release checklist are in
 [docs/deployment/部署方案.md](docs/deployment/部署方案.md) (Chinese).
 
 ## Documentation
 
 - [docs/INDEX.md](docs/INDEX.md) — documentation index
-- [docs/design/技术栈文档.md](docs/design/技术栈文档.md) — stack, dependency list, quality gates
-- [docs/design/详细设计文档.md](docs/design/详细设计文档.md) — architecture, tool registry, state, i18n, SEO
+- [docs/design/技术栈文档.md](docs/design/技术栈文档.md) — stack, dependency list, quality gates (Chinese)
+- [docs/design/详细设计文档.md](docs/design/详细设计文档.md) — architecture, tool registry, state, i18n, SEO (Chinese)
+- [docs/design/功能介绍文档.md](docs/design/功能介绍文档.md) — feature tour and full tool list (Chinese)
+- [docs/seo/SEO与GEO策略.md](docs/seo/SEO与GEO策略.md) — indexing architecture, page and content rules, AI-engine visibility (Chinese)
+- [docs/development/开发计划.md](docs/development/开发计划.md) — stage-by-stage delivery record (Chinese)
 - [AGENTS.md](AGENTS.md) — code conventions (for humans and AI agents alike)
 
 ## License

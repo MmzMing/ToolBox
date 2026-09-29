@@ -1,4 +1,8 @@
 {
+  "siteName": "MmzMing's Toolbox",
+  "seoHowTo": "How to use",
+  "seoFaq": "FAQ",
+  "seoRelated": "Related tools",
   "searchPlaceholder": "Search tools…",
   "noResults": "No matching tools found",
   "copied": "Copied to clipboard",

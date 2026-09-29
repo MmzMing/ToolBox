@@ -1,7 +1,30 @@
 {
   "hash-text": {
     "title": "Hash Text",
-    "description": "Compute the MD5, SHA1, SHA256, SHA512, SHA3 or RIPEMD160 hash of a text"
+    "description": "Compute the MD5, SHA1, SHA256, SHA512, SHA3 or RIPEMD160 hash of a text",
+    "seo": {
+      "intro": "Paste text and get its MD5, SHA1, SHA256, SHA512, SHA3 and RIPEMD160 digests at once, recalculated as you type. Hashing is one-way, so nothing is reversed and no request leaves the page.",
+      "steps": [
+        "Type or paste the text — spaces, line breaks and letter case all change the result.",
+        "Find the algorithm you need in the list and copy its digest.",
+        "To verify a file, compute the same algorithm locally and compare: matching digests mean the content is unchanged."
+      ],
+      "faq": [
+        {
+          "q": "Can an MD5 be reversed?",
+          "a": "No. A hash is one-way, so you can only recompute candidates and compare — which is why password stores use salted hashes rather than encryption."
+        },
+        {
+          "q": "Why is the same text always the same digest?",
+          "a": "A digest depends only on the input bytes. Changing a single character, a space, a line break or the encoding changes the output completely, which is exactly what makes it useful as a checksum."
+        },
+        {
+          "q": "Which algorithm should I pick?",
+          "a": "MD5 or SHA1 are fine for deduplication and checksums. Use SHA-256 or stronger for signatures and tamper checks, and use bcrypt for stored passwords because it salts and costs deliberately."
+        }
+      ],
+      "related": ["bcrypt", "encryption", "encoder-decoder"]
+    }
   },
   "id-generator": {
     "title": "UUID / ULID Generator",
@@ -105,7 +128,7 @@
   },
   "bcrypt": {
     "title": "Bcrypt Hash",
-    "description": "Hash and check passwords with bcrypt",
+    "description": "Hash a password with bcrypt or verify a plaintext against an existing hash, with adjustable cost rounds, computed entirely in your browser.",
     "tabHash": "Hash",
     "tabVerify": "Verify",
     "password": "Password",
@@ -121,7 +144,7 @@
   },
   "encryption": {
     "title": "Text Encryption",
-    "description": "Encrypt and decrypt text with AES symmetric cipher",
+    "description": "Encrypt and decrypt text with AES-256-GCM and a PBKDF2-derived key; legacy AES-CBC ciphertext can still be decrypted. Nothing leaves your machine.",
     "algorithm": "Algorithm",
     "secretKey": "Secret key",
     "showKey": "Show key",
@@ -138,7 +161,7 @@
   },
   "password-strength-analyser": {
     "title": "Password Strength Analyser",
-    "description": "Generate random strong passwords, and analyse strength, entropy and crack time",
+    "description": "Generate random strong passwords and score an existing one by charset coverage, entropy and estimated offline or online crack time, locally.",
     "password": "Password",
     "showPassword": "Show password",
     "hidePassword": "Hide password",
@@ -190,7 +213,7 @@
   },
   "pdf-signature-checker": {
     "title": "PDF Signature Checker",
-    "description": "Inspect digital signatures inside a PDF file",
+    "description": "Read digital signatures in a PDF: signer, certificate chain and validity, signing time and digest algorithm, and whether the file changed after signing.",
     "pickFile": "Choose a PDF file",
     "dropHint": "Drag a PDF file here, or click to browse",
     "hasAcroForm": "Contains AcroForm dictionary",

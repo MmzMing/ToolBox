@@ -1,13 +1,13 @@
 {
   "html-entities": {
     "title": "HTML 实体",
-    "description": "HTML 实体编码与解码",
+    "description": "HTML 实体与原文互转：把尖括号、引号、与号和中文转成命名实体或数字引用，也能把实体还原成文本，支持整段批量粘贴。",
     "textLabel": "原文",
     "entitiesLabel": "HTML 实体"
   },
   "url-parser": {
     "title": "URL 解析",
-    "description": "拆解 URL 的协议、主机、路径与查询参数",
+    "description": "把 URL 拆成协议、主机、端口、路径、查询参数与片段，参数自动展开成表格并做百分号解码，支持重新拼装回链接。",
     "urlLabel": "URL",
     "paramsLabel": "查询参数",
     "noParams": "该 URL 没有查询参数",
@@ -16,7 +16,7 @@
   },
   "device-information": {
     "title": "设备信息",
-    "description": "查看浏览器与设备能力信息",
+    "description": "查看当前浏览器的用户代理、屏幕与视口尺寸、时区、语言、网络类型与硬件能力，便于复现用户侧问题，信息只在本地读取。",
     "field-userAgent": "用户代理",
     "field-platform": "平台",
     "field-language": "语言",
@@ -31,7 +31,7 @@
   },
   "otp-code-generator-and-validator": {
     "title": "OTP 验证码",
-    "description": "生成与校验 TOTP 两步验证码",
+    "description": "生成并校验 TOTP 两步验证码：输入 Base32 密钥即可算出当前动态码与剩余有效期，位数与时间步长可调，密钥不离开浏览器。",
     "secretLabel": "Base32 密钥",
     "secretPlaceholder": "GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ",
     "digitsLabel": "验证码位数",
@@ -46,7 +46,7 @@
   },
   "user-agent-parser": {
     "title": "User-Agent 解析",
-    "description": "解析 UA 为浏览器、系统与设备信息",
+    "description": "粘贴 User-Agent 字符串，解析出浏览器与版本、内核、操作系统、CPU 架构和设备类型，附各字段含义说明，本地解析不联网。",
     "uaLabel": "User-Agent",
     "field-browserName": "浏览器",
     "field-browserVersion": "浏览器版本",
@@ -61,7 +61,7 @@
   },
   "safelink-decoder": {
     "title": "跳转链接解码",
-    "description": "解码多层包装的跳转链接真实地址",
+    "description": "逐层解开安全跳转、短链与带跟踪参数的包装链接，还原真实目标地址，并列出每一跳剥掉的参数，全部在本地解析。",
     "inputLabel": "被包装的跳转 URL",
     "targetLabel": "最终目标",
     "stepsLabel": "解码链",

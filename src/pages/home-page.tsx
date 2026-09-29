@@ -23,7 +23,6 @@ import { Link } from 'react-router'
 
 import { ToolCard } from '@/components/tool-card'
 import { DocumentMeta } from '@/modules/seo/document-meta'
-import { siteConfig } from '@/config/site'
 import { Button } from '@/components/ui/button'
 import { GooeyInput } from '@/components/ui/gooey-input'
 import { useIsMobile } from '@/composable/use-breakpoint'
@@ -40,7 +39,8 @@ import type { Tool } from '@/tools/define-tool'
 /** 首页：Hero + 收藏（可拖拽排序）+ 最近使用 + 全部分类 */
 export default function HomePage() {
   const { t } = useTranslation('home')
-  const site = { site: siteConfig.name }
+  const { t: tCommon } = useTranslation('common')
+  const site = { site: tCommon('siteName') }
 
   return (
     <div className="mx-auto w-full max-w-6xl px-4 py-8">

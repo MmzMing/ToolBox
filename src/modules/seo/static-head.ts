@@ -1,0 +1,93 @@
+// 相对路径 + 显式 .ts 后缀：本文件同时被 vite.config.ts（构建配置）与
+// scripts/prerender-shells.mjs（Node）导入，两者都不套 resolve.alias。
+import { absoluteUrl, siteConfig } from '../../config/site.ts'
+import { serializeJsonLd, siteGraph, type JsonLd } from './schema.ts'
+
+/** index.html 里静态 SEO 块的落点；构建配置整行替换它 */
+export const SEO_SLOT = '<!-- seo:slot -->'
+/** 生成后的 SEO 块用这对标记包住，供预渲染脚本按路由整块替换 */
+export const SEO_BLOCK_BEGIN = '<!-- seo:block:start -->'
+export const SEO_BLOCK_END = '<!-- seo:block:end -->'
+
+export type StaticSeoHeadInput = {
+  /** <title> 全文（含品牌后缀） */
+  title: string
+  description: string
+  /** 页面路由，如 '/' 或 '/hash-text' */
+  path: string
+  keywords?: readonly string[]
+  /** 携带用户数据、无搜索价值的页面 */
+  noindex?: boolean
+  /** og:locale，与 DocumentMeta 的取值口径一致 */
+  ogLocale?: string
+  /** 站点实体之外，本页自己的 JSON-LD 节点 */
+  jsonLd?: readonly JsonLd[]
+}
+
+/** 属性值与正文文本共用：& < > " 都必须转义，否则文案里的 > 会撕裂标签 */
+export const escapeHtml = (value: string) =>
+  value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
+
+/**
+ * 生成一份「不执行 JS 的爬虫也能读到」的 head SEO 块（title + description + robots +
+ * canonical + OG + Twitter + JSON-LD）。
+ *
+ * 标签名与属性组合必须与 `document-meta.tsx` 的选择器严格一致：运行时它对 head 做原位
+ * upsert，两边字段对不上就会留下两条 href 不同的 canonical，而 Google 对冲突 canonical
+ * 是一概忽略。
+ */
+export function buildSeoHead({
+  title,
+  description,
+  path,
+  keywords = [],
+  noindex = false,
+  ogLocale = 'zh_CN',
+  jsonLd = [],
+}: StaticSeoHeadInput): string {
+  const url = absoluteUrl(path)
+  const image = absoluteUrl(siteConfig.ogImage)
+  const meta = (name: string, content: string) =>
+    `<meta name="${name}" content="${escapeHtml(content)}" />`
+  const og = (property: string, content: string) =>
+    `<meta property="${property}" content="${escapeHtml(content)}" />`
+
+  const tags = [
+    `<title>${escapeHtml(title)}</title>`,
+    meta('description', description),
+    // 只 noindex 不 nofollow：这些页面仍要把链接信号传给工具页
+    meta('robots', noindex ? 'noindex, follow' : 'index, follow'),
+    ...(keywords.length > 0 ? [meta('keywords', keywords.join(', '))] : []),
+    `<link rel="canonical" href="${url}" />`,
+    og('og:type', 'website'),
+    og('og:site_name', siteConfig.name),
+    og('og:locale', ogLocale),
+    og('og:title', title),
+    og('og:description', description),
+    og('og:image', image),
+    og('og:image:width', '1200'),
+    og('og:image:height', '630'),
+    og('og:url', url),
+    meta('twitter:card', 'summary_large_image'),
+    meta('twitter:title', title),
+    meta('twitter:description', description),
+    meta('twitter:image', image),
+    `<script data-seo-static type="application/ld+json">${serializeJsonLd([...siteGraph(), ...jsonLd])}</script>`,
+  ]
+
+  return `${SEO_BLOCK_BEGIN}\n    ${tags.join('\n    ')}\n    ${SEO_BLOCK_END}`
+}
+
+const ROOT_SLOT = '<div id="root"></div>'
+
+/**
+ * 把静态正文写进 #root 内部，让不执行 JS 的爬虫拿到可索引正文与内链。
+ * 结构与 ToolLayout / HomePage 的真实头部一致（同一份文案、同一组类名），
+ * React 挂载会清空并重建 #root，因此首屏只是同位置内容被替换，不产生明显跳动。
+ */
+export function injectShellBody(html: string, body: string): string {
+  if (!html.includes(ROOT_SLOT)) {
+    throw new Error(`[prerender] HTML 缺少容器 ${ROOT_SLOT}`)
+  }
+  return html.replace(ROOT_SLOT, `<div id="root">\n      ${body}\n    </div>`)
+}

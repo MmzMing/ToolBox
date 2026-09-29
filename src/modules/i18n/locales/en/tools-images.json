@@ -1,7 +1,7 @@
 {
   "qr-code": {
     "title": "QR Code Converter",
-    "description": "Convert between text and QR code images: generate with custom colors and size, or decode an image back into text",
+    "description": "Convert between text and QR images: generate with custom colors, size and error correction, or drop or paste a QR image to decode it back to text.",
     "tab-generate": "Generate",
     "tab-detect": "Detect",
     "generate": {
@@ -35,11 +35,34 @@
       "notFound": "No QR code found in this image. Try cropping to the code or using a sharper picture",
       "decodeFailed": "Could not read this image, please try another one",
       "resultLabel": "Decoded text"
+    },
+    "seo": {
+      "intro": "Two tabs cover the everyday uses of QR codes: generate one from text or a link with custom colours, size, margin and error correction, exporting PNG or SVG, or drop and paste a QR image to read it back as text.",
+      "steps": [
+        "Enter the text or URL and pick an error-correction level (Q or H if it will be printed or handled roughly).",
+        "Tune size, margin and colours, then download the PNG, or the SVG when you need a vector.",
+        "For the reverse direction, switch to the detect tab and drop, paste or pick a QR image to decode it."
+      ],
+      "faq": [
+        {
+          "q": "Which error-correction level should I use?",
+          "a": "L recovers about 7% of codewords, M about 15%, Q about 25% and H about 30%. L or M is enough on screen; choose Q or H for print, outdoor use or a logo overlaid in the middle."
+        },
+        {
+          "q": "Why does my recoloured code stop scanning?",
+          "a": "Readers rely on contrast between modules and background. Too little contrast, or an inverted light-on-dark code, breaks detection — keep a dark foreground on a light background."
+        },
+        {
+          "q": "Are my images uploaded?",
+          "a": "No. Detection decodes the image locally in your browser and never sends it anywhere."
+        }
+      ],
+      "related": ["wifi-qr-code-generator", "image-compressor", "safelink-decoder"]
     }
   },
   "wifi-qr-code-generator": {
     "title": "WiFi QR Code Generator",
-    "description": "Scan to connect to a WiFi network",
+    "description": "Turn an SSID, password and encryption type into a WiFi QR code your phone can scan to join the network, with hidden-network and style options.",
     "sectionNetwork": "Network",
     "sectionSecurity": "Security",
     "ssidLabel": "Network name (SSID)",
@@ -150,7 +173,7 @@
     "title": "Image to Perler Beads",
     "sectionColors": "Colors & background",
     "sectionOutput": "Chart output",
-    "description": "Frame the working area on the full image, turn it into a bead grid mapped to real Hama, Perler, Artkal or Mard colors, and export the chart plus a shopping list — all local",
+    "description": "Frame the working area of an image, rebuild it as a bead grid mapped to real Hama, Perler, Artkal and Mard colors, and export the chart with a color list.",
     "stage": {
       "badge": "{{cols}} × {{rows}} beads · {{boardsX}} × {{boardsY}} boards",
       "tabStage": "Frame source",
@@ -439,9 +462,10 @@
   },
   "image-stack": {
     "title": "Image Stack",
-    "description": "Stitch photos into long images, grids or posters with preset templates, or slice one image into a grid; canvas ratio, margins, gaps, corner radius and export format are all adjustable, processed entirely in your browser",
+    "description": "Stack photos into grids or posters, or run them top to bottom into one super-long image (subtitle strips, scrolling-screenshot de-duplication), or slice a single photo into tiles: size, margins, gaps, radius and export format all adjustable, fully local.",
     "mode": {
       "stitch": "Stitch",
+      "long": "Long Stack",
       "split": "Split"
     },
     "notes": {
@@ -546,6 +570,103 @@
       "splitEmpty": "Nothing to slice yet",
       "copied": "Copied to clipboard",
       "failed": "Export failed. Try another image or a smaller canvas."
+    },
+    "long": {
+      "hint": "The strip order is the top-to-bottom order of the result — drag a thumbnail to move it.",
+      "stageAria": "Long image preview",
+      "selectItem": "Adjust this image's crop",
+      "preset": "Style",
+      "presetValue": {
+        "seamless": "Seamless",
+        "subtitle": "Subtitles",
+        "screenshot": "Scrolling capture"
+      },
+      "presetHint": {
+        "seamless": "Keep every image whole and stack them at one width into a single long image.",
+        "subtitle": "The first image stays whole; each one after it keeps only a bottom band, the way movie quotes get stacked.",
+        "screenshot": "Keep everything and trim the repeated header off each image — made for scrolling screenshots."
+      },
+      "crop": "Crop",
+      "keepBottom": "Keep bottom",
+      "keepBottomValue": "Keeps {{percent}}%",
+      "keepBottomHint": "The first image is always whole. 100% is a seamless long image.",
+      "resetCrops": "Reset every crop",
+      "width": "Output width",
+      "widthModeLabel": "Width from",
+      "widthMode": {
+        "narrowest": "Narrowest image",
+        "widest": "Widest image",
+        "first": "First image",
+        "custom": "Custom"
+      },
+      "widthModeHint": "Nothing is ever enlarged: a narrower image keeps its own size and sits on the background.",
+      "align": "Narrow image",
+      "alignValue": {
+        "left": "Left",
+        "center": "Center",
+        "right": "Right"
+      },
+      "items": "Per-image crop",
+      "itemLead": "First is whole",
+      "itemKeepBottomValue": "Keeps {{percent}}% ≈ {{px}} px",
+      "applyAll": "Apply to all",
+      "inherit": "Inherit",
+      "trimmed": "Trimmed {{px}} px off the top",
+      "dedup": "Remove overlap",
+      "dedupRunning": "Detecting…",
+      "dedupThis": "Detect this seam",
+      "dedupClear": "Clear trim",
+      "dedupHint": "The bottom rows of each image are compared with the top rows of the next one. Only confident matches are applied; anything unsure is reported instead of guessed.",
+      "dedupDone": "Trimmed {{applied}} overlaps ({{px}} px); {{review}} to confirm, {{flat}} too flat to read",
+      "dedupApplied": "Trimmed {{px}} px at this seam",
+      "dedupReason": {
+        "ok": "Overlap found",
+        "none": "No overlap at this seam",
+        "flat": "Too flat (solid or gradient) to detect reliably",
+        "ambiguous": "Repeating pattern — the result is unsure, check it yourself",
+        "weak": "Low similarity, treat it as a suggestion"
+      },
+      "ignored": "{{total}} images past the cap were left out",
+      "output": "Output size",
+      "zoom": "Preview zoom",
+      "zoomFit": "Fit width",
+      "zoomHint": "Ctrl / ⌘ + wheel to zoom · click the overview to jump",
+      "emptyStage": "Nothing to stack yet",
+      "minimapAria": "Whole-image overview",
+      "bandRadius": "Image radius",
+      "narrowFill": "Narrow image",
+      "narrowFillValue": {
+        "background": "Show background",
+        "blur": "Blur fill"
+      },
+      "narrowFillHint": "Only matters when widths differ: blur fill enlarges the image itself and lays it across the whole row.",
+      "card": "Card stack",
+      "stackOverlap": "Stack overlap",
+      "stackOverlapHint": "Each image slides up over the previous one; pair it with the shadow for the stacked-card look.",
+      "shadowOff": "Off",
+      "shadowBlur": "Shadow blur",
+      "shadowOffset": "Shadow offset",
+      "shadowOpacity": "Shadow strength",
+      "caption": "Caption",
+      "captionEnabled": "Show a caption",
+      "captionText": "Caption text",
+      "captionTextHint": "{n} is the index, {total} the count, {name} the file name",
+      "captionPlace": "Position",
+      "captionPlaceValue": {
+        "tl": "Top left",
+        "tr": "Top right",
+        "bl": "Bottom left",
+        "br": "Bottom right"
+      },
+      "captionSize": "Font size",
+      "captionInset": "Inset",
+      "captionColor": "Text colour",
+      "pixels": "{{width}} × {{height}} px · {{megapixels}} MP",
+      "segments": "Too tall for one canvas — exporting {{total}} segments split at the seams (max {{px}} px each)",
+      "segmentsShort": "{{total}} segments",
+      "segmentsBlocked": "The result splits into segments, so it can't be copied as one image",
+      "previewFirst": "Preview first segment",
+      "unsplittable": "{{total}} images are taller than the limit on their own — reduce the output width or swap them"
     }
   }
 }

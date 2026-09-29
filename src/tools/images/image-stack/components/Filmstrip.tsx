@@ -19,12 +19,15 @@ export function Filmstrip() {
   const mode = useImageStackStore((state) => state.mode)
   const brushId = useImageStackStore((state) => state.brushId)
   const splitSourceId = useImageStackStore((state) => state.splitSourceId)
+  const longSelection = useImageStackStore((state) => state.longSelection)
   const addFiles = useImageStackStore((state) => state.addFiles)
   const clearItems = useImageStackStore((state) => state.clearItems)
   const autoFill = useImageStackStore((state) => state.autoFill)
   const inputRef = useRef<HTMLInputElement>(null)
 
   const readyCount = items.filter(isReady).length
+  // 三档各自的「当前选中」来源不同：画笔 / 长图微调 / 拆分源图
+  const selected = mode === 'stitch' ? brushId : mode === 'long' ? longSelection : splitSourceId
 
   return (
     <div className="bg-card rounded-xl border p-3">
@@ -75,12 +78,7 @@ export function Filmstrip() {
 
       <div className="grid grid-cols-[repeat(auto-fill,minmax(4.5rem,1fr))] gap-2">
         {items.map((item, index) => (
-          <StackThumb
-            key={item.id}
-            item={item}
-            index={index}
-            active={mode === 'stitch' ? brushId === item.id : splitSourceId === item.id}
-          />
+          <StackThumb key={item.id} item={item} index={index} active={selected === item.id} />
         ))}
       </div>
     </div>
@@ -94,6 +92,7 @@ function StackThumb({ item, index, active }: { item: AssetItem; index: number; a
   const removeItem = useImageStackStore((state) => state.removeItem)
   const setBrush = useImageStackStore((state) => state.setBrush)
   const setSplitSource = useImageStackStore((state) => state.setSplitSource)
+  const selectLongItem = useImageStackStore((state) => state.selectLongItem)
   const setDraggingImage = useImageStackStore((state) => state.setDraggingImage)
   const reorderItems = useImageStackStore((state) => state.reorderItems)
 
@@ -132,7 +131,15 @@ function StackThumb({ item, index, active }: { item: AssetItem; index: number; a
           setDraggingImage(item.id)
         }}
         onDragEnd={() => setDraggingImage(null)}
-        onClick={() => (mode === 'stitch' ? setBrush(item.id) : setSplitSource(item.id))}
+        onClick={() => {
+          if (mode === 'stitch') {
+            setBrush(item.id)
+          } else if (mode === 'long') {
+            selectLongItem(item.id)
+          } else {
+            setSplitSource(item.id)
+          }
+        }}
         className={cn(
           'focus-visible:ring-ring size-full cursor-grab touch-none overflow-hidden rounded-md border-2 transition-colors active:cursor-grabbing',
           active ? 'border-primary' : 'hover:border-primary/40 border-transparent',

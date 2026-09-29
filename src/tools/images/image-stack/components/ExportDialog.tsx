@@ -26,11 +26,18 @@ import {
   supportsAlpha,
   type ExportFormat,
 } from '../image-stack.service'
-import { copyBlobToClipboard, renderSceneToBlob, renderSlices } from '../export-image'
+import { buildLongFileName, buildLongSegmentName, buildLongZipName } from '../long-stack.service'
+import {
+  copyBlobToClipboard,
+  renderLongToBlob,
+  renderLongSegments,
+  renderSceneToBlob,
+  renderSlices,
+} from '../export-image'
 import { buildSliceZip } from '../export-zip'
 import { downloadBlob } from '../download'
 import { useImageStackStore } from '../store'
-import { useAssetResolver, useSplitGeometry, useStitchScene } from '../use-scene'
+import { useAssetResolver, useLongGeometry, useSplitGeometry, useStitchScene } from '../use-scene'
 
 const CLIPBOARD_SUPPORTED =
   typeof ClipboardItem !== 'undefined' && typeof navigator.clipboard?.write === 'function'
@@ -251,6 +258,181 @@ function StitchExport() {
   )
 }
 
+/**
+ * 长图：成品可能超出画布上限，于是同一套渲染既出整张也出分段。
+ * 分段时「下载整张」与「复制到剪贴板」失去意义（那张图根本画不出来），
+ * 所以禁用而不是藏起来，让用户看得见为什么点不动。
+ */
+function LongExport() {
+  const { t } = useTranslation('tools-images', { keyPrefix: 'image-stack' })
+  const { layout } = useLongGeometry()
+  const style = useImageStackStore((state) => state.longStyle)
+  const resolveFull = useAssetResolver('full')
+  const exportOption = useImageStackStore((state) => state.exportOption)
+  const [isBusy, setIsBusy] = useState(false)
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null)
+  const [previewOpen, setPreviewOpen] = useState(false)
+  const previewRef = useRef<string | null>(null)
+
+  const target = { geometry: layout, style, resolveAsset: resolveFull, option: exportOption }
+  const segments = layout.segments
+  const segmented = segments.length > 1
+  const empty = layout.bands.length === 0
+  const unsplittable = layout.unsplittable.length > 0
+  // 单张就超上限时连分段都救不了，只能让用户先减宽度或换图
+  const blocked = empty || unsplittable
+  const losesAlpha = !supportsAlpha(exportOption.format) && style.background.type === 'transparent'
+
+  useEffect(() => {
+    return () => {
+      if (previewRef.current) {
+        URL.revokeObjectURL(previewRef.current)
+      }
+    }
+  }, [])
+
+  const run = useCallback(
+    async (action: () => Promise<void>) => {
+      setIsBusy(true)
+      try {
+        await action()
+      } catch {
+        toast.error(t(unsplittable ? 'long.unsplittable' : 'export.failed'))
+      } finally {
+        setIsBusy(false)
+      }
+    },
+    [t, unsplittable],
+  )
+
+  const busy = isBusy || blocked
+
+  return (
+    <>
+      <ExportDialogShell
+        disabled={empty}
+        description={t('long.pixels', {
+          width: layout.width,
+          height: layout.height,
+          megapixels: Math.round((layout.width * layout.height) / 10_000) / 100,
+        })}
+        footer={(close) => (
+          <>
+            <Button
+              size="sm"
+              variant="outline"
+              className="gap-1.5"
+              disabled={busy || segmented || !CLIPBOARD_SUPPORTED}
+              title={
+                segmented
+                  ? t('long.segmentsBlocked')
+                  : CLIPBOARD_SUPPORTED
+                    ? undefined
+                    : t('export.clipboardUnsupported')
+              }
+              onClick={() =>
+                run(async () => {
+                  await copyBlobToClipboard(await renderLongToBlob(target))
+                  toast.success(t('export.copied'))
+                })
+              }
+            >
+              <Clipboard className="size-4" />
+              {t('export.copy')}
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              className="gap-1.5"
+              disabled={isBusy || blocked}
+              onClick={() => {
+                close()
+                run(async () => {
+                  const window = segmented ? segments[0] : undefined
+                  const blob = await renderLongToBlob(target, window, window ? 'top' : 'all')
+                  if (previewRef.current) {
+                    URL.revokeObjectURL(previewRef.current)
+                  }
+                  previewRef.current = URL.createObjectURL(blob)
+                  setPreviewUrl(previewRef.current)
+                  setPreviewOpen(true)
+                })
+              }}
+            >
+              <Eye className="size-4" />
+              {segmented ? t('long.previewFirst') : t('export.preview')}
+            </Button>
+            {segmented ? (
+              <Button
+                size="sm"
+                className="gap-1.5"
+                disabled={busy}
+                onClick={() =>
+                  run(async () => {
+                    const names = segments.map((_, index) =>
+                      buildLongSegmentName(index, segments.length, exportOption.format),
+                    )
+                    downloadBlob(
+                      await buildSliceZip(await renderLongSegments(target, names)),
+                      buildLongZipName(),
+                    )
+                    toast.success(t('export.zipDone', { total: segments.length }))
+                  })
+                }
+              >
+                <FolderArchive className="size-4" />
+                {t('export.zip')}
+              </Button>
+            ) : (
+              <Button
+                size="sm"
+                className="gap-1.5"
+                disabled={busy}
+                onClick={() =>
+                  run(async () => {
+                    downloadBlob(
+                      await renderLongToBlob(target),
+                      buildLongFileName(exportOption.format),
+                    )
+                  })
+                }
+              >
+                <Download className="size-4" />
+                {t('export.download')}
+              </Button>
+            )}
+          </>
+        )}
+      >
+        <FormatControls />
+        {losesAlpha ? (
+          <p className="text-muted-foreground text-xs">{t('export.alphaLost')}</p>
+        ) : null}
+        {segmented ? (
+          <p className="text-muted-foreground text-xs">
+            {t('long.segments', { total: segments.length, px: layout.maxSegmentHeight })}
+          </p>
+        ) : null}
+        {unsplittable ? (
+          <p className="text-destructive text-xs">
+            {t('long.unsplittable', { total: layout.unsplittable.length })}
+          </p>
+        ) : null}
+      </ExportDialogShell>
+
+      {previewUrl ? (
+        <ImageLightbox
+          open={previewOpen}
+          onOpenChange={setPreviewOpen}
+          src={previewUrl}
+          alt={t('export.previewAlt')}
+          caption={`${layout.width} × ${layout.height}`}
+        />
+      ) : null}
+    </>
+  )
+}
+
 function SplitExport() {
   const { t } = useTranslation('tools-images', { keyPrefix: 'image-stack' })
   const geometry = useSplitGeometry()
@@ -357,8 +539,11 @@ function SplitExport() {
   )
 }
 
-/** 导出收进弹窗，所以右侧栏不再为它单独占一张卡；两个模式只是动作不同 */
+/** 导出收进弹窗，所以侧栏不再为它单独占一张卡；三档只是动作不同 */
 export function ExportDialog() {
   const mode = useImageStackStore((state) => state.mode)
-  return mode === 'stitch' ? <StitchExport /> : <SplitExport />
+  if (mode === 'stitch') {
+    return <StitchExport />
+  }
+  return mode === 'long' ? <LongExport /> : <SplitExport />
 }

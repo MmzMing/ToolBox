@@ -28,6 +28,10 @@ coverage
 public/sitemap.xml
 public/robots.txt
 
+# llms.txt generated at build time by scripts/generate-llms.mjs
+public/llms.txt
+public/llms-full.txt
+
 # wasm codecs copied by scripts/prepare-codecs.mjs（gif 产物为提交文件，保留）
 public/codecs/*
 !public/codecs/gif

@@ -1,4 +1,8 @@
 {
+  "siteName": "MmzMing的工具箱",
+  "seoHowTo": "如何使用",
+  "seoFaq": "常见问题",
+  "seoRelated": "相关工具",
   "searchPlaceholder": "搜索工具…",
   "noResults": "未找到匹配的工具",
   "copied": "已复制到剪贴板",

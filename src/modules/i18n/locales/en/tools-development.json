@@ -1,7 +1,7 @@
 {
   "crontab-generator": {
     "title": "Cron Expression Generator",
-    "description": "Generate cron expressions with human-readable descriptions, plus a syntax and example cheat sheet",
+    "description": "Build a cron expression by picking fields, with a human-readable schedule, upcoming run times and a cheat sheet of the five fields.",
     "minute": "Minute",
     "hour": "Hour",
     "dayOfMonth": "Day of month",
@@ -45,11 +45,34 @@
     "ref-workdayHoursTenth": "Every 10 minutes, 09:00-18:50 on weekdays",
     "ref-sundayMidnight": "Sunday at 00:00",
     "ref-monthFirstMidnight": "First day of month at 00:00",
-    "ref-newYearMidnight": "January 1 at 00:00"
+    "ref-newYearMidnight": "January 1 at 00:00",
+    "seo": {
+      "intro": "Build a cron expression from the minute, hour, day, month and weekday fields, with a human-readable schedule beside it and a reference covering field order, special characters, system literals and common patterns.",
+      "steps": [
+        "Set the five fields in order; an asterisk means any value, and ranges or steps can be written 1-5 or */5.",
+        "Use a preset to drop in frequent combinations such as every minute, hourly or Monday midnight.",
+        "Copy the expression into crontab -e or your CI config and check it against the described schedule."
+      ],
+      "faq": [
+        {
+          "q": "Why are both 0 and 7 Sunday?",
+          "a": "Classic cron numbers Sunday as 0, and many implementations also accept 7 for ISO compatibility, so the two are equivalent. Weekday and month also accept English abbreviations."
+        },
+        {
+          "q": "What happens if day-of-month and day-of-week are both restricted?",
+          "a": "Standard cron treats the two as an OR when neither is an asterisk, so a job runs if either matches — the most common source of surprise."
+        },
+        {
+          "q": "Is the expression portable?",
+          "a": "The five-field syntax works in Linux crontab, but Kubernetes CronJob, Jenkins and friends may use six fields with seconds or their own extensions, so check the target product."
+        }
+      ],
+      "related": ["docker-memo", "curl-generator", "regex-memo"]
+    }
   },
   "chmod-calculator": {
     "title": "Chmod Calculator",
-    "description": "Convert between numeric and symbolic permissions",
+    "description": "Tick read, write and execute bits to convert between numeric chmod modes and symbolic rwx notation, with reference values for common file types.",
     "owner": "Owner",
     "group": "Group",
     "others": "Others",
@@ -61,12 +84,12 @@
   },
   "docker-run-to-docker-compose-converter": {
     "title": "Docker Run to Compose",
-    "description": "Convert a docker run command to compose config",
+    "description": "Paste a docker run command and get the matching compose service, mapping image, port bindings, volumes, environment, networks and restart policy.",
     "inputPlaceholder": "docker run -d --name web -p 8080:80 -v /data:/app/data nginx:latest"
   },
   "format-studio": {
     "title": "Format Studio",
-    "description": "Convert and format across JSON, YAML, TOML, XML, CSV, Markdown, HTML and SQL — pick the input format on the left and the output format on the right; stripping comments and folding/expanding apply to the output only",
+    "description": "Convert and format JSON, YAML, TOML, XML, CSV, Markdown, HTML and SQL side by side; comment stripping and folding apply to the output only.",
     "inputPlaceholder": "Paste code or data, e.g. {\"name\": \"ToolBox\"}",
     "outputPlaceholder": "Output appears here",
     "stripComments": "Strip comments",
@@ -74,11 +97,34 @@
     "expandAll": "Expand all",
     "noComments": "This format has no comment syntax",
     "outputOnly": "Affects the result only — the source text is never rewritten",
-    "stripCommentsHint": "Remove comments from the source before converting; the input box stays untouched"
+    "stripCommentsHint": "Remove comments from the source before converting; the input box stays untouched",
+    "seo": {
+      "intro": "Pick the input format on the left and the output format on the right to convert and pretty-print between JSON, YAML, TOML, XML, CSV, Markdown, HTML and SQL. Comment stripping and folding only affect the output, never your source text.",
+      "steps": [
+        "Paste the data or type it in the editor, then choose its format on the left.",
+        "Switch the right side to the target format; indentation and style re-apply instantly.",
+        "If you need cleanup, tick strip comments or fold everything, then copy the output."
+      ],
+      "faq": [
+        {
+          "q": "Will converting change my source text?",
+          "a": "No. Every cleanup and folding option applies to the output pane only, so you can keep retrying other formats against the same input."
+        },
+        {
+          "q": "Which formats are supported?",
+          "a": "JSON, YAML, TOML, XML, CSV, Markdown, HTML and SQL — any pair can be converted, and same-format pretty printing works too."
+        },
+        {
+          "q": "Is my data uploaded?",
+          "a": "No. Parsing and conversion run entirely in your browser and nothing is persisted."
+        }
+      ],
+      "related": ["encoder-decoder", "hash-text", "regex-memo"]
+    }
   },
   "github-accelerator": {
     "title": "GitHub Download Accelerator",
-    "description": "Paste a GitHub link and get download URLs routed through accelerator nodes",
+    "description": "Paste a GitHub repository, release or raw link and get download URLs routed through accelerator nodes you can switch between.",
     "inputLabel": "GitHub link",
     "inputPlaceholder": "https://github.com/owner/repo/releases/download/v1.0/app.zip",
     "clear": "Clear",
@@ -117,7 +163,7 @@
   },
   "encoder-decoder": {
     "title": "Encoder / Decoder",
-    "description": "Base64, JWT, URL, Unicode and binary encoding in one tabbed page",
+    "description": "Five coders on one page — Base64, JWT, URL, Unicode and binary — converting both ways in real time, with JWT claim decoding included.",
     "tab-base64": "Base64",
     "tab-jwt": "JWT",
     "tab-url": "URL",
@@ -169,7 +215,7 @@
   },
   "color-converter": {
     "title": "Color Converter",
-    "description": "Convert between HEX, RGB, HSL, HWB, LCH, CMYK and color names, with a picker",
+    "description": "Convert between HEX, RGB, HSL, HWB, LCH, CMYK and named colors with a picker and a shade ramp, copying formatted values — all conversion is local.",
     "pickerLabel": "Picker",
     "preview": "Color preview",
     "invalidFormat": "Invalid {{format}} format.",

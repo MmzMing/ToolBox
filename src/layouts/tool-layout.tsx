@@ -2,7 +2,8 @@ import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { FavoriteButton } from '@/components/favorite-button'
-import { absoluteUrl, siteConfig } from '@/config/site'
+import { ToolSeoContent } from '@/components/tool-seo-content'
+import { absoluteUrl } from '@/config/site'
 import { cn } from '@/lib/utils'
 import { DocumentMeta } from '@/modules/seo/document-meta'
 import { JsonLd } from '@/modules/seo/json-ld'
@@ -28,8 +29,9 @@ export function ToolLayout({ tool, children, fill = false, wide = false }: ToolL
   // SEO 标签与可见头部拆开：两个分支共用同一份 meta，扩字段不会漏改
   const meta = (
     <>
+      {/* 品牌后缀随界面语言走：英文页拼中文品牌是错配信号，也会被 Google 改写标题 */}
       <DocumentMeta
-        title={`${title} · ${siteConfig.name}`}
+        title={`${title} · ${tCommon('siteName')}`}
         description={description}
         keywords={tool.keywords}
         path={tool.path}
@@ -61,10 +63,12 @@ export function ToolLayout({ tool, children, fill = false, wide = false }: ToolL
 
   if (fill) {
     // 沉浸式工具自管页面头部与留白（画布类要贴边，卡片网格类自己加 padding），
-    // 这里只给 SEO（无可见头部）与打通到视口的高度链
+    // 这里只给 SEO（无可见头部）与打通到视口的高度链。
+    // sr-only 的 h1 不能省：整页式工具没有可见标题，缺 H1 就等于缺页面主题。
     return (
       <div className="flex h-full min-h-0 w-full flex-col">
         {meta}
+        <h1 className="sr-only">{title}</h1>
         <div className="flex min-h-0 flex-1 flex-col">{children}</div>
       </div>
     )
@@ -76,6 +80,8 @@ export function ToolLayout({ tool, children, fill = false, wide = false }: ToolL
       {header}
       <p className="text-muted-foreground mt-2 text-sm">{description}</p>
       <div className="mt-6 flex flex-col gap-4">{children}</div>
+      {/* 内容层只挂在常规页：整页式工具（fill）自管高度链，插一段长文会顶掉视口撑满 */}
+      <ToolSeoContent tool={tool} />
     </div>
   )
 }

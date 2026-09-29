@@ -1,7 +1,7 @@
 {
   "qr-code": {
     "title": "二维码转换",
-    "description": "文本与二维码图片互转，生成支持自定义颜色尺寸，识别可拖拽粘贴解码为文本",
+    "description": "文本与二维码图片互转：生成时可自定义颜色、尺寸与容错等级，识别支持拖拽或粘贴图片解码为文本，全程本地完成。",
     "tab-generate": "生成",
     "tab-detect": "识别",
     "generate": {
@@ -35,11 +35,34 @@
       "notFound": "没有在这张图片里识别到二维码，试试裁掉多余边框或换一张更清晰的图",
       "decodeFailed": "图片读取失败，请换一张图片重试",
       "resultLabel": "识别结果"
+    },
+    "seo": {
+      "intro": "两个页签覆盖二维码的日常用法：生成页把文本或链接做成二维码，可调前景色、背景色、尺寸、边距与纠错级别，导出 PNG 或 SVG；识别页把二维码图片拖进来或直接粘贴，就能还原成文本。",
+      "steps": [
+        "在生成页填入文本或 URL，并按用途选择纠错级别（要打印或可能磨损就选 Q/H）。",
+        "调整尺寸、边距与配色，确认后下载 PNG，需要矢量或再进设计稿就下载 SVG。",
+        "反向使用时切到识别页，拖入、粘贴或选择二维码图片，识别结果即时显示为文本。"
+      ],
+      "faq": [
+        {
+          "q": "纠错级别该选哪一档？",
+          "a": "L 约可恢复 7% 的码字、M 约 15%、Q 约 25%、H 约 30%。只在屏幕上展示用 L 或 M 就够；要印刷、贴在户外或中间叠 logo，选 Q 或 H。"
+        },
+        {
+          "q": "为什么改了颜色就扫不出来？",
+          "a": "扫码靠明暗对比判断模块，前景与背景太接近、或者反色成浅码深底都会让识别失败。保持深色前景配浅色背景最稳。"
+        },
+        {
+          "q": "图片会被上传吗？",
+          "a": "不会。识别用的图片只在浏览器本地解码，页面不会把它发往任何服务器。"
+        }
+      ],
+      "related": ["wifi-qr-code-generator", "image-compressor", "safelink-decoder"]
     }
   },
   "wifi-qr-code-generator": {
     "title": "WiFi 二维码",
-    "description": "扫码即可连接 WiFi 网络",
+    "description": "输入网络名称、密码与加密方式生成 WiFi 二维码，手机扫码即可连网，支持隐藏网络与二维码样式自定义，密码只在本地生成。",
     "sectionNetwork": "网络",
     "sectionSecurity": "安全",
     "ssidLabel": "网络名称（SSID）",
@@ -439,9 +462,10 @@
   },
   "image-stack": {
     "title": "图片堆叠",
-    "description": "把多张图按预设模板拼成长图、九宫格或海报，也能把一张图按网格切成多张，画布比例、边距间距圆角与导出格式全可调，全程本地处理",
+    "description": "把多张图按预设模板拼成九宫格或海报、竖向堆成一张超长图（台词字幕、滚动截图自动去重叠），也能把一张图按网格切成多张，尺寸、边距间距圆角与导出格式全可调，全程本地处理",
     "mode": {
       "stitch": "布局拼接",
+      "long": "超长图堆叠",
       "split": "图片拆分"
     },
     "notes": {
@@ -546,6 +570,103 @@
       "splitEmpty": "还没有可切分的图片",
       "copied": "已复制到剪贴板",
       "failed": "导出失败，请换一张图或调小画布尺寸后重试"
+    },
+    "long": {
+      "hint": "素材顺序就是长图自上而下的顺序，拖动缩略图即可调整。",
+      "stageAria": "超长图预览",
+      "selectItem": "调整这张图的裁切",
+      "preset": "玩法",
+      "presetValue": {
+        "seamless": "无缝长图",
+        "subtitle": "台词字幕",
+        "screenshot": "滚动截图"
+      },
+      "presetHint": {
+        "seamless": "每张都完整保留，等宽往下顺排成一张长图。",
+        "subtitle": "第一张完整显示，后面每张只留底部一条，做台词字幕那种叠法。",
+        "screenshot": "整张保留并把每张的重复头部裁掉，适合连续滚动截图。"
+      },
+      "crop": "裁切",
+      "keepBottom": "保留底部比例",
+      "keepBottomValue": "保留 {{percent}}%",
+      "keepBottomHint": "第一张始终完整显示；100% 就是无缝长图。",
+      "resetCrops": "全部恢复默认",
+      "width": "成品宽度",
+      "widthModeLabel": "宽度取自",
+      "widthMode": {
+        "narrowest": "最窄的一张",
+        "widest": "最宽的一张",
+        "first": "第一张",
+        "custom": "自定义"
+      },
+      "widthModeHint": "一律不放大图片：窄于成品宽度的图按原样大小落位，空白处露背景。",
+      "align": "窄图对齐",
+      "alignValue": {
+        "left": "左对齐",
+        "center": "居中",
+        "right": "右对齐"
+      },
+      "items": "逐张微调",
+      "itemLead": "首张完整",
+      "itemKeepBottomValue": "保留 {{percent}}% ≈ {{px}} px",
+      "applyAll": "应用到全部",
+      "inherit": "恢复继承",
+      "trimmed": "已裁掉顶部 {{px}} px",
+      "dedup": "自动去重叠",
+      "dedupRunning": "识别中…",
+      "dedupThis": "识别这一处",
+      "dedupClear": "清除裁切",
+      "dedupHint": "逐行比对前一张的下沿与后一张的上沿，只自动采纳可信的结果；拿不准的会说出来让你自己确认。",
+      "dedupDone": "已裁掉 {{applied}} 处重叠（共 {{px}} px）；{{review}} 处需确认，{{flat}} 处画面太平认不出",
+      "dedupApplied": "已裁掉这一处的 {{px}} px",
+      "dedupReason": {
+        "ok": "已找到重叠",
+        "none": "这一处没有发现重叠",
+        "flat": "画面太平（纯色或渐变），无法可靠识别",
+        "ambiguous": "存在重复图案，结果不确定，请手动核对",
+        "weak": "相似度偏低，仅供参考"
+      },
+      "ignored": "超过 {{total}} 张的部分未参与堆叠",
+      "output": "成品尺寸",
+      "zoom": "预览缩放",
+      "zoomFit": "适应宽度",
+      "zoomHint": "Ctrl / ⌘ + 滚轮缩放，点右侧缩览可跳到那一段",
+      "emptyStage": "还没有可堆叠的图片",
+      "minimapAria": "整图缩览",
+      "bandRadius": "单张圆角",
+      "narrowFill": "窄图补白",
+      "narrowFillValue": {
+        "background": "留背景色",
+        "blur": "模糊补白"
+      },
+      "narrowFillHint": "宽度不一致时才有区别：模糊补白会拿这张图自己放大模糊后铺满整行。",
+      "card": "卡片层叠",
+      "stackOverlap": "相邻上叠",
+      "stackOverlapHint": "后一张往上盖住前一张，配合阴影就是那种叠放卡片的效果。",
+      "shadowOff": "关闭",
+      "shadowBlur": "阴影模糊",
+      "shadowOffset": "阴影下移",
+      "shadowOpacity": "阴影浓度",
+      "caption": "角标",
+      "captionEnabled": "显示角标",
+      "captionText": "角标文字",
+      "captionTextHint": "可用 {n}（序号）、{total}（总张数）、{name}（文件名）",
+      "captionPlace": "位置",
+      "captionPlaceValue": {
+        "tl": "左上",
+        "tr": "右上",
+        "bl": "左下",
+        "br": "右下"
+      },
+      "captionSize": "字号",
+      "captionInset": "离边距离",
+      "captionColor": "字色",
+      "pixels": "{{width}} × {{height}} px · {{megapixels}} 百万像素",
+      "segments": "高度超出画布上限，将按接缝分成 {{total}} 段（每段不高于 {{px}} px）",
+      "segmentsShort": "分 {{total}} 段",
+      "segmentsBlocked": "成品需要分段，无法作为一张图复制",
+      "previewFirst": "预览首段",
+      "unsplittable": "有 {{total}} 张单张就超出上限，请先减小成品宽度或换图"
     }
   }
 }

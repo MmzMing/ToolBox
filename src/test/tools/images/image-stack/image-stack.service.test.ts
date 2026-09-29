@@ -5,6 +5,7 @@ import {
   assertCanvasSize,
   buildSliceName,
   buildSliceZipName,
+  CANVAS_LIMITS,
   CANVAS_RATIOS,
   CANVAS_SIZE_PRESETS,
   clampCustomSize,
@@ -13,6 +14,7 @@ import {
   cropRectForFocus,
   CUSTOM_SIZE_KEY,
   DEFAULT_EXPORT,
+  DEFAULT_MODE,
   DEFAULT_RATIO,
   DEFAULT_STYLE,
   directionOf,
@@ -20,10 +22,13 @@ import {
   equalGrid,
   extensionOf,
   fitTracks,
+  LONG_CANVAS_LIMITS,
   MAX_CANVAS_AREA,
+  MAX_CANVAS_AREA_SAFE,
   MAX_CANVAS_SIDE,
   MAX_CELLS,
   MAX_GAP,
+  MAX_LONG_CANVAS_SIDE,
   MAX_PADDING,
   MAX_RADIUS,
   MAX_TRACKS,
@@ -31,9 +36,11 @@ import {
   MIN_CANVAS_SIDE,
   MIN_ZOOM,
   mimeTypeOf,
+  MODES,
   normalizeCustomSize,
   normalizeExport,
   normalizeFocus,
+  normalizeMode,
   normalizePresetKey,
   normalizeRatioKey,
   normalizeStyle,
@@ -924,5 +931,60 @@ describe('normalizeExport', () => {
     expect(normalizeExport({ format: 'gif', quality: 0.8 }).format).toBe(DEFAULT_EXPORT.format)
     expect(normalizeExport({ format: 'png', quality: 5000 }).quality).toBe(1)
     expect(normalizeExport({ format: 'png', quality: -5 }).quality).toBe(0.1)
+  })
+})
+
+describe('normalizeMode', () => {
+  it('keeps every tab that is in the table', () => {
+    MODES.forEach((mode) => {
+      expect(normalizeMode(mode)).toBe(mode)
+    })
+  })
+
+  it('does not swallow the newest tab the way the old ternary did', () => {
+    // 曾经写成 saved.mode === 'split' ? 'split' : 'stitch'，长图档会被静默吞成拼接
+    expect(normalizeMode('long')).toBe('long')
+    expect(normalizeMode('split')).toBe('split')
+  })
+
+  it('falls back to the default tab for junk', () => {
+    expect(normalizeMode('nope')).toBe(DEFAULT_MODE)
+    expect(normalizeMode(undefined)).toBe(DEFAULT_MODE)
+    expect(normalizeMode(null)).toBe(DEFAULT_MODE)
+    expect(normalizeMode(1)).toBe(DEFAULT_MODE)
+  })
+})
+
+describe('canvas limits', () => {
+  it('keeps the grid cap when no limits are passed', () => {
+    expect(() => assertCanvasSize({ width: 1080, height: 15_000 })).toThrow(
+      `Canvas side exceeds ${MAX_CANVAS_SIDE}px`,
+    )
+    expect(() => assertCanvasSize({ width: 1080, height: 15_000 }, CANVAS_LIMITS)).toThrow()
+  })
+
+  it('accepts a taller canvas under the long-image limits', () => {
+    expect(assertCanvasSize({ width: 1080, height: 15_000 }, LONG_CANVAS_LIMITS)).toEqual({
+      width: 1080,
+      height: 15_000,
+    })
+  })
+
+  it('still blocks a long canvas over the safe area', () => {
+    // 单边放到 16384 之后，真正的天花板是面积：超了 Safari 不报错，只给一张纯背景图
+    expect(() =>
+      assertCanvasSize({ width: 1080, height: MAX_LONG_CANVAS_SIDE }, LONG_CANVAS_LIMITS),
+    ).toThrow(`Canvas area exceeds ${MAX_CANVAS_AREA_SAFE}px`)
+  })
+
+  it('converges a custom long size into something the long limits accept', () => {
+    const size = clampCustomSize(1080, 20_000, LONG_CANVAS_LIMITS)
+    expect(size.height).toBeLessThan(MAX_LONG_CANVAS_SIDE)
+    expect(() => assertCanvasSize(size, LONG_CANVAS_LIMITS)).not.toThrow()
+  })
+
+  it('leaves the grid behaviour untouched for the same call', () => {
+    expect(clampCustomSize(1080, 20_000)).toEqual(clampCustomSize(1080, 20_000, CANVAS_LIMITS))
+    expect(clampCustomSize(1080, 20_000).height).toBe(MAX_CANVAS_SIDE)
   })
 })

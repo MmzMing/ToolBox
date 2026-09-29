@@ -6,6 +6,7 @@ import {
   clampCustomSize,
   CUSTOM_SIZE_KEY,
   DEFAULT_EXPORT,
+  DEFAULT_MODE,
   DEFAULT_RATIO,
   DEFAULT_STYLE,
   equalGrid,
@@ -14,6 +15,7 @@ import {
   normalizeCustomSize,
   normalizeExport,
   normalizeFocus,
+  normalizeMode,
   normalizePresetKey,
   normalizeRatioKey,
   normalizeStyle,
@@ -24,6 +26,7 @@ import {
   type Focus,
   type GridLayer,
   type GridTemplate,
+  type Mode,
   type RatioKey,
   type SceneStyle,
   type Size,
@@ -37,9 +40,26 @@ import {
   STITCH_CUSTOM_TEMPLATE,
 } from './templates'
 import { layoutById, MAX_LAYOUT_COUNT } from './layouts'
+import {
+  DEFAULT_LONG_CROP,
+  DEFAULT_LONG_PRESET,
+  DEFAULT_LONG_STYLE,
+  isLongPreset,
+  longCropOfPreset,
+  longGapOfPreset,
+  LONG_ZOOM_MIN,
+  normalizeLongCrop,
+  normalizeLongStyle,
+  normalizeLongZoom,
+  resolveLongCrop,
+  type LongCrop,
+  type LongItem,
+  type LongPresetId,
+  type LongStyle,
+} from './long-stack.service'
 import { decodeAsset, disposeAsset, isReady, newAssetId, type AssetItem } from './assets'
 
-export type Mode = 'stitch' | 'split'
+export type { Mode }
 
 /** 素材条 → 单元格的原生拖拽载荷类型；自定义 MIME 避免和外部拖入的文件混淆 */
 export const IMAGE_DRAG_MIME = 'text/x-image-stack'
@@ -87,6 +107,21 @@ interface ImageStackState {
   /** 裁切框在源图里的平移缩放焦点；拖拽与滚轮改的就是它 */
   splitFocus: Focus
 
+  /** 超长图的宽度/间距/背景；与网格档的 style 各管各的，互不牵动 */
+  longStyle: LongStyle
+  /** 全局裁切默认：保留底部比例（创作）+ 顶部去重叠量（识别结果） */
+  longCropDefaults: LongCrop
+  longPresetId: LongPresetId
+  /**
+   * 逐张覆盖，按素材顺序排列 —— 顺序就是长图自上而下的顺序。
+   * 不持久化：imageId 每次上传都是新 UUID，存下来刷新后全是孤儿。
+   */
+  longItems: LongItem[]
+  /** 配置栏里当前展开微调的那张 */
+  longSelection: string | null
+  /** 预览视口的缩放倍率；1 = 适应视口宽度 */
+  longZoom: number
+
   ratioKey: RatioKey
   presetKey: string
   customSize: Size
@@ -124,6 +159,20 @@ interface ImageStackState {
   setSplitSource: (id: string) => void
   setSplitFocus: (focus: Focus) => void
   resetSplitFocus: () => void
+
+  setLongStyle: (patch: Partial<LongStyle>) => void
+  setLongPreset: (id: LongPresetId) => void
+  /** 只改全局保留比例；预设按钮走 setLongPreset */
+  setLongKeepBottomPercent: (percent: number) => void
+  /** crop 传 null 表示这张恢复继承全局 */
+  setLongItemCrop: (imageId: string, crop: LongCrop | null) => void
+  /** 把某张的裁切提升为全局，并清掉所有逐张覆盖 */
+  syncLongCropToAll: (imageId: string) => void
+  resetLongCrops: () => void
+  /** 识别结果按「第 i 张裁掉顶部多少 px」落值；低置信度的由调用方决定是否提交 */
+  applyLongOverlaps: (overlaps: readonly { imageId: string; trimTopPx: number }[]) => void
+  selectLongItem: (imageId: string | null) => void
+  setLongZoom: (zoom: number) => void
 
   setRatio: (key: RatioKey) => void
   setPreset: (key: string) => void
@@ -208,6 +257,18 @@ function patchLayer(state: ImageStackState, index: number, patch: Partial<GridLa
   )
 }
 
+/**
+ * 素材集合变化后把逐张裁切对齐回现有素材：删掉孤儿、新图排到末尾并继承全局。
+ * 顺序以 items 为准 —— 长图里素材顺序就是自上而下的顺序，所以拖拽排序不需要额外同步。
+ */
+export function reconcileLongItems(
+  items: readonly AssetItem[],
+  previous: readonly LongItem[],
+): LongItem[] {
+  const byId = new Map(previous.map((item) => [item.imageId, item]))
+  return readyIds(items).map((id) => byId.get(id) ?? { imageId: id, crop: null })
+}
+
 function readTrackCount(raw: unknown, fallback: number): number {
   const value = typeof raw === 'number' && Number.isFinite(raw) ? Math.round(raw) : fallback
   return Math.min(MAX_TRACKS, Math.max(1, value))
@@ -255,6 +316,10 @@ const imageStackPersistOptions = {
       splitCols: state.splitCols,
       splitRows: state.splitRows,
       splitFocus: state.splitFocus,
+      longStyle: state.longStyle,
+      longCropDefaults: state.longCropDefaults,
+      longPresetId: state.longPresetId,
+      longZoom: state.longZoom,
       ratioKey: state.ratioKey,
       presetKey: state.presetKey,
       customSize: state.customSize,
@@ -276,7 +341,7 @@ const imageStackPersistOptions = {
     ])
     return {
       ...current,
-      mode: saved.mode === 'split' ? 'split' : 'stitch',
+      mode: normalizeMode(saved.mode),
       stitchTemplateId,
       stitchCells,
       stitchCols: stitch.cols,
@@ -290,6 +355,13 @@ const imageStackPersistOptions = {
       splitCols: split.cols,
       splitRows: split.rows,
       splitFocus: normalizeFocus(saved.splitFocus),
+      longStyle: normalizeLongStyle(saved.longStyle),
+      longCropDefaults: normalizeLongCrop(saved.longCropDefaults),
+      longPresetId: isLongPreset(saved.longPresetId) ? saved.longPresetId : DEFAULT_LONG_PRESET,
+      longZoom: normalizeLongZoom(saved.longZoom),
+      // 逐张裁切不持久化，刷新后回到「全部继承全局」
+      longItems: [],
+      longSelection: null,
       ratioKey,
       presetKey: normalizePresetKey(ratioKey, saved.presetKey),
       customSize: normalizeCustomSize(saved.customSize),
@@ -302,7 +374,7 @@ const imageStackPersistOptions = {
 export const useImageStackStore = create<ImageStackState>()(
   persist(
     (set) => ({
-      mode: 'stitch',
+      mode: DEFAULT_MODE,
       items: [],
       isDecoding: false,
 
@@ -329,6 +401,13 @@ export const useImageStackStore = create<ImageStackState>()(
       splitRows: DEFAULT_SPLIT_ROWS,
       splitSourceId: null,
       splitFocus: { ...DEFAULT_SPLIT_FOCUS },
+
+      longStyle: { ...DEFAULT_LONG_STYLE },
+      longCropDefaults: { ...DEFAULT_LONG_CROP },
+      longPresetId: DEFAULT_LONG_PRESET,
+      longItems: [],
+      longSelection: null,
+      longZoom: LONG_ZOOM_MIN,
 
       ratioKey: DEFAULT_RATIO,
       presetKey: 'web',
@@ -358,6 +437,7 @@ export const useImageStackStore = create<ImageStackState>()(
             stitchCells,
             layers: syncLayers(state.layers, cellCountOf(layout), ids),
             splitSourceId: firstReadyId(items, state.splitSourceId),
+            longItems: reconcileLongItems(items, state.longItems),
           }
         })
       },
@@ -374,6 +454,8 @@ export const useImageStackStore = create<ImageStackState>()(
             layers: syncLayers(state.layers, cellCountOf(state), readyIds(items)),
             brushId: state.brushId === id ? null : state.brushId,
             splitSourceId: firstReadyId(items, state.splitSourceId),
+            longItems: reconcileLongItems(items, state.longItems),
+            longSelection: state.longSelection === id ? null : state.longSelection,
           }
         }),
 
@@ -390,6 +472,8 @@ export const useImageStackStore = create<ImageStackState>()(
             selectedCell: null,
             brushId: null,
             splitSourceId: null,
+            longItems: [],
+            longSelection: null,
           }
         }),
 
@@ -409,6 +493,8 @@ export const useImageStackStore = create<ImageStackState>()(
           return {
             items,
             layers: syncLayers(state.layers, cellCountOf(state), readyIds(items)),
+            // 按 id 对齐，所以拖顺序时裁切跟着那张图一起走
+            longItems: reconcileLongItems(items, state.longItems),
           }
         }),
 
@@ -553,6 +639,82 @@ export const useImageStackStore = create<ImageStackState>()(
       setSplitFocus: (splitFocus) => set({ splitFocus }),
 
       resetSplitFocus: () => set({ splitFocus: { ...DEFAULT_SPLIT_FOCUS } }),
+
+      setLongStyle: (patch) =>
+        set((state) => ({ longStyle: normalizeLongStyle({ ...state.longStyle, ...patch }) })),
+
+      setLongPreset: (longPresetId) =>
+        set((state) => ({
+          longPresetId,
+          longCropDefaults: longCropOfPreset(longPresetId),
+          longStyle: normalizeLongStyle({
+            ...state.longStyle,
+            gap: longGapOfPreset(longPresetId),
+          }),
+          // 逐张覆盖属于上一个玩法，换档时整套作废，否则会出现「预设没生效」的怪状态
+          longItems: state.longItems.map((item) => ({ ...item, crop: null })),
+        })),
+
+      setLongKeepBottomPercent: (percent) =>
+        set((state) => ({
+          longCropDefaults: normalizeLongCrop({
+            ...state.longCropDefaults,
+            keepBottomPercent: percent,
+          }),
+        })),
+
+      setLongItemCrop: (imageId, crop) =>
+        set((state) => ({
+          longItems: state.longItems.map((item) =>
+            item.imageId === imageId
+              ? { imageId, crop: crop ? normalizeLongCrop(crop) : null }
+              : item,
+          ),
+        })),
+
+      syncLongCropToAll: (imageId) =>
+        set((state) => {
+          const target = state.longItems.find((item) => item.imageId === imageId)
+          if (!target) {
+            return state
+          }
+          return {
+            longCropDefaults: normalizeLongCrop(
+              resolveLongCrop(target.crop, state.longCropDefaults),
+            ),
+            longItems: state.longItems.map((item) => ({ ...item, crop: null })),
+          }
+        }),
+
+      resetLongCrops: () =>
+        set((state) => ({
+          longCropDefaults: { ...DEFAULT_LONG_CROP },
+          longPresetId: DEFAULT_LONG_PRESET,
+          longItems: state.longItems.map((item) => ({ ...item, crop: null })),
+        })),
+
+      applyLongOverlaps: (overlaps) =>
+        set((state) => {
+          const byId = new Map(overlaps.map((item) => [item.imageId, item.trimTopPx]))
+          return {
+            longItems: state.longItems.map((item) => {
+              const trimTopPx = byId.get(item.imageId)
+              return trimTopPx === undefined
+                ? item
+                : {
+                    ...item,
+                    crop: normalizeLongCrop({
+                      ...resolveLongCrop(item.crop, state.longCropDefaults),
+                      trimTopPx,
+                    }),
+                  }
+            }),
+          }
+        }),
+
+      selectLongItem: (longSelection) => set({ longSelection }),
+
+      setLongZoom: (longZoom) => set({ longZoom: normalizeLongZoom(longZoom) }),
 
       setRatio: (ratioKey) =>
         set((state) => ({

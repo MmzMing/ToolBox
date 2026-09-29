@@ -12,8 +12,8 @@
   "scripts": {
     "predev": "node scripts/prepare-codecs.mjs",
     "dev": "vite",
-    "prebuild": "node scripts/prepare-codecs.mjs && node scripts/generate-sitemap.mjs",
-    "build": "tsc -b && vite build",
+    "prebuild": "node scripts/prepare-codecs.mjs && node scripts/generate-sitemap.mjs && node scripts/generate-llms.mjs",
+    "build": "tsc -b && vite build && node scripts/prerender-shells.mjs",
     "preview": "vite preview",
     "test": "node scripts/check-i18n-duplicate-keys.mjs && node scripts/check-tool-seo-keys.mjs && node scripts/check-html-sinks.mjs && vitest run",
     "test:watch": "vitest",

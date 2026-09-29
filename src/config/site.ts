@@ -30,6 +30,12 @@ export const siteConfig = {
   githubUrl: 'https://github.com/MmzMing/ToolBox',
   /** 博客地址 */
   blogUrl: 'https://tblog.mmzhiku.xyz',
+  /**
+   * 社交分享卡片配图（og:image / twitter:image）：1200×630 横图，
+   * 由 public/images/og-image.svg 光栅化而来（改 SVG 后需重新导出同名 PNG）。
+   * 必须是位图——Facebook 与 Twitter 的抓取器都不接受 SVG。
+   */
+  ogImage: '/images/og-image.png',
   /** 浏览器 UI 着色与 Safari 固定标签页着色 */
   themeColor: '#0ea95e',
   icons: {
@@ -45,9 +51,8 @@ export const siteConfig = {
     appleTouch152: `${ICON_DIR}/apple-touch-icon-152x152.png`,
     appleTouch167: `${ICON_DIR}/apple-touch-icon-167x167.png`,
     appleTouch180: `${ICON_DIR}/apple-touch-icon-180x180.png`,
-    /** Android / 桌面「添加到主屏幕」；亦作社交分享卡片配图（og:image / twitter:image） */
+    /** Android / 桌面「添加到主屏幕」；分享卡片配图另见顶层 ogImage */
     android192: `${ICON_DIR}/android-chrome-192x192.png`,
-    /** 512×512 方形图，故 DocumentMeta 用 twitter:card=summary；补出 1200×630 品牌横图后再改 large_image */
     android512: `${ICON_DIR}/android-chrome-512x512.png`,
     /** Safari 固定标签页；mask-icon 只取 alpha 通道，需要纯黑剪影 */
     mask: `${ICON_DIR}/safari-pinned-tab.svg`,

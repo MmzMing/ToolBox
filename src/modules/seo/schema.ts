@@ -7,9 +7,16 @@ export type JsonLd = Record<string, unknown>
 const SITE_ID = `${siteConfig.siteUrl}/#website`
 const ORG_ID = `${siteConfig.siteUrl}/#organization`
 
+/**
+ * 每个数据节点都要带 @context：JSON-LD 缺了它就不是声明，
+ * Google 富结果检测与 AI 引擎的结构化解析都会整条丢弃。
+ */
+const SCHEMA_CONTEXT = 'https://schema.org'
+
 /** schema.org Organization：品牌实体，知识面板与 sameAs 归一的基础 */
 export function organizationSchema(): JsonLd {
   return {
+    '@context': SCHEMA_CONTEXT,
     '@type': 'Organization',
     '@id': ORG_ID,
     name: siteConfig.name,
@@ -25,6 +32,7 @@ export function organizationSchema(): JsonLd {
  */
 export function webSiteSchema(): JsonLd {
   return {
+    '@context': SCHEMA_CONTEXT,
     '@type': 'WebSite',
     '@id': SITE_ID,
     url: `${siteConfig.siteUrl}/`,
@@ -51,6 +59,7 @@ export type ToolSchemaInput = {
 /** schema.org WebApplication：每个工具页一条 */
 export function toolSchema({ title, description, path }: ToolSchemaInput): JsonLd {
   return {
+    '@context': SCHEMA_CONTEXT,
     '@type': 'WebApplication',
     name: title,
     url: absoluteUrl(path),
@@ -68,12 +77,32 @@ export type Crumb = { name: string; url: string }
 /** schema.org BreadcrumbList：与页面面包屑 UI 对应，此前只有 UI 没有声明 */
 export function breadcrumbSchema(items: Crumb[]): JsonLd {
   return {
+    '@context': SCHEMA_CONTEXT,
     '@type': 'BreadcrumbList',
     itemListElement: items.map((item, index) => ({
       '@type': 'ListItem',
       position: index + 1,
       name: item.name,
       item: item.url,
+    })),
+  }
+}
+
+export type FaqItem = { question: string; answer: string }
+
+/**
+ * schema.org FAQPage。Google 的 FAQ 富结果已收紧到权威站与政府站，
+ * 这里的主要收益是 AI 引擎（ChatGPT / Perplexity 等）可直接抽取问答对，
+ * 因此必须与页面上看得见的 FAQ 一一对应，不能只声明不展示。
+ */
+export function faqSchema(items: FaqItem[]): JsonLd {
+  return {
+    '@context': SCHEMA_CONTEXT,
+    '@type': 'FAQPage',
+    mainEntity: items.map((item) => ({
+      '@type': 'Question',
+      name: item.question,
+      acceptedAnswer: { '@type': 'Answer', text: item.answer },
     })),
   }
 }

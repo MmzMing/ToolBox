@@ -94,7 +94,8 @@ describe('cronReferenceGroups', () => {
 
   it('has zh and en copy for every description key', () => {
     for (const locale of [zhDevelopment, enDevelopment]) {
-      const copy = locale['crontab-generator'] as Record<string, string>
+      // 条目里还有 seo 这类嵌套对象，值只能是 unknown，断言只查真假
+      const copy = locale['crontab-generator'] as Record<string, unknown>
       for (const item of allItems) {
         expect(copy[item.descriptionKey], item.descriptionKey).toBeTruthy()
       }

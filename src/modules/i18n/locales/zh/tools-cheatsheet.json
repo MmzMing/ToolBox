@@ -1,7 +1,7 @@
 {
   "http-status-codes": {
     "title": "HTTP 状态码",
-    "description": "HTTP 状态码含义速查",
+    "description": "HTTP 状态码速查：按 1xx 到 5xx 分组列出每个码的原因短语、典型使用场景与常见误区，支持按编号或关键词检索。",
     "group-informational": "1xx 信息",
     "group-success": "2xx 成功",
     "group-redirect": "3xx 重定向",
@@ -114,7 +114,7 @@
   },
   "regex-memo": {
     "title": "正则速查表",
-    "description": "常用正则语法与示例速查",
+    "description": "常用正则语法速查：元字符、量词、字符类、分组、断言与修饰符逐条配上示例，可直接复制片段到自己的代码里。",
     "patternColumn": "语法",
     "descriptionColumn": "说明",
     "group-anchors": "锚点",
@@ -161,7 +161,7 @@
   },
   "git-memo": {
     "title": "Git 速查表",
-    "description": "Git 安装配置与常用命令速查",
+    "description": "Git 速查表：安装与初始配置、分支与暂存区常用命令、撤销回滚与合并冲突处理，逐条给出可以直接复制粘贴的命令。",
     "group-install": "安装与配置（Windows）",
     "guide": {
       "download": {
@@ -287,7 +287,7 @@
   },
   "maven-memo": {
     "title": "Maven 速查表",
-    "description": "Maven 安装步骤与常用命令、依赖配置速查",
+    "description": "Maven 速查：安装与环境变量配置、常用生命周期命令、依赖与仓库配置写法，附典型构建报错的排查方向。",
     "group-install": "安装步骤（Windows）",
     "guide": {
       "download": {
@@ -396,7 +396,7 @@
   },
   "nvm-memo": {
     "title": "nvm 速查表",
-    "description": "nvm-windows 安装配置与 Node 多版本管理速查",
+    "description": "nvm-windows 速查：安装步骤、Node 多版本切换、默认版本与镜像源配置，附常见的 PATH 与权限问题处理。",
     "group-install": "安装步骤（Windows）",
     "guide": {
       "clean": {
@@ -470,7 +470,7 @@
   },
   "docker-memo": {
     "title": "Docker 速查表",
-    "description": "Docker 与 1Panel 安装配置、常用命令速查",
+    "description": "Docker 与 1Panel 速查：安装配置、镜像与容器常用命令、compose 编排与端口映射，附国内镜像加速的取舍说明。",
     "group-linux": "安装步骤（Linux）",
     "group-windows": "安装步骤（Windows / Docker Desktop）",
     "group-panel": "1Panel 安装与配置",
@@ -614,7 +614,7 @@
   },
   "photo-cheatsheet": {
     "title": "拍照速查表",
-    "description": "手机拍照九类常见翻车场景对照图：距离、角度、遮挡、光线、手抖与对焦",
+    "description": "手机拍照九类常见翻车场景对照图：距离、角度、遮挡、光线、手抖与对焦各给正反例，用于证件照与人像拍摄自查。",
     "imageAlt": "拍照避坑速查图，九宫格依次为：01 过近糊了、02 角度奇怪、03 被挡住了、04 只拍到背影、05 太暗了、06 手抖了、07 逆光拍黑了、08 手指入镜、09 对焦错了，底部写着「拍100张 总有一张能用的…吧？」",
     "zoomHint": "点击图片可放大查看"
   },

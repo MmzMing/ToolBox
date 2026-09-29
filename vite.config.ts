@@ -6,22 +6,15 @@ import react from '@vitejs/plugin-react'
 import { defineConfig, type Plugin } from 'vitest/config'
 import type { IncomingMessage, ServerResponse } from 'node:http'
 
-import { siteConfig, absoluteUrl } from './src/config/site.ts'
-import { serializeJsonLd, siteGraph } from './src/modules/seo/schema.ts'
+import { siteConfig } from './src/config/site.ts'
+import { SEO_SLOT, buildSeoHead } from './src/modules/seo/static-head.ts'
 
 /**
  * index.html 是静态文件，读不到 TS 模块；head 里的标题、描述、图标与着色标签在此
  * 按 src/config/site.ts 生成，使站点信息保持 config 单一来源（dev 与 build 同一钩子）。
+ * SEO 那半块由 modules/seo/static-head.ts 生成，与构建后的预渲染脚本共用同一实现。
  */
 const CHARSET_ANCHOR = '<meta charset="UTF-8" />'
-const TITLE_PLACEHOLDER = '__SITE_TITLE__'
-const DESCRIPTION_PLACEHOLDER = '__SITE_DESCRIPTION__'
-/** 静态 head 里 OG/canonical 的落点：整行替换，值由下面的生成块提供 */
-const DESCRIPTION_ANCHOR = `<meta name="description" content="${DESCRIPTION_PLACEHOLDER}" />`
-
-/** 标题与描述来自 config 的裸字符串，转义后才放进标签/属性 */
-const escapeHtml = (value: string) =>
-  value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;')
 
 const injectSiteBranding = {
   name: 'inject-site-branding',
@@ -55,50 +48,22 @@ const injectSiteBranding = {
     /**
      * 静态壳的首页取值：不执行 JS 的爬虫（百度、ChatGPT/Perplexity 等 AI 爬虫）与
      * 读 OG 标签的社交抓取器只看这里，运行时 DocumentMeta 再原位改写为各页取值。
-     * 属性名与 DocumentMeta 的选择器严格一致，否则 head 里会出现两条同名标签。
+     * 其余路由由 scripts/prerender-shells.mjs 在同一块结构上改写各自的 TDK。
      */
-    const imageUrl = absoluteUrl(icons.android512)
-    const siteUrl = absoluteUrl('/')
-    const attr = (name: string, content: string) =>
-      `<meta name="${name}" content="${escapeHtml(content)}" />`
-    const ogAttr = (property: string, content: string) =>
-      `<meta property="${property}" content="${escapeHtml(content)}" />`
-    const headSeo = [
-      `<meta name="description" content="${escapeHtml(description)}" />`,
-      `<link rel="canonical" href="${siteUrl}" />`,
-      ogAttr('og:type', 'website'),
-      ogAttr('og:site_name', siteConfig.name),
-      ogAttr('og:locale', 'zh_CN'),
-      ogAttr('og:title', title),
-      ogAttr('og:description', description),
-      ogAttr('og:image', imageUrl),
-      ogAttr('og:image:width', '512'),
-      ogAttr('og:image:height', '512'),
-      ogAttr('og:url', siteUrl),
-      attr('twitter:card', 'summary'),
-      attr('twitter:title', title),
-      attr('twitter:description', description),
-      attr('twitter:image', imageUrl),
-      // 站点级实体是数据块（不执行），因此不受部署层 CSP script-src 约束
-      `<script type="application/ld+json">${serializeJsonLd(siteGraph())}</script>`,
-    ].join('\n    ')
+    const seoHead = buildSeoHead({
+      title,
+      description,
+      path: '/',
+    })
 
     // 必须紧跟 charset 之后：编码嗅探只读文档前 1024 字节，charset 靠后会被误判
     if (!html.includes(CHARSET_ANCHOR)) {
       throw new Error('[inject-site-branding] index.html 缺少锚点 ' + CHARSET_ANCHOR)
     }
-    for (const placeholder of [TITLE_PLACEHOLDER, DESCRIPTION_PLACEHOLDER]) {
-      if (!html.includes(placeholder)) {
-        throw new Error(`[inject-site-branding] index.html 缺少占位符 ${placeholder}`)
-      }
+    if (!html.includes(SEO_SLOT)) {
+      throw new Error('[inject-site-branding] index.html 缺少锚点 ' + SEO_SLOT)
     }
-    if (!html.includes(DESCRIPTION_ANCHOR)) {
-      throw new Error('[inject-site-branding] index.html 缺少锚点 ' + DESCRIPTION_ANCHOR)
-    }
-    return html
-      .replace(CHARSET_ANCHOR, `${CHARSET_ANCHOR}\n    ${tags}`)
-      .replace(TITLE_PLACEHOLDER, escapeHtml(title))
-      .replace(DESCRIPTION_ANCHOR, headSeo)
+    return html.replace(CHARSET_ANCHOR, `${CHARSET_ANCHOR}\n    ${tags}`).replace(SEO_SLOT, seoHead)
   },
 } satisfies Plugin
 

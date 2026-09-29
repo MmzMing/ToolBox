@@ -1,13 +1,13 @@
 {
   "html-entities": {
     "title": "HTML Entities",
-    "description": "Encode and decode HTML entities",
+    "description": "Encode angle brackets, quotes, ampersands and non-ASCII text into named or numeric HTML entities, or decode entities back to plain text.",
     "textLabel": "Text",
     "entitiesLabel": "HTML entities"
   },
   "url-parser": {
     "title": "URL Parser",
-    "description": "Split a URL into protocol, host, path and query params",
+    "description": "Break a URL into scheme, host, port, path, query and fragment, expand parameters into a table with percent-decoding, and rebuild it back.",
     "urlLabel": "URL",
     "paramsLabel": "Query params",
     "noParams": "This URL has no query params",
@@ -16,7 +16,7 @@
   },
   "device-information": {
     "title": "Device Information",
-    "description": "Inspect browser and device capabilities",
+    "description": "Inspect user agent, screen and viewport size, timezone, languages, network type and hardware limits of the current browser, read locally only.",
     "field-userAgent": "User Agent",
     "field-platform": "Platform",
     "field-language": "Language",
@@ -31,7 +31,7 @@
   },
   "otp-code-generator-and-validator": {
     "title": "OTP Code Generator & Validator",
-    "description": "Generate and validate TOTP one-time codes",
+    "description": "Generate and verify TOTP two-factor codes from a Base32 secret, with adjustable digits and period — the secret never leaves your browser.",
     "secretLabel": "Base32 secret",
     "secretPlaceholder": "GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ",
     "digitsLabel": "Code digits",
@@ -46,7 +46,7 @@
   },
   "user-agent-parser": {
     "title": "User-Agent Parser",
-    "description": "Parse a user-agent into browser, OS and device info",
+    "description": "Paste a User-Agent string to recover the browser, engine, operating system, CPU architecture and device type, with every field explained.",
     "uaLabel": "User-Agent",
     "field-browserName": "Browser",
     "field-browserVersion": "Browser version",
@@ -61,7 +61,7 @@
   },
   "safelink-decoder": {
     "title": "Safelink Decoder",
-    "description": "Unwrap multi-layer redirect links",
+    "description": "Peel redirect wrappers, short links and tracking parameters layer by layer to recover the real destination URL, listing what was stripped.",
     "inputLabel": "Wrapped redirect URL",
     "targetLabel": "Final destination",
     "stepsLabel": "Decode chain",

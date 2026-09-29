@@ -659,7 +659,8 @@ export default function MusicToVideo() {
           <tool.icon className="size-5" />
         </span>
         <div className="min-w-0 flex-1">
-          <h1 className="truncate text-base font-semibold">{t('title')}</h1>
+          {/* 整页式布局的页面级 h1 由 ToolLayout 以 sr-only 提供，这里降为 h2 避免双 H1 */}
+          <h2 className="truncate text-base font-semibold">{t('title')}</h2>
           <p className="text-muted-foreground truncate text-xs">{t('description')}</p>
         </div>
         {tapIndex != null ? (

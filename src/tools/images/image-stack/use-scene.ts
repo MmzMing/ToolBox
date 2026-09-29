@@ -10,10 +10,16 @@ import {
   type Scene,
   type Size,
 } from './image-stack.service'
+import {
+  MAX_LONG_ITEMS,
+  resolveLongLayout,
+  type LongLayout,
+  type LongSource,
+} from './long-stack.service'
 import { isReady, type ReadyAsset } from './assets'
 import { splitTemplateOf, stitchTemplateOf, useImageStackStore } from './store'
 
-export type RenderableAsset = { source: CanvasImageSource; size: Size }
+export type RenderableAsset = { source: CanvasImageSource; size: Size; name: string }
 
 /** 解码成功的素材，跳过失败项 */
 export function useReadyAssets(): ReadyAsset[] {
@@ -70,7 +76,11 @@ export function useAssetResolver(tier: 'preview' | 'full') {
         return null
       }
       const bitmap = tier === 'full' ? asset.full : asset.preview
-      return { source: bitmap, size: { width: bitmap.width, height: bitmap.height } }
+      return {
+        source: bitmap,
+        size: { width: bitmap.width, height: bitmap.height },
+        name: asset.name,
+      }
     }
   }, [assets, tier])
 }
@@ -111,4 +121,36 @@ export function useSplitGeometry(): SplitGeometry | null {
       template,
     }
   }, [items, splitSourceId, splitTemplateId, splitCols, splitRows, splitFocus, ratioKey])
+}
+
+export type LongGeometry = {
+  layout: LongLayout
+  /** 因为张数上限而被忽略掉的素材数 */
+  ignored: number
+}
+
+/**
+ * 长图几何。素材顺序就是成品自上而下的顺序，所以这里不排第二套顺序，
+ * 拖拽排序改的是 store.longItems，回到这里自然就是新的堆叠次序。
+ */
+export function useLongGeometry(): LongGeometry {
+  const assets = useReadyAssets()
+  const longItems = useImageStackStore((state) => state.longItems)
+  const longStyle = useImageStackStore((state) => state.longStyle)
+  const longCropDefaults = useImageStackStore((state) => state.longCropDefaults)
+
+  return useMemo(() => {
+    const used = assets.slice(0, MAX_LONG_ITEMS)
+    const crops = new Map(longItems.map((item) => [item.imageId, item.crop]))
+    const sources: LongSource[] = used.map((asset) => ({
+      imageId: asset.id,
+      width: asset.width,
+      height: asset.height,
+      crop: crops.get(asset.id) ?? null,
+    }))
+    return {
+      layout: resolveLongLayout(sources, longStyle, longCropDefaults),
+      ignored: assets.length - used.length,
+    }
+  }, [assets, longItems, longStyle, longCropDefaults])
 }
