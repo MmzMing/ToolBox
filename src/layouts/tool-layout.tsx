@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { CopyLinkButton } from '@/components/copy-link-button'
 import { FavoriteButton } from '@/components/favorite-button'
 import { ToolSeoContent } from '@/components/tool-seo-content'
 import { absoluteUrl } from '@/config/site'
@@ -58,6 +59,7 @@ export function ToolLayout({ tool, children, fill = false, wide = false }: ToolL
         <h1 className="truncate text-xl font-semibold md:text-2xl">{title}</h1>
       </div>
       <FavoriteButton tool={tool} />
+      <CopyLinkButton path={tool.path} />
     </header>
   )
 

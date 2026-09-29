@@ -51,6 +51,8 @@ export function buildSeoHead({
     `<meta name="${name}" content="${escapeHtml(content)}" />`
   const og = (property: string, content: string) =>
     `<meta property="${property}" content="${escapeHtml(content)}" />`
+  const micro = (itemprop: string, content: string) =>
+    `<meta itemprop="${itemprop}" content="${escapeHtml(content)}" />`
 
   const tags = [
     `<title>${escapeHtml(title)}</title>`,
@@ -72,6 +74,11 @@ export function buildSeoHead({
     meta('twitter:title', title),
     meta('twitter:description', description),
     meta('twitter:image', image),
+    // QQ / QQ 空间的抓取器读 microdata 而不是 og:*，缺这三行时它的卡片是空白标题 + 无图。
+    // 值与 og:* 严格同源，避免两处漂移出互相矛盾的分享文案。
+    micro('name', title),
+    micro('image', image),
+    micro('description', description),
     `<script data-seo-static type="application/ld+json">${serializeJsonLd([...siteGraph(), ...jsonLd])}</script>`,
   ]
 

@@ -107,6 +107,19 @@ src/modules/i18n/locales/{zh,en}/tools-<分类>.json（title / description / seo
 - 配图 `public/images/og-image.png`（1200×630，源文件 `og-image.svg`），`twitter:card = summary_large_image`。
 - 分享图必须是**位图**：Facebook 与 Twitter 抓取器都不接受 SVG。
 - `og:locale` 随界面语言取 `zh_CN` / `en_US`。
+- **QQ / QQ 空间的抓取器读 microdata 而不是 `og:*`**，因此 head 里另有
+  `<meta itemprop="name|image|description">` 三条，取值与 `og:title` / `og:image` / `og:description`
+  严格同源；运行时 `DocumentMeta` 同样 upsert 它们，切语言不会留下另一种语言的分享文案。
+- 边界要说清：这三条只保证**被腾讯抓到时字段是对的**。QQ 聊天里粘贴纯文本链接要不要展开成卡片、
+  对新域名与未备案域名如何处置，都由腾讯侧策略决定，代码无法保证。
+- **不做平台专属分享组件**。实测 `connect.qq.com/widget/shareqq/index.html?…` 分享出去的是该组件
+  自己的跳转长链，卡片标题成了「发送给QQ好友和群组」而不是本站标题，手机上还要靠扫码完成，
+  体验是负的；QQ 内置浏览器另有一层域名拦截（命中时提示「如需浏览，请使用浏览器访问」），
+  分享做得再对也打不开。
+- 工具页页头收藏星标旁因此放的是**复制页面链接**按钮（`components/copy-link-button.tsx`）：
+  复制的是 canonical 形态的绝对地址（与 og:url 同源），tooltip 直接显示将要复制的链接，
+  用户拿到后自行粘到任何平台。OG 与 microdata 仍保留——它们在 Telegram / X / Discord / 飞书 /
+  钉钉 / AI 引擎这些**确实读 og:\* 且不拦域名**的渠道里有效。
 - 改 SVG 后需重新光栅化同名 PNG（浏览器内 canvas 导出，尺寸由脚本决定，不受视口与 DPR 影响）。
 
 ---

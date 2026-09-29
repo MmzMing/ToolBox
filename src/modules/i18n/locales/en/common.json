@@ -43,6 +43,7 @@
   "favoritesEmpty": "No favorites yet, click the star on a tool page to add one",
   "favoriteAdd": "Add to favorites",
   "favoriteRemove": "Remove from favorites",
+  "copyLink": "Copy page link",
   "recent": "Recent tools",
   "clearRecent": "Clear recent tools",
   "randomTool": "Open a random tool",

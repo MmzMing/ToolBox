@@ -32,6 +32,13 @@ const ogTag = (property: string, content: string): TagSpec => ({
   attrs: { property, content },
 })
 
+/** QQ / QQ 空间抓取器读的 microdata，选择器与 static-head.ts 生成的标签一致 */
+const microTag = (itemprop: string, content: string): TagSpec => ({
+  tag: 'meta',
+  match: `meta[itemprop="${itemprop}"]`,
+  attrs: { itemprop, content },
+})
+
 function buildTagSpecs({
   title,
   description,
@@ -62,6 +69,10 @@ function buildTagSpecs({
     metaTag('twitter:title', title),
     metaTag('twitter:description', description),
     metaTag('twitter:image', image),
+    // QQ / QQ 空间抓取器读 microdata 而非 og:*，切语言时这三个也要跟着改写
+    microTag('name', title),
+    microTag('image', image),
+    microTag('description', description),
   ]
   if (url) {
     specs.push({
