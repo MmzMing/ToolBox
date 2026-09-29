@@ -7,6 +7,7 @@ import {
   type AIModelTask,
   type AIProvider,
   type AISettingsData,
+  type ProviderCredentials,
   type ProviderPicks,
 } from './providers'
 import { migrateAISettings, readLegacyAISettings, readPreviousAISettings } from './legacy-ai-import'
@@ -28,6 +29,8 @@ type AIConfigState = PersistedAISettings & {
   setActiveProvider: (provider: AIProvider) => void
   setEnabled: (enabled: boolean) => void
   markConsentSeen: () => void
+  /** 抹掉本机所有厂商的 key：服务地址与型号选择留着，重填 key 时不必再配一遍 */
+  clearCredentials: () => void
 }
 
 /**
@@ -131,6 +134,16 @@ export const useAIConfigStore = create<AIConfigState>()(
       setEnabled: (enabled) => set({ enabled }),
 
       markConsentSeen: () => set({ consentSeen: true }),
+
+      clearCredentials: () =>
+        set((state) => ({
+          credentials: Object.fromEntries(
+            AI_PROVIDERS.map((provider) => [
+              provider,
+              { ...state.credentials[provider], apiKey: '' },
+            ]),
+          ) as Record<AIProvider, ProviderCredentials>,
+        })),
     }),
     {
       name: 'toolbox.ai',

@@ -32,6 +32,7 @@ async function bootstrap() {
 function renderBootstrapFailure() {
   const host = document.getElementById('root') ?? document.body
 
+  // html-sanitized: 下面整段是写死的字面量，不拼任何外部输入
   host.innerHTML =
     '<div style="display:flex;min-height:100vh;flex-direction:column;align-items:center;' +
     'justify-content:center;gap:12px;padding:16px;text-align:center;font:14px system-ui">' +

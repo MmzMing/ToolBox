@@ -76,6 +76,8 @@ export async function renderMathNodes(root: HTMLElement): Promise<void> {
     const tex = node.textContent ?? ''
     const displayMode = node.classList.contains(MATH_BLOCK_CLASS)
     try {
+      // html-sanitized: katex 输出自带转义，且默认 trust:false / security:'local'，
+      // \href、\includegraphics 这类产 URL 的宏一律被拦
       node.innerHTML = katex.renderToString(tex, {
         displayMode,
         throwOnError: false,

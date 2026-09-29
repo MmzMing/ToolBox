@@ -60,6 +60,8 @@ type PanelsProps = {
   plan: Plan
   /** 简易模式：只留必填项与一键随机用得上的入口，对应 JIZURA 的「かんたん」 */
   simple: boolean
+  /** 窄屏时随内容一起滚走的顶部块；宽屏它们钉在面板外，窄屏再钉住就把标签内容挤没了 */
+  header?: ReactNode
   audio: AudioInfo | null
   analyzing: boolean
   currentLine: number
@@ -163,6 +165,7 @@ export function ControlPanels(props: PanelsProps) {
     project,
     plan,
     simple,
+    header,
     audio,
     analyzing,
     currentLine,
@@ -247,6 +250,7 @@ export function ControlPanels(props: PanelsProps) {
 
       <ScrollArea className="min-h-0 flex-1">
         <div className="flex flex-col gap-3 p-2 sm:p-3">
+          {header ? <div className="flex flex-col gap-2.5">{header}</div> : null}
           <TabsContent value="source" className="flex flex-col gap-2.5">
             {/* 音频卡片：本地 / 在线的切换器收进标题行右端并做成紧凑分段控件，
                 免得在它正下方再排一排「像标签页」的按钮，与外层六标签混淆 */}

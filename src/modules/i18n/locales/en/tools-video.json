@@ -1,6 +1,6 @@
 {
   "music-to-video": {
-    "title": "Music to Video",
+    "title": "Text PV",
     "description": "Drop in a song and your lyrics to generate a beat-synced lyric video entirely in the browser, exported as MP4 or a PNG sequence",
     "tabs": {
       "source": "Source",

@@ -143,6 +143,8 @@ type AiImageGenState = {
   settingsOpen: boolean
 
   setGenApi: (patch: Partial<ApiConfig>) => void
+  /** 抹掉三个槽里存的密钥：服务地址与模型名留着，重填 key 即可继续用 */
+  clearApiKeys: () => void
   setVisionApi: (patch: Partial<ApiConfig>) => void
   setPolishApi: (patch: Partial<ApiConfig>) => void
   setPolishUsesVision: (on: boolean) => void
@@ -238,6 +240,12 @@ export const useAiImageGenStore = create<AiImageGenState>()(
           }
           return { genApi: next }
         }),
+      clearApiKeys: () =>
+        set((state) => ({
+          genApi: { ...state.genApi, apiKey: '' },
+          visionApi: { ...state.visionApi, apiKey: '' },
+          polishApi: { ...state.polishApi, apiKey: '' },
+        })),
       setVisionApi: (patch) =>
         set((state) => {
           const provider =

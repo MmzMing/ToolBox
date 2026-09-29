@@ -23,6 +23,7 @@ import {
 } from '@/components/ui/dialog'
 import { Switch } from '@/components/ui/switch'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
+import { useBreakpoint } from '@/composable/use-breakpoint'
 import { useShallow } from 'zustand/react/shallow'
 
 import { ControlPanels } from './components/ControlPanels'
@@ -86,6 +87,8 @@ const MODE_KEY = 'toolbox.music-to-video.mode'
 
 export default function MusicToVideo() {
   const { t } = useTranslation('tools-video', { keyPrefix: 'music-to-video' })
+  /** xl 才有的左右分栏才钉得住面板顶部两块，窄屏钉住就等于把标签内容挤没 */
+  const isDesktop = useBreakpoint() === 'desktop'
   const project = useMusicVideoStore((state) => state.project)
   const { patch, patchFx, patchOverride } = useMusicVideoStore(
     useShallow((state) => ({
@@ -608,6 +611,47 @@ export default function MusicToVideo() {
 
   const tapLine = tapIndex != null ? plan.lines[tapIndex] : null
 
+  /* ---------------- 面板顶部两块：宽屏钉住，窄屏交给滚动区 ---------------- */
+  const easyHint = (
+    <div className="flex flex-col gap-2">
+      <p className="text-muted-foreground text-[11px] leading-4">{t('easy.hint')}</p>
+      <label className="flex items-center justify-between gap-2 text-xs">
+        {t('parts.useExtra')}
+        <Switch
+          checked={project.extra}
+          onCheckedChange={(extra) => patch({ extra })}
+          aria-label={t('parts.useExtra')}
+        />
+      </label>
+      <label className="flex items-center justify-between gap-2 text-xs">
+        {t('parts.useTraditional')}
+        <Switch
+          checked={project.traditional}
+          onCheckedChange={(traditional) => patch({ traditional })}
+          aria-label={t('parts.useTraditional')}
+        />
+      </label>
+    </div>
+  )
+  const proposalBlock = (
+    <ProposalPanel
+      project={project}
+      plan={plan}
+      onReroll={reroll}
+      onDropLook={dropLook}
+      onClearLooks={clearLooks}
+      histIndex={hist.i}
+      histLength={hist.len}
+      onHist={histGo}
+    />
+  )
+  const panelHeader = (
+    <>
+      {simple ? easyHint : null}
+      {proposalBlock}
+    </>
+  )
+
   return (
     <div className="flex h-[calc(100svh-3.5rem)] min-h-0 flex-col">
       <header className="flex shrink-0 flex-wrap items-center gap-x-3 gap-y-1 px-3 py-2 sm:px-4">
@@ -756,44 +800,20 @@ export default function MusicToVideo() {
           />
         </div>
 
-        <aside className="bg-card/50 flex min-h-0 w-full flex-1 flex-col overflow-hidden rounded-lg border xl:h-auto xl:w-[400px] xl:flex-none">
-          {simple ? (
-            <div className="flex shrink-0 flex-col gap-2 border-b p-3 pb-2">
-              <p className="text-muted-foreground text-[11px] leading-4">{t('easy.hint')}</p>
-              <label className="flex items-center justify-between gap-2 text-xs">
-                {t('parts.useExtra')}
-                <Switch
-                  checked={project.extra}
-                  onCheckedChange={(extra) => patch({ extra })}
-                  aria-label={t('parts.useExtra')}
-                />
-              </label>
-              <label className="flex items-center justify-between gap-2 text-xs">
-                {t('parts.useTraditional')}
-                <Switch
-                  checked={project.traditional}
-                  onCheckedChange={(traditional) => patch({ traditional })}
-                  aria-label={t('parts.useTraditional')}
-                />
-              </label>
-            </div>
+        <aside className="bg-card/50 flex min-h-[240px] w-full flex-1 flex-col overflow-hidden rounded-lg border xl:h-auto xl:min-h-0 xl:w-[400px] xl:flex-none">
+          {isDesktop ? (
+            <>
+              {simple ? (
+                <div className="flex shrink-0 flex-col gap-2 border-b p-3 pb-2">{easyHint}</div>
+              ) : null}
+              <div className="shrink-0 border-b p-3">{proposalBlock}</div>
+            </>
           ) : null}
-          <div className="shrink-0 border-b p-3">
-            <ProposalPanel
-              project={project}
-              plan={plan}
-              onReroll={reroll}
-              onDropLook={dropLook}
-              onClearLooks={clearLooks}
-              histIndex={hist.i}
-              histLength={hist.len}
-              onHist={histGo}
-            />
-          </div>
           <ControlPanels
             project={project}
             plan={plan}
             simple={simple}
+            header={isDesktop ? null : panelHeader}
             audio={audio}
             analyzing={analyzing}
             currentLine={currentLine}

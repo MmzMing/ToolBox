@@ -151,7 +151,7 @@ export function AIPolishDialog({
             <span className="text-muted-foreground text-xs">{t('resume.ai.polish.original')}</span>
             <div
               className="border-border bg-muted/30 prose-resume max-h-72 overflow-y-auto rounded-lg border p-3 text-sm"
-              // 预览 HTML 由 markdownToPreviewHtml 生成，原始 HTML 与链接协议均已转义
+              // html-sanitized: source 由 markdownToPreviewHtml 生成，原始 HTML 全量转义、链接协议收紧到白名单
               dangerouslySetInnerHTML={{ __html: source }}
             />
           </div>
@@ -160,6 +160,7 @@ export function AIPolishDialog({
             <div
               ref={streamRef}
               className="border-border bg-muted/30 prose-resume max-h-72 overflow-y-auto rounded-lg border p-3 text-sm"
+              // html-sanitized: preview 与 source 同一条 markdownToPreviewHtml 通道
               dangerouslySetInnerHTML={{ __html: preview }}
             />
           </div>

@@ -86,6 +86,7 @@ export function TextareaCopyable({
         )}
       >
         {html !== undefined ? (
+          // html-sanitized: html 出自 hljs.highlight，它逐字符转义输入；异常分支兜到 escapeHtml
           <code className="hljs bg-transparent" dangerouslySetInnerHTML={{ __html: html }} />
         ) : (
           value || <span className="text-muted-foreground">{placeholder}</span>

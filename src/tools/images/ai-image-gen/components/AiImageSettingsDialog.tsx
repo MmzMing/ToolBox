@@ -1,7 +1,7 @@
 import { useEffect, useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
-import { ExternalLink, Eye, EyeOff, Loader2 } from 'lucide-react'
+import { Eraser, ExternalLink, Eye, EyeOff, Loader2 } from 'lucide-react'
 
 import { aiErrorKey } from '@/components/ai/error-copy'
 import { useModelList } from '@/components/ai/use-model-list'
@@ -73,7 +73,16 @@ export function AiImageSettingsDialog({ open, onOpenChange }: AiImageSettingsDia
 
   const [showKey, setShowKey] = useState(false)
   const [consentOpen, setConsentOpen] = useState(false)
+  const [clearOpen, setClearOpen] = useState(false)
+  const clearApiKeys = useAiImageGenStore((state) => state.clearApiKeys)
+  const clearCredentials = useAIConfigStore((state) => state.clearCredentials)
+  const sharedCredentials = useAIConfigStore((state) => state.credentials)
   const genList = useModelList()
+
+  /** 三个槽与共享的按厂商凭证都存着明文 key，清除必须一次清干净 */
+  const anyKeyStored =
+    [genApi, visionApi, polishApi].some((api) => !!api.apiKey.trim()) ||
+    AI_PROVIDERS.some((item) => !!sharedCredentials[item].apiKey.trim())
 
   const handleGenFetch = async () => {
     try {
@@ -224,7 +233,44 @@ export function AiImageSettingsDialog({ open, onOpenChange }: AiImageSettingsDia
             )}
           </TabsContent>
         </Tabs>
+
+        {/* 密钥明文存在本机 localStorage，公共电脑用完必须能一把抹掉 */}
+        <Button
+          type="button"
+          variant="ghost"
+          size="xs"
+          className="text-muted-foreground hover:text-destructive gap-1.5 px-0"
+          disabled={!anyKeyStored}
+          onClick={() => setClearOpen(true)}
+        >
+          <Eraser className="size-3.5" />
+          {t('common:ai.config.clearAll')}
+        </Button>
       </DialogContent>
+
+      <AlertDialog open={clearOpen} onOpenChange={setClearOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t('common:ai.clear.title')}</AlertDialogTitle>
+            <AlertDialogDescription>{t('common:ai.clear.body')}</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t('ai-image-gen.toolbar.cancel')}</AlertDialogCancel>
+            <AlertDialogAction
+              variant="destructive"
+              onClick={() => {
+                clearApiKeys()
+                clearCredentials()
+                setShowKey(false)
+                setClearOpen(false)
+                toast.success(t('common:ai.clear.done'))
+              }}
+            >
+              {t('common:ai.clear.action')}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <AlertDialog open={consentOpen} onOpenChange={setConsentOpen}>
         <AlertDialogContent>
@@ -339,6 +385,10 @@ function ApiSection({
           <ExternalLink className="size-3" />
         </a>
       </Row>
+      {/* 明文本地存储这件事必须写在填 key 的地方，而不是只在别处解释一遍 */}
+      <p className="text-muted-foreground pl-[92px] text-[11px] leading-4">
+        {t('common:ai.config.keyPublicHint')}
+      </p>
       <Row label={t('ai-image-gen.settings.baseUrl')}>
         <Input
           value={api.baseUrl}

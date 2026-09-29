@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
-import { Check, Download, ExternalLink, Eye, EyeOff, Loader2, Sparkles } from 'lucide-react'
+import { Check, Download, Eraser, ExternalLink, Eye, EyeOff, Loader2, Sparkles } from 'lucide-react'
 
 import {
   AlertDialog,
@@ -283,12 +283,16 @@ export function AIConfigDialog() {
   const markConsentSeen = useAIConfigStore((state) => state.markConsentSeen)
   const setProviderApiKey = useAIConfigStore((state) => state.setProviderApiKey)
   const setProviderBaseUrl = useAIConfigStore((state) => state.setProviderBaseUrl)
+  const clearCredentials = useAIConfigStore((state) => state.clearCredentials)
 
   const [provider, setProvider] = useState<AIProvider>(
     () => useAIConfigStore.getState().activeProvider,
   )
   const [revealKey, setRevealKey] = useState(false)
   const [consentOpen, setConsentOpen] = useState(false)
+  const [clearOpen, setClearOpen] = useState(false)
+
+  const anyKeyStored = AI_PROVIDERS.some((item) => !!credentials[item].apiKey.trim())
 
   /** 首次开启要先过一次数据流向确认；关闭则直接生效 */
   const toggleEnabled = (next: boolean) => {
@@ -410,6 +414,19 @@ export function AIConfigDialog() {
                 )
               })}
             </div>
+
+            {/* 密钥明文存在本机 localStorage，公共电脑用完必须能一把抹掉 */}
+            <Button
+              type="button"
+              variant="ghost"
+              size="xs"
+              className="text-muted-foreground hover:text-destructive mt-2 w-full gap-1.5 px-2"
+              disabled={!anyKeyStored}
+              onClick={() => setClearOpen(true)}
+            >
+              <Eraser className="size-3.5" />
+              {t('common:ai.config.clearAll')}
+            </Button>
           </div>
 
           <div className="min-w-0 flex-1 p-5 sm:overflow-y-auto">
@@ -455,6 +472,10 @@ export function AIConfigDialog() {
                     {revealKey ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
                   </Button>
                 </div>
+                {/* 明文本地存储这件事必须写在填 key 的地方，而不是只在标题下解释一遍 */}
+                <p className="text-muted-foreground text-xs">
+                  {t('common:ai.config.keyPublicHint')}
+                </p>
               </div>
 
               <div className="flex flex-col gap-2">
@@ -496,6 +517,29 @@ export function AIConfigDialog() {
               }}
             >
               {t('common:ai.consent.accept')}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={clearOpen} onOpenChange={setClearOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t('common:ai.clear.title')}</AlertDialogTitle>
+            <AlertDialogDescription>{t('common:ai.clear.body')}</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t('resume.confirm.cancel')}</AlertDialogCancel>
+            <AlertDialogAction
+              variant="destructive"
+              onClick={() => {
+                clearCredentials()
+                setRevealKey(false)
+                setClearOpen(false)
+                toast.success(t('common:ai.clear.done'))
+              }}
+            >
+              {t('common:ai.clear.action')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

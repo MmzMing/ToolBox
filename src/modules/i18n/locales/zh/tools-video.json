@@ -1,6 +1,6 @@
 {
   "music-to-video": {
-    "title": "音乐转视频",
+    "title": "文字PV",
     "description": "上传一首歌、贴入歌词，本地生成带节拍卡点的中文文字 PV，可直接导出 MP4 或 PNG 序列",
     "tabs": {
       "source": "素材",

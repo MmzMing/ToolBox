@@ -82,6 +82,7 @@
       "connected": "{{count}}/{{total}} configured",
       "getKey": "Get a key",
       "keyPlaceholder": "Paste this provider API key",
+      "keyPublicHint": "Your key is kept in plain text in this browser's local storage. Don't paste it on a shared machine such as an internet cafe, and use \"Clear all keys\" when you are done.",
       "showKey": "Show key",
       "hideKey": "Hide key",
       "baseUrl": "Base URL",
@@ -102,7 +103,8 @@
       "fromList": "Pick from list",
       "listEmpty": "Start with \"Fetch models\" at the top right. If that endpoint is unsupported, choose \"Type a model name\" and fill it in.",
       "useProvider": "In use",
-      "active": "In use"
+      "active": "In use",
+      "clearAll": "Clear all keys"
     },
     "test": {
       "button": "Test connection",
@@ -114,6 +116,12 @@
       "title": "Turn on AI assist?",
       "body": "Once on, polishing, proofreading and PDF import send your resume content directly to the provider you configured, never through this site. Resume text is personal information; make sure you accept that.",
       "accept": "I understand, turn it on"
+    },
+    "clear": {
+      "title": "Clear every API key on this device?",
+      "body": "This wipes the provider keys stored in this browser and keeps your base URLs and chosen models. It cannot be undone; paste the keys again when you need them.",
+      "action": "Clear keys",
+      "done": "All API keys were cleared from this browser."
     },
     "errors": {
       "invalidProvider": "Unsupported provider; check the configuration.",

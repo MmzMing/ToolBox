@@ -135,6 +135,24 @@ export function serializeSkillMarkdown(skill: Skill): string {
   return `---\nname: ${skill.name}\ndescription: ${skill.description}\n---\n\n${skill.markdown}\n`
 }
 
+/**
+ * 导入包的上限。
+ *
+ * 一个几百 KB 的 zip 可以解出 GB 级文本（zip 炸弹），而 skill 正文随后会整段拼进
+ * system prompt——既崩标签页又花用户的钱，所以条目数、单篇与总量三头都要卡。
+ * 中心目录里声明的 uncompressedSize 是唯一能在解压前判断的依据，缺了就只能在
+ * 解出来之后兜一道。
+ */
+export const SKILL_IMPORT_MAX_ENTRIES = 200
+export const SKILL_DOC_MAX_CHARS = 256 * 1024
+export const SKILL_IMPORT_MAX_TOTAL = 1024 * 1024
+
+/** JSZip 只在内部字段上带声明尺寸，取不到即 0（当作未知，交给解压后的复核） */
+function declaredSize(entry: unknown): number {
+  const data = (entry as { _data?: { uncompressedSize?: unknown } })._data
+  return typeof data?.uncompressedSize === 'number' ? data.uncompressedSize : 0
+}
+
 /** 导入 .md 或 .zip 包：zip 内每个含 SKILL.md 的目录识别为一个 skill，同级 .md 收作 references */
 export async function readSkillFiles(files: readonly File[]): Promise<Skill[]> {
   const out: Skill[] = []
@@ -144,9 +162,24 @@ export async function readSkillFiles(files: readonly File[]): Promise<Skill[]> {
       const entries = Object.values(zip.files).filter(
         (entry) => !entry.dir && entry.name.toLowerCase().endsWith('.md'),
       )
+      if (entries.length > SKILL_IMPORT_MAX_ENTRIES) {
+        throw new Error(`skill package has too many markdown files: ${entries.length}`)
+      }
       const docs = new Map<string, string>()
+      let total = 0
       for (const entry of entries) {
-        docs.set(entry.name, await entry.async('text'))
+        if (declaredSize(entry) > SKILL_DOC_MAX_CHARS) {
+          throw new Error(`skill document is too large: ${entry.name}`)
+        }
+        const content = await entry.async('text')
+        if (content.length > SKILL_DOC_MAX_CHARS) {
+          throw new Error(`skill document is too large: ${entry.name}`)
+        }
+        total += content.length
+        if (total > SKILL_IMPORT_MAX_TOTAL) {
+          throw new Error('skill package expands past the size limit')
+        }
+        docs.set(entry.name, content)
       }
       for (const [name, source] of docs) {
         if (!name.toLowerCase().endsWith('skill.md')) {
@@ -162,6 +195,9 @@ export async function readSkillFiles(files: readonly File[]): Promise<Skill[]> {
       continue
     }
     if (file.name.toLowerCase().endsWith('.md')) {
+      if (file.size > SKILL_DOC_MAX_CHARS) {
+        throw new Error(`skill document is too large: ${file.name}`)
+      }
       out.push(parseSkillMarkdown(await file.text()))
       continue
     }
