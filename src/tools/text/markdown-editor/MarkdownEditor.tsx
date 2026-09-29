@@ -464,7 +464,11 @@ export default function MarkdownEditor() {
           />
         </ResizablePanel>
 
-        <ResizableHandle withHandle hidden={effectiveMode !== 'split'} className="mx-1 w-1" />
+        <ResizableHandle
+          withHandle
+          hidden={effectiveMode !== 'split'}
+          className="hover:[&>div]:bg-primary focus-visible:[&>div]:bg-primary active:[&>div]:bg-primary mx-1 w-1 [&>div]:transition-colors [&>div]:duration-150"
+        />
 
         <ResizablePanel
           panelRef={previewPanelRef}

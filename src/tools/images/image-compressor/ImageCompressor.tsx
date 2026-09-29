@@ -50,7 +50,10 @@ export default function ImageCompressor() {
               {hasFiles ? <ListSection onCompare={setCompareKey} /> : <UploadZone />}
             </div>
           </ResizablePanel>
-          <ResizableHandle withHandle className="mx-1" />
+          <ResizableHandle
+            withHandle
+            className="hover:[&>div]:bg-primary focus-visible:[&>div]:bg-primary active:[&>div]:bg-primary mx-1 w-1 [&>div]:transition-colors [&>div]:duration-150"
+          />
           <ResizablePanel defaultSize={32} minSize={24}>
             <div className="h-full pl-1">
               <OptionsPanel />
