@@ -91,10 +91,15 @@ const ROOT_SLOT = '<div id="root"></div>'
  * 把静态正文写进 #root 内部，让不执行 JS 的爬虫拿到可索引正文与内链。
  * 结构与 ToolLayout / HomePage 的真实头部一致（同一份文案、同一组类名），
  * React 挂载会清空并重建 #root，因此首屏只是同位置内容被替换，不产生明显跳动。
+ *
+ * 长清单（首页全站工具目录、工具页内容层）走 `noscript`：脚本开启时浏览器不渲染它，
+ * 用户不会在 React 挂载前看到一整屏纯文字，而按源码解析的爬虫（百度、AI 抓取）
+ * 照样能读到这些带锚文本的内链。放在 #root 之外，React 也不会去动它。
  */
-export function injectShellBody(html: string, body: string): string {
+export function injectShellBody(html: string, body: string, noscript = ''): string {
   if (!html.includes(ROOT_SLOT)) {
     throw new Error(`[prerender] HTML 缺少容器 ${ROOT_SLOT}`)
   }
-  return html.replace(ROOT_SLOT, `<div id="root">\n      ${body}\n    </div>`)
+  const hidden = noscript ? `\n    <noscript>\n      ${noscript}\n    </noscript>` : ''
+  return html.replace(ROOT_SLOT, `<div id="root">\n      ${body}\n    </div>${hidden}`)
 }

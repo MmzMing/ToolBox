@@ -87,7 +87,7 @@ export function collectTools(root) {
   return tools.sort((a, b) => a.path.localeCompare(b.path))
 }
 
-/** 工具的中英 title/description（以及可选的 seo 内容层）；缺键直接抛错，避免把 i18n 原始键名写进 HTML */
+/** 工具的中英 title/description；缺键直接抛错，避免把 i18n 原始键名写进 HTML */
 export function readToolCopy(root, tool) {
   const namespace = `tools-${tool.category}`
   const copy = {}
@@ -98,7 +98,7 @@ export function readToolCopy(root, tool) {
     if (typeof title !== 'string' || typeof description !== 'string') {
       throw new Error(`${namespace}.${tool.name} 缺少 ${locale} 的 title/description`)
     }
-    copy[locale] = { title, description, seo: entry.seo }
+    copy[locale] = { title, description }
   }
   return copy
 }

@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next'
 
 import { CopyLinkButton } from '@/components/copy-link-button'
 import { FavoriteButton } from '@/components/favorite-button'
-import { ToolSeoContent } from '@/components/tool-seo-content'
 import { absoluteUrl } from '@/config/site'
 import { cn } from '@/lib/utils'
 import { DocumentMeta } from '@/modules/seo/document-meta'
@@ -82,8 +81,6 @@ export function ToolLayout({ tool, children, fill = false, wide = false }: ToolL
       {header}
       <p className="text-muted-foreground mt-2 text-sm">{description}</p>
       <div className="mt-6 flex flex-col gap-4">{children}</div>
-      {/* 内容层只挂在常规页：整页式工具（fill）自管高度链，插一段长文会顶掉视口撑满 */}
-      <ToolSeoContent tool={tool} />
     </div>
   )
 }

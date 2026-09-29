@@ -26,7 +26,7 @@
 ```
 src/config/site.ts ─
 src/tools/*/*/index.ts（path / keywords / createdAt / immersive / wide）
-src/modules/i18n/locales/{zh,en}/tools-<分类>.json（title / description / seo 内容层）
+src/modules/i18n/locales/{zh,en}/tools-<分类>.json（title / description）
                     │  scripts/lib/site-routes.mjs 统一枚举（单一路由来源）
                     ├─→ generate-sitemap.mjs  → public/{sitemap.xml,robots.txt}
                     ├─→ generate-llms.mjs     → public/{llms.txt,llms-full.txt}
@@ -37,7 +37,7 @@ src/modules/i18n/locales/{zh,en}/tools-<分类>.json（title / description / seo
 
 | 层次               | 负责什么                                                                                                                                                | 关键文件                                       |
 | ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------- |
-| 构建期静态壳       | 每条路由自己的 title/description/keywords/canonical/OG/Twitter/robots、`WebApplication`+`BreadcrumbList`(+`FAQPage`) 数据块、`#root` 内的可爬正文与内链 | `scripts/prerender-shells.mjs`                 |
+| 构建期静态壳       | 每条路由自己的 title/description/keywords/canonical/OG/Twitter/robots、`WebApplication`+`BreadcrumbList` 数据块、`#root` 内的页头镜像与源码里的目录内链 | `scripts/prerender-shells.mjs`                 |
 | 运行时接管         | 语言切换后按当前界面语言重写同一批标签与数据块                                                                                                          | `modules/seo/document-meta.tsx`、`json-ld.tsx` |
 | head 单一来源      | 两层共用一个生成器，避免两套 TDK 规则漂移                                                                                                               | `modules/seo/static-head.ts`                   |
 | 路由与文案单一来源 | sitemap / llms / 静态壳三处 URL 与文案必须同源                                                                                                          | `scripts/lib/site-routes.mjs`                  |
@@ -46,6 +46,10 @@ src/modules/i18n/locales/{zh,en}/tools-<分类>.json（title / description / seo
 
 - **不引入 Puppeteer/浏览器渲染**。静态壳要落盘的只有 TDK 与一段与真实页头同构的正文，全部来自
   i18n 与工具定义这些静态数据；跑浏览器只是把同样的东西再算一遍，还要背 Chromium 依赖（AGENTS.md §12）。
+- **可见的只有页头镜像，长清单进 `<noscript>`**。#root 里只放与最终页面同构的标题区（首页 Hero、
+  工具页 H1 + 一句话描述）；首页那 48 条分类内链写在 `#root` 外的 `<noscript>` 里。
+  脚本开启时浏览器不渲染 noscript，用户在 React 挂载前看到的就是一屏标题区而不是一整屏纯文字，
+  而按源码解析的爬虫（百度、AI 抓取）照样读到这些带锚文本的内链。
 - **`DocumentMeta` 对 head 做原位 upsert**，不用 React 19 的声明式标签提升：静态壳里已有一份同名标签，
   再插入就会留下两条 href 不同的 canonical，而 Google 对冲突 canonical 是一概忽略。
 - **运行时 `JsonLd` 挂载时移除静态块**（`script[data-seo-static]`）：静态壳固定是中文，切到英文后
@@ -77,8 +81,8 @@ src/modules/i18n/locales/{zh,en}/tools-<分类>.json（title / description / seo
 | `keywords`    | 取工具定义里的 `keywords`（中英混合）。对排名无作用，只作为辅助信号与 AI 抽取的别名表，禁止堆砌                                                             |
 | `robots`      | 默认 `index, follow`；应用态页 `noindex, follow`（保留链接权重传递）                                                                                        |
 | H1            | 每页恰好一个，等于工具名。整页式（`immersive`）工具没有可见页头，由 `ToolLayout` 输出 `sr-only` H1，工具自带头部一律用 H2                                   |
-| H2            | 内容层分区标题（如何使用 / 常见问题 / 相关工具），不跳级                                                                                                    |
-| 正文          | 首屏可见文案之外，正文由内容层提供（§8）；列表渲染带稳定 key，图片/图标有可读名称                                                                           |
+| H2            | 首页与关于页的分区标题；工具页不额外加 H2（见 §8），标题层级不跳级                                                                                          |
+| 正文          | 工具页可见正文就是页头那一句话描述，版面留给工具本身；可检索正文由构建期写进 HTML 源码（§8）；列表渲染带稳定 key，图片/图标有可读名称                       |
 
 首页 title 承载品类词（「免费在线工具箱与开发者实用工具集」）；关于页 title 已含品牌名，因此不追加后缀。
 
@@ -88,13 +92,15 @@ src/modules/i18n/locales/{zh,en}/tools-<分类>.json（title / description / seo
 
 `src/modules/seo/schema.ts` 是唯一出口，序列化为 `<script type="application/ld+json">`。
 
-| 类型             | 出现位置       | 要点                                                                                       |
-| ---------------- | -------------- | ------------------------------------------------------------------------------------------ |
-| `WebSite`        | 全站           | 不带 `SearchAction`——站内搜索是本地模糊匹配，没有可提交的 `/search?q=` URL                 |
-| `Organization`   | 全站           | `sameAs` 指向 GitHub 与博客，是知识面板与实体归一的基础                                    |
-| `WebApplication` | 工具页         | `applicationCategory: UtilitiesApplication`、`offers.price = 0`、`isPartOf` 引用站点 `@id` |
-| `BreadcrumbList` | 工具页         | 与 UI 面包屑同源，两级（首页 → 工具）                                                      |
-| `FAQPage`        | 有内容层的工具 | **只标页面上真实可见的问答**，与 `seo.faq` 同一份数据，否则属结构化数据滥用                |
+| 类型             | 出现位置 | 要点                                                                                       |
+| ---------------- | -------- | ------------------------------------------------------------------------------------------ |
+| `WebSite`        | 全站     | 不带 `SearchAction`——站内搜索是本地模糊匹配，没有可提交的 `/search?q=` URL                 |
+| `Organization`   | 全站     | `sameAs` 指向 GitHub 与博客，是知识面板与实体归一的基础                                    |
+| `WebApplication` | 工具页   | `applicationCategory: UtilitiesApplication`、`offers.price = 0`、`isPartOf` 引用站点 `@id` |
+| `BreadcrumbList` | 工具页   | 与 UI 面包屑同源，两级（首页 → 工具）                                                      |
+
+只标页面上真实可见的内容：`FAQPage` / `HowTo` 这类要求"问答与步骤在页面里看得见"的类型，
+当前不输出（工具页没有可见问答，见 §8）。
 
 硬性规则：**每个节点必须自带 `@context: https://schema.org`**。缺它的 JSON-LD 不是声明，Google 富结果检测
 与 AI 引擎会整条丢弃——`schema.test.ts` 里有专门断言，新增构造器不能漏。
@@ -104,8 +110,14 @@ src/modules/i18n/locales/{zh,en}/tools-<分类>.json（title / description / seo
 ## 6. 分享卡片
 
 - `og:type/site_name/locale/title/description/url/image` + `twitter:card/title/description/image` 全站齐备。
-- 配图 `public/images/og-image.png`（1200×630，源文件 `og-image.svg`），`twitter:card = summary_large_image`。
-- 分享图必须是**位图**：Facebook 与 Twitter 抓取器都不接受 SVG。
+- 全站共用一张分享图 `public/images/og-image.png`（1200×630，源文件 `og-image.svg`），
+  `twitter:card = summary_large_image`。**单张控制在 100 KB 以内**：QQ / 微信这类抓取器对
+  `og:image` 有体积与超时阈值，图太重就"只剩标题没图"，所以底图刻意只用纯色分带——
+  渐变在 1200×630 上的抖动编码会把 PNG 推到几百 KB。
+- 必须是**位图**：Facebook / Twitter / QQ 抓取器都不接受 SVG；**也不能用 WebP**，
+  国内抓取器对 WebP 渲染不稳定。
+- 改 `og-image.svg` 后需重新光栅化同名 PNG（浏览器内 canvas 导出 1200×630，
+  尺寸不受视口与 DPR 影响）。
 - `og:locale` 随界面语言取 `zh_CN` / `en_US`。
 - **QQ / QQ 空间的抓取器读 microdata 而不是 `og:*`**，因此 head 里另有
   `<meta itemprop="name|image|description">` 三条，取值与 `og:title` / `og:image` / `og:description`
@@ -120,7 +132,7 @@ src/modules/i18n/locales/{zh,en}/tools-<分类>.json（title / description / seo
   复制的是 canonical 形态的绝对地址（与 og:url 同源），tooltip 直接显示将要复制的链接，
   用户拿到后自行粘到任何平台。OG 与 microdata 仍保留——它们在 Telegram / X / Discord / 飞书 /
   钉钉 / AI 引擎这些**确实读 og:\* 且不拦域名**的渠道里有效。
-- 改 SVG 后需重新光栅化同名 PNG（浏览器内 canvas 导出，尺寸由脚本决定，不受视口与 DPR 影响）。
+- 分享文案与可见内容严格同源：三条取值都来自各页 `DocumentMeta` / 静态壳用的同一份 title 与 description。
 
 ---
 
@@ -134,52 +146,27 @@ GEO 与 SEO 的分歧只有一处——**AI 引擎不执行 JS，也不看渲染
    双语说明、搜索关键词、上架日期。两者由 `scripts/generate-llms.mjs` 扫描工具注册表生成，
    新增工具自动进列表，不入库、不手写。
 2. **robots.txt 指路**：一行注释给出 llms.txt 绝对地址（robots 无 llms 官方字段，注释是给抓取方与运维看的）。
-3. **静态正文**：每条工具页的 HTML 里有 H1、说明、内容层（导语/步骤/FAQ/相关工具）与回首页的链接；
-   首页 HTML 里有 48 条带锚文本的分类内链。这是 AI 引擎唯一能读到的「页面说了什么」。
-4. **可抽取的问答对**：`FAQPage` 是 AI 摘要最容易直接引用的结构，问句要写成用户真实会问的句式。
+3. **静态正文**：每条工具页的 HTML 源码里有 H1、一句话描述与回首页的链接；首页源码里有 48 条
+   带锚文本的分类内链（在 `<noscript>` 里，源码可读、浏览器不渲染）。这是 AI 引擎能读到的
+   「页面说了什么」的主体。
+4. **可抽取的清单**：`llms-full.txt` 里每个工具的中英名称、双语说明与搜索关键词，是 AI 引擎
+   最容易直接引用的结构化事实。
 5. **事实一致性**：文案里「全部本地处理、不上传数据」这类声明必须与实现一致，例外（IP 查询、
    可选 AI、在线曲库）在首页副标题与关于页明示。AI 引擎会把矛盾当噪声。
 
 ---
 
-## 8. 内容层（工具页正文）
+## 8. 工具页正文边界
 
-结构在各工具的 `tools-<分类>.json` 里，键为 `<name>.seo`，中英必须成对：
+工具页的主体是工具本身，**不铺「导语 / 如何使用 / 常见问题」这类长文内容层**：阅读区只保留 H1
+与一句话描述，其余版面交给交互控件。
 
-```json
-"hash-text": {
-  "title": "文本哈希计算",
-  "description": "…",
-  "seo": {
-    "intro": "一段 120–200 字的导语：首句含主关键词，说明适用场景与本地处理。",
-    "steps": ["可执行的步骤，含界面上的真实名称", "…", "…"],
-    "faq": [{ "q": "用户真实会问的问句？", "a": "结论先行的回答。" }],
-    "related": ["bcrypt", "encryption"]
-  }
-}
-```
-
-| 字段      | 量              | 要求                                                             |
-| --------- | --------------- | ---------------------------------------------------------------- |
-| `intro`   | 中文 120–200 字 | 首句即主关键词；说明适用场景；不复述 description                 |
-| `steps`   | 3–5 步          | 每步可执行、点名界面上的真实控件与参数                           |
-| `faq`     | 3–5 条          | 至少 1 条命中真实问句（怎么 / 为什么 / 能不能 / 哪个区别）       |
-| `related` | 3–5 个          | 同类目或强关联；值是**工具名**（= 路由去斜杠），拼错会被门禁拦下 |
-
-规则：
-
-- 渲染在工具 UI **下方**，不影响主交互；`ToolSeoContent` 在 `<name>.seo` 缺失时整块不渲染，
-  所以可以按流量逐个补齐而不必一次铺满。
-- **整页式（`immersive`）工具不渲染内容层**（会顶掉视口撑满的高度链），预渲染同样跳过，
-  两侧行为一致；给这类工具加 `seo` 键是无效配置。
-- `related` 必须是真实 `<Link>`/`<a href>`，不能是 onClick 跳转——爬虫只沿真实锚点爬。
-- 文案事实依据只能是该工具已有的 UI 文案与 service 实现，**不声明不存在的功能**。
-- 门禁：`scripts/check-tool-seo-keys.mjs` 校验 title/description 齐全、`seo` 块结构完整、
-  双语成对、`related` 引用存在；随 `pnpm test` 执行。
-
-**铺量优先级**：先做搜索需求最大与差异化最强的（`image-to-beads`、`chinese-kinship-calculator`、
-`fortune-draw`、`photo-cheatsheet` 这类垂直小工具竞争度远低于「md5 加密」，最容易先拿到首页排名），
-再按 GSC 实际曝光数据排序补其余。质量塌方比不铺更糟。
+- 可检索正文由构建期写进 HTML 源码：每条工具页有 H1 + 描述 + 回首页链接，首页源码有 48 条带锚文本
+  的分类内链（在 `<noscript>` 里，浏览器开着 JS 时不渲染）。
+- 因此不输出 `FAQPage`：结构化数据只能标页面上真实可见的内容，工具页没有可见问答就不声明。
+- 长尾与问句覆盖靠三处承载，不靠正文堆字：`title` / `description` 里的关键词（§4）、
+  `llms.txt` 与 `llms-full.txt` 的中英说明与搜索关键词（§7）、以及分类聚合页（§9 规划）。
+- 要补正文必须先定呈现方式（折叠区还是独立文档页），确认后再动 `ToolLayout`。
 
 ---
 
@@ -187,11 +174,11 @@ GEO 与 SEO 的分歧只有一处——**AI 引擎不执行 JS，也不看渲染
 
 ```
 首页（品类词，静态 HTML 内含 9 个分类 × 48 条工具内链）
-   └─ 工具页 ──related──▶ 同类工具页（语义簇：crypto / text / images …）
+   └─ 工具页 ──▶ 侧栏同类工具 + 面包屑回首页（横向互链见下）
 ```
 
-- 首页是权重最高的页面，静态壳里的分类清单 + 锚文本是全站内链图的根。
-- 工具页 `related` 负责横向传递权重，把「扁平但稀疏」的链接图织成簇。
+- 首页是权重最高的页面，静态壳源码里的分类清单 + 锚文本是全站内链图的根。
+- 工具页之间的横向链接目前只有侧栏（同分类并列）与面包屑；正文区不放相关工具链接（§8）。
 - 规划中的增强：**9 个分类聚合页** `/category/<key>`（title 承载「加密解密工具」「图片处理工具在线」这类
   品类词，正文复用 `categories.ts` 与工具清单），把一级结构变成两级。这是成本最低的新增可索引页面。
 
@@ -206,7 +193,7 @@ GEO 与 SEO 的分歧只有一处——**AI 引擎不执行 JS，也不看渲染
   通常大于中文）。
 - 路线：路径前缀 `/en/<tool>`（不用 `?lang=`，参数 URL 收录差且易与 canonical 冲突）→ `resolveInitialLocale()`
   优先读 URL → `changeLocale()` 改为导航 → sitemap 声明 `xmlns:xhtml` 并互指 → 静态壳按两个 locale 各出一套。
-  该项动架构，排在内容层铺量之后。
+  该项动架构，需独立排期。
 
 ---
 
@@ -264,15 +251,14 @@ GEO 与 SEO 的分歧只有一处——**AI 引擎不执行 JS，也不看渲染
 
 KPI（按季度看，SEO 是复利曲线不是开关：收录改善 2–4 周可见，排名与流量通常 2–3 个月才成趋势）：
 
-| 指标                        | 目标                                           |
-| --------------------------- | ---------------------------------------------- |
-| 被索引页面数                | ≥ 50（全站 URL），分类页上线后 ≥ 60            |
-| 有独立 TDK + 正文的页面占比 | 100%（静态壳保证，不允许回退）                 |
-| 内容层覆盖工具数            | 每季度递增，优先差异化小工具与高曝光页         |
-| 结构化数据校验错误          | 0（富结果测试与校验器全绿）                    |
-| 非品牌自然点击              | 建立基线后环比增长                             |
-| 目标词 Top 3 占比           | 3 个月 10% → 6 个月 30%                        |
-| AI 渠道引用                 | 记录 ChatGPT/Perplexity 是否引用本站并给出链接 |
+| 指标                                    | 目标                                           |
+| --------------------------------------- | ---------------------------------------------- |
+| 被索引页面数                            | ≥ 50（全站 URL），分类页上线后 ≥ 60            |
+| 工具页源码含独立 TDK + H1 + 描述 + 内链 | 48 / 48 保持（静态壳保证，不允许回退）         |
+| 结构化数据校验错误                      | 0（富结果测试与校验器全绿）                    |
+| 非品牌自然点击                          | 建立基线后环比增长                             |
+| 目标词 Top 3 占比                       | 3 个月 10% → 6 个月 30%                        |
+| AI 渠道引用                             | 记录 ChatGPT/Perplexity 是否引用本站并给出链接 |
 
 ---
 

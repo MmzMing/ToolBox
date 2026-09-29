@@ -732,29 +732,6 @@
       "invalid": "Some input is missing or invalid, so nothing was calculated",
       "range": "That target net pay is above the searchable range"
     },
-    "disclaimer": "Figures are an estimate on a withholding basis; the annual settlement may add or refund tax. Data version 2026-09 - confirm with the local social security, housing fund and tax authorities.",
-    "seo": {
-      "intro": "Works out social insurance, housing fund, individual income tax under China's cumulative withholding method and your year-end bonus month by month, then subtracts rent, commuting and food so you can see what you actually keep each month and save per year — or solve backwards from a target net salary.",
-      "steps": [
-        "Pick a city and enter your gross monthly pay; the contribution bases follow it by default and can be overridden.",
-        "Set the starting month and your special additional deductions — joining mid-year changes the cumulative deduction noticeably.",
-        "Switch bonus tax treatment to compare both results, or use reverse mode to solve for the gross behind a target net."
-      ],
-      "faq": [
-        {
-          "q": "Why is my take-home higher in the first months after a mid-year start?",
-          "a": "Tax is withheld cumulatively, and the cumulative deduction only counts months actually worked, so early months sit in a lower bracket and catch up by year end."
-        },
-        {
-          "q": "Should the year-end bonus be taxed separately?",
-          "a": "It depends on which bracket your annual taxable income lands in. If merging pushes you into a higher bracket, separate taxation is usually cheaper — toggle the mode to see the difference."
-        },
-        {
-          "q": "Are the contribution rates accurate?",
-          "a": "Rates and base caps differ by city. The calculator starts from common values and lets you edit every line, recalculating instantly; your local policy is authoritative."
-        }
-      ],
-      "related": ["resume", "unit-converter"]
-    }
+    "disclaimer": "Figures are an estimate on a withholding basis; the annual settlement may add or refund tax. Data version 2026-09 - confirm with the local social security, housing fund and tax authorities."
   }
 }

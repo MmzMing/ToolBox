@@ -45,30 +45,7 @@
     "ref-workdayHoursTenth": "Every 10 minutes, 09:00-18:50 on weekdays",
     "ref-sundayMidnight": "Sunday at 00:00",
     "ref-monthFirstMidnight": "First day of month at 00:00",
-    "ref-newYearMidnight": "January 1 at 00:00",
-    "seo": {
-      "intro": "Build a cron expression from the minute, hour, day, month and weekday fields, with a human-readable schedule beside it and a reference covering field order, special characters, system literals and common patterns.",
-      "steps": [
-        "Set the five fields in order; an asterisk means any value, and ranges or steps can be written 1-5 or */5.",
-        "Use a preset to drop in frequent combinations such as every minute, hourly or Monday midnight.",
-        "Copy the expression into crontab -e or your CI config and check it against the described schedule."
-      ],
-      "faq": [
-        {
-          "q": "Why are both 0 and 7 Sunday?",
-          "a": "Classic cron numbers Sunday as 0, and many implementations also accept 7 for ISO compatibility, so the two are equivalent. Weekday and month also accept English abbreviations."
-        },
-        {
-          "q": "What happens if day-of-month and day-of-week are both restricted?",
-          "a": "Standard cron treats the two as an OR when neither is an asterisk, so a job runs if either matches — the most common source of surprise."
-        },
-        {
-          "q": "Is the expression portable?",
-          "a": "The five-field syntax works in Linux crontab, but Kubernetes CronJob, Jenkins and friends may use six fields with seconds or their own extensions, so check the target product."
-        }
-      ],
-      "related": ["docker-memo", "curl-generator", "regex-memo"]
-    }
+    "ref-newYearMidnight": "January 1 at 00:00"
   },
   "chmod-calculator": {
     "title": "Chmod Calculator",
@@ -97,30 +74,7 @@
     "expandAll": "Expand all",
     "noComments": "This format has no comment syntax",
     "outputOnly": "Affects the result only — the source text is never rewritten",
-    "stripCommentsHint": "Remove comments from the source before converting; the input box stays untouched",
-    "seo": {
-      "intro": "Pick the input format on the left and the output format on the right to convert and pretty-print between JSON, YAML, TOML, XML, CSV, Markdown, HTML and SQL. Comment stripping and folding only affect the output, never your source text.",
-      "steps": [
-        "Paste the data or type it in the editor, then choose its format on the left.",
-        "Switch the right side to the target format; indentation and style re-apply instantly.",
-        "If you need cleanup, tick strip comments or fold everything, then copy the output."
-      ],
-      "faq": [
-        {
-          "q": "Will converting change my source text?",
-          "a": "No. Every cleanup and folding option applies to the output pane only, so you can keep retrying other formats against the same input."
-        },
-        {
-          "q": "Which formats are supported?",
-          "a": "JSON, YAML, TOML, XML, CSV, Markdown, HTML and SQL — any pair can be converted, and same-format pretty printing works too."
-        },
-        {
-          "q": "Is my data uploaded?",
-          "a": "No. Parsing and conversion run entirely in your browser and nothing is persisted."
-        }
-      ],
-      "related": ["encoder-decoder", "hash-text", "regex-memo"]
-    }
+    "stripCommentsHint": "Remove comments from the source before converting; the input box stays untouched"
   },
   "github-accelerator": {
     "title": "GitHub Download Accelerator",

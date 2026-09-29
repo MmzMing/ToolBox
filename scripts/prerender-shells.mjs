@@ -22,7 +22,7 @@ import {
   escapeHtml,
   injectShellBody,
 } from '../src/modules/seo/static-head.ts'
-import { breadcrumbSchema, faqSchema, toolSchema } from '../src/modules/seo/schema.ts'
+import { breadcrumbSchema, toolSchema } from '../src/modules/seo/schema.ts'
 import {
   collectTools,
   readBundle,
@@ -103,21 +103,24 @@ const homeBody = () => {
       '  </section>',
     ].join('\n'),
   )
-  return [
-    '<main class="mx-auto w-full max-w-6xl px-4 py-8">',
-    '  <section class="flex flex-col items-center gap-6 py-14 text-center md:gap-8 md:py-20">',
-    `    <h1 class="max-w-3xl text-4xl font-bold tracking-tighter text-balance sm:text-5xl md:text-6xl">${escapeHtml(
-      interpolate(requireCopy(zhHome, 'title', 'home'), { site: siteName }),
-    )}</h1>`,
-    `    <p class="text-muted-foreground max-w-2xl text-base leading-relaxed text-pretty md:text-lg">${escapeHtml(
-      requireCopy(zhHome, 'subtitle', 'home'),
-    )}</p>`,
-    '  </section>',
-    '  <nav aria-label="工具分类">',
-    sections.join('\n'),
-    '  </nav>',
-    '</main>',
-  ].join('\n')
+  return {
+    // 可见部分只镜像真实首屏的 Hero（同一份文案、同一组类名），React 接管时同位替换，不跳版
+    visible: [
+      '<main class="mx-auto w-full max-w-6xl px-4 py-8">',
+      '  <section class="flex flex-col items-center gap-6 py-14 text-center md:gap-8 md:py-20">',
+      `    <h1 class="max-w-3xl text-4xl font-bold tracking-tighter text-balance sm:text-5xl md:text-6xl">${escapeHtml(
+        interpolate(requireCopy(zhHome, 'title', 'home'), { site: siteName }),
+      )}</h1>`,
+      `    <p class="text-muted-foreground max-w-2xl text-base leading-relaxed text-pretty md:text-lg">${escapeHtml(
+        requireCopy(zhHome, 'subtitle', 'home'),
+      )}</p>`,
+      '  </section>',
+      '</main>',
+    ].join('\n'),
+    // 48 条带锚文本的内链改放 noscript：按源码解析的爬虫读得到，
+    // 浏览器开着 JS 时不渲染，用户不会在挂载前看到一整屏纯文字清单
+    noscript: ['<nav aria-label="工具分类">', sections.join('\n'), '</nav>'].join('\n'),
+  }
 }
 
 const toolBody = (tool) =>
@@ -128,79 +131,8 @@ const toolBody = (tool) =>
     `  <p class="text-muted-foreground mt-6 text-sm"><a href="${escapeHtml(pageUrl(''))}">${escapeHtml(
       breadcrumbHome,
     )}</a></p>`,
-    seoBody(tool),
     '</main>',
-  ]
-    .filter(Boolean)
-    .join('\n')
-
-/**
- * 内容层的静态版本，类名与 components/tool-seo-content.tsx 逐一对应，
- * 这样 React 接管后是同一段落的原地重绘。整页式工具不渲染内容层，这里也跳过。
- */
-function seoBody(tool) {
-  if (tool.immersive) return ''
-  const seo = tool.copy.zh.seo
-  if (!seo) return ''
-  const steps = seo.steps ?? []
-  const faq = seo.faq ?? []
-  const related = (seo.related ?? []).filter((name) => byName.has(name) && name !== tool.name)
-  const blocks = []
-
-  if (seo.intro) {
-    blocks.push(
-      `  <p class="text-muted-foreground text-sm leading-relaxed">${escapeHtml(seo.intro)}</p>`,
-    )
-  }
-  if (steps.length > 0) {
-    blocks.push(
-      [
-        '  <div>',
-        `    <h2 class="text-base font-semibold">${escapeHtml(zhCommon.seoHowTo)}</h2>`,
-        '    <ol class="text-muted-foreground mt-3 list-decimal space-y-2 pl-5 text-sm leading-relaxed">',
-        ...steps.map((step) => `      <li>${escapeHtml(step)}</li>`),
-        '    </ol>',
-        '  </div>',
-      ].join('\n'),
-    )
-  }
-  if (faq.length > 0) {
-    blocks.push(
-      [
-        '  <div>',
-        `    <h2 class="text-base font-semibold">${escapeHtml(zhCommon.seoFaq)}</h2>`,
-        '    <dl class="mt-3 flex flex-col gap-4">',
-        ...faq.map(
-          (item) =>
-            `      <div><dt class="text-sm font-medium">${escapeHtml(item.q)}</dt>` +
-            `<dd class="text-muted-foreground mt-1 text-sm leading-relaxed">${escapeHtml(item.a)}</dd></div>`,
-        ),
-        '    </dl>',
-        '  </div>',
-      ].join('\n'),
-    )
-  }
-  if (related.length > 0) {
-    blocks.push(
-      [
-        '  <nav aria-label="相关工具">',
-        `    <h2 class="text-base font-semibold">${escapeHtml(zhCommon.seoRelated)}</h2>`,
-        '    <ul class="mt-3 flex flex-wrap gap-2">',
-        ...related.map((name) => {
-          const target = byName.get(name)
-          return `      <li><a class="border-border bg-muted/40 rounded-md border px-3 py-1.5 text-sm" href="${escapeHtml(
-            pageUrl(target.path),
-          )}">${escapeHtml(target.copy.zh.title)}</a></li>`
-        }),
-        '    </ul>',
-        '  </nav>',
-      ].join('\n'),
-    )
-  }
-  if (blocks.length === 0) return ''
-  return `<section class="mt-12 flex flex-col gap-8">\n${blocks.join('\n')}\n</section>`
-}
-
+  ].join('\n')
 const aboutBody = (title, intro) =>
   [
     '<main class="mx-auto w-full max-w-4xl px-4 py-8">',
@@ -215,20 +147,19 @@ const aboutBody = (title, intro) =>
 let written = 0
 
 /** head 省略时保留模板里 vite 已注入的首页 SEO 块，只换正文 */
-function emit(route, body, head) {
-  const html = injectShellBody(head ? replaceSeoBlock(template, head) : template, body)
+function emit(route, body, head, noscript) {
+  const html = injectShellBody(head ? replaceSeoBlock(template, head) : template, body, noscript)
   const outDir = route === '' ? dist : path.join(dist, route)
   mkdirSync(outDir, { recursive: true })
   writeFileSync(path.join(outDir, 'index.html'), html, 'utf8')
   written += 1
 }
 
-emit('', homeBody())
+const home = homeBody()
+emit('', home.visible, undefined, home.noscript)
 
 for (const tool of tools) {
   const { title, description } = tool.copy.zh
-  // 与页面可见内容严格对应：整页式工具不渲染内容层，也就不能声明 FAQPage
-  const faq = tool.immersive ? [] : (tool.copy.zh.seo?.faq ?? [])
   emit(
     tool.path,
     toolBody(tool),
@@ -243,9 +174,6 @@ for (const tool of tools) {
           { name: breadcrumbHome, url: pageUrl('') },
           { name: title, url: pageUrl(tool.path) },
         ]),
-        ...(faq.length > 0
-          ? [faqSchema(faq.map((item) => ({ question: item.q, answer: item.a })))]
-          : []),
       ],
     }),
   )

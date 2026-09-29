@@ -35,29 +35,6 @@
       "notFound": "No QR code found in this image. Try cropping to the code or using a sharper picture",
       "decodeFailed": "Could not read this image, please try another one",
       "resultLabel": "Decoded text"
-    },
-    "seo": {
-      "intro": "Two tabs cover the everyday uses of QR codes: generate one from text or a link with custom colours, size, margin and error correction, exporting PNG or SVG, or drop and paste a QR image to read it back as text.",
-      "steps": [
-        "Enter the text or URL and pick an error-correction level (Q or H if it will be printed or handled roughly).",
-        "Tune size, margin and colours, then download the PNG, or the SVG when you need a vector.",
-        "For the reverse direction, switch to the detect tab and drop, paste or pick a QR image to decode it."
-      ],
-      "faq": [
-        {
-          "q": "Which error-correction level should I use?",
-          "a": "L recovers about 7% of codewords, M about 15%, Q about 25% and H about 30%. L or M is enough on screen; choose Q or H for print, outdoor use or a logo overlaid in the middle."
-        },
-        {
-          "q": "Why does my recoloured code stop scanning?",
-          "a": "Readers rely on contrast between modules and background. Too little contrast, or an inverted light-on-dark code, breaks detection — keep a dark foreground on a light background."
-        },
-        {
-          "q": "Are my images uploaded?",
-          "a": "No. Detection decodes the image locally in your browser and never sends it anywhere."
-        }
-      ],
-      "related": ["wifi-qr-code-generator", "image-compressor", "safelink-decoder"]
     }
   },
   "wifi-qr-code-generator": {

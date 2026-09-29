@@ -88,25 +88,6 @@ export function breadcrumbSchema(items: Crumb[]): JsonLd {
   }
 }
 
-export type FaqItem = { question: string; answer: string }
-
-/**
- * schema.org FAQPage。Google 的 FAQ 富结果已收紧到权威站与政府站，
- * 这里的主要收益是 AI 引擎（ChatGPT / Perplexity 等）可直接抽取问答对，
- * 因此必须与页面上看得见的 FAQ 一一对应，不能只声明不展示。
- */
-export function faqSchema(items: FaqItem[]): JsonLd {
-  return {
-    '@context': SCHEMA_CONTEXT,
-    '@type': 'FAQPage',
-    mainEntity: items.map((item) => ({
-      '@type': 'Question',
-      name: item.question,
-      acceptedAnswer: { '@type': 'Answer', text: item.answer },
-    })),
-  }
-}
-
 /**
  * 序列化为 <script type="application/ld+json"> 的内容。
  * 转义 '<'：标题/描述里的 '</script>' 否则会提前闭合标签，把字符串变成可执行片段。
