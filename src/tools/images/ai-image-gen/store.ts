@@ -222,7 +222,7 @@ export const useAiImageGenStore = create<AiImageGenState>()(
       guides: [],
       rulersOn: false,
       guidesOn: false,
-      alignOn: true,
+      alignOn: false,
       past: [],
       future: [],
       sound: false,

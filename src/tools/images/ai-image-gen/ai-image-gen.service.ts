@@ -352,6 +352,26 @@ export function alignLinesOf(
 /** 提及标记的上限：同一张图可以反复 @，但手改坏的记录不能把 IDB 撑爆 */
 export const MAX_MENTIONS = 32
 
+/** 查询串长过这里就不再当提及：中文没有空格，否则面板会一直挂在输入框下面 */
+export const MENTION_QUERY_LIMIT = 20
+
+export type MentionTrigger = { start: number; end: number; query: string }
+
+/**
+ * 光标前那段 `@查询` 是否该弹参考图面板。
+ * 中文正文里 @ 前面几乎不会是空白，所以只挡紧跟在词字符后的那种（`token@`、邮箱地址），
+ * 汉字与标点后一律算提及开头。查询里出现空白或超长即收面板。
+ */
+export function detectMentionTrigger(text: string, caret: number): MentionTrigger | null {
+  const upto = text.slice(0, caret)
+  const at = upto.lastIndexOf('@')
+  if (at < 0) return null
+  if (/\w/.test(upto[at - 1] ?? '')) return null
+  const query = upto.slice(at + 1)
+  if (query.length > MENTION_QUERY_LIMIT || /\s/.test(query)) return null
+  return { start: at, end: caret, query }
+}
+
 const ZH_LABELS = ['图一', '图二', '图三', '图四']
 
 /**
@@ -752,22 +772,43 @@ export function buildCanvasGraph(
       occupied.push(node)
     }
   }
+  const byId = new Map(nodes.map((node) => [node.id, node]))
+  /** 已经落好位的：手工钉过的，或这一趟刚排完的。层深比子节点小，所以父必先于子 */
+  const settled = new Set(nodes.filter((node) => node.pinned).map((node) => node.id))
   const byLayerThenTime = (a: CanvasNode, b: CanvasNode): number =>
     (layers.get(a.id) ?? 0) - (layers.get(b.id) ?? 0) ||
     a.createdAt - b.createdAt ||
     a.id.localeCompare(b.id)
   for (const node of nodes.filter((item) => !item.pinned).sort(byLayerThenTime)) {
+    // 贴着上游摆：一次生图的新节点要出现在提示词节点右侧，而不是按分层网格
+    // 从原点算起的那一列——用户手拖过之后那串坐标与父节点毫无关系，出图会直接飞出视野。
+    // 多个上游取最右的那个，新节点才落在它们全部的外侧。
+    const anchor = (deps.get(node.id) ?? [])
+      .map((id) => byId.get(id))
+      .filter((dep): dep is CanvasNode => dep !== undefined && settled.has(dep.id))
+      .reduce<CanvasNode | undefined>(
+        (best, dep) => (!best || dep.x + dep.width > best.x + best.width ? dep : best),
+        undefined,
+      )
     const spot = findFreeSlot(
-      {
-        x: columnX.get(layers.get(node.id) ?? 0) ?? 0,
-        y: CANVAS_ORIGIN_Y,
-        width: node.width,
-        height: node.height,
-      },
+      anchor
+        ? {
+            x: anchor.x + anchor.width + CANVAS_GAP_X,
+            y: anchor.y,
+            width: node.width,
+            height: node.height,
+          }
+        : {
+            x: columnX.get(layers.get(node.id) ?? 0) ?? 0,
+            y: CANVAS_ORIGIN_Y,
+            width: node.width,
+            height: node.height,
+          },
       occupied,
     )
     node.x = spot.x
     node.y = spot.y
+    settled.add(node.id)
     occupied.push(node)
   }
   nodes.sort(byLayerThenTime)

@@ -8,6 +8,7 @@ import {
   buildCanvasGraph,
   buildCanvasMap,
   canvasMapBox,
+  CANVAS_GAP_X,
   CANVAS_IMAGE_WIDTH,
   CANVAS_MAP_LIMIT,
   CANVAS_NODE_MAX_HEIGHT,
@@ -15,14 +16,17 @@ import {
   CANVAS_NODE_MIN_HEIGHT,
   CANVAS_NODE_MIN_WIDTH,
   CANVAS_PROMPT_MAX_HEIGHT,
+  CANVAS_PROMPT_WIDTH,
   CANVAS_TEXT_LIMIT,
   clampCanvasSize,
   composePromptText,
   defaultGenParams,
+  detectMentionTrigger,
   findFreeSlot,
   insertReferenceMention,
   LEGACY_WORKSPACE_ID,
   MAX_MENTIONS,
+  MENTION_QUERY_LIMIT,
   nextWorkspaceNumber,
   normalizeCanvasNode,
   normalizeGenParams,
@@ -448,6 +452,34 @@ describe('insertReferenceMention', () => {
   })
 })
 
+describe('detectMentionTrigger', () => {
+  it('opens on a bare @ at the start of the text', () => {
+    expect(detectMentionTrigger('@', 1)).toEqual({ start: 0, end: 1, query: '' })
+  })
+
+  it('opens after a CJK character: Chinese prompts have no spaces', () => {
+    expect(detectMentionTrigger('保持图一整体构图，替换成@图', 14)).toEqual({
+      start: 12,
+      end: 14,
+      query: '图',
+    })
+  })
+
+  it('stays closed when the @ belongs to a word, such as an email or a token', () => {
+    expect(detectMentionTrigger('contact me@box.com', 12)).toBeNull()
+    expect(detectMentionTrigger('token@', 6)).toBeNull()
+  })
+
+  it('closes once the query is over the length limit', () => {
+    const text = `@${'字'.repeat(MENTION_QUERY_LIMIT + 1)}`
+    expect(detectMentionTrigger(text, text.length)).toBeNull()
+  })
+
+  it('ignores an @ behind the caret', () => {
+    expect(detectMentionTrigger('say @hi', 4)).toBeNull()
+  })
+})
+
 const img = (
   id: string,
   jobId: string,
@@ -667,6 +699,31 @@ describe('buildCanvasGraph', () => {
         expect(intersects(boxes[i], boxes[j])).toBe(false)
       }
     }
+  })
+
+  it('places a fresh output beside its prompt node instead of the layer grid', () => {
+    const graph = buildCanvasGraph(
+      [img('out1', 'J'), img('out2', 'J')],
+      [overlay('p:J', { text: 'hello', x: 1200, y: 900 })],
+    )
+    const [out1, out2] = ['out1', 'out2'].map((id) => graph.nodes.find((n) => n.id === id))
+    // 紧贴提示词节点右侧，两张一起向下排开，而不是回到从原点起算的那一列
+    expect(out1).toMatchObject({ x: 1200 + CANVAS_PROMPT_WIDTH + CANVAS_GAP_X, y: 900 })
+    expect(out2?.y).toBeGreaterThan((out1?.y ?? 0) + (out1?.height ?? 0))
+    expect(out2?.x).toBe(out1?.x)
+  })
+
+  it('anchors an unpinned prompt to the rightmost of its references', () => {
+    const graph = buildCanvasGraph(
+      [img('seed', 'J0'), img('wide', 'J0'), img('out', 'J1')],
+      [
+        overlay('seed', { x: 0, y: 0 }),
+        overlay('wide', { x: 600, y: 400, width: 400 }),
+        overlay('p:J1', { text: 'remix', refs: ['seed', 'wide'] }),
+      ],
+    )
+    const prompt = graph.nodes.find((node) => node.id === 'p:J1')
+    expect(prompt).toMatchObject({ x: 600 + 400 + CANVAS_GAP_X, y: 400 })
   })
 
   it('keeps a canvas created prompt node that has no output yet', () => {

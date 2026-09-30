@@ -27,8 +27,10 @@ import {
   CANVAS_NODE_MIN_HEIGHT,
   CANVAS_NODE_MIN_WIDTH,
   CANVAS_PROMPT_MAX_HEIGHT,
+  detectMentionTrigger,
   insertReferenceMention,
   type GenParams,
+  type MentionTrigger,
 } from '../../ai-image-gen.service'
 import { ParamBar } from '../../components/ParamBar'
 import { NodeDialog } from '../../components/NodeDialog'
@@ -87,18 +89,6 @@ export type PromptNodeData = {
 export type PromptRfNode = Node<PromptNodeData, 'prompt'>
 
 const RUNNING: (JobStatus | 'idle')[] = ['queued', 'running']
-
-type MentionTrigger = { start: number; end: number; query: string }
-
-/** 光标前是一段不带空格的 @ 查询才弹面板；@ 必须在行首或空白之后 */
-function detectTrigger(text: string, caret: number): MentionTrigger | null {
-  const upto = text.slice(0, caret)
-  const at = upto.lastIndexOf('@')
-  if (at < 0) return null
-  if (at > 0 && !/\s/.test(upto[at - 1])) return null
-  const query = upto.slice(at + 1)
-  return /\s/.test(query) ? null : { start: at, end: caret, query }
-}
 
 type MentionFieldProps = {
   value: string
@@ -176,7 +166,7 @@ function MentionField({
   const handleChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     const next = event.target.value
     onChange(next, mentions)
-    setTrigger(detectTrigger(next, event.target.selectionStart ?? next.length))
+    setTrigger(detectMentionTrigger(next, event.target.selectionStart ?? next.length))
     setActive(0)
   }
 

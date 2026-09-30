@@ -391,7 +391,7 @@
     },
     "promptNode": {
       "chain": "←{{count}} upstream",
-      "placeholder": "Double-click to edit, or link images from the canvas as references",
+      "placeholder": "Double-click to edit. Link an image from the canvas, then type @ to reference it",
       "generate": "Generate",
       "delete": "Delete",
       "reading": "Reading this image…",

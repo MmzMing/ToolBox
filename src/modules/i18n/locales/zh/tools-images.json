@@ -391,7 +391,7 @@
     },
     "promptNode": {
       "chain": "←{{count}} 条上游",
-      "placeholder": "双击编辑提示词，或把画布上的图连进来当参考图",
+      "placeholder": "双击编辑提示词，把画布上的图连进来后可输入 @ 引用",
       "generate": "生图",
       "delete": "删除",
       "reading": "正在识别这张图…",
