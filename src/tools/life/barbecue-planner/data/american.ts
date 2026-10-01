@@ -129,38 +129,6 @@ export const US_INGREDIENTS: Ingredient[] = [
     },
   },
   {
-    id: 'us-sausage',
-    cuisine: 'us',
-    name: { zh: '烟熏香肠', en: 'Smoked sausage' },
-    group: 'mammal',
-    unit: 'stick',
-    counter: { zh: '条', en: 'pcs' },
-    qty: {
-      mode: 'perPerson',
-      perPerson: { light: num(0.5, 0.5), standard: num(0.75, 0.75), heavy: num(1, 1) },
-    },
-    cook: {
-      heat: 'medium',
-      windows: [
-        { mode: 'charcoal', minutes: { min: 10, max: 15 } },
-        { mode: 'smoker', minutes: { min: 60, max: 90 } },
-      ],
-    },
-    prep: [],
-    marinadeIds: [],
-    coreTempId: 'ground-pork',
-    yieldPct: num(65, 65, 'derived', {
-      zh: '按 pork loin 出成率借用',
-      en: 'Borrowed from the loin figure',
-    }),
-    excludedBy: [],
-    spice: 1,
-    note: {
-      zh: '来源口径是"1 lb 生香肠 = 4 人"，约合每人 113 g 生重；本表按一根约 100 g 折算。',
-      en: 'Source says 1 lb feeds four; that is roughly one 100 g link a head.',
-    },
-  },
-  {
     id: 'us-chicken-quarter',
     cuisine: 'us',
     name: { zh: '带骨鸡块', en: 'Chicken quarters' },
@@ -186,60 +154,6 @@ export const US_INGREDIENTS: Ingredient[] = [
     note: {
       zh: '整鸡出成率只有 34%，骨头占掉大半重量；作为唯一主肉每人 2.5 块，有其他肉时 1.5 块。',
       en: 'Only 34 % of a whole chicken survives as meat — bone is most of the invoice.',
-    },
-  },
-  {
-    id: 'us-corn',
-    cuisine: 'us',
-    name: { zh: '带皮玉米', en: 'Corn on the cob' },
-    group: 'vegetable',
-    unit: 'portion',
-    qty: {
-      mode: 'perPerson',
-      perPerson: { light: num(0.5, 0.5), standard: num(1, 1), heavy: num(1, 1) },
-    },
-    cook: {
-      heat: 'medium',
-      windows: [
-        {
-          mode: 'charcoal',
-          minutes: { min: 15, max: 25 },
-          note: { zh: '留内层皮直接焖烤', en: 'Leave the inner husks on' },
-        },
-      ],
-    },
-    prep: [],
-    marinadeIds: [],
-    excludedBy: [],
-    spice: 0,
-  },
-  {
-    id: 'us-bun',
-    cuisine: 'us',
-    name: { zh: '汉堡胚／白面包', en: 'Buns / white bread' },
-    group: 'staple',
-    unit: 'piece',
-    qty: {
-      mode: 'perPerson',
-      perPerson: { light: num(1, 1), standard: num(1, 1), heavy: num(2, 2) },
-    },
-    cook: {
-      heat: 'gentle',
-      windows: [
-        {
-          mode: 'charcoal',
-          minutes: { min: 1, max: 2 },
-          note: { zh: '切面烤到微焦即可', en: 'Just toast the cut face' },
-        },
-      ],
-    },
-    prep: [],
-    marinadeIds: [],
-    excludedBy: ['glutenFree', 'vegetarianFirst'],
-    spice: 0,
-    note: {
-      zh: '手撕猪肉与牛胸肉都要靠面包兜住，压扁的白面包是德州传统。',
-      en: 'Pulled pork and brisket both need bread; squashed white slices are the Texas way.',
     },
   },
 ]
@@ -311,7 +225,7 @@ export const US_RECIPES: Recipe[] = [
         unit: 'g',
       },
     ],
-    appliesTo: ['us-brisket', 'us-pork-butt', 'us-baby-back-ribs', 'us-sausage', 'us-corn'],
+    appliesTo: ['us-brisket', 'us-pork-butt', 'us-baby-back-ribs'],
     timing: {
       zh: '提前擦好让糖渗出结壳，这层 bark 是 KC 风格的门面。',
       en: 'Apply early so the sugar draws out and sets the bark.',
@@ -423,7 +337,7 @@ export const US_RECIPES: Recipe[] = [
       },
     ],
     durationMin: num(15, 20),
-    appliesTo: ['us-baby-back-ribs', 'us-pork-butt', 'us-sausage', 'us-brisket'],
+    appliesTo: ['us-baby-back-ribs', 'us-pork-butt', 'us-brisket'],
     timing: {
       zh: '厚、甜、挂得住；最后一小时才刷，早刷糖会焦。',
       en: 'Thick and sweet; brush only in the last hour or the sugar scorches.',
@@ -465,7 +379,7 @@ export const US_RECIPES: Recipe[] = [
       },
     ],
     durationMin: num(5, 10),
-    appliesTo: ['us-pork-butt', 'us-sausage'],
+    appliesTo: ['us-pork-butt'],
     timing: {
       zh: '全猪与猪肩的传统搭配，酸到能切开油脂。Carolina 一派还常在长时间（12–24 h）涂抹液体 mop 保湿。',
       en: 'Built for whole hog and shoulder; the Carolina school also mops for 12–24 h.',

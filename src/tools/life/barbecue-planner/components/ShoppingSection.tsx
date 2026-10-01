@@ -53,8 +53,13 @@ function QtyCell({
   const step = stepForUnit(line.unit)
   const adjusted = isAdjusted(line)
   const commit = (raw: string) => {
-    const parsed = Number(raw)
     setDraft(null)
+    // 空框是「点进来又走开」，不是「这次不买」：Number('') 恰好等于 0，
+    // 不在这里挡掉的话，只聚焦不输入就会把整行划掉。
+    if (raw.trim() === '') {
+      return
+    }
+    const parsed = Number(raw)
     if (!Number.isFinite(parsed)) {
       return
     }

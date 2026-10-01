@@ -396,7 +396,7 @@ describe('recipe scaling', () => {
 
   it('surfaces only the seasonings that were picked, not everything that fits', () => {
     const ids = plan({
-      dishes: ['jp-momo', 'jp-nankotsu'],
+      dishes: ['jp-momo', 'jp-kawa'],
       sauces: ['jp-salt-coarse', 'jp-salt-rock'],
     }).seasonings.map((item) => item.id)
     expect(ids).toEqual(expect.arrayContaining(['jp-salt-coarse', 'jp-salt-rock']))
@@ -425,7 +425,7 @@ describe('timeline', () => {
 
   it('adds the thaw task only when something needs thawing', () => {
     expect(entryOf(plan(), 'tl-thaw')).toBeDefined()
-    expect(entryOf(plan({ dishes: ['kr-samgyeopsal'] }), 'tl-thaw')).toBeUndefined()
+    expect(entryOf(plan({ dishes: ['kr-moksal'] }), 'tl-thaw')).toBeUndefined()
   })
 
   it('adds the shellfish purge only when shellfish is on the list', () => {

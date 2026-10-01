@@ -22,7 +22,7 @@ export const WOOD_TYPES = [
     id: 'pecan',
     name: { zh: '山核桃木', en: 'Pecan / hickory' },
     trait: { zh: '列入推荐清单，甜润偏重', en: 'Recommended; sweet and fairly assertive' },
-    bestFor: ['us-pork-butt', 'us-sausage'],
+    bestFor: ['us-pork-butt'],
   },
   {
     id: 'lychee',
@@ -40,7 +40,8 @@ export const WOOD_TYPES = [
       zh: '德州南部偏好，味烈，长熏易苦',
       en: 'Southern Texas favourite; intense and bitter over long smokes',
     },
-    bestFor: ['us-sausage'],
+    /* 原本只推荐配烟熏香肠，该项已删，故留空而不是硬凑一个搭配 */
+    bestFor: [],
   },
 ] as const satisfies readonly { id: string; name: LocalText; trait: LocalText; bestFor: string[] }[]
 

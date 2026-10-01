@@ -26,23 +26,6 @@ export const STREET_INGREDIENTS: Ingredient[] = [
     },
   },
   {
-    id: 'cn-lion-mane',
-    cuisine: 'cn',
-    name: { zh: '人头菇／猴头菇', en: "Lion's mane mushroom" },
-    group: 'vegetable',
-    unit: 'gram',
-    qty: { mode: 'pool' },
-    cook: { heat: 'medium', windows: [{ mode: 'charcoal', minutes: { min: 5, max: 8 } }] },
-    prep: ['preBoil'],
-    marinadeIds: [],
-    excludedBy: [],
-    spice: 0,
-    note: {
-      zh: '撕小朵先焯水挤干再烤，否则一股苦水味。',
-      en: 'Tear, blanch and squeeze, or it tastes bitter.',
-    },
-  },
-  {
     id: 'cn-garlic-scape',
     cuisine: 'cn',
     name: { zh: '蒜心／蒜薹', en: 'Garlic scape' },
@@ -124,31 +107,6 @@ export const STREET_INGREDIENTS: Ingredient[] = [
       zh: '要青柠不是金桔：挤在烤虾、烤鱿鱼、烤生蚝上解腻提鲜，金桔的苦味会毁掉这一口。',
       en: 'Lime, not kumquat — over prawns, squid and oysters.',
     },
-  },
-  {
-    id: 'cn-lettuce',
-    cuisine: 'cn',
-    name: { zh: '生菜（包肉用）', en: 'Lettuce wrap' },
-    group: 'vegetable',
-    unit: 'piece',
-    qty: {
-      mode: 'perPerson',
-      perPerson: { light: num(3, 3), standard: num(5, 5), heavy: num(6, 6) },
-    },
-    cook: {
-      heat: 'gentle',
-      windows: [
-        {
-          mode: 'charcoal',
-          minutes: { min: 0, max: 0 },
-          note: { zh: '生食包肉', en: 'Eaten raw' },
-        },
-      ],
-    },
-    prep: [],
-    marinadeIds: [],
-    excludedBy: [],
-    spice: 0,
   },
   /* ---------------------------------------------------------------- 肉蛋 */
   {

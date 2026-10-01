@@ -8,37 +8,6 @@ import type { Ingredient, Recipe } from '../types'
  */
 export const KR_INGREDIENTS: Ingredient[] = [
   {
-    id: 'kr-samgyeopsal',
-    cuisine: 'kr',
-    name: { zh: '猪五花', en: 'Pork belly (samgyeopsal)' },
-    group: 'mammal',
-    unit: 'gram',
-    qty: { mode: 'pool' },
-    cook: {
-      heat: 'medium',
-      windows: [
-        {
-          mode: 'charcoal',
-          minutes: { min: 8, max: 14 },
-          note: {
-            zh: '贴上热网后别动 2–3 min，底面泛金再翻；边缘微焦透明即剪开',
-            en: 'Leave it alone for 2–3 min, flip once the base gilds, snip when the edges go translucent',
-          },
-        },
-        { mode: 'stovetopPan', minutes: { min: 8, max: 12 } },
-      ],
-    },
-    prep: ['temper'],
-    marinadeIds: [],
-    coreTempId: 'whole-pork',
-    excludedBy: [],
-    spice: 0,
-    note: {
-      zh: '厚切 1.5–2 cm 外脆内嫩；家用薄切 3–5 mm 更易入味。至少切到 1 cm，否则烤不出韩式口感。厚度是关键变量，不是细节。',
-      en: 'Thick 1.5–2 cm for crisp-outside-juicy-inside; home thin is 3–5 mm. Never below 1 cm.',
-    },
-  },
-  {
     id: 'kr-moksal',
     cuisine: 'kr',
     name: { zh: '猪颈肉', en: 'Pork neck (moksal)' },
@@ -225,29 +194,29 @@ export const KR_INGREDIENTS: Ingredient[] = [
     spice: 0,
   },
   {
-    id: 'kr-mushroom',
-    cuisine: 'kr',
-    name: { zh: '杏鲍菇／猴头菇片', en: 'Mushroom slices' },
-    group: 'vegetable',
-    unit: 'gram',
-    qty: { mode: 'pool' },
-    cook: { heat: 'medium', windows: [{ mode: 'charcoal', minutes: { min: 4, max: 8 } }] },
-    prep: [],
-    marinadeIds: [],
-    excludedBy: [],
-    spice: 0,
-    note: {
-      zh: '分钟级时间无韩式专属来源，按中式杏鲍菇大火区间推算。',
-      en: 'No Korean-specific timing published; inferred from the king-oyster-mushroom window.',
-    },
-  },
-  {
     id: 'kr-zucchini',
     cuisine: 'kr',
-    name: { zh: '意大利瓜片', en: 'Zucchini slices' },
+    name: { zh: '西葫芦', en: 'Zucchini slices' },
     group: 'vegetable',
-    unit: 'gram',
-    qty: { mode: 'pool' },
+    unit: 'piece',
+    counter: { zh: '个', en: 'pcs' },
+    qty: {
+      mode: 'perPerson',
+      perPerson: {
+        light: num(0.4, 0.4, 'derived', {
+          zh: '蔬菜池人均 100 g ÷ 一根约 250 g',
+          en: '100 g vegetable pool over a ~250 g fruit',
+        }),
+        standard: num(0.6, 0.6, 'derived', {
+          zh: '蔬菜池人均 150 g ÷ 一根约 250 g',
+          en: '150 g vegetable pool over a ~250 g fruit',
+        }),
+        heavy: num(0.8, 0.8, 'derived', {
+          zh: '蔬菜池人均 190 g ÷ 一根约 250 g',
+          en: '190 g vegetable pool over a ~250 g fruit',
+        }),
+      },
+    },
     cook: { heat: 'medium', windows: [{ mode: 'charcoal', minutes: { min: 3, max: 5 } }] },
     prep: [],
     marinadeIds: [],
@@ -392,7 +361,6 @@ export const KR_RECIPES: Recipe[] = [
       { name: { zh: '麻油', en: 'Sesame oil' }, qty: num(20, 20), unit: 'ml' },
     ],
     appliesTo: [
-      'kr-samgyeopsal',
       'kr-moksal',
       'kr-chadolbakki',
       'kr-sohye',
@@ -422,7 +390,7 @@ export const KR_RECIPES: Recipe[] = [
       { name: { zh: '白醋', en: 'White vinegar' }, qty: num(10, 10), unit: 'ml' },
       { name: { zh: '糖', en: 'Sugar' }, qty: num(5, 5), unit: 'g' },
     ],
-    appliesTo: ['kr-samgyeopsal', 'kr-mushroom', 'kr-galbi'],
+    appliesTo: ['kr-galbi'],
     glutenFreeSwap: { zh: '酱油换 GF 版本', en: 'Use GF soy' },
     spice: 0,
     note: {
@@ -442,7 +410,7 @@ export const KR_RECIPES: Recipe[] = [
       { name: { zh: '盐', en: 'Salt' }, qty: num(3, 3), unit: 'g' },
       { name: { zh: '糖', en: 'Sugar' }, qty: num(5, 5), unit: 'g' },
     ],
-    appliesTo: ['kr-mu', 'kr-zucchini', 'kr-mushroom'],
+    appliesTo: ['kr-mu', 'kr-zucchini'],
     spice: 0,
   },
   {
