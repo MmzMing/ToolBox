@@ -1,729 +1,3462 @@
 {
   "layout": [
-    { "key": "center" },
-    { "key": "mixed" },
-    { "key": "vcols" },
-    { "key": "marquee" },
-    { "key": "tile" },
-    { "key": "scatter" },
-    { "key": "ring" },
-    { "key": "wave" },
-    { "key": "huge" },
-    { "key": "labels" },
-    { "key": "condensed" },
-    { "key": "gloss" },
-    { "key": "type" },
-    { "key": "diag" },
-    { "key": "circle" },
-    { "key": "stack" },
-    { "key": "pill" },
-    { "key": "lowerThird", "pack": "layoutsA" },
-    { "key": "corners", "pack": "layoutsA" },
-    { "key": "staircase", "pack": "layoutsA" },
-    { "key": "zigzag", "pack": "layoutsA" },
-    { "key": "arcTop", "pack": "layoutsA" },
-    { "key": "spiral", "pack": "layoutsA" },
-    { "key": "gridCells", "pack": "layoutsA" },
-    { "key": "dropCap", "pack": "layoutsA" },
-    { "key": "justified", "pack": "layoutsA" },
-    { "key": "frameBox", "pack": "layoutsA" },
-    { "key": "bubble", "pack": "layoutsA" },
-    { "key": "subtitleBar", "pack": "layoutsA" },
-    { "key": "ticker", "pack": "layoutsA" },
-    { "key": "splitScreen", "pack": "layoutsA" },
-    { "key": "mirror", "pack": "layoutsA" },
-    { "key": "sideways", "pack": "layoutsA" },
-    { "key": "edgeFrame", "pack": "layoutsA" },
-    { "key": "perspective", "pack": "layoutsA" },
-    { "key": "hanko", "pack": "layoutsA" },
-    { "key": "genkou", "pack": "layoutsA" },
-    { "key": "panels", "pack": "layoutsA" },
-    { "key": "filmstrip", "pack": "layoutsA" },
-    { "key": "quote", "pack": "layoutsA" },
-    { "key": "ruler", "pack": "layoutsA" },
-    { "key": "searchBar", "pack": "layoutsA" },
-    { "key": "chat", "pack": "layoutsA" },
-    { "key": "notification", "pack": "layoutsA" },
-    { "key": "ticket", "pack": "layoutsA" },
-    { "key": "rain", "pack": "layoutsB" },
-    { "key": "hanging", "pack": "layoutsB" },
-    { "key": "orbit", "pack": "layoutsB" },
-    { "key": "tunnel", "pack": "layoutsB" },
-    { "key": "wordCloud", "pack": "layoutsB" },
-    { "key": "bounceLine", "pack": "layoutsB" },
-    { "key": "elastic", "pack": "layoutsB" },
-    { "key": "crossBands", "pack": "layoutsB" },
-    { "key": "stickerBomb", "pack": "layoutsB" },
-    { "key": "neon", "pack": "layoutsB" },
-    { "key": "keycaps", "pack": "layoutsB" },
-    { "key": "bubbles", "pack": "layoutsB" },
-    { "key": "slotMachine", "pack": "layoutsB" },
-    { "key": "flipBoard", "pack": "layoutsB" },
-    { "key": "credits", "pack": "layoutsB" },
-    { "key": "zoomRepeat", "pack": "layoutsB" },
-    { "key": "splitHalves", "pack": "layoutsB" },
-    { "key": "columnsBig", "pack": "layoutsB" },
-    { "key": "circleWords", "pack": "layoutsB" },
-    { "key": "dotMatrix", "pack": "layoutsB" },
-    { "key": "depthStack", "pack": "layoutsB" },
-    { "key": "typeSpecimen", "pack": "layoutsB" },
-    { "key": "kanjiFocus", "pack": "layoutsB" },
-    { "key": "halfVertical", "pack": "layoutsB" },
-    { "key": "curtain", "pack": "layoutsB" },
-    { "key": "equalizer", "pack": "layoutsB" },
-    { "key": "tape", "pack": "layoutsB" },
-    { "key": "magazine", "pack": "layoutsC" },
-    { "key": "headlineDeck", "pack": "layoutsC" },
-    { "key": "contents", "pack": "layoutsC" },
-    { "key": "footnote", "pack": "layoutsC" },
-    { "key": "proofread", "pack": "layoutsC" },
-    { "key": "numbered", "pack": "layoutsC" },
-    { "key": "poster", "pack": "layoutsC" },
-    { "key": "swissGrid", "pack": "layoutsC" },
-    { "key": "dictionary", "pack": "layoutsC" },
-    { "key": "ema", "pack": "layoutsC" },
-    { "key": "ransom", "pack": "layoutsC" },
-    { "key": "newspaper", "pack": "layoutsC" },
-    { "key": "vinyl", "pack": "layoutsC" },
-    { "key": "cassette", "pack": "layoutsC" },
-    { "key": "bookSpine", "pack": "layoutsC" },
-    { "key": "polaroid", "pack": "layoutsC" },
-    { "key": "stampSheet", "pack": "layoutsC" },
-    { "key": "postcard", "pack": "layoutsC" },
-    { "key": "letterPaper", "pack": "layoutsC" },
-    { "key": "calendar", "pack": "layoutsC" },
-    { "key": "chochin", "pack": "layoutsC" },
-    { "key": "routeMap", "pack": "layoutsC" },
-    { "key": "stationSign", "pack": "layoutsC" },
-    { "key": "noren", "pack": "layoutsC" },
-    { "key": "tanzaku", "pack": "layoutsC" },
-    { "key": "omikuji", "pack": "layoutsC" },
-    { "key": "kakejiku", "pack": "layoutsC" },
-    { "key": "shoji", "pack": "layoutsC" },
-    { "key": "clapper", "pack": "layoutsC" },
-    { "key": "warningLabel", "pack": "layoutsC" },
-    { "key": "priceTag", "pack": "layoutsC" },
-    { "key": "nameTag", "pack": "layoutsC" },
-    { "key": "stickyNotes", "pack": "layoutsC" },
-    { "key": "karuta", "pack": "layoutsC" },
-    { "key": "cube", "pack": "layoutsD" },
-    { "key": "cylinder", "pack": "layoutsD" },
-    { "key": "flipCards", "pack": "layoutsD" },
-    { "key": "accordion", "pack": "layoutsD" },
-    { "key": "flag", "pack": "layoutsD" },
-    { "key": "ribbon", "pack": "layoutsD" },
-    { "key": "pendulum", "pack": "layoutsD" },
-    { "key": "pile", "pack": "layoutsD" },
-    { "key": "blocks", "pack": "layoutsD" },
-    { "key": "balloons", "pack": "layoutsD" },
-    { "key": "magnets", "pack": "layoutsD" },
-    { "key": "tiles", "pack": "layoutsD" },
-    { "key": "bulbs", "pack": "layoutsD" },
-    { "key": "ledScroll", "pack": "layoutsD" },
-    { "key": "billboard", "pack": "layoutsD" },
-    { "key": "crowdBubbles", "pack": "layoutsD" },
-    { "key": "crossword", "pack": "layoutsD" },
-    { "key": "wordSearch", "pack": "layoutsD" },
-    { "key": "puzzle", "pack": "layoutsD" },
-    { "key": "shadowPlay", "pack": "layoutsD" },
-    { "key": "kaleido", "pack": "layoutsD" },
-    { "key": "dominoes", "pack": "layoutsD" },
-    { "key": "burst", "pack": "layoutsD" },
-    { "key": "fisheye", "pack": "layoutsD" },
-    { "key": "wall", "pack": "layoutsD" },
-    { "key": "origami", "pack": "layoutsD" },
-    { "key": "zipper", "pack": "layoutsD" },
-    { "key": "sliceStack", "pack": "layoutsD" },
-    { "key": "glitchGrid", "pack": "layoutsD" },
-    { "key": "mosaicTiles", "pack": "layoutsD" },
-    { "key": "maskReveal", "pack": "layoutsD" },
-    { "key": "contour", "pack": "layoutsD" },
-    { "key": "halftoneBig", "pack": "layoutsD" },
-    { "key": "stencil", "pack": "layoutsD" }
+    {
+      "key": "center",
+      "pack": null
+    },
+    {
+      "key": "mixed",
+      "pack": null
+    },
+    {
+      "key": "vcols",
+      "pack": null
+    },
+    {
+      "key": "marquee",
+      "pack": null
+    },
+    {
+      "key": "tile",
+      "pack": null
+    },
+    {
+      "key": "scatter",
+      "pack": null
+    },
+    {
+      "key": "ring",
+      "pack": null
+    },
+    {
+      "key": "wave",
+      "pack": null
+    },
+    {
+      "key": "huge",
+      "pack": null
+    },
+    {
+      "key": "labels",
+      "pack": null
+    },
+    {
+      "key": "condensed",
+      "pack": null
+    },
+    {
+      "key": "gloss",
+      "pack": null
+    },
+    {
+      "key": "type",
+      "pack": null
+    },
+    {
+      "key": "diag",
+      "pack": null
+    },
+    {
+      "key": "circle",
+      "pack": null
+    },
+    {
+      "key": "stack",
+      "pack": null
+    },
+    {
+      "key": "pill",
+      "pack": null
+    },
+    {
+      "key": "hrFlashlight",
+      "pack": "horror"
+    },
+    {
+      "key": "hrDoorGap",
+      "pack": "horror"
+    },
+    {
+      "key": "hrWallScrawl",
+      "pack": "horror"
+    },
+    {
+      "key": "hrCctv",
+      "pack": "horror"
+    },
+    {
+      "key": "hrOuija",
+      "pack": "horror"
+    },
+    {
+      "key": "hrMissing",
+      "pack": "horror"
+    },
+    {
+      "key": "hrWrongOne",
+      "pack": "horror"
+    },
+    {
+      "key": "hrRisingDark",
+      "pack": "horror"
+    },
+    {
+      "key": "hrRedacted",
+      "pack": "horror"
+    },
+    {
+      "key": "hrStaticTv",
+      "pack": "horror"
+    },
+    {
+      "key": "hrSpiritPhoto",
+      "pack": "horror"
+    },
+    {
+      "key": "hrWrongShadow",
+      "pack": "horror"
+    },
+    {
+      "key": "knSlamStack",
+      "pack": "kinetic"
+    },
+    {
+      "key": "knQuarterTurn",
+      "pack": "kinetic"
+    },
+    {
+      "key": "knSwapCenter",
+      "pack": "kinetic"
+    },
+    {
+      "key": "knZoomDive",
+      "pack": "kinetic"
+    },
+    {
+      "key": "knFlowSnap",
+      "pack": "kinetic"
+    },
+    {
+      "key": "knSeesaw",
+      "pack": "kinetic"
+    },
+    {
+      "key": "knTypeSlam",
+      "pack": "kinetic"
+    },
+    {
+      "key": "knRhythmCuts",
+      "pack": "kinetic"
+    },
+    {
+      "key": "knPathRide",
+      "pack": "kinetic"
+    },
+    {
+      "key": "knGearWords",
+      "pack": "kinetic"
+    },
+    {
+      "key": "knCollide",
+      "pack": "kinetic"
+    },
+    {
+      "key": "knTumble",
+      "pack": "kinetic"
+    },
+    {
+      "key": "knReflow",
+      "pack": "kinetic"
+    },
+    {
+      "key": "knPadGrid",
+      "pack": "kinetic"
+    },
+    {
+      "key": "lowerThird",
+      "pack": "layoutsA"
+    },
+    {
+      "key": "corners",
+      "pack": "layoutsA"
+    },
+    {
+      "key": "staircase",
+      "pack": "layoutsA"
+    },
+    {
+      "key": "zigzag",
+      "pack": "layoutsA"
+    },
+    {
+      "key": "arcTop",
+      "pack": "layoutsA"
+    },
+    {
+      "key": "spiral",
+      "pack": "layoutsA"
+    },
+    {
+      "key": "gridCells",
+      "pack": "layoutsA"
+    },
+    {
+      "key": "dropCap",
+      "pack": "layoutsA"
+    },
+    {
+      "key": "justified",
+      "pack": "layoutsA"
+    },
+    {
+      "key": "frameBox",
+      "pack": "layoutsA"
+    },
+    {
+      "key": "bubble",
+      "pack": "layoutsA"
+    },
+    {
+      "key": "subtitleBar",
+      "pack": "layoutsA"
+    },
+    {
+      "key": "ticker",
+      "pack": "layoutsA"
+    },
+    {
+      "key": "splitScreen",
+      "pack": "layoutsA"
+    },
+    {
+      "key": "mirror",
+      "pack": "layoutsA"
+    },
+    {
+      "key": "sideways",
+      "pack": "layoutsA"
+    },
+    {
+      "key": "edgeFrame",
+      "pack": "layoutsA"
+    },
+    {
+      "key": "perspective",
+      "pack": "layoutsA"
+    },
+    {
+      "key": "hanko",
+      "pack": "layoutsA"
+    },
+    {
+      "key": "genkou",
+      "pack": "layoutsA"
+    },
+    {
+      "key": "panels",
+      "pack": "layoutsA"
+    },
+    {
+      "key": "filmstrip",
+      "pack": "layoutsA"
+    },
+    {
+      "key": "quote",
+      "pack": "layoutsA"
+    },
+    {
+      "key": "ruler",
+      "pack": "layoutsA"
+    },
+    {
+      "key": "searchBar",
+      "pack": "layoutsA"
+    },
+    {
+      "key": "chat",
+      "pack": "layoutsA"
+    },
+    {
+      "key": "notification",
+      "pack": "layoutsA"
+    },
+    {
+      "key": "ticket",
+      "pack": "layoutsA"
+    },
+    {
+      "key": "rain",
+      "pack": "layoutsB"
+    },
+    {
+      "key": "hanging",
+      "pack": "layoutsB"
+    },
+    {
+      "key": "orbit",
+      "pack": "layoutsB"
+    },
+    {
+      "key": "tunnel",
+      "pack": "layoutsB"
+    },
+    {
+      "key": "wordCloud",
+      "pack": "layoutsB"
+    },
+    {
+      "key": "bounceLine",
+      "pack": "layoutsB"
+    },
+    {
+      "key": "elastic",
+      "pack": "layoutsB"
+    },
+    {
+      "key": "crossBands",
+      "pack": "layoutsB"
+    },
+    {
+      "key": "stickerBomb",
+      "pack": "layoutsB"
+    },
+    {
+      "key": "neon",
+      "pack": "layoutsB"
+    },
+    {
+      "key": "keycaps",
+      "pack": "layoutsB"
+    },
+    {
+      "key": "bubbles",
+      "pack": "layoutsB"
+    },
+    {
+      "key": "slotMachine",
+      "pack": "layoutsB"
+    },
+    {
+      "key": "flipBoard",
+      "pack": "layoutsB"
+    },
+    {
+      "key": "credits",
+      "pack": "layoutsB"
+    },
+    {
+      "key": "zoomRepeat",
+      "pack": "layoutsB"
+    },
+    {
+      "key": "splitHalves",
+      "pack": "layoutsB"
+    },
+    {
+      "key": "columnsBig",
+      "pack": "layoutsB"
+    },
+    {
+      "key": "circleWords",
+      "pack": "layoutsB"
+    },
+    {
+      "key": "dotMatrix",
+      "pack": "layoutsB"
+    },
+    {
+      "key": "depthStack",
+      "pack": "layoutsB"
+    },
+    {
+      "key": "typeSpecimen",
+      "pack": "layoutsB"
+    },
+    {
+      "key": "kanjiFocus",
+      "pack": "layoutsB"
+    },
+    {
+      "key": "halfVertical",
+      "pack": "layoutsB"
+    },
+    {
+      "key": "curtain",
+      "pack": "layoutsB"
+    },
+    {
+      "key": "equalizer",
+      "pack": "layoutsB"
+    },
+    {
+      "key": "tape",
+      "pack": "layoutsB"
+    },
+    {
+      "key": "magazine",
+      "pack": "layoutsC"
+    },
+    {
+      "key": "headlineDeck",
+      "pack": "layoutsC"
+    },
+    {
+      "key": "contents",
+      "pack": "layoutsC"
+    },
+    {
+      "key": "footnote",
+      "pack": "layoutsC"
+    },
+    {
+      "key": "proofread",
+      "pack": "layoutsC"
+    },
+    {
+      "key": "numbered",
+      "pack": "layoutsC"
+    },
+    {
+      "key": "poster",
+      "pack": "layoutsC"
+    },
+    {
+      "key": "swissGrid",
+      "pack": "layoutsC"
+    },
+    {
+      "key": "dictionary",
+      "pack": "layoutsC"
+    },
+    {
+      "key": "ema",
+      "pack": "layoutsC"
+    },
+    {
+      "key": "ransom",
+      "pack": "layoutsC"
+    },
+    {
+      "key": "newspaper",
+      "pack": "layoutsC"
+    },
+    {
+      "key": "vinyl",
+      "pack": "layoutsC"
+    },
+    {
+      "key": "cassette",
+      "pack": "layoutsC"
+    },
+    {
+      "key": "bookSpine",
+      "pack": "layoutsC"
+    },
+    {
+      "key": "polaroid",
+      "pack": "layoutsC"
+    },
+    {
+      "key": "stampSheet",
+      "pack": "layoutsC"
+    },
+    {
+      "key": "postcard",
+      "pack": "layoutsC"
+    },
+    {
+      "key": "letterPaper",
+      "pack": "layoutsC"
+    },
+    {
+      "key": "calendar",
+      "pack": "layoutsC"
+    },
+    {
+      "key": "chochin",
+      "pack": "layoutsC"
+    },
+    {
+      "key": "routeMap",
+      "pack": "layoutsC"
+    },
+    {
+      "key": "stationSign",
+      "pack": "layoutsC"
+    },
+    {
+      "key": "noren",
+      "pack": "layoutsC"
+    },
+    {
+      "key": "tanzaku",
+      "pack": "layoutsC"
+    },
+    {
+      "key": "omikuji",
+      "pack": "layoutsC"
+    },
+    {
+      "key": "kakejiku",
+      "pack": "layoutsC"
+    },
+    {
+      "key": "shoji",
+      "pack": "layoutsC"
+    },
+    {
+      "key": "clapper",
+      "pack": "layoutsC"
+    },
+    {
+      "key": "warningLabel",
+      "pack": "layoutsC"
+    },
+    {
+      "key": "priceTag",
+      "pack": "layoutsC"
+    },
+    {
+      "key": "nameTag",
+      "pack": "layoutsC"
+    },
+    {
+      "key": "stickyNotes",
+      "pack": "layoutsC"
+    },
+    {
+      "key": "karuta",
+      "pack": "layoutsC"
+    },
+    {
+      "key": "cube",
+      "pack": "layoutsD"
+    },
+    {
+      "key": "cylinder",
+      "pack": "layoutsD"
+    },
+    {
+      "key": "flipCards",
+      "pack": "layoutsD"
+    },
+    {
+      "key": "accordion",
+      "pack": "layoutsD"
+    },
+    {
+      "key": "flag",
+      "pack": "layoutsD"
+    },
+    {
+      "key": "ribbon",
+      "pack": "layoutsD"
+    },
+    {
+      "key": "pendulum",
+      "pack": "layoutsD"
+    },
+    {
+      "key": "pile",
+      "pack": "layoutsD"
+    },
+    {
+      "key": "blocks",
+      "pack": "layoutsD"
+    },
+    {
+      "key": "balloons",
+      "pack": "layoutsD"
+    },
+    {
+      "key": "magnets",
+      "pack": "layoutsD"
+    },
+    {
+      "key": "tiles",
+      "pack": "layoutsD"
+    },
+    {
+      "key": "bulbs",
+      "pack": "layoutsD"
+    },
+    {
+      "key": "ledScroll",
+      "pack": "layoutsD"
+    },
+    {
+      "key": "billboard",
+      "pack": "layoutsD"
+    },
+    {
+      "key": "crowdBubbles",
+      "pack": "layoutsD"
+    },
+    {
+      "key": "crossword",
+      "pack": "layoutsD"
+    },
+    {
+      "key": "wordSearch",
+      "pack": "layoutsD"
+    },
+    {
+      "key": "puzzle",
+      "pack": "layoutsD"
+    },
+    {
+      "key": "shadowPlay",
+      "pack": "layoutsD"
+    },
+    {
+      "key": "kaleido",
+      "pack": "layoutsD"
+    },
+    {
+      "key": "dominoes",
+      "pack": "layoutsD"
+    },
+    {
+      "key": "burst",
+      "pack": "layoutsD"
+    },
+    {
+      "key": "fisheye",
+      "pack": "layoutsD"
+    },
+    {
+      "key": "wall",
+      "pack": "layoutsD"
+    },
+    {
+      "key": "origami",
+      "pack": "layoutsD"
+    },
+    {
+      "key": "zipper",
+      "pack": "layoutsD"
+    },
+    {
+      "key": "sliceStack",
+      "pack": "layoutsD"
+    },
+    {
+      "key": "glitchGrid",
+      "pack": "layoutsD"
+    },
+    {
+      "key": "mosaicTiles",
+      "pack": "layoutsD"
+    },
+    {
+      "key": "maskReveal",
+      "pack": "layoutsD"
+    },
+    {
+      "key": "contour",
+      "pack": "layoutsD"
+    },
+    {
+      "key": "halftoneBig",
+      "pack": "layoutsD"
+    },
+    {
+      "key": "stencil",
+      "pack": "layoutsD"
+    },
+    {
+      "key": "tyKeySplit",
+      "pack": "typo"
+    },
+    {
+      "key": "tyCropGiant",
+      "pack": "typo"
+    },
+    {
+      "key": "tyCross",
+      "pack": "typo"
+    },
+    {
+      "key": "tyBandHide",
+      "pack": "typo"
+    },
+    {
+      "key": "tyRuby",
+      "pack": "typo"
+    },
+    {
+      "key": "tyBaseline",
+      "pack": "typo"
+    },
+    {
+      "key": "tyScaleSteps",
+      "pack": "typo"
+    },
+    {
+      "key": "tyJustify",
+      "pack": "typo"
+    },
+    {
+      "key": "tyIndexTable",
+      "pack": "typo"
+    },
+    {
+      "key": "tySplitType",
+      "pack": "typo"
+    },
+    {
+      "key": "tyErode",
+      "pack": "typo"
+    },
+    {
+      "key": "tyVRuler",
+      "pack": "typo"
+    },
+    {
+      "key": "tyFullTrack",
+      "pack": "typo"
+    },
+    {
+      "key": "tyStatCount",
+      "pack": "typo"
+    },
+    {
+      "key": "tyMargin",
+      "pack": "typo"
+    },
+    {
+      "key": "tyRotBlock",
+      "pack": "typo"
+    },
+    {
+      "key": "tySquare",
+      "pack": "typo"
+    },
+    {
+      "key": "tyLineFocus",
+      "pack": "typo"
+    }
   ],
   "enter": [
-    { "key": "cut" },
-    { "key": "assemble" },
-    { "key": "slice" },
-    { "key": "type" },
-    { "key": "pop" },
-    { "key": "drop" },
-    { "key": "stretch" },
-    { "key": "wipe" },
-    { "key": "blur" },
-    { "key": "spin" },
-    { "key": "flicker" },
-    { "key": "scramble" },
-    { "key": "zoom" },
-    { "key": "riseMask", "pack": "enter" },
-    { "key": "dropMask", "pack": "enter" },
-    { "key": "slideL", "pack": "enter" },
-    { "key": "slideR", "pack": "enter" },
-    { "key": "slideWhole", "pack": "enter" },
-    { "key": "flipX", "pack": "enter" },
-    { "key": "flipY", "pack": "enter" },
-    { "key": "domino", "pack": "enter" },
-    { "key": "fold", "pack": "enter" },
-    { "key": "unroll", "pack": "enter" },
-    { "key": "strokeDraw", "pack": "enter" },
-    { "key": "outlineFill", "pack": "enter" },
-    { "key": "splitJoin", "pack": "enter" },
-    { "key": "vSlice", "pack": "enter" },
-    { "key": "shutter", "pack": "enter" },
-    { "key": "iris", "pack": "enter" },
-    { "key": "diagWipe", "pack": "enter" },
-    { "key": "blinds", "pack": "enter" },
-    { "key": "checker", "pack": "enter" },
-    { "key": "randomOrder", "pack": "enter" },
-    { "key": "bounceBig", "pack": "enter" },
-    { "key": "squashDrop", "pack": "enter" },
-    { "key": "rubber", "pack": "enter" },
-    { "key": "glitchIn", "pack": "enter" },
-    { "key": "echoIn", "pack": "enter" },
-    { "key": "whip", "pack": "enter" },
-    { "key": "skewIn", "pack": "enter" },
-    { "key": "trackIn", "pack": "enter" },
-    { "key": "trackOut", "pack": "enter" },
-    { "key": "blurStagger", "pack": "enter" },
-    { "key": "fadeStagger", "pack": "enter" },
-    { "key": "waveIn", "pack": "enter" },
-    { "key": "spiralIn", "pack": "enter" },
-    { "key": "zoomOut", "pack": "enter" },
-    { "key": "resolve", "pack": "enter" },
-    { "key": "magnet", "pack": "enter" },
-    { "key": "inkBleed", "pack": "enter" },
-    { "key": "neonOn", "pack": "enter" },
-    { "key": "cursorSweep", "pack": "enter" },
-    { "key": "stamp", "pack": "enter" },
-    { "key": "springIn", "pack": "enterB" },
-    { "key": "pendulum", "pack": "enterB" },
-    { "key": "rollIn", "pack": "enterB" },
-    { "key": "slingshot", "pack": "enterB" },
-    { "key": "rockSettle", "pack": "enterB" },
-    { "key": "bounceBall", "pack": "enterB" },
-    { "key": "snapRail", "pack": "enterB" },
-    { "key": "fanOpen", "pack": "enterB" },
-    { "key": "cylinder", "pack": "enterB" },
-    { "key": "shuffle", "pack": "enterB" },
-    { "key": "stopMotion", "pack": "enterB" },
-    { "key": "ripple", "pack": "enterB" },
-    { "key": "zipper", "pack": "enterB" },
-    { "key": "zoomAlt", "pack": "enterB" },
-    { "key": "tiltUp", "pack": "enterB" },
-    { "key": "stickerPeel", "pack": "enterB" },
-    { "key": "crumple", "pack": "enterB" },
-    { "key": "noteUnfold", "pack": "enterB" },
-    { "key": "tornJoin", "pack": "enterB" },
-    { "key": "splitFlap", "pack": "enterB" },
-    { "key": "overexpose", "pack": "enterB" },
-    { "key": "glint", "pack": "enterB" },
-    { "key": "loupe", "pack": "enterB" },
-    { "key": "filmFeed", "pack": "enterB" },
-    { "key": "backlight", "pack": "enterB" },
-    { "key": "lightLeak", "pack": "enterB" },
-    { "key": "heatHaze", "pack": "enterB" },
-    { "key": "crtOn", "pack": "enterB" },
-    { "key": "interlace", "pack": "enterB" },
-    { "key": "loadingBar", "pack": "enterB" },
-    { "key": "dither", "pack": "enterB" },
-    { "key": "odometer", "pack": "enterB" },
-    { "key": "matrixRain", "pack": "enterB" },
-    { "key": "hatchFill", "pack": "enterB" },
-    { "key": "brushReveal", "pack": "enterB" },
-    { "key": "inkDrop", "pack": "enterB" },
-    { "key": "quarters", "pack": "enterB" },
-    { "key": "invertBox", "pack": "enterB" },
-    { "key": "printRegister", "pack": "enterB" },
-    { "key": "echoCount", "pack": "enterB" },
-    { "key": "liquidFill", "pack": "enterB" },
-    { "key": "windBlown", "pack": "enterB" },
-    { "key": "strokeOrder", "pack": "enterB" },
-    { "key": "clockWipe", "pack": "enterB" },
-    { "key": "shadowFirst", "pack": "enterB" },
-    { "key": "bubbles", "pack": "enterB" },
-    { "key": "tokoroten", "pack": "enterB" }
+    {
+      "key": "cut",
+      "pack": null
+    },
+    {
+      "key": "assemble",
+      "pack": null
+    },
+    {
+      "key": "slice",
+      "pack": null
+    },
+    {
+      "key": "type",
+      "pack": null
+    },
+    {
+      "key": "pop",
+      "pack": null
+    },
+    {
+      "key": "drop",
+      "pack": null
+    },
+    {
+      "key": "stretch",
+      "pack": null
+    },
+    {
+      "key": "wipe",
+      "pack": null
+    },
+    {
+      "key": "blur",
+      "pack": null
+    },
+    {
+      "key": "spin",
+      "pack": null
+    },
+    {
+      "key": "flicker",
+      "pack": null
+    },
+    {
+      "key": "scramble",
+      "pack": null
+    },
+    {
+      "key": "zoom",
+      "pack": null
+    },
+    {
+      "key": "riseMask",
+      "pack": "enter"
+    },
+    {
+      "key": "dropMask",
+      "pack": "enter"
+    },
+    {
+      "key": "slideL",
+      "pack": "enter"
+    },
+    {
+      "key": "slideR",
+      "pack": "enter"
+    },
+    {
+      "key": "slideWhole",
+      "pack": "enter"
+    },
+    {
+      "key": "flipX",
+      "pack": "enter"
+    },
+    {
+      "key": "flipY",
+      "pack": "enter"
+    },
+    {
+      "key": "domino",
+      "pack": "enter"
+    },
+    {
+      "key": "fold",
+      "pack": "enter"
+    },
+    {
+      "key": "unroll",
+      "pack": "enter"
+    },
+    {
+      "key": "strokeDraw",
+      "pack": "enter"
+    },
+    {
+      "key": "outlineFill",
+      "pack": "enter"
+    },
+    {
+      "key": "splitJoin",
+      "pack": "enter"
+    },
+    {
+      "key": "vSlice",
+      "pack": "enter"
+    },
+    {
+      "key": "shutter",
+      "pack": "enter"
+    },
+    {
+      "key": "iris",
+      "pack": "enter"
+    },
+    {
+      "key": "diagWipe",
+      "pack": "enter"
+    },
+    {
+      "key": "blinds",
+      "pack": "enter"
+    },
+    {
+      "key": "checker",
+      "pack": "enter"
+    },
+    {
+      "key": "randomOrder",
+      "pack": "enter"
+    },
+    {
+      "key": "bounceBig",
+      "pack": "enter"
+    },
+    {
+      "key": "squashDrop",
+      "pack": "enter"
+    },
+    {
+      "key": "rubber",
+      "pack": "enter"
+    },
+    {
+      "key": "glitchIn",
+      "pack": "enter"
+    },
+    {
+      "key": "echoIn",
+      "pack": "enter"
+    },
+    {
+      "key": "whip",
+      "pack": "enter"
+    },
+    {
+      "key": "skewIn",
+      "pack": "enter"
+    },
+    {
+      "key": "trackIn",
+      "pack": "enter"
+    },
+    {
+      "key": "trackOut",
+      "pack": "enter"
+    },
+    {
+      "key": "blurStagger",
+      "pack": "enter"
+    },
+    {
+      "key": "fadeStagger",
+      "pack": "enter"
+    },
+    {
+      "key": "waveIn",
+      "pack": "enter"
+    },
+    {
+      "key": "spiralIn",
+      "pack": "enter"
+    },
+    {
+      "key": "zoomOut",
+      "pack": "enter"
+    },
+    {
+      "key": "resolve",
+      "pack": "enter"
+    },
+    {
+      "key": "magnet",
+      "pack": "enter"
+    },
+    {
+      "key": "inkBleed",
+      "pack": "enter"
+    },
+    {
+      "key": "neonOn",
+      "pack": "enter"
+    },
+    {
+      "key": "cursorSweep",
+      "pack": "enter"
+    },
+    {
+      "key": "stamp",
+      "pack": "enter"
+    },
+    {
+      "key": "springIn",
+      "pack": "enterB"
+    },
+    {
+      "key": "pendulum",
+      "pack": "enterB"
+    },
+    {
+      "key": "rollIn",
+      "pack": "enterB"
+    },
+    {
+      "key": "slingshot",
+      "pack": "enterB"
+    },
+    {
+      "key": "rockSettle",
+      "pack": "enterB"
+    },
+    {
+      "key": "bounceBall",
+      "pack": "enterB"
+    },
+    {
+      "key": "snapRail",
+      "pack": "enterB"
+    },
+    {
+      "key": "fanOpen",
+      "pack": "enterB"
+    },
+    {
+      "key": "cylinder",
+      "pack": "enterB"
+    },
+    {
+      "key": "shuffle",
+      "pack": "enterB"
+    },
+    {
+      "key": "stopMotion",
+      "pack": "enterB"
+    },
+    {
+      "key": "ripple",
+      "pack": "enterB"
+    },
+    {
+      "key": "zipper",
+      "pack": "enterB"
+    },
+    {
+      "key": "zoomAlt",
+      "pack": "enterB"
+    },
+    {
+      "key": "tiltUp",
+      "pack": "enterB"
+    },
+    {
+      "key": "stickerPeel",
+      "pack": "enterB"
+    },
+    {
+      "key": "crumple",
+      "pack": "enterB"
+    },
+    {
+      "key": "noteUnfold",
+      "pack": "enterB"
+    },
+    {
+      "key": "tornJoin",
+      "pack": "enterB"
+    },
+    {
+      "key": "splitFlap",
+      "pack": "enterB"
+    },
+    {
+      "key": "overexpose",
+      "pack": "enterB"
+    },
+    {
+      "key": "glint",
+      "pack": "enterB"
+    },
+    {
+      "key": "loupe",
+      "pack": "enterB"
+    },
+    {
+      "key": "filmFeed",
+      "pack": "enterB"
+    },
+    {
+      "key": "backlight",
+      "pack": "enterB"
+    },
+    {
+      "key": "lightLeak",
+      "pack": "enterB"
+    },
+    {
+      "key": "heatHaze",
+      "pack": "enterB"
+    },
+    {
+      "key": "crtOn",
+      "pack": "enterB"
+    },
+    {
+      "key": "interlace",
+      "pack": "enterB"
+    },
+    {
+      "key": "loadingBar",
+      "pack": "enterB"
+    },
+    {
+      "key": "dither",
+      "pack": "enterB"
+    },
+    {
+      "key": "odometer",
+      "pack": "enterB"
+    },
+    {
+      "key": "matrixRain",
+      "pack": "enterB"
+    },
+    {
+      "key": "hatchFill",
+      "pack": "enterB"
+    },
+    {
+      "key": "brushReveal",
+      "pack": "enterB"
+    },
+    {
+      "key": "inkDrop",
+      "pack": "enterB"
+    },
+    {
+      "key": "quarters",
+      "pack": "enterB"
+    },
+    {
+      "key": "invertBox",
+      "pack": "enterB"
+    },
+    {
+      "key": "printRegister",
+      "pack": "enterB"
+    },
+    {
+      "key": "echoCount",
+      "pack": "enterB"
+    },
+    {
+      "key": "liquidFill",
+      "pack": "enterB"
+    },
+    {
+      "key": "windBlown",
+      "pack": "enterB"
+    },
+    {
+      "key": "strokeOrder",
+      "pack": "enterB"
+    },
+    {
+      "key": "clockWipe",
+      "pack": "enterB"
+    },
+    {
+      "key": "shadowFirst",
+      "pack": "enterB"
+    },
+    {
+      "key": "bubbles",
+      "pack": "enterB"
+    },
+    {
+      "key": "tokoroten",
+      "pack": "enterB"
+    },
+    {
+      "key": "hrBlinkCreep",
+      "pack": "horror"
+    },
+    {
+      "key": "hrJumpScare",
+      "pack": "horror"
+    },
+    {
+      "key": "hrUneasy",
+      "pack": "horror"
+    },
+    {
+      "key": "hrVhold",
+      "pack": "horror"
+    },
+    {
+      "key": "hrMirrorSnap",
+      "pack": "horror"
+    },
+    {
+      "key": "hrManifest",
+      "pack": "horror"
+    },
+    {
+      "key": "hrClawReveal",
+      "pack": "horror"
+    },
+    {
+      "key": "knWordSlam",
+      "pack": "kinetic"
+    },
+    {
+      "key": "knTypeToSlam",
+      "pack": "kinetic"
+    },
+    {
+      "key": "knReplaceIn",
+      "pack": "kinetic"
+    },
+    {
+      "key": "knHingeDrop",
+      "pack": "kinetic"
+    },
+    {
+      "key": "knLoopIn",
+      "pack": "kinetic"
+    },
+    {
+      "key": "knPushIn",
+      "pack": "kinetic"
+    },
+    {
+      "key": "knInertia",
+      "pack": "kinetic"
+    },
+    {
+      "key": "knWordSpin",
+      "pack": "kinetic"
+    },
+    {
+      "key": "knDiveIn",
+      "pack": "kinetic"
+    },
+    {
+      "key": "knStretchOut",
+      "pack": "kinetic"
+    },
+    {
+      "key": "tyKeyFirst",
+      "pack": "typo"
+    },
+    {
+      "key": "tyLineWipe",
+      "pack": "typo"
+    },
+    {
+      "key": "tyZoomOne",
+      "pack": "typo"
+    },
+    {
+      "key": "tyUnderLift",
+      "pack": "typo"
+    },
+    {
+      "key": "tyDotGrow",
+      "pack": "typo"
+    },
+    {
+      "key": "tyBracketOpen",
+      "pack": "typo"
+    },
+    {
+      "key": "tyRetype",
+      "pack": "typo"
+    },
+    {
+      "key": "tyRubyDrop",
+      "pack": "typo"
+    }
   ],
   "hold": [
-    { "key": "still" },
-    { "key": "jitter" },
-    { "key": "drift" },
-    { "key": "breathe" },
-    { "key": "wave" },
-    { "key": "glitchtick" },
-    { "key": "float", "pack": "exitHold" },
-    { "key": "sway", "pack": "exitHold" },
-    { "key": "pulse", "pack": "exitHold" },
-    { "key": "shimmer", "pack": "exitHold" },
-    { "key": "colorRun", "pack": "exitHold" },
-    { "key": "rotateSlow", "pack": "exitHold" },
-    { "key": "trackBreathe", "pack": "exitHold" },
-    { "key": "skewWobble", "pack": "exitHold" },
-    { "key": "beatHop", "pack": "exitHold" },
-    { "key": "hWave", "pack": "exitHold" },
-    { "key": "heartbeat", "pack": "exitHold" },
-    { "key": "orbitSmall", "pack": "exitHold" },
-    { "key": "jelly", "pack": "exitHold" },
-    { "key": "scanBand", "pack": "exitHold" },
-    { "key": "noiseDrift", "pack": "exitHold" },
-    { "key": "tilt", "pack": "exitHold" },
-    { "key": "zoomSlow", "pack": "exitHold" },
-    { "key": "stretchPulse", "pack": "exitHold" },
-    { "key": "glitchJump", "pack": "exitHold" },
-    { "key": "echoTrail", "pack": "exitHold" },
-    { "key": "glowFlicker", "pack": "exitB" },
-    { "key": "windGust", "pack": "exitB" },
-    { "key": "dangle", "pack": "exitB" },
-    { "key": "eqBounce", "pack": "exitB" },
-    { "key": "flashBox", "pack": "exitB" },
-    { "key": "glintSweep", "pack": "exitB" },
-    { "key": "flipSwap", "pack": "exitB" },
-    { "key": "shadowSway", "pack": "exitB" },
-    { "key": "magnetJiggle", "pack": "exitB" },
-    { "key": "typeRattle", "pack": "exitB" },
-    { "key": "focusRack", "pack": "exitB" },
-    { "key": "pluckString", "pack": "exitB" }
+    {
+      "key": "still",
+      "pack": null
+    },
+    {
+      "key": "jitter",
+      "pack": null
+    },
+    {
+      "key": "drift",
+      "pack": null
+    },
+    {
+      "key": "breathe",
+      "pack": null
+    },
+    {
+      "key": "wave",
+      "pack": null
+    },
+    {
+      "key": "glitchtick",
+      "pack": null
+    },
+    {
+      "key": "float",
+      "pack": "exitHold"
+    },
+    {
+      "key": "sway",
+      "pack": "exitHold"
+    },
+    {
+      "key": "pulse",
+      "pack": "exitHold"
+    },
+    {
+      "key": "shimmer",
+      "pack": "exitHold"
+    },
+    {
+      "key": "colorRun",
+      "pack": "exitHold"
+    },
+    {
+      "key": "rotateSlow",
+      "pack": "exitHold"
+    },
+    {
+      "key": "trackBreathe",
+      "pack": "exitHold"
+    },
+    {
+      "key": "skewWobble",
+      "pack": "exitHold"
+    },
+    {
+      "key": "beatHop",
+      "pack": "exitHold"
+    },
+    {
+      "key": "hWave",
+      "pack": "exitHold"
+    },
+    {
+      "key": "heartbeat",
+      "pack": "exitHold"
+    },
+    {
+      "key": "orbitSmall",
+      "pack": "exitHold"
+    },
+    {
+      "key": "jelly",
+      "pack": "exitHold"
+    },
+    {
+      "key": "scanBand",
+      "pack": "exitHold"
+    },
+    {
+      "key": "noiseDrift",
+      "pack": "exitHold"
+    },
+    {
+      "key": "tilt",
+      "pack": "exitHold"
+    },
+    {
+      "key": "zoomSlow",
+      "pack": "exitHold"
+    },
+    {
+      "key": "stretchPulse",
+      "pack": "exitHold"
+    },
+    {
+      "key": "glitchJump",
+      "pack": "exitHold"
+    },
+    {
+      "key": "echoTrail",
+      "pack": "exitHold"
+    },
+    {
+      "key": "glowFlicker",
+      "pack": "exitB"
+    },
+    {
+      "key": "windGust",
+      "pack": "exitB"
+    },
+    {
+      "key": "dangle",
+      "pack": "exitB"
+    },
+    {
+      "key": "eqBounce",
+      "pack": "exitB"
+    },
+    {
+      "key": "flashBox",
+      "pack": "exitB"
+    },
+    {
+      "key": "glintSweep",
+      "pack": "exitB"
+    },
+    {
+      "key": "flipSwap",
+      "pack": "exitB"
+    },
+    {
+      "key": "shadowSway",
+      "pack": "exitB"
+    },
+    {
+      "key": "magnetJiggle",
+      "pack": "exitB"
+    },
+    {
+      "key": "typeRattle",
+      "pack": "exitB"
+    },
+    {
+      "key": "focusRack",
+      "pack": "exitB"
+    },
+    {
+      "key": "pluckString",
+      "pack": "exitB"
+    },
+    {
+      "key": "hrTwitch",
+      "pack": "horror"
+    },
+    {
+      "key": "hrStare",
+      "pack": "horror"
+    },
+    {
+      "key": "hrLagOne",
+      "pack": "horror"
+    },
+    {
+      "key": "hrFlickerLight",
+      "pack": "horror"
+    },
+    {
+      "key": "knWordPulse",
+      "pack": "kinetic"
+    },
+    {
+      "key": "knCounterRock",
+      "pack": "kinetic"
+    },
+    {
+      "key": "knWordRide",
+      "pack": "kinetic"
+    },
+    {
+      "key": "knTickShift",
+      "pack": "kinetic"
+    },
+    {
+      "key": "knBeatLean",
+      "pack": "kinetic"
+    },
+    {
+      "key": "knGapBreath",
+      "pack": "kinetic"
+    },
+    {
+      "key": "tyKeyPulse",
+      "pack": "typo"
+    },
+    {
+      "key": "tyReadCursor",
+      "pack": "typo"
+    },
+    {
+      "key": "tyOutlineBlink",
+      "pack": "typo"
+    },
+    {
+      "key": "tyTrackStep",
+      "pack": "typo"
+    }
   ],
   "exit": [
-    { "key": "cut" },
-    { "key": "explode" },
-    { "key": "fall" },
-    { "key": "drift" },
-    { "key": "slice" },
-    { "key": "wipe" },
-    { "key": "shrink" },
-    { "key": "blur" },
-    { "key": "stretch" },
-    { "key": "scatter" },
-    { "key": "glitch" },
-    { "key": "sinkMask", "pack": "exitHold" },
-    { "key": "riseOut", "pack": "exitHold" },
-    { "key": "slideOutL", "pack": "exitHold" },
-    { "key": "slideOutR", "pack": "exitHold" },
-    { "key": "flipOutX", "pack": "exitHold" },
-    { "key": "flipOutY", "pack": "exitHold" },
-    { "key": "foldOut", "pack": "exitHold" },
-    { "key": "squash", "pack": "exitHold" },
-    { "key": "trackOutWide", "pack": "exitHold" },
-    { "key": "collapse", "pack": "exitHold" },
-    { "key": "zoomThrough", "pack": "exitHold" },
-    { "key": "zoomFar", "pack": "exitHold" },
-    { "key": "spinOut", "pack": "exitHold" },
-    { "key": "twist", "pack": "exitHold" },
-    { "key": "waveOut", "pack": "exitHold" },
-    { "key": "blurOutStagger", "pack": "exitHold" },
-    { "key": "undraw", "pack": "exitHold" },
-    { "key": "outlineOut", "pack": "exitHold" },
-    { "key": "irisClose", "pack": "exitHold" },
-    { "key": "diagWipeOut", "pack": "exitHold" },
-    { "key": "blindsClose", "pack": "exitHold" },
-    { "key": "checkerOut", "pack": "exitHold" },
-    { "key": "splitApart", "pack": "exitHold" },
-    { "key": "vSliceDrop", "pack": "exitHold" },
-    { "key": "melt", "pack": "exitHold" },
-    { "key": "dissolve", "pack": "exitHold" },
-    { "key": "backspace", "pack": "exitHold" },
-    { "key": "scrambleOut", "pack": "exitHold" },
-    { "key": "glitchDissolve", "pack": "exitHold" },
-    { "key": "echoOut", "pack": "exitHold" },
-    { "key": "whipOut", "pack": "exitHold" },
-    { "key": "gravity", "pack": "exitHold" },
-    { "key": "popOut", "pack": "exitHold" },
-    { "key": "burn", "pack": "exitHold" },
-    { "key": "sweepCover", "pack": "exitHold" },
-    { "key": "shatterLite", "pack": "exitHold" },
-    { "key": "peelOff", "pack": "exitB" },
-    { "key": "crumpleOut", "pack": "exitB" },
-    { "key": "tearOut", "pack": "exitB" },
-    { "key": "scorchOut", "pack": "exitB" },
-    { "key": "overexposeOut", "pack": "exitB" },
-    { "key": "scanOut", "pack": "exitB" },
-    { "key": "stripesOut", "pack": "exitB" },
-    { "key": "halftoneOut", "pack": "exitB" },
-    { "key": "eraserOut", "pack": "exitB" },
-    { "key": "vacuumOut", "pack": "exitB" },
-    { "key": "sandOut", "pack": "exitB" },
-    { "key": "shredOut", "pack": "exitB" },
-    { "key": "dominoOut", "pack": "exitB" },
-    { "key": "hingeOut", "pack": "exitB" },
-    { "key": "rocketOff", "pack": "exitB" },
-    { "key": "bounceOff", "pack": "exitB" },
-    { "key": "balloonOff", "pack": "exitB" },
-    { "key": "deflateOut", "pack": "exitB" },
-    { "key": "hazeOut", "pack": "exitB" },
-    { "key": "glassBreak", "pack": "exitB" },
-    { "key": "zipOut", "pack": "exitB" },
-    { "key": "clapShut", "pack": "exitB" },
-    { "key": "lampOff", "pack": "exitB" },
-    { "key": "slotOut", "pack": "exitB" },
-    { "key": "clockOut", "pack": "exitB" },
-    { "key": "matrixOut", "pack": "exitB" },
-    { "key": "tornadoOut", "pack": "exitB" },
-    { "key": "rollUpOut", "pack": "exitB" },
-    { "key": "snakeOut", "pack": "exitB" },
-    { "key": "flutterOut", "pack": "exitB" },
-    { "key": "rollOff", "pack": "exitB" },
-    { "key": "fanClose", "pack": "exitB" },
-    { "key": "rgbSplitOut", "pack": "exitB" },
-    { "key": "shockOut", "pack": "exitB" },
-    { "key": "floodOut", "pack": "exitB" },
-    { "key": "slashOut", "pack": "exitB" },
-    { "key": "mosaicOut", "pack": "exitB" },
-    { "key": "scribbleOut", "pack": "exitB" },
-    { "key": "candleOut", "pack": "exitB" }
+    {
+      "key": "cut",
+      "pack": null
+    },
+    {
+      "key": "explode",
+      "pack": null
+    },
+    {
+      "key": "fall",
+      "pack": null
+    },
+    {
+      "key": "drift",
+      "pack": null
+    },
+    {
+      "key": "slice",
+      "pack": null
+    },
+    {
+      "key": "wipe",
+      "pack": null
+    },
+    {
+      "key": "shrink",
+      "pack": null
+    },
+    {
+      "key": "blur",
+      "pack": null
+    },
+    {
+      "key": "stretch",
+      "pack": null
+    },
+    {
+      "key": "scatter",
+      "pack": null
+    },
+    {
+      "key": "glitch",
+      "pack": null
+    },
+    {
+      "key": "sinkMask",
+      "pack": "exitHold"
+    },
+    {
+      "key": "riseOut",
+      "pack": "exitHold"
+    },
+    {
+      "key": "slideOutL",
+      "pack": "exitHold"
+    },
+    {
+      "key": "slideOutR",
+      "pack": "exitHold"
+    },
+    {
+      "key": "flipOutX",
+      "pack": "exitHold"
+    },
+    {
+      "key": "flipOutY",
+      "pack": "exitHold"
+    },
+    {
+      "key": "foldOut",
+      "pack": "exitHold"
+    },
+    {
+      "key": "squash",
+      "pack": "exitHold"
+    },
+    {
+      "key": "trackOutWide",
+      "pack": "exitHold"
+    },
+    {
+      "key": "collapse",
+      "pack": "exitHold"
+    },
+    {
+      "key": "zoomThrough",
+      "pack": "exitHold"
+    },
+    {
+      "key": "zoomFar",
+      "pack": "exitHold"
+    },
+    {
+      "key": "spinOut",
+      "pack": "exitHold"
+    },
+    {
+      "key": "twist",
+      "pack": "exitHold"
+    },
+    {
+      "key": "waveOut",
+      "pack": "exitHold"
+    },
+    {
+      "key": "blurOutStagger",
+      "pack": "exitHold"
+    },
+    {
+      "key": "undraw",
+      "pack": "exitHold"
+    },
+    {
+      "key": "outlineOut",
+      "pack": "exitHold"
+    },
+    {
+      "key": "irisClose",
+      "pack": "exitHold"
+    },
+    {
+      "key": "diagWipeOut",
+      "pack": "exitHold"
+    },
+    {
+      "key": "blindsClose",
+      "pack": "exitHold"
+    },
+    {
+      "key": "checkerOut",
+      "pack": "exitHold"
+    },
+    {
+      "key": "splitApart",
+      "pack": "exitHold"
+    },
+    {
+      "key": "vSliceDrop",
+      "pack": "exitHold"
+    },
+    {
+      "key": "melt",
+      "pack": "exitHold"
+    },
+    {
+      "key": "dissolve",
+      "pack": "exitHold"
+    },
+    {
+      "key": "backspace",
+      "pack": "exitHold"
+    },
+    {
+      "key": "scrambleOut",
+      "pack": "exitHold"
+    },
+    {
+      "key": "glitchDissolve",
+      "pack": "exitHold"
+    },
+    {
+      "key": "echoOut",
+      "pack": "exitHold"
+    },
+    {
+      "key": "whipOut",
+      "pack": "exitHold"
+    },
+    {
+      "key": "gravity",
+      "pack": "exitHold"
+    },
+    {
+      "key": "popOut",
+      "pack": "exitHold"
+    },
+    {
+      "key": "burn",
+      "pack": "exitHold"
+    },
+    {
+      "key": "sweepCover",
+      "pack": "exitHold"
+    },
+    {
+      "key": "shatterLite",
+      "pack": "exitHold"
+    },
+    {
+      "key": "peelOff",
+      "pack": "exitB"
+    },
+    {
+      "key": "crumpleOut",
+      "pack": "exitB"
+    },
+    {
+      "key": "tearOut",
+      "pack": "exitB"
+    },
+    {
+      "key": "scorchOut",
+      "pack": "exitB"
+    },
+    {
+      "key": "overexposeOut",
+      "pack": "exitB"
+    },
+    {
+      "key": "scanOut",
+      "pack": "exitB"
+    },
+    {
+      "key": "stripesOut",
+      "pack": "exitB"
+    },
+    {
+      "key": "halftoneOut",
+      "pack": "exitB"
+    },
+    {
+      "key": "eraserOut",
+      "pack": "exitB"
+    },
+    {
+      "key": "vacuumOut",
+      "pack": "exitB"
+    },
+    {
+      "key": "sandOut",
+      "pack": "exitB"
+    },
+    {
+      "key": "shredOut",
+      "pack": "exitB"
+    },
+    {
+      "key": "dominoOut",
+      "pack": "exitB"
+    },
+    {
+      "key": "hingeOut",
+      "pack": "exitB"
+    },
+    {
+      "key": "rocketOff",
+      "pack": "exitB"
+    },
+    {
+      "key": "bounceOff",
+      "pack": "exitB"
+    },
+    {
+      "key": "balloonOff",
+      "pack": "exitB"
+    },
+    {
+      "key": "deflateOut",
+      "pack": "exitB"
+    },
+    {
+      "key": "hazeOut",
+      "pack": "exitB"
+    },
+    {
+      "key": "glassBreak",
+      "pack": "exitB"
+    },
+    {
+      "key": "zipOut",
+      "pack": "exitB"
+    },
+    {
+      "key": "clapShut",
+      "pack": "exitB"
+    },
+    {
+      "key": "lampOff",
+      "pack": "exitB"
+    },
+    {
+      "key": "slotOut",
+      "pack": "exitB"
+    },
+    {
+      "key": "clockOut",
+      "pack": "exitB"
+    },
+    {
+      "key": "matrixOut",
+      "pack": "exitB"
+    },
+    {
+      "key": "tornadoOut",
+      "pack": "exitB"
+    },
+    {
+      "key": "rollUpOut",
+      "pack": "exitB"
+    },
+    {
+      "key": "snakeOut",
+      "pack": "exitB"
+    },
+    {
+      "key": "flutterOut",
+      "pack": "exitB"
+    },
+    {
+      "key": "rollOff",
+      "pack": "exitB"
+    },
+    {
+      "key": "fanClose",
+      "pack": "exitB"
+    },
+    {
+      "key": "rgbSplitOut",
+      "pack": "exitB"
+    },
+    {
+      "key": "shockOut",
+      "pack": "exitB"
+    },
+    {
+      "key": "floodOut",
+      "pack": "exitB"
+    },
+    {
+      "key": "slashOut",
+      "pack": "exitB"
+    },
+    {
+      "key": "mosaicOut",
+      "pack": "exitB"
+    },
+    {
+      "key": "scribbleOut",
+      "pack": "exitB"
+    },
+    {
+      "key": "candleOut",
+      "pack": "exitB"
+    },
+    {
+      "key": "hrPulledDown",
+      "pack": "horror"
+    },
+    {
+      "key": "hrLookBack",
+      "pack": "horror"
+    },
+    {
+      "key": "hrTurnAway",
+      "pack": "horror"
+    },
+    {
+      "key": "hrShiver",
+      "pack": "horror"
+    },
+    {
+      "key": "hrSwallow",
+      "pack": "horror"
+    },
+    {
+      "key": "hrFlickerDie",
+      "pack": "horror"
+    },
+    {
+      "key": "hrDrain",
+      "pack": "horror"
+    },
+    {
+      "key": "knWordKick",
+      "pack": "kinetic"
+    },
+    {
+      "key": "knPushOut",
+      "pack": "kinetic"
+    },
+    {
+      "key": "knDiveGlyph",
+      "pack": "kinetic"
+    },
+    {
+      "key": "knLaunch",
+      "pack": "kinetic"
+    },
+    {
+      "key": "knWordBlink",
+      "pack": "kinetic"
+    },
+    {
+      "key": "knCloseGap",
+      "pack": "kinetic"
+    },
+    {
+      "key": "knJumpCutOut",
+      "pack": "kinetic"
+    },
+    {
+      "key": "knStackAway",
+      "pack": "kinetic"
+    },
+    {
+      "key": "tyStrike",
+      "pack": "typo"
+    },
+    {
+      "key": "tyToDot",
+      "pack": "typo"
+    },
+    {
+      "key": "tyLineFeed",
+      "pack": "typo"
+    },
+    {
+      "key": "tyBracketClose",
+      "pack": "typo"
+    },
+    {
+      "key": "tyToIndex",
+      "pack": "typo"
+    },
+    {
+      "key": "tyKeyLast",
+      "pack": "typo"
+    },
+    {
+      "key": "tyUnderSink",
+      "pack": "typo"
+    },
+    {
+      "key": "tyFoldVert",
+      "pack": "typo"
+    }
   ],
   "decor": [
-    { "key": "brackets" },
-    { "key": "rings" },
-    { "key": "dots" },
-    { "key": "arrows" },
-    { "key": "slash" },
-    { "key": "sparks" },
-    { "key": "leaders" },
-    { "key": "waveform" },
-    { "key": "barcode" },
-    { "key": "grid" },
-    { "key": "stripes" },
-    { "key": "blobs" },
-    { "key": "bars" },
-    { "key": "shapes" },
-    { "key": "counter" },
-    { "key": "crosshair", "pack": "decor" },
-    { "key": "cropMarks", "pack": "decor" },
-    { "key": "reticle", "pack": "decor" },
-    { "key": "radar", "pack": "decor" },
-    { "key": "progressRing", "pack": "decor" },
-    { "key": "timecodeBar", "pack": "decor" },
-    { "key": "rulerEdge", "pack": "decor" },
-    { "key": "dimension", "pack": "decor" },
-    { "key": "indexNum", "pack": "decor" },
-    { "key": "dateStamp", "pack": "decor" },
-    { "key": "qrBlock", "pack": "decor" },
-    { "key": "glitchRects", "pack": "decor" },
-    { "key": "concentricSquares", "pack": "decor" },
-    { "key": "triangleSpin", "pack": "decor" },
-    { "key": "lineBurst", "pack": "decor" },
-    { "key": "plusGrid", "pack": "decor" },
-    { "key": "guides", "pack": "decor" },
-    { "key": "waveLine", "pack": "decor" },
-    { "key": "spiralLine", "pack": "decor" },
-    { "key": "halftonePatch", "pack": "decor" },
-    { "key": "checkerStrip", "pack": "decor" },
-    { "key": "beatRing", "pack": "decor" },
-    { "key": "orbitDots", "pack": "decor" },
-    { "key": "constellation", "pack": "decor" },
-    { "key": "confetti", "pack": "decor" },
-    { "key": "petals", "pack": "decor" },
-    { "key": "rainStreaks", "pack": "decor" },
-    { "key": "snow", "pack": "decor" },
-    { "key": "lightLeak", "pack": "decor" },
-    { "key": "bokeh", "pack": "decor" },
-    { "key": "speedCorner", "pack": "decor" },
-    { "key": "risingParticles", "pack": "decor" },
-    { "key": "twinkle", "pack": "decor" },
-    { "key": "brushStroke", "pack": "decor" },
-    { "key": "tapePieces", "pack": "decor" },
-    { "key": "scribbleCircle", "pack": "decor" },
-    { "key": "scribbleUnder", "pack": "decor" },
-    { "key": "crossOut", "pack": "decor" },
-    { "key": "highlightMark", "pack": "decor" },
-    { "key": "heartsStars", "pack": "decor" },
-    { "key": "watermarkKanji", "pack": "decor" },
-    { "key": "verticalStrip", "pack": "decor" },
-    { "key": "romajiLine", "pack": "decor" },
-    { "key": "bracketsJP", "pack": "decor" },
-    { "key": "seal", "pack": "decor" },
-    { "key": "kamon", "pack": "decorB" },
-    { "key": "seigaiha", "pack": "decorB" },
-    { "key": "asanoha", "pack": "decorB" },
-    { "key": "hanabi", "pack": "decorB" },
-    { "key": "chochin", "pack": "decorB" },
-    { "key": "shimenawa", "pack": "decorB" },
-    { "key": "sensu", "pack": "decorB" },
-    { "key": "tsukiKumo", "pack": "decorB" },
-    { "key": "momiji", "pack": "decorB" },
-    { "key": "namiGashira", "pack": "decorB" },
-    { "key": "kasumi", "pack": "decorB" },
-    { "key": "hexGrid", "pack": "decorB" },
-    { "key": "spectrumRing", "pack": "decorB" },
-    { "key": "dataColumns", "pack": "decorB" },
-    { "key": "spinner", "pack": "decorB" },
-    { "key": "headingTape", "pack": "decorB" },
-    { "key": "glyphLock", "pack": "decorB" },
-    { "key": "atomOrbit", "pack": "decorB" },
-    { "key": "sonarArcs", "pack": "decorB" },
-    { "key": "circuit", "pack": "decorB" },
-    { "key": "swatches", "pack": "decorB" },
-    { "key": "ruledLines", "pack": "decorB" },
-    { "key": "registration", "pack": "decorB" },
-    { "key": "punchHoles", "pack": "decorB" },
-    { "key": "staple", "pack": "decorB" },
-    { "key": "paperClip", "pack": "decorB" },
-    { "key": "indexTabs", "pack": "decorB" },
-    { "key": "vines", "pack": "decorB" },
-    { "key": "cloudPuffs", "pack": "decorB" },
-    { "key": "starField", "pack": "decorB" },
-    { "key": "moonPhases", "pack": "decorB" },
-    { "key": "sunRays", "pack": "decorB" },
-    { "key": "rainRipples", "pack": "decorB" },
-    { "key": "bubbles", "pack": "decorB" },
-    { "key": "smoke", "pack": "decorB" },
-    { "key": "dandelion", "pack": "decorB" },
-    { "key": "fireflies", "pack": "decorB" },
-    { "key": "memphis", "pack": "decorB" },
-    { "key": "zigzagRibbon", "pack": "decorB" },
-    { "key": "polkaPatch", "pack": "decorB" },
-    { "key": "stripeCircle", "pack": "decorB" },
-    { "key": "decoCorners", "pack": "decorB" },
-    { "key": "halfCircles", "pack": "decorB" },
-    { "key": "loopArrows", "pack": "decorB" },
-    { "key": "starburst", "pack": "decorB" },
-    { "key": "tally", "pack": "decorB" },
-    { "key": "cursorClick", "pack": "decorB" },
-    { "key": "windowChrome", "pack": "decorB" },
-    { "key": "progressBar", "pack": "decorB" },
-    { "key": "toggleSwitch", "pack": "decorB" },
-    { "key": "notifBell", "pack": "decorB" },
-    { "key": "likeCounter", "pack": "decorB" },
-    { "key": "mediaControls", "pack": "decorB" },
-    { "key": "volumeBars", "pack": "decorB" },
-    { "key": "musicNotes", "pack": "decorB" }
+    {
+      "key": "brackets",
+      "pack": null
+    },
+    {
+      "key": "rings",
+      "pack": null
+    },
+    {
+      "key": "dots",
+      "pack": null
+    },
+    {
+      "key": "arrows",
+      "pack": null
+    },
+    {
+      "key": "slash",
+      "pack": null
+    },
+    {
+      "key": "sparks",
+      "pack": null
+    },
+    {
+      "key": "leaders",
+      "pack": null
+    },
+    {
+      "key": "waveform",
+      "pack": null
+    },
+    {
+      "key": "barcode",
+      "pack": null
+    },
+    {
+      "key": "grid",
+      "pack": null
+    },
+    {
+      "key": "stripes",
+      "pack": null
+    },
+    {
+      "key": "blobs",
+      "pack": null
+    },
+    {
+      "key": "bars",
+      "pack": null
+    },
+    {
+      "key": "shapes",
+      "pack": null
+    },
+    {
+      "key": "counter",
+      "pack": null
+    },
+    {
+      "key": "crosshair",
+      "pack": "decor"
+    },
+    {
+      "key": "cropMarks",
+      "pack": "decor"
+    },
+    {
+      "key": "reticle",
+      "pack": "decor"
+    },
+    {
+      "key": "radar",
+      "pack": "decor"
+    },
+    {
+      "key": "progressRing",
+      "pack": "decor"
+    },
+    {
+      "key": "timecodeBar",
+      "pack": "decor"
+    },
+    {
+      "key": "rulerEdge",
+      "pack": "decor"
+    },
+    {
+      "key": "dimension",
+      "pack": "decor"
+    },
+    {
+      "key": "indexNum",
+      "pack": "decor"
+    },
+    {
+      "key": "dateStamp",
+      "pack": "decor"
+    },
+    {
+      "key": "qrBlock",
+      "pack": "decor"
+    },
+    {
+      "key": "glitchRects",
+      "pack": "decor"
+    },
+    {
+      "key": "concentricSquares",
+      "pack": "decor"
+    },
+    {
+      "key": "triangleSpin",
+      "pack": "decor"
+    },
+    {
+      "key": "lineBurst",
+      "pack": "decor"
+    },
+    {
+      "key": "plusGrid",
+      "pack": "decor"
+    },
+    {
+      "key": "guides",
+      "pack": "decor"
+    },
+    {
+      "key": "waveLine",
+      "pack": "decor"
+    },
+    {
+      "key": "spiralLine",
+      "pack": "decor"
+    },
+    {
+      "key": "halftonePatch",
+      "pack": "decor"
+    },
+    {
+      "key": "checkerStrip",
+      "pack": "decor"
+    },
+    {
+      "key": "beatRing",
+      "pack": "decor"
+    },
+    {
+      "key": "orbitDots",
+      "pack": "decor"
+    },
+    {
+      "key": "constellation",
+      "pack": "decor"
+    },
+    {
+      "key": "confetti",
+      "pack": "decor"
+    },
+    {
+      "key": "petals",
+      "pack": "decor"
+    },
+    {
+      "key": "rainStreaks",
+      "pack": "decor"
+    },
+    {
+      "key": "snow",
+      "pack": "decor"
+    },
+    {
+      "key": "lightLeak",
+      "pack": "decor"
+    },
+    {
+      "key": "bokeh",
+      "pack": "decor"
+    },
+    {
+      "key": "speedCorner",
+      "pack": "decor"
+    },
+    {
+      "key": "risingParticles",
+      "pack": "decor"
+    },
+    {
+      "key": "twinkle",
+      "pack": "decor"
+    },
+    {
+      "key": "brushStroke",
+      "pack": "decor"
+    },
+    {
+      "key": "tapePieces",
+      "pack": "decor"
+    },
+    {
+      "key": "scribbleCircle",
+      "pack": "decor"
+    },
+    {
+      "key": "scribbleUnder",
+      "pack": "decor"
+    },
+    {
+      "key": "crossOut",
+      "pack": "decor"
+    },
+    {
+      "key": "highlightMark",
+      "pack": "decor"
+    },
+    {
+      "key": "heartsStars",
+      "pack": "decor"
+    },
+    {
+      "key": "watermarkKanji",
+      "pack": "decor"
+    },
+    {
+      "key": "verticalStrip",
+      "pack": "decor"
+    },
+    {
+      "key": "romajiLine",
+      "pack": "decor"
+    },
+    {
+      "key": "bracketsJP",
+      "pack": "decor"
+    },
+    {
+      "key": "seal",
+      "pack": "decor"
+    },
+    {
+      "key": "kamon",
+      "pack": "decorB"
+    },
+    {
+      "key": "seigaiha",
+      "pack": "decorB"
+    },
+    {
+      "key": "asanoha",
+      "pack": "decorB"
+    },
+    {
+      "key": "hanabi",
+      "pack": "decorB"
+    },
+    {
+      "key": "chochin",
+      "pack": "decorB"
+    },
+    {
+      "key": "shimenawa",
+      "pack": "decorB"
+    },
+    {
+      "key": "sensu",
+      "pack": "decorB"
+    },
+    {
+      "key": "tsukiKumo",
+      "pack": "decorB"
+    },
+    {
+      "key": "momiji",
+      "pack": "decorB"
+    },
+    {
+      "key": "namiGashira",
+      "pack": "decorB"
+    },
+    {
+      "key": "kasumi",
+      "pack": "decorB"
+    },
+    {
+      "key": "hexGrid",
+      "pack": "decorB"
+    },
+    {
+      "key": "spectrumRing",
+      "pack": "decorB"
+    },
+    {
+      "key": "dataColumns",
+      "pack": "decorB"
+    },
+    {
+      "key": "spinner",
+      "pack": "decorB"
+    },
+    {
+      "key": "headingTape",
+      "pack": "decorB"
+    },
+    {
+      "key": "glyphLock",
+      "pack": "decorB"
+    },
+    {
+      "key": "atomOrbit",
+      "pack": "decorB"
+    },
+    {
+      "key": "sonarArcs",
+      "pack": "decorB"
+    },
+    {
+      "key": "circuit",
+      "pack": "decorB"
+    },
+    {
+      "key": "swatches",
+      "pack": "decorB"
+    },
+    {
+      "key": "ruledLines",
+      "pack": "decorB"
+    },
+    {
+      "key": "registration",
+      "pack": "decorB"
+    },
+    {
+      "key": "punchHoles",
+      "pack": "decorB"
+    },
+    {
+      "key": "staple",
+      "pack": "decorB"
+    },
+    {
+      "key": "paperClip",
+      "pack": "decorB"
+    },
+    {
+      "key": "indexTabs",
+      "pack": "decorB"
+    },
+    {
+      "key": "vines",
+      "pack": "decorB"
+    },
+    {
+      "key": "cloudPuffs",
+      "pack": "decorB"
+    },
+    {
+      "key": "starField",
+      "pack": "decorB"
+    },
+    {
+      "key": "moonPhases",
+      "pack": "decorB"
+    },
+    {
+      "key": "sunRays",
+      "pack": "decorB"
+    },
+    {
+      "key": "rainRipples",
+      "pack": "decorB"
+    },
+    {
+      "key": "bubbles",
+      "pack": "decorB"
+    },
+    {
+      "key": "smoke",
+      "pack": "decorB"
+    },
+    {
+      "key": "dandelion",
+      "pack": "decorB"
+    },
+    {
+      "key": "fireflies",
+      "pack": "decorB"
+    },
+    {
+      "key": "memphis",
+      "pack": "decorB"
+    },
+    {
+      "key": "zigzagRibbon",
+      "pack": "decorB"
+    },
+    {
+      "key": "polkaPatch",
+      "pack": "decorB"
+    },
+    {
+      "key": "stripeCircle",
+      "pack": "decorB"
+    },
+    {
+      "key": "decoCorners",
+      "pack": "decorB"
+    },
+    {
+      "key": "halfCircles",
+      "pack": "decorB"
+    },
+    {
+      "key": "loopArrows",
+      "pack": "decorB"
+    },
+    {
+      "key": "starburst",
+      "pack": "decorB"
+    },
+    {
+      "key": "tally",
+      "pack": "decorB"
+    },
+    {
+      "key": "cursorClick",
+      "pack": "decorB"
+    },
+    {
+      "key": "windowChrome",
+      "pack": "decorB"
+    },
+    {
+      "key": "progressBar",
+      "pack": "decorB"
+    },
+    {
+      "key": "toggleSwitch",
+      "pack": "decorB"
+    },
+    {
+      "key": "notifBell",
+      "pack": "decorB"
+    },
+    {
+      "key": "likeCounter",
+      "pack": "decorB"
+    },
+    {
+      "key": "mediaControls",
+      "pack": "decorB"
+    },
+    {
+      "key": "volumeBars",
+      "pack": "decorB"
+    },
+    {
+      "key": "musicNotes",
+      "pack": "decorB"
+    },
+    {
+      "key": "hrScratches",
+      "pack": "horror"
+    },
+    {
+      "key": "hrSigil",
+      "pack": "horror"
+    },
+    {
+      "key": "hrWatchEye",
+      "pack": "horror"
+    },
+    {
+      "key": "hrStaticPatch",
+      "pack": "horror"
+    },
+    {
+      "key": "hrDustBeam",
+      "pack": "horror"
+    },
+    {
+      "key": "hrDrips",
+      "pack": "horror"
+    },
+    {
+      "key": "hrCracks",
+      "pack": "horror"
+    },
+    {
+      "key": "knSpeedTrail",
+      "pack": "kinetic"
+    },
+    {
+      "key": "knWordTicks",
+      "pack": "kinetic"
+    },
+    {
+      "key": "tyColophon",
+      "pack": "typo"
+    },
+    {
+      "key": "tyRunningHead",
+      "pack": "typo"
+    },
+    {
+      "key": "tyGlyphBody",
+      "pack": "typo"
+    },
+    {
+      "key": "tyTextRule",
+      "pack": "typo"
+    },
+    {
+      "key": "tyTypeScale",
+      "pack": "typo"
+    },
+    {
+      "key": "tyBigPunct",
+      "pack": "typo"
+    }
   ],
   "treat": [
-    { "key": "none" },
-    { "key": "outline", "pack": "looks" },
-    { "key": "outlineFill", "pack": "looks" },
-    { "key": "doubleOutline", "pack": "looks" },
-    { "key": "extrude", "pack": "looks" },
-    { "key": "longShadow", "pack": "looks" },
-    { "key": "hardShadow", "pack": "looks" },
-    { "key": "softShadow", "pack": "looks" },
-    { "key": "glow", "pack": "looks" },
-    { "key": "marker", "pack": "looks" },
-    { "key": "underline", "pack": "looks" },
-    { "key": "strike", "pack": "looks" },
-    { "key": "boxed", "pack": "looks" },
-    { "key": "gradientV", "pack": "looks" },
-    { "key": "splitColor", "pack": "looks" },
-    { "key": "halftone", "pack": "looks" },
-    { "key": "stripes", "pack": "looks" },
-    { "key": "hatch", "pack": "looks" },
-    { "key": "dotted", "pack": "looks" },
-    { "key": "alternate", "pack": "looks" },
-    { "key": "italic", "pack": "looks" },
-    { "key": "wide", "pack": "looks" },
-    { "key": "tall", "pack": "looks" },
-    { "key": "echoOutline", "pack": "looks" },
-    { "key": "emphasisDots", "pack": "looks" },
-    { "key": "neonOutline", "pack": "treattrans" },
-    { "key": "chrome", "pack": "treattrans" },
-    { "key": "rainbow", "pack": "treattrans" },
-    { "key": "glitchSplit", "pack": "treattrans" },
-    { "key": "shadowStack", "pack": "treattrans" },
-    { "key": "stencilGap", "pack": "treattrans" },
-    { "key": "waterline", "pack": "treattrans" },
-    { "key": "karaoke", "pack": "treattrans" },
-    { "key": "sizeWave", "pack": "treattrans" },
-    { "key": "rotateAlt", "pack": "treattrans" },
-    { "key": "baselineShift", "pack": "treattrans" },
-    { "key": "fauxBold", "pack": "treattrans" },
-    { "key": "circled", "pack": "treattrans" },
-    { "key": "bracketsQuote", "pack": "treattrans" },
-    { "key": "reflection", "pack": "treattrans" },
-    { "key": "inline", "pack": "treattrans" },
-    { "key": "sticker", "pack": "treattrans" },
-    { "key": "gradientSweep", "pack": "treattrans" },
-    { "key": "kerningWide", "pack": "treattrans" },
-    { "key": "monoGrid", "pack": "treattrans" },
-    { "key": "outlineOffset", "pack": "treattrans" },
-    { "key": "toneShadow", "pack": "treattrans" },
-    { "key": "fadeChars", "pack": "treattrans" },
-    { "key": "cutShift", "pack": "treattrans" },
-    { "key": "focusPull", "pack": "treattrans" },
-    { "key": "spotChar", "pack": "treattrans" },
-    { "key": "ransom", "pack": "treattrans" }
+    {
+      "key": "none",
+      "pack": null
+    },
+    {
+      "key": "hrInkBleed",
+      "pack": "horror"
+    },
+    {
+      "key": "hrEroded",
+      "pack": "horror"
+    },
+    {
+      "key": "hrRedact",
+      "pack": "horror"
+    },
+    {
+      "key": "hrDoubleExp",
+      "pack": "horror"
+    },
+    {
+      "key": "knWordScale",
+      "pack": "kinetic"
+    },
+    {
+      "key": "knWordPlate",
+      "pack": "kinetic"
+    },
+    {
+      "key": "outline",
+      "pack": "looks"
+    },
+    {
+      "key": "outlineFill",
+      "pack": "looks"
+    },
+    {
+      "key": "doubleOutline",
+      "pack": "looks"
+    },
+    {
+      "key": "extrude",
+      "pack": "looks"
+    },
+    {
+      "key": "longShadow",
+      "pack": "looks"
+    },
+    {
+      "key": "hardShadow",
+      "pack": "looks"
+    },
+    {
+      "key": "softShadow",
+      "pack": "looks"
+    },
+    {
+      "key": "glow",
+      "pack": "looks"
+    },
+    {
+      "key": "marker",
+      "pack": "looks"
+    },
+    {
+      "key": "underline",
+      "pack": "looks"
+    },
+    {
+      "key": "strike",
+      "pack": "looks"
+    },
+    {
+      "key": "boxed",
+      "pack": "looks"
+    },
+    {
+      "key": "gradientV",
+      "pack": "looks"
+    },
+    {
+      "key": "splitColor",
+      "pack": "looks"
+    },
+    {
+      "key": "halftone",
+      "pack": "looks"
+    },
+    {
+      "key": "stripes",
+      "pack": "looks"
+    },
+    {
+      "key": "hatch",
+      "pack": "looks"
+    },
+    {
+      "key": "dotted",
+      "pack": "looks"
+    },
+    {
+      "key": "alternate",
+      "pack": "looks"
+    },
+    {
+      "key": "italic",
+      "pack": "looks"
+    },
+    {
+      "key": "wide",
+      "pack": "looks"
+    },
+    {
+      "key": "tall",
+      "pack": "looks"
+    },
+    {
+      "key": "echoOutline",
+      "pack": "looks"
+    },
+    {
+      "key": "emphasisDots",
+      "pack": "looks"
+    },
+    {
+      "key": "neonOutline",
+      "pack": "treattrans"
+    },
+    {
+      "key": "chrome",
+      "pack": "treattrans"
+    },
+    {
+      "key": "rainbow",
+      "pack": "treattrans"
+    },
+    {
+      "key": "glitchSplit",
+      "pack": "treattrans"
+    },
+    {
+      "key": "shadowStack",
+      "pack": "treattrans"
+    },
+    {
+      "key": "stencilGap",
+      "pack": "treattrans"
+    },
+    {
+      "key": "waterline",
+      "pack": "treattrans"
+    },
+    {
+      "key": "karaoke",
+      "pack": "treattrans"
+    },
+    {
+      "key": "sizeWave",
+      "pack": "treattrans"
+    },
+    {
+      "key": "rotateAlt",
+      "pack": "treattrans"
+    },
+    {
+      "key": "baselineShift",
+      "pack": "treattrans"
+    },
+    {
+      "key": "fauxBold",
+      "pack": "treattrans"
+    },
+    {
+      "key": "circled",
+      "pack": "treattrans"
+    },
+    {
+      "key": "bracketsQuote",
+      "pack": "treattrans"
+    },
+    {
+      "key": "reflection",
+      "pack": "treattrans"
+    },
+    {
+      "key": "inline",
+      "pack": "treattrans"
+    },
+    {
+      "key": "sticker",
+      "pack": "treattrans"
+    },
+    {
+      "key": "gradientSweep",
+      "pack": "treattrans"
+    },
+    {
+      "key": "kerningWide",
+      "pack": "treattrans"
+    },
+    {
+      "key": "monoGrid",
+      "pack": "treattrans"
+    },
+    {
+      "key": "outlineOffset",
+      "pack": "treattrans"
+    },
+    {
+      "key": "toneShadow",
+      "pack": "treattrans"
+    },
+    {
+      "key": "fadeChars",
+      "pack": "treattrans"
+    },
+    {
+      "key": "cutShift",
+      "pack": "treattrans"
+    },
+    {
+      "key": "focusPull",
+      "pack": "treattrans"
+    },
+    {
+      "key": "spotChar",
+      "pack": "treattrans"
+    },
+    {
+      "key": "ransom",
+      "pack": "treattrans"
+    },
+    {
+      "key": "tyHollowKey",
+      "pack": "typo"
+    },
+    {
+      "key": "tyHeadRules",
+      "pack": "typo"
+    },
+    {
+      "key": "tyHeadBig",
+      "pack": "typo"
+    },
+    {
+      "key": "tyIndexSup",
+      "pack": "typo"
+    }
   ],
   "bg": [
-    { "key": "none" },
-    { "key": "auroraRibbons", "pack": "bgcamB" },
-    { "key": "meshBlobs", "pack": "bgcamB" },
-    { "key": "duotoneSweep", "pack": "bgcamB" },
-    { "key": "horizonGlow", "pack": "bgcamB" },
-    { "key": "seigaiha", "pack": "bgcamB" },
-    { "key": "asanoha", "pack": "bgcamB" },
-    { "key": "houndstooth", "pack": "bgcamB" },
-    { "key": "herringbone", "pack": "bgcamB" },
-    { "key": "argyle", "pack": "bgcamB" },
-    { "key": "tartan", "pack": "bgcamB" },
-    { "key": "chevron", "pack": "bgcamB" },
-    { "key": "isoCubes", "pack": "bgcamB" },
-    { "key": "hexGrid", "pack": "bgcamB" },
-    { "key": "triTess", "pack": "bgcamB" },
-    { "key": "moire", "pack": "bgcamB" },
-    { "key": "squareTunnel", "pack": "bgcamB" },
-    { "key": "spiralArms", "pack": "bgcamB" },
-    { "key": "topoLines", "pack": "bgcamB" },
-    { "key": "ridgePlot", "pack": "bgcamB" },
-    { "key": "starfield", "pack": "bgcamB" },
-    { "key": "nightMoon", "pack": "bgcamB" },
-    { "key": "skyline", "pack": "bgcamB" },
-    { "key": "sunsetSun", "pack": "bgcamB" },
-    { "key": "oceanWaves", "pack": "bgcamB" },
-    { "key": "rainWindow", "pack": "bgcamB" },
-    { "key": "snowLayers", "pack": "bgcamB" },
-    { "key": "fireworks", "pack": "bgcamB" },
-    { "key": "cloudLayers", "pack": "bgcamB" },
-    { "key": "mountains", "pack": "bgcamB" },
-    { "key": "filmStrip", "pack": "bgcamB" },
-    { "key": "vhsBand", "pack": "bgcamB" },
-    { "key": "tornPaper", "pack": "bgcamB" },
-    { "key": "godRays", "pack": "bgcamB" },
-    { "key": "vignettePulse", "pack": "bgcamB" },
-    { "key": "kaleidoscope", "pack": "bgcamB" },
-    { "key": "marble", "pack": "bgcamB" },
-    { "key": "paperCut", "pack": "bgcamB" },
-    { "key": "sunburst", "pack": "looks" },
-    { "key": "concentric", "pack": "looks" },
-    { "key": "halftoneFade", "pack": "looks" },
-    { "key": "bigStripes", "pack": "looks" },
-    { "key": "splitV", "pack": "looks" },
-    { "key": "splitH", "pack": "looks" },
-    { "key": "splitDiag", "pack": "looks" },
-    { "key": "gradientSweep", "pack": "looks" },
-    { "key": "spotlight", "pack": "looks" },
-    { "key": "tvBars", "pack": "looks" },
-    { "key": "checker", "pack": "looks" },
-    { "key": "bigChar", "pack": "looks" },
-    { "key": "speedLines", "pack": "looks" },
-    { "key": "scanBars", "pack": "looks" },
-    { "key": "dotGrid", "pack": "looks" },
-    { "key": "retroGrid", "pack": "looks" },
-    { "key": "bokehBg", "pack": "looks" },
-    { "key": "particlesBg", "pack": "looks" },
-    { "key": "ripples", "pack": "looks" },
-    { "key": "polka", "pack": "looks" },
-    { "key": "eqBars", "pack": "looks" },
-    { "key": "borderFrame", "pack": "looks" },
-    { "key": "letterbox", "pack": "looks" },
-    { "key": "noiseField", "pack": "looks" }
+    {
+      "key": "none",
+      "pack": null
+    },
+    {
+      "key": "auroraRibbons",
+      "pack": "bgcamB"
+    },
+    {
+      "key": "meshBlobs",
+      "pack": "bgcamB"
+    },
+    {
+      "key": "duotoneSweep",
+      "pack": "bgcamB"
+    },
+    {
+      "key": "horizonGlow",
+      "pack": "bgcamB"
+    },
+    {
+      "key": "seigaiha",
+      "pack": "bgcamB"
+    },
+    {
+      "key": "asanoha",
+      "pack": "bgcamB"
+    },
+    {
+      "key": "houndstooth",
+      "pack": "bgcamB"
+    },
+    {
+      "key": "herringbone",
+      "pack": "bgcamB"
+    },
+    {
+      "key": "argyle",
+      "pack": "bgcamB"
+    },
+    {
+      "key": "tartan",
+      "pack": "bgcamB"
+    },
+    {
+      "key": "chevron",
+      "pack": "bgcamB"
+    },
+    {
+      "key": "isoCubes",
+      "pack": "bgcamB"
+    },
+    {
+      "key": "hexGrid",
+      "pack": "bgcamB"
+    },
+    {
+      "key": "triTess",
+      "pack": "bgcamB"
+    },
+    {
+      "key": "moire",
+      "pack": "bgcamB"
+    },
+    {
+      "key": "squareTunnel",
+      "pack": "bgcamB"
+    },
+    {
+      "key": "spiralArms",
+      "pack": "bgcamB"
+    },
+    {
+      "key": "topoLines",
+      "pack": "bgcamB"
+    },
+    {
+      "key": "ridgePlot",
+      "pack": "bgcamB"
+    },
+    {
+      "key": "starfield",
+      "pack": "bgcamB"
+    },
+    {
+      "key": "nightMoon",
+      "pack": "bgcamB"
+    },
+    {
+      "key": "skyline",
+      "pack": "bgcamB"
+    },
+    {
+      "key": "sunsetSun",
+      "pack": "bgcamB"
+    },
+    {
+      "key": "oceanWaves",
+      "pack": "bgcamB"
+    },
+    {
+      "key": "rainWindow",
+      "pack": "bgcamB"
+    },
+    {
+      "key": "snowLayers",
+      "pack": "bgcamB"
+    },
+    {
+      "key": "fireworks",
+      "pack": "bgcamB"
+    },
+    {
+      "key": "cloudLayers",
+      "pack": "bgcamB"
+    },
+    {
+      "key": "mountains",
+      "pack": "bgcamB"
+    },
+    {
+      "key": "filmStrip",
+      "pack": "bgcamB"
+    },
+    {
+      "key": "vhsBand",
+      "pack": "bgcamB"
+    },
+    {
+      "key": "tornPaper",
+      "pack": "bgcamB"
+    },
+    {
+      "key": "godRays",
+      "pack": "bgcamB"
+    },
+    {
+      "key": "vignettePulse",
+      "pack": "bgcamB"
+    },
+    {
+      "key": "kaleidoscope",
+      "pack": "bgcamB"
+    },
+    {
+      "key": "marble",
+      "pack": "bgcamB"
+    },
+    {
+      "key": "paperCut",
+      "pack": "bgcamB"
+    },
+    {
+      "key": "hrFailingLamp",
+      "pack": "horror"
+    },
+    {
+      "key": "hrCorridor",
+      "pack": "horror"
+    },
+    {
+      "key": "hrMold",
+      "pack": "horror"
+    },
+    {
+      "key": "hrDeadTrees",
+      "pack": "horror"
+    },
+    {
+      "key": "sunburst",
+      "pack": "looks"
+    },
+    {
+      "key": "concentric",
+      "pack": "looks"
+    },
+    {
+      "key": "halftoneFade",
+      "pack": "looks"
+    },
+    {
+      "key": "bigStripes",
+      "pack": "looks"
+    },
+    {
+      "key": "splitV",
+      "pack": "looks"
+    },
+    {
+      "key": "splitH",
+      "pack": "looks"
+    },
+    {
+      "key": "splitDiag",
+      "pack": "looks"
+    },
+    {
+      "key": "gradientSweep",
+      "pack": "looks"
+    },
+    {
+      "key": "spotlight",
+      "pack": "looks"
+    },
+    {
+      "key": "tvBars",
+      "pack": "looks"
+    },
+    {
+      "key": "checker",
+      "pack": "looks"
+    },
+    {
+      "key": "bigChar",
+      "pack": "looks"
+    },
+    {
+      "key": "speedLines",
+      "pack": "looks"
+    },
+    {
+      "key": "scanBars",
+      "pack": "looks"
+    },
+    {
+      "key": "dotGrid",
+      "pack": "looks"
+    },
+    {
+      "key": "retroGrid",
+      "pack": "looks"
+    },
+    {
+      "key": "bokehBg",
+      "pack": "looks"
+    },
+    {
+      "key": "particlesBg",
+      "pack": "looks"
+    },
+    {
+      "key": "ripples",
+      "pack": "looks"
+    },
+    {
+      "key": "polka",
+      "pack": "looks"
+    },
+    {
+      "key": "eqBars",
+      "pack": "looks"
+    },
+    {
+      "key": "borderFrame",
+      "pack": "looks"
+    },
+    {
+      "key": "letterbox",
+      "pack": "looks"
+    },
+    {
+      "key": "noiseField",
+      "pack": "looks"
+    }
   ],
   "cam": [
-    { "key": "push" },
-    { "key": "orbitDrift", "pack": "bgcamB" },
-    { "key": "barrelRoll", "pack": "bgcamB" },
-    { "key": "pendulumSway", "pack": "bgcamB" },
-    { "key": "focusIn", "pack": "bgcamB" },
-    { "key": "rackFocus", "pack": "bgcamB" },
-    { "key": "earthquake", "pack": "bgcamB" },
-    { "key": "floatNoise", "pack": "bgcamB" },
-    { "key": "vertigo", "pack": "bgcamB" },
-    { "key": "tiltDown", "pack": "bgcamB" },
-    { "key": "spiralIn", "pack": "bgcamB" },
-    { "key": "snapPan", "pack": "bgcamB" },
-    { "key": "jelly", "pack": "bgcamB" },
-    { "key": "pullOut", "pack": "looks" },
-    { "key": "panL", "pack": "looks" },
-    { "key": "panR", "pack": "looks" },
-    { "key": "tiltUp", "pack": "looks" },
-    { "key": "dutch", "pack": "looks" },
-    { "key": "handheld", "pack": "looks" },
-    { "key": "beatPunch", "pack": "looks" },
-    { "key": "whipIn", "pack": "looks" },
-    { "key": "crashZoom", "pack": "looks" },
-    { "key": "bounce", "pack": "looks" },
-    { "key": "roll", "pack": "looks" },
-    { "key": "driftDiag", "pack": "looks" },
-    { "key": "shakeHard", "pack": "looks" },
-    { "key": "dollyIn", "pack": "looks" },
-    { "key": "stepZoom", "pack": "looks" }
+    {
+      "key": "push",
+      "pack": null
+    },
+    {
+      "key": "orbitDrift",
+      "pack": "bgcamB"
+    },
+    {
+      "key": "barrelRoll",
+      "pack": "bgcamB"
+    },
+    {
+      "key": "pendulumSway",
+      "pack": "bgcamB"
+    },
+    {
+      "key": "focusIn",
+      "pack": "bgcamB"
+    },
+    {
+      "key": "rackFocus",
+      "pack": "bgcamB"
+    },
+    {
+      "key": "earthquake",
+      "pack": "bgcamB"
+    },
+    {
+      "key": "floatNoise",
+      "pack": "bgcamB"
+    },
+    {
+      "key": "vertigo",
+      "pack": "bgcamB"
+    },
+    {
+      "key": "tiltDown",
+      "pack": "bgcamB"
+    },
+    {
+      "key": "spiralIn",
+      "pack": "bgcamB"
+    },
+    {
+      "key": "snapPan",
+      "pack": "bgcamB"
+    },
+    {
+      "key": "jelly",
+      "pack": "bgcamB"
+    },
+    {
+      "key": "hrNervous",
+      "pack": "horror"
+    },
+    {
+      "key": "hrDutchSnap",
+      "pack": "horror"
+    },
+    {
+      "key": "knReadPan",
+      "pack": "kinetic"
+    },
+    {
+      "key": "knTiltKick",
+      "pack": "kinetic"
+    },
+    {
+      "key": "knCardFlip",
+      "pack": "kinetic"
+    },
+    {
+      "key": "knShearKick",
+      "pack": "kinetic"
+    },
+    {
+      "key": "knJumpCut",
+      "pack": "kinetic"
+    },
+    {
+      "key": "knRushIn",
+      "pack": "kinetic"
+    },
+    {
+      "key": "pullOut",
+      "pack": "looks"
+    },
+    {
+      "key": "panL",
+      "pack": "looks"
+    },
+    {
+      "key": "panR",
+      "pack": "looks"
+    },
+    {
+      "key": "tiltUp",
+      "pack": "looks"
+    },
+    {
+      "key": "dutch",
+      "pack": "looks"
+    },
+    {
+      "key": "handheld",
+      "pack": "looks"
+    },
+    {
+      "key": "beatPunch",
+      "pack": "looks"
+    },
+    {
+      "key": "whipIn",
+      "pack": "looks"
+    },
+    {
+      "key": "crashZoom",
+      "pack": "looks"
+    },
+    {
+      "key": "bounce",
+      "pack": "looks"
+    },
+    {
+      "key": "roll",
+      "pack": "looks"
+    },
+    {
+      "key": "driftDiag",
+      "pack": "looks"
+    },
+    {
+      "key": "shakeHard",
+      "pack": "looks"
+    },
+    {
+      "key": "dollyIn",
+      "pack": "looks"
+    },
+    {
+      "key": "stepZoom",
+      "pack": "looks"
+    }
   ],
   "fx": [
-    { "key": "chroma" },
-    { "key": "shake" },
-    { "key": "slice" },
-    { "key": "block" },
-    { "key": "invert" },
-    { "key": "flash" },
-    { "key": "zoom" },
-    { "key": "mosaic" },
-    { "key": "radialChroma", "pack": "fxB" },
-    { "key": "bloomFlash", "pack": "fxB" },
-    { "key": "bulge", "pack": "fxB" },
-    { "key": "pixelSort", "pack": "fxB" },
-    { "key": "interlace", "pack": "fxB" },
-    { "key": "macroBlock", "pack": "fxB" },
-    { "key": "halftone", "pack": "fxB" },
-    { "key": "duotone", "pack": "fxB" },
-    { "key": "ditherBit", "pack": "fxB" },
-    { "key": "rotateSnap", "pack": "fxB" },
-    { "key": "echoFrames", "pack": "fxB" },
-    { "key": "kaleido", "pack": "fxB" },
-    { "key": "bandInvert", "pack": "fxB" },
-    { "key": "lightRays", "pack": "fxB" },
-    { "key": "anamorphic", "pack": "fxB" },
-    { "key": "heartbeat", "pack": "fxB" },
-    { "key": "tvStatic", "pack": "fxB" },
-    { "key": "dustScratches", "pack": "fxB" },
-    { "key": "filmAdvance", "pack": "fxB" },
-    { "key": "perspectiveTilt", "pack": "fxB" },
-    { "key": "ripple", "pack": "fxB" },
-    { "key": "focusLines", "pack": "fxB" },
-    { "key": "speedLines", "pack": "fxB" },
-    { "key": "starGlint", "pack": "fxB" },
-    { "key": "colorBars", "pack": "fxB" },
-    { "key": "zoomStutter", "pack": "fxB" },
-    { "key": "negativeRing", "pack": "fxB" },
-    { "key": "edgeDetect", "pack": "fxB" },
-    { "key": "shatter", "pack": "fxB" },
-    { "key": "defocus", "pack": "fxB" },
-    { "key": "snapshot", "pack": "fxB" },
-    { "key": "squash", "pack": "fxB" },
-    { "key": "scanBar", "pack": "fxB" },
-    { "key": "loopScroll", "pack": "fxB" },
-    { "key": "panelWipe", "pack": "looks" },
-    { "key": "irisTrans", "pack": "looks" },
-    { "key": "doors", "pack": "looks" },
-    { "key": "blindsTrans", "pack": "looks" },
-    { "key": "rgbSplit", "pack": "looks" },
-    { "key": "smear", "pack": "looks" },
-    { "key": "vhsRoll", "pack": "looks" },
-    { "key": "trackingNoise", "pack": "looks" },
-    { "key": "mirrorFlash", "pack": "looks" },
-    { "key": "strobe", "pack": "looks" },
-    { "key": "posterize", "pack": "looks" },
-    { "key": "hueShift", "pack": "looks" },
-    { "key": "tileShift", "pack": "looks" },
-    { "key": "filmBurn", "pack": "looks" },
-    { "key": "whipBlur", "pack": "looks" },
-    { "key": "blackFrame", "pack": "looks" },
-    { "key": "whiteFrame", "pack": "looks" },
-    { "key": "gridRepeat", "pack": "looks" },
-    { "key": "waveWarp", "pack": "looks" },
-    { "key": "pixelDrift", "pack": "looks" },
-    { "key": "zoomPunch", "pack": "looks" },
-    { "key": "lightSweep", "pack": "looks" },
-    { "key": "crtOff", "pack": "looks" },
-    { "key": "splitSlide", "pack": "looks" }
+    {
+      "key": "chroma",
+      "pack": null
+    },
+    {
+      "key": "shake",
+      "pack": null
+    },
+    {
+      "key": "slice",
+      "pack": null
+    },
+    {
+      "key": "block",
+      "pack": null
+    },
+    {
+      "key": "invert",
+      "pack": null
+    },
+    {
+      "key": "flash",
+      "pack": null
+    },
+    {
+      "key": "zoom",
+      "pack": null
+    },
+    {
+      "key": "mosaic",
+      "pack": null
+    },
+    {
+      "key": "radialChroma",
+      "pack": "fxB"
+    },
+    {
+      "key": "bloomFlash",
+      "pack": "fxB"
+    },
+    {
+      "key": "bulge",
+      "pack": "fxB"
+    },
+    {
+      "key": "pixelSort",
+      "pack": "fxB"
+    },
+    {
+      "key": "interlace",
+      "pack": "fxB"
+    },
+    {
+      "key": "macroBlock",
+      "pack": "fxB"
+    },
+    {
+      "key": "halftone",
+      "pack": "fxB"
+    },
+    {
+      "key": "duotone",
+      "pack": "fxB"
+    },
+    {
+      "key": "ditherBit",
+      "pack": "fxB"
+    },
+    {
+      "key": "rotateSnap",
+      "pack": "fxB"
+    },
+    {
+      "key": "echoFrames",
+      "pack": "fxB"
+    },
+    {
+      "key": "kaleido",
+      "pack": "fxB"
+    },
+    {
+      "key": "bandInvert",
+      "pack": "fxB"
+    },
+    {
+      "key": "lightRays",
+      "pack": "fxB"
+    },
+    {
+      "key": "anamorphic",
+      "pack": "fxB"
+    },
+    {
+      "key": "heartbeat",
+      "pack": "fxB"
+    },
+    {
+      "key": "tvStatic",
+      "pack": "fxB"
+    },
+    {
+      "key": "dustScratches",
+      "pack": "fxB"
+    },
+    {
+      "key": "filmAdvance",
+      "pack": "fxB"
+    },
+    {
+      "key": "perspectiveTilt",
+      "pack": "fxB"
+    },
+    {
+      "key": "ripple",
+      "pack": "fxB"
+    },
+    {
+      "key": "focusLines",
+      "pack": "fxB"
+    },
+    {
+      "key": "speedLines",
+      "pack": "fxB"
+    },
+    {
+      "key": "starGlint",
+      "pack": "fxB"
+    },
+    {
+      "key": "colorBars",
+      "pack": "fxB"
+    },
+    {
+      "key": "zoomStutter",
+      "pack": "fxB"
+    },
+    {
+      "key": "negativeRing",
+      "pack": "fxB"
+    },
+    {
+      "key": "edgeDetect",
+      "pack": "fxB"
+    },
+    {
+      "key": "shatter",
+      "pack": "fxB"
+    },
+    {
+      "key": "defocus",
+      "pack": "fxB"
+    },
+    {
+      "key": "snapshot",
+      "pack": "fxB"
+    },
+    {
+      "key": "squash",
+      "pack": "fxB"
+    },
+    {
+      "key": "scanBar",
+      "pack": "fxB"
+    },
+    {
+      "key": "loopScroll",
+      "pack": "fxB"
+    },
+    {
+      "key": "hrSubliminal",
+      "pack": "horror"
+    },
+    {
+      "key": "hrSignalLoss",
+      "pack": "horror"
+    },
+    {
+      "key": "hrPassingShadow",
+      "pack": "horror"
+    },
+    {
+      "key": "panelWipe",
+      "pack": "looks"
+    },
+    {
+      "key": "irisTrans",
+      "pack": "looks"
+    },
+    {
+      "key": "doors",
+      "pack": "looks"
+    },
+    {
+      "key": "blindsTrans",
+      "pack": "looks"
+    },
+    {
+      "key": "rgbSplit",
+      "pack": "looks"
+    },
+    {
+      "key": "smear",
+      "pack": "looks"
+    },
+    {
+      "key": "vhsRoll",
+      "pack": "looks"
+    },
+    {
+      "key": "trackingNoise",
+      "pack": "looks"
+    },
+    {
+      "key": "mirrorFlash",
+      "pack": "looks"
+    },
+    {
+      "key": "strobe",
+      "pack": "looks"
+    },
+    {
+      "key": "posterize",
+      "pack": "looks"
+    },
+    {
+      "key": "hueShift",
+      "pack": "looks"
+    },
+    {
+      "key": "tileShift",
+      "pack": "looks"
+    },
+    {
+      "key": "filmBurn",
+      "pack": "looks"
+    },
+    {
+      "key": "whipBlur",
+      "pack": "looks"
+    },
+    {
+      "key": "blackFrame",
+      "pack": "looks"
+    },
+    {
+      "key": "whiteFrame",
+      "pack": "looks"
+    },
+    {
+      "key": "gridRepeat",
+      "pack": "looks"
+    },
+    {
+      "key": "waveWarp",
+      "pack": "looks"
+    },
+    {
+      "key": "pixelDrift",
+      "pack": "looks"
+    },
+    {
+      "key": "zoomPunch",
+      "pack": "looks"
+    },
+    {
+      "key": "lightSweep",
+      "pack": "looks"
+    },
+    {
+      "key": "crtOff",
+      "pack": "looks"
+    },
+    {
+      "key": "splitSlide",
+      "pack": "looks"
+    }
   ],
   "trans": [
-    { "key": "wipe", "pack": "treattrans" },
-    { "key": "diagonalWipe", "pack": "treattrans" },
-    { "key": "clockWipe", "pack": "treattrans" },
-    { "key": "irisOpen", "pack": "treattrans" },
-    { "key": "pushSlide", "pack": "treattrans" },
-    { "key": "cover", "pack": "treattrans" },
-    { "key": "uncover", "pack": "treattrans" },
-    { "key": "zoomThrough", "pack": "treattrans" },
-    { "key": "doorsOpen", "pack": "treattrans" },
-    { "key": "blinds", "pack": "treattrans" },
-    { "key": "checker", "pack": "treattrans" },
-    { "key": "blockDissolve", "pack": "treattrans" },
-    { "key": "whipPan", "pack": "treattrans" },
-    { "key": "spinOut", "pack": "treattrans" },
-    { "key": "inkBlob", "pack": "treattrans" },
-    { "key": "shatterTiles", "pack": "treattrans" },
-    { "key": "sliceShift", "pack": "treattrans" },
-    { "key": "cubeTurn", "pack": "treattrans" },
-    { "key": "flashCross", "pack": "treattrans" },
-    { "key": "pixelate", "pack": "treattrans" }
+    {
+      "key": "hrStaticCut",
+      "pack": "horror"
+    },
+    {
+      "key": "hrBlink",
+      "pack": "horror"
+    },
+    {
+      "key": "knCornerSwing",
+      "pack": "kinetic"
+    },
+    {
+      "key": "knStutterCut",
+      "pack": "kinetic"
+    },
+    {
+      "key": "knStripSlam",
+      "pack": "kinetic"
+    },
+    {
+      "key": "wipe",
+      "pack": "treattrans"
+    },
+    {
+      "key": "diagonalWipe",
+      "pack": "treattrans"
+    },
+    {
+      "key": "clockWipe",
+      "pack": "treattrans"
+    },
+    {
+      "key": "irisOpen",
+      "pack": "treattrans"
+    },
+    {
+      "key": "pushSlide",
+      "pack": "treattrans"
+    },
+    {
+      "key": "cover",
+      "pack": "treattrans"
+    },
+    {
+      "key": "uncover",
+      "pack": "treattrans"
+    },
+    {
+      "key": "zoomThrough",
+      "pack": "treattrans"
+    },
+    {
+      "key": "doorsOpen",
+      "pack": "treattrans"
+    },
+    {
+      "key": "blinds",
+      "pack": "treattrans"
+    },
+    {
+      "key": "checker",
+      "pack": "treattrans"
+    },
+    {
+      "key": "blockDissolve",
+      "pack": "treattrans"
+    },
+    {
+      "key": "whipPan",
+      "pack": "treattrans"
+    },
+    {
+      "key": "spinOut",
+      "pack": "treattrans"
+    },
+    {
+      "key": "inkBlob",
+      "pack": "treattrans"
+    },
+    {
+      "key": "shatterTiles",
+      "pack": "treattrans"
+    },
+    {
+      "key": "sliceShift",
+      "pack": "treattrans"
+    },
+    {
+      "key": "cubeTurn",
+      "pack": "treattrans"
+    },
+    {
+      "key": "flashCross",
+      "pack": "treattrans"
+    },
+    {
+      "key": "pixelate",
+      "pack": "treattrans"
+    },
+    {
+      "key": "tyRuleWipe",
+      "pack": "typo"
+    },
+    {
+      "key": "tyGridCells",
+      "pack": "typo"
+    }
   ]
 }

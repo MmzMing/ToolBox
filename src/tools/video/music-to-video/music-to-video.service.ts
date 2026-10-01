@@ -17,7 +17,7 @@ export {
   computeTiming,
 } from './engine/planner'
 export { chunkText, splitLines } from './engine/text-layout'
-export { omakase } from './engine/omakase'
+export { omakase, THEMES, THEME_ORDER, type ThemeId } from './engine/omakase'
 export { STYLES, STYLE_ORDER, resolveStyle } from './engine/styles'
 export { MOODS, MOOD_ORDER } from './engine/moods'
 export { FONTS, addUserFont, ensureFonts, fontsOfPlan, loadUserFont } from './engine/fonts'
@@ -112,6 +112,10 @@ export function normalizeProject(raw: unknown): Project {
     mood: typeof raw.mood === 'string' ? raw.mood : null,
     extra: raw.extra !== false,
     traditional: raw.traditional !== false,
+    // 三套带独立开关的部件集合：缺字段时回落到各自的默认值（typo/kinetic 开、horror 关）
+    typo: raw.typo !== false,
+    kinetic: raw.kinetic !== false,
+    horror: raw.horror === true,
     seed: Math.trunc(num(raw.seed, base.seed, 0, 1e9)),
     aspect: oneOf(raw.aspect, ASPECTS, base.aspect),
     res: RESOLUTIONS.includes(raw.res as (typeof RESOLUTIONS)[number])

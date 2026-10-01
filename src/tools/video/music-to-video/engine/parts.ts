@@ -2,7 +2,7 @@
  * 核心部件：JIZURA 首版注册表里"包之外"的那几件。
  *
  * 这里刻意保持最小：文字加工 / 背景图形 / 转场 / 其余镜头运动都由
- * engine/packs/ 下的表达式包按旧项目的真名提供（looks、bgcamB、treattrans…），
+ * engine/packs/ 下的表达式包按JIZURA的真名提供（looks、bgcamB、treattrans…），
  * 自己另起一套 key 会让风格偏置和情绪白名单全部对不上。
  */
 import type { BgDef, CamDef, Env, FxDef, TreatDef, TransDef } from './types'

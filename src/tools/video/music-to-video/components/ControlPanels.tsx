@@ -700,7 +700,13 @@ export function ControlPanels(props: PanelsProps) {
                 enabled={project.enabled}
                 extra={project.extra}
                 traditional={project.traditional}
+                sets={{
+                  typo: project.typo,
+                  kinetic: project.kinetic,
+                  horror: project.horror,
+                }}
                 onFlags={patch}
+                onSetFlag={(set, on) => patch({ [set]: on })}
                 onSet={onSetPart}
                 onBulk={onBulkParts}
               />

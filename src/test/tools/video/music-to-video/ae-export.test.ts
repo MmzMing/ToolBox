@@ -20,6 +20,9 @@ const reference = JSON.parse(
 
 const note = (subs: number): string => `replaced ${subs}`
 
+/** AE 面板只映射这六组；treat / bg / cam / trans 不进面板，def.ae 只作记录 */
+const AE_GROUPS = ['layout', 'enter', 'hold', 'exit', 'decor', 'fx'] as const
+
 describe('AE 映射表', () => {
   it('AE_MAP 与旧项目一致', () => {
     expect(AE_MAP).toEqual(reference.__AE_MAP)
@@ -27,11 +30,11 @@ describe('AE 映射表', () => {
 
   it('每个部件自己声明的近亲（def.ae）都进了 PACK_AE', () => {
     const diffs: string[] = []
-    for (const [group, table] of Object.entries(reference)) {
-      if (group.startsWith('__')) continue
+    for (const group of AE_GROUPS) {
+      const table = reference[group] ?? {}
       for (const [key, def] of Object.entries(table)) {
         const theirs = typeof def.ae === 'string' ? def.ae : undefined
-        const ours = PACK_AE[group as 'layout']?.[key]
+        const ours = PACK_AE[group]?.[key]
         if (theirs !== ours) diffs.push(`${group}.${key} ours=${ours} jizura=${theirs}`)
       }
     }

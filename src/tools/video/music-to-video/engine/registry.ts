@@ -38,12 +38,21 @@ import { pack as packEnterB } from './packs/enter-b'
 import { pack as packExit } from './packs/exit'
 import { pack as packExitB } from './packs/exit-b'
 import { pack as packFxB } from './packs/fx-b'
+import { pack as packHorrorA } from './packs/horror-a'
+import { pack as packHorrorB } from './packs/horror-b'
+import { pack as packHorrorC } from './packs/horror-c'
+import { pack as packKineticA } from './packs/kinetic-a'
+import { pack as packKineticB } from './packs/kinetic-b'
+import { pack as packKineticC } from './packs/kinetic-c'
 import { pack as packLayoutsA } from './packs/layouts-a'
 import { pack as packLayoutsB } from './packs/layouts-b'
 import { pack as packLayoutsC } from './packs/layouts-c'
 import { pack as packLayoutsD } from './packs/layouts-d'
 import { pack as packLooks } from './packs/looks'
 import { pack as packTreattrans } from './packs/treattrans'
+import { pack as packTypoA } from './packs/typo-a'
+import { pack as packTypoB } from './packs/typo-b'
+import { pack as packTypoC } from './packs/typo-c'
 import { applySets, randomOk as okBySet } from './sets'
 
 /** 包名与合并顺序（与 JIZURA 的 11p_*.js 文件名排序一致） */
@@ -56,12 +65,22 @@ const PACKS: readonly (readonly [string, PackParts])[] = [
   ['exitHold', packExit],
   ['exitB', packExitB],
   ['fxB', packFxB],
+  // 三套带开关的集合：包名即集合名，sets.ts 据此写入 def.set；位置必须与JIZURA文件名序一致
+  ['horror', packHorrorA],
+  ['horror', packHorrorB],
+  ['horror', packHorrorC],
+  ['kinetic', packKineticA],
+  ['kinetic', packKineticB],
+  ['kinetic', packKineticC],
   ['layoutsA', packLayoutsA],
   ['layoutsB', packLayoutsB],
   ['layoutsC', packLayoutsC],
   ['layoutsD', packLayoutsD],
   ['looks', packLooks],
   ['treattrans', packTreattrans],
+  ['typo', packTypoA],
+  ['typo', packTypoB],
+  ['typo', packTypoC],
 ]
 
 function mergeGroup<T extends PartFlags>(

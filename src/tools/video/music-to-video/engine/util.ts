@@ -190,7 +190,11 @@ export function hexToRgb(h: string): [number, number, number] {
   return [(n >> 16) & 255, (n >> 8) & 255, n & 255]
 }
 
-export function rgba(h: string, a = 1): string {
+/**
+ * `a` 允许字符串：JIZURA的部件里有 `rgba(col, (0.3 * a).toFixed(3))` 这种写法，
+ * 靠模板串拼接出合法 CSS，这里保持同样的宽松度（数值与字符串都会原样写进 alpha 位置）。
+ */
+export function rgba(h: string, a: number | string = 1): string {
   const [cr, cg, cb] = hexToRgb(h)
   return `rgba(${cr},${cg},${cb},${a})`
 }

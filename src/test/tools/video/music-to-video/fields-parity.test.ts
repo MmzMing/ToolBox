@@ -7,7 +7,7 @@
  * 夹具 __fixtures__/jizura-defs.json 由脚本在 node 里跑旧源码导出（见 D:/tmp/dump-defs.mjs）。
  *
  * 故意不比的字段：
- *   name        → 界面文案走 i18n（另有测试保证 707 件都有双语名）
+ *   name        → 界面文案走 i18n（名称与说明文案另走 i18n（见 locales 的 tools-video.json））
  *   ae          → 只被 AE 导出使用，放在 engine/ae-export.ts 的映射表里，另有测试
  *   extra/traditional → 本仓库的集合门控标记，由 sets.ts 推导
  *   函数类字段（fits/plan/render/apply/draw/get…）→ 无法序列化，由渲染冒烟测试覆盖

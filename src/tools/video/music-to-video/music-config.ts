@@ -36,3 +36,15 @@ export const MUSIC_STORAGE = {
   /** 上次成功拉取的来源，形如 `netease:17955431099`，仅用于摘要与预填 */
   last: 'toolbox.music-to-video.musicLast',
 } as const
+
+/**
+ * 渲染引擎的来源：本工具的构图 / 动效 / 装饰 / 转场 / 配色部件全部逐条移植自
+ * JIZURA（MIT，作者 hakoniwa）。界面的「关于与许可」按规范标注出处与开源地址。
+ */
+export const ENGINE_SOURCE = {
+  name: 'JIZURA 字面 — 文字PV自動構成ツール',
+  /** 开源项目地址，界面上必须原样展示 */
+  repo: 'https://github.com/852wa/JIZURA/',
+  license: 'MIT',
+  holder: 'hakoniwa (852wa)',
+} as const

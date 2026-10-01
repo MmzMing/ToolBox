@@ -5,7 +5,7 @@
  * 图块尺寸与随机抽样顺序一律照搬，保证同 seed + 同歌词渲染出同一支视频。
  * key 与注册顺序由 registry 锁定，不要改名、不要增删。
  *
- * 与旧项目的对应关系：
+ * 与JIZURA的对应关系：
  * - 旧 bgReg() 外壳里的 ctx.save/restore 由 renderer 统一负责，这里只写画什么；
  * - 旧 def 的 name 字段不进定义（界面文案走名字表 bgcam-b.names.json）；
  * - J.hex → hexToRgb、J.h → hash；个别与 ../util 导入同名的局部变量（r / rr）

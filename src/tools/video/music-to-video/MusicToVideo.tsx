@@ -8,7 +8,7 @@
  * 导出走同一条渲染链，所以"看到的即所得"：预览与 MP4 用的是同一套分镜与同一批随机数。
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { FileJson, FolderOpen, Info, Save, X } from 'lucide-react'
+import { ExternalLink, FileJson, FolderOpen, Info, Save, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 
@@ -33,6 +33,7 @@ import type { Quality } from './engine/export'
 import { ENTER, EXIT } from './engine/registry'
 import type { AudioFeatures, AudioInfo, GroupKey, Project } from './engine/types'
 import { tool } from './index'
+import { ENGINE_SOURCE } from './music-config'
 import {
   addUserFont,
   analyzeAudio,
@@ -59,6 +60,7 @@ import {
   STYLES,
   STYLE_ORDER,
   type ExportJob,
+  type ThemeId,
 } from './music-to-video.service'
 import { useMusicVideoStore } from './store'
 import { usePlayback } from './use-playback'
@@ -126,6 +128,8 @@ export default function MusicToVideo() {
   const [currentLine, setCurrentLine] = useState(-1)
   const [tapIndex, setTapIndex] = useState<number | null>(null)
   const [hist, setHist] = useState({ i: -1, len: 0 })
+  /** 一键随机的方向（JIZURA 的 テーマ）；null = 不限定 */
+  const [theme, setTheme] = useState<ThemeId | null>(null)
 
   const historyRef = useRef<string[]>([])
   const indexRef = useRef(-1)
@@ -211,10 +215,10 @@ export default function MusicToVideo() {
   const runOmakase = useCallback(() => {
     if (job || tapIndex != null) return
     remember()
-    patch(rollOmakase(project, Math.random))
+    patch(rollOmakase(project, Math.random, theme))
     commit()
     seek(0)
-  }, [commit, job, patch, project, remember, seek, tapIndex])
+  }, [commit, job, patch, project, remember, seek, tapIndex, theme])
 
   const reroll = useCallback(
     (part: 'style' | 'palette' | 'mood' | 'cut') => {
@@ -631,6 +635,16 @@ export default function MusicToVideo() {
           aria-label={t('parts.useTraditional')}
         />
       </label>
+      {(['typo', 'kinetic', 'horror'] as const).map((set) => (
+        <label key={set} className="flex items-center justify-between gap-2 text-xs">
+          {t(`parts.set_${set}`)}
+          <Switch
+            checked={project[set]}
+            onCheckedChange={(on) => patch({ [set]: on })}
+            aria-label={t(`parts.set_${set}`)}
+          />
+        </label>
+      ))}
     </div>
   )
   const proposalBlock = (
@@ -643,6 +657,8 @@ export default function MusicToVideo() {
       histIndex={hist.i}
       histLength={hist.len}
       onHist={histGo}
+      theme={theme}
+      onTheme={setTheme}
     />
   )
   const panelHeader = (
@@ -773,8 +789,40 @@ export default function MusicToVideo() {
                 <li>{t('about.input')}</li>
                 <li>{t('about.local')}</li>
                 <li>{t('about.online')}</li>
-                <li>{t('about.engine')}</li>
               </ul>
+              {/* 渲染引擎来自开源项目，出处与许可必须写清楚（含项目地址） */}
+              <section className="bg-muted/40 flex flex-col gap-1.5 rounded-lg border p-3">
+                <h3 className="text-xs font-medium">{t('about.sourceTitle')}</h3>
+                <p className="text-xs">
+                  {t('about.sourceName')}
+                  <span className="text-muted-foreground"> — {t('about.sourceBy')}</span>
+                </p>
+                <p className="flex flex-wrap items-baseline gap-x-2 text-xs">
+                  <span className="text-muted-foreground">{t('about.sourceRepoLabel')}：</span>
+                  <a
+                    href={ENGINE_SOURCE.repo}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-primary inline-flex items-center gap-1 break-all underline underline-offset-2"
+                  >
+                    {ENGINE_SOURCE.repo}
+                    <ExternalLink className="size-3 shrink-0" />
+                  </a>
+                </p>
+                <p className="flex flex-wrap items-baseline gap-x-2 text-xs">
+                  <span className="text-muted-foreground">{t('about.sourceCopyrightLabel')}：</span>
+                  <span>
+                    {ENGINE_SOURCE.license} · © {ENGINE_SOURCE.holder}
+                  </span>
+                </p>
+                <p className="text-muted-foreground text-[11px] leading-4">
+                  {t('about.sourceCopyright')}
+                </p>
+                <p className="text-muted-foreground text-[11px] leading-4">
+                  {t('about.sourceNote')}
+                </p>
+                <p className="text-muted-foreground text-[11px] leading-4">{t('about.engine')}</p>
+              </section>
             </DialogContent>
           </Dialog>
         </div>

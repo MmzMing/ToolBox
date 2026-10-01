@@ -3,12 +3,12 @@
  *
  * 与核心 12 套同构：配色方案组 + 字体角色 + 质感 + 色散 + 部件偏置。这里的
  * `schemes` / `texture` / `ghost` / `bias` / `decor` / `hud` / `glow` / `glitchBoost` /
- * `useGrad` / `moods` 与旧项目逐字段一致（对账见 src/test/.../styles-parity.test.ts）。
+ * `useGrad` / `moods` 与JIZURA逐字段一致（对账见 src/test/.../styles-parity.test.ts）。
  *
- * 唯一改写的是 fonts：旧项目从日文目录里选字，本仓库字体库是中文的，于是沿用核心 12 套
+ * 唯一改写的是 fonts：JIZURA从日文目录里选字，本仓库字体库是中文的，于是沿用核心 12 套
  * 的映射逻辑（gothic_* → sans_*、mincho* → serif*、dot → pixel、mono → mono、
  * dela / pop → qingke、round → kuaile、tokumin → xiaowei、brush → mashan、
- * sansui → sans_med、zenkaku → sans_black；旧项目独有的 shippori → serif_bold、
+ * sansui → sans_med、zenkaku → sans_black；JIZURA独有的 shippori → serif_bold、
  * kiwi / klee → xiaowei、rampart / potta / reggae → kuaile）。映射后同角色内的重复项合并，
  * 每套内部仍保有「衬线 × 无衬线」「粗 × 细」的对比。
  *
@@ -1544,7 +1544,7 @@ export const extraStyles: Record<string, StylePack> = {
   },
 }
 
-/** 注册顺序 = 旧项目 11p_styles.js 里 S 对象的键序，追加在核心 12 套之后 */
+/** 注册顺序 = JIZURA 11p_styles.js 里 S 对象的键序，追加在核心 12 套之后 */
 export const EXTRA_STYLE_ORDER: string[] = [
   'sakura',
   'ocean',

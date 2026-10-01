@@ -133,7 +133,7 @@
       "flip": "Invert",
       "useExtra": "Use added parts",
       "useTraditional": "Use traditional parts",
-      "setsHint": "These two switches only constrain random selection; per-line overrides are unrestricted. “New” marks parts added after the first release, “Trad” marks parts built around traditional objects and patterns.",
+      "setsHint": "These three switches only affect automatic picking: a set that is off is never drawn at random, per-line choices still work.",
       "excludedHint": "Excluded from random picks while this switch is off; still available per line",
       "badgeExtra": "new",
       "badgeTraditional": "trad",
@@ -279,7 +279,51 @@
         "maskReveal": "Mask reveal",
         "contour": "Contour",
         "halftoneBig": "Halftone huge",
-        "stencil": "Stencil"
+        "stencil": "Stencil",
+        "hrFlashlight": "Flashlight",
+        "hrDoorGap": "Door Gap",
+        "hrWallScrawl": "Wall Scrawl",
+        "hrCctv": "CCTV Monitor",
+        "hrOuija": "Spirit Board",
+        "hrMissing": "Missing Poster",
+        "hrWrongOne": "The Wrong Glyph",
+        "hrRisingDark": "Out of the Dark",
+        "hrRedacted": "Redacted File",
+        "hrStaticTv": "Static TV",
+        "hrSpiritPhoto": "Spirit Photo",
+        "hrWrongShadow": "Wrong Shadow",
+        "tyKeySplit": "Key Glyph Split",
+        "tyCropGiant": "Cropped Giant",
+        "tyCross": "Cross Setting",
+        "tyBandHide": "Band Cover",
+        "tyRuby": "Ruby Notes",
+        "tyBaseline": "Ruled Lines",
+        "tyScaleSteps": "Size Crescendo",
+        "tyJustify": "Justified Stack",
+        "tyIndexTable": "Glyph Table",
+        "tySplitType": "Split Type",
+        "tyErode": "Eroding Repeat",
+        "tyVRuler": "Vertical Scale",
+        "tyFullTrack": "Full-Width Tracking",
+        "tyStatCount": "Glyph Count",
+        "tyMargin": "White Space",
+        "tyRotBlock": "Rotated Block",
+        "tySquare": "Square Setting",
+        "tyLineFocus": "Line Highlight",
+        "knSlamStack": "Slam Stack",
+        "knQuarterTurn": "Quarter Turn",
+        "knSwapCenter": "Word Swap",
+        "knZoomDive": "Dive Into Letter",
+        "knFlowSnap": "Flow and Snap",
+        "knSeesaw": "Seesaw",
+        "knTypeSlam": "Type then Slam",
+        "knRhythmCuts": "Word Jump Cuts",
+        "knPathRide": "Loop Track",
+        "knGearWords": "Gears",
+        "knCollide": "Head-on Crash",
+        "knTumble": "Tumbling Boxes",
+        "knReflow": "Vertical to Line",
+        "knPadGrid": "Drum Pads"
       },
       "enter": {
         "cut": "Hard cut",
@@ -381,7 +425,32 @@
         "inkBleed": "Ink bleed",
         "neonOn": "Neon on",
         "cursorSweep": "Cursor sweep",
-        "stamp": "Stamp"
+        "stamp": "Stamp",
+        "hrBlinkCreep": "Between Blinks",
+        "hrJumpScare": "Jump Scare",
+        "hrUneasy": "Uneasy Timing",
+        "hrVhold": "Vertical Hold",
+        "hrMirrorSnap": "Mirror Writing",
+        "hrManifest": "Manifest",
+        "hrClawReveal": "Claw Marks",
+        "tyKeyFirst": "Key Glyph First",
+        "tyLineWipe": "Line-by-Line Wipe",
+        "tyZoomOne": "One by One Zoom",
+        "tyUnderLift": "Rise from Underline",
+        "tyDotGrow": "Dot to Glyph",
+        "tyBracketOpen": "Brackets Open",
+        "tyRetype": "Retype",
+        "tyRubyDrop": "From Ruby",
+        "knWordSlam": "Word Slam",
+        "knTypeToSlam": "Type and Grow",
+        "knReplaceIn": "Swap In",
+        "knHingeDrop": "Hinge Drop",
+        "knLoopIn": "Loop In",
+        "knPushIn": "Push In",
+        "knInertia": "Hard Brake",
+        "knWordSpin": "Word Spin",
+        "knDiveIn": "Words From Camera",
+        "knStretchOut": "Tape Stretch"
       },
       "hold": {
         "still": "Still",
@@ -421,7 +490,21 @@
         "zoomSlow": "Slow zoom in",
         "stretchPulse": "Stretch pulse",
         "glitchJump": "Occasional slip",
-        "echoTrail": "Afterimage trail"
+        "echoTrail": "Afterimage trail",
+        "hrTwitch": "Twitch",
+        "hrStare": "Staring Glyph",
+        "hrLagOne": "The Late One",
+        "hrFlickerLight": "Failing Light",
+        "tyKeyPulse": "Key Glyph Pulse",
+        "tyReadCursor": "Reading Cursor",
+        "tyOutlineBlink": "Outline Blink",
+        "tyTrackStep": "Tracking Steps",
+        "knWordPulse": "Word Pulse",
+        "knCounterRock": "Counter Rock",
+        "knWordRide": "Word Surf",
+        "knTickShift": "Tick Shift",
+        "knBeatLean": "Beat Lean",
+        "knGapBreath": "Breathing Gaps"
       },
       "exit": {
         "cut": "Hard cut",
@@ -509,7 +592,30 @@
         "popOut": "Pop out",
         "burn": "Burn away",
         "sweepCover": "Bar cover",
-        "shatterLite": "Quarter shatter"
+        "shatterLite": "Quarter shatter",
+        "hrPulledDown": "Pulled Under",
+        "hrLookBack": "One Remains",
+        "hrTurnAway": "Turn Away",
+        "hrShiver": "Shiver Out",
+        "hrSwallow": "Swallowed",
+        "hrFlickerDie": "Dying Flicker",
+        "hrDrain": "Drain",
+        "tyStrike": "Strike Out",
+        "tyToDot": "Back to Dots",
+        "tyLineFeed": "Line Feed",
+        "tyBracketClose": "Brackets Close",
+        "tyToIndex": "Turn to Numbers",
+        "tyKeyLast": "Key Glyph Last",
+        "tyUnderSink": "Sink into Underline",
+        "tyFoldVert": "Fold to Vertical",
+        "knWordKick": "Word Kick",
+        "knPushOut": "Push Out",
+        "knDiveGlyph": "Dive Into Letter",
+        "knLaunch": "Launch",
+        "knWordBlink": "Words Blink Out",
+        "knCloseGap": "Close the Gaps",
+        "knJumpCutOut": "Jump Cut",
+        "knStackAway": "Stack and Drop"
       },
       "decor": {
         "grid": "Grid",
@@ -626,7 +732,22 @@
         "verticalStrip": "Vertical strip",
         "romajiLine": "Romaji line",
         "bracketsJP": "Lenticular brackets",
-        "seal": "Seal stamp"
+        "seal": "Seal stamp",
+        "hrScratches": "Claw Scratches",
+        "hrSigil": "Sigil",
+        "hrWatchEye": "Watching Eye",
+        "hrStaticPatch": "Static Patches",
+        "hrDustBeam": "Dusty Light Beam",
+        "hrDrips": "Ink Drips",
+        "hrCracks": "Cracks",
+        "tyColophon": "Colophon",
+        "tyRunningHead": "Running Head & Folio",
+        "tyGlyphBody": "Glyph Body Lines",
+        "tyTextRule": "Text Rule",
+        "tyTypeScale": "Type Scale",
+        "tyBigPunct": "Big Quote Marks",
+        "knSpeedTrail": "Trailing Speed Lines",
+        "knWordTicks": "Word Counter"
       },
       "treat": {
         "none": "None",
@@ -682,7 +803,17 @@
         "cutShift": "Cut and shift",
         "focusPull": "Rack focus",
         "spotChar": "Spotlight glyph",
-        "ransom": "Ransom note"
+        "ransom": "Ransom note",
+        "hrInkBleed": "Bleeding Ink",
+        "hrEroded": "Eroded",
+        "hrRedact": "Redacted",
+        "hrDoubleExp": "Double Exposure",
+        "tyHollowKey": "Hollow Key Glyph",
+        "tyHeadRules": "Head & Foot Rules",
+        "tyHeadBig": "Large Initial",
+        "tyIndexSup": "Glyph Numbers",
+        "knWordScale": "Big and Small Words",
+        "knWordPlate": "Word Knockout"
       },
       "bg": {
         "none": "Flat",
@@ -749,7 +880,11 @@
         "eqBars": "Background equaliser",
         "borderFrame": "Thick border",
         "letterbox": "Letterbox",
-        "noiseField": "Noise field"
+        "noiseField": "Noise field",
+        "hrFailingLamp": "Failing Lamp",
+        "hrCorridor": "Dark Corridor",
+        "hrMold": "Spreading Stains",
+        "hrDeadTrees": "Dead Forest"
       },
       "cam": {
         "push": "Slow push-in",
@@ -784,7 +919,15 @@
         "driftDiag": "Diagonal drift",
         "shakeHard": "Hard shake",
         "dollyIn": "Dolly in",
-        "stepZoom": "Step zoom"
+        "stepZoom": "Step zoom",
+        "hrNervous": "Frightened Handheld",
+        "hrDutchSnap": "Sudden Tilt",
+        "knReadPan": "Reading Pan",
+        "knTiltKick": "Tilt Kick",
+        "knCardFlip": "Card Flip",
+        "knShearKick": "Shear Kick",
+        "knJumpCut": "Jump Cut",
+        "knRushIn": "Rush In"
       },
       "fx": {
         "chroma": "Chroma spike",
@@ -852,7 +995,10 @@
         "zoomPunch": "Zoom punch",
         "lightSweep": "Light sweep",
         "crtOff": "CRT power off",
-        "splitSlide": "Split slide"
+        "splitSlide": "Split slide",
+        "hrSubliminal": "Subliminal",
+        "hrSignalLoss": "Signal Loss",
+        "hrPassingShadow": "Passing Shadow"
       },
       "trans": {
         "slide": "Slide",
@@ -877,8 +1023,24 @@
         "sliceShift": "Slice shift",
         "cubeTurn": "Cube turn",
         "flashCross": "Flash cross",
-        "pixelate": "Pixelate"
-      }
+        "pixelate": "Pixelate",
+        "hrStaticCut": "Static Cut",
+        "hrBlink": "Blink",
+        "tyRuleWipe": "Ruled Line Wipe",
+        "tyGridCells": "Grid Cell Fill",
+        "knCornerSwing": "Corner Swing",
+        "knStutterCut": "Stutter Cut",
+        "knStripSlam": "Strip Slam"
+      },
+      "useTypo": "Typographic parts (文字PV)",
+      "useKinetic": "Kinetic parts",
+      "useHorror": "Horror direction (adds a “horror” mood)",
+      "badge_typo": "TYPE",
+      "badge_kinetic": "KIN",
+      "badge_horror": "HOR",
+      "set_typo": "Typographic (文字PV)",
+      "set_kinetic": "Kinetic",
+      "set_horror": "Horror"
     },
     "styles": {
       "noir": "Noir Chroma",
@@ -904,7 +1066,10 @@
       "candy": "Candy",
       "acid": "Acid",
       "sumi": "Ink & Vermilion",
-      "gold": "Gilded Night"
+      "gold": "Gilded Night",
+      "hrRuin": "Ruins",
+      "hrNightRec": "Midnight Recording",
+      "hrCurse": "Cursed Letter"
     },
     "mood": {
       "none": "Unset"
@@ -916,7 +1081,8 @@
       "graphic": "Graphic",
       "editorial": "Editorial",
       "emotional": "Emotional",
-      "chaos": "Everything"
+      "chaos": "Everything",
+      "horror": "Horror"
     },
     "colors": {
       "bg": "Background",
@@ -987,7 +1153,10 @@
       "candy": "Mint, strawberry, lemon and grape pastels; plump bouncing letters",
       "acid": "Black with acid green and magenta, rough type, shattered frames",
       "sumi": "Washi white, brush ink, a vermilion signature",
-      "gold": "Pitch black and gold leaf, ivory mincho, glinting light"
+      "gold": "Pitch black and gold leaf, ivory mincho, glinting light",
+      "hrRuin": "Faded green-grey, rust red and echoing serif type",
+      "hrNightRec": "Pitch-black frames, CCTV white and red, static",
+      "hrCurse": "Yellowed paper, faded ink and dark red handwriting"
     },
     "hud": {
       "auto": "Follow style",
@@ -1016,7 +1185,14 @@
       "input": "Copyright in the lyrics, titles and audio you supply stays with their owners; make sure you may use them.",
       "local": "Lyrics and audio are processed only inside your browser and never uploaded anywhere.",
       "engine": "The rendering engine is ported from JIZURA, MIT licensed (© 2026 hakoniwa); MP4 muxing uses mp4-muxer (MIT); interface fonts come from Google Fonts families (SIL OFL 1.1).",
-      "online": "The online library is optional and off by default: once on, the playlist you type goes to the third-party Meting instance you configure, and audio and lyrics come back from that service. The tool runs no backend and caches no audio — check you may publish the track before exporting."
+      "online": "The online library is optional and off by default: once on, the playlist you type goes to the third-party Meting instance you configure, and audio and lyrics come back from that service. The tool runs no backend and caches no audio — check you may publish the track before exporting.",
+      "sourceTitle": "Open-source project & provenance",
+      "sourceName": "JIZURA 字面 — automatic lyric-video builder",
+      "sourceBy": "By hakoniwa (852wa) / copyright © 2026",
+      "sourceRepoLabel": "Source repository",
+      "sourceCopyrightLabel": "Licence",
+      "sourceCopyright": "MIT License (free to use, modify and redistribute; keep the copyright and licence notice)",
+      "sourceNote": "Every layout, animation, decoration, transition and colour set in this tool is ported item by item from that project; numeric constants, easing curves and the seeded RNG are copied verbatim so the same lyrics and seed render the same frames."
     },
     "ae": {
       "note": "{{subs}} browser-only expressions were swapped for the closest one the AE panel implements (text treatments, backgrounds, camera moves and cut transitions are not yet supported in the AE version)."
@@ -1067,6 +1243,16 @@
       "local": "Local file",
       "online": "Online library",
       "clear": "Remove audio"
+    },
+    "themeTitle": "Direction (narrows the randomiser to one theme)",
+    "themes": {
+      "none": "Any",
+      "lyricpv": "Typographic",
+      "kinetic": "Kinetic",
+      "wa": "Japanese",
+      "horror": "Horror",
+      "pop": "Pop",
+      "ballad": "Ballad"
     }
   }
 }

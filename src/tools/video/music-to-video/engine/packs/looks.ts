@@ -8,9 +8,9 @@
  * 结构约定：
  * - plan 产出的随机参数是宽松的 `Params` 记录，每件部件都声明自己的具体参数类型，
  *   入口做一次 `as unknown as XxxP` cast（本仓库认可的唯一 cast 写法）；
- * - `mkBg` / `mkFx` 复刻旧项目 bgReg / fxReg：统一包一层 save/restore，
+ * - `mkBg` / `mkFx` 复刻JIZURA bgReg / fxReg：统一包一层 save/restore，
  *   并把 ctx 作为额外参数交给内部画法；
- * - 文字加工的"叠在文字下面 / 上面"沿用旧项目的 it.pre / it.post 钩子
+ * - 文字加工的"叠在文字下面 / 上面"沿用JIZURA的 it.pre / it.post 钩子
  *   （本仓库 layouts.ts 的 drawFx 先在裁剪与条带之前调 pre、之后调 post，语义一致；
  *   旧包里也没有 treat.layer 字段，层次完全由这两个钩子决定）。
  *
@@ -1225,7 +1225,7 @@ export const pack: PackParts = {
       },
     },
 
-    /* 斜体：横排 shear，竖排逐字旋转（旧项目假名斜体的中文等价） */
+    /* 斜体：横排 shear，竖排逐字旋转（JIZURA假名斜体的中文等价） */
     italic: {
       tags: ['editorial', 'pop', 'emotional'],
       w: 0.8,

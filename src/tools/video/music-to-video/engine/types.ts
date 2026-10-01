@@ -18,6 +18,13 @@ export type Rng = (() => number) & {
 
 export type AspectKey = '16:9' | '9:16' | '1:1' | '4:5' | '21:9' | '4:3' | '3:4'
 
+/**
+ * 带独立开关的部件集合（JIZURA 的 J.SETS）。
+ * 归属由 sets.ts 在合并注册表时按包名写入，定义里不手写；
+ * 关掉一个集合只是把它排除出"随机挑选"，逐行手工指定永远可用。
+ */
+export type PartSet = 'horror' | 'typo' | 'kinetic'
+
 /** 表现部件分组（顺序 = 注册表顺序 = UI 列表顺序） */
 export type GroupKey =
   'layout' | 'enter' | 'hold' | 'exit' | 'decor' | 'treat' | 'bg' | 'cam' | 'fx' | 'trans'
@@ -48,6 +55,8 @@ export type StylePack = {
   extra?: boolean
   /** 传统纹样主题的风格 */
   traditional?: boolean
+  /** 隶属于某个部件集合（horror 的配色只在该集合开关打开、且情绪为 horror 时参与） */
+  set?: PartSet
   schemes: Scheme[]
   fonts: Record<FontRole, string[]>
   texture: { grain: number; paper: number; scan: number }
@@ -138,6 +147,12 @@ export type Project = {
   extra: boolean
   /** 随机挑选是否可以使用传统纹样部件 */
   traditional: boolean
+  /** 文字PV系部件（typo）是否参与随机；默认开 */
+  typo: boolean
+  /** キネティック部件（kinetic）是否参与随机；默认开 */
+  kinetic: boolean
+  /** 恐怖演出（horror）是否参与随机，并决定一键随机会不会抽到 horror 情绪；默认关 */
+  horror: boolean
   seed: number
   aspect: AspectKey
   res: number
@@ -522,7 +537,15 @@ export type AnimCtx = { dur: number; inDur: number; outDur: number }
  * 部件的集合归属：由 sets.ts 在合并注册表时写入，定义里不手写。
  * extra = 首版之后追加的部件；traditional = 围绕传统器物/纹样（灯笼、印章、青海波…）的部件。
  */
-export type PartFlags = { pack?: string; extra?: boolean; traditional?: boolean }
+export type PartFlags = {
+  pack?: string
+  extra?: boolean
+  traditional?: boolean
+  /** 部件所属集合（由 sets.ts 按包名写入） */
+  set?: PartSet
+  /** JIZURA给 After Effects 面板的等价表现名（只影响 AE 导出，不参与渲染） */
+  ae?: string
+}
 
 /** 入场 / 保持 / 出场配方 */
 export type AnimDef = PartFlags & {

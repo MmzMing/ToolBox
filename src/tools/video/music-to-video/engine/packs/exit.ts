@@ -7,12 +7,12 @@
  *
  * 语义约定：
  * - exit 的 `p` 从 0（静止）走到 1（完全消失）；所有配方最后再套一层"p>=0.998 直接
- *   alpha=0"的保险（与旧项目一致），任何配方收尾都必须真的消失干净；
+ *   alpha=0"的保险（与JIZURA一致），任何配方收尾都必须真的消失干净；
  * - hold 的 `amt` 是振幅（出场时衰减过），乘以 env.fx.motion 后才起作用，amt=0 时
  *   必须对文字项零改动。
  *
- * 中文适配（见移植契约）：旧项目里的假名/罗马音分支在本包里不涉及；
- * 逐字乱码符号池沿用旧项目的全角符号集（不含假名）。
+ * 中文适配（见移植契约）：JIZURA里的假名/罗马音分支在本包里不涉及；
+ * 逐字乱码符号池沿用JIZURA的全角符号集（不含假名）。
  */
 import type { AnimDef, CharFn, CharT, Env, LaidGlyph, PackParts, PieceT, TextItem } from '../types'
 import { PIECE_IDLE } from '../types'
@@ -1616,7 +1616,7 @@ const EXIT: Record<string, AnimDef> = {
 
 /**
  * 收尾保险：不管配方在 p≈1 留下了什么（细线、补偿描边），一律确保彻底消失。
- * 与旧项目注册前的那道包装等价。
+ * 与JIZURA注册前的那道包装等价。
  */
 for (const key of Object.keys(EXIT)) {
   const def = EXIT[key]

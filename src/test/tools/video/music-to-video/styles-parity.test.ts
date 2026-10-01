@@ -8,6 +8,27 @@ import { BASE_STYLES } from '@/tools/video/music-to-video/engine/sets'
 import { STYLES, STYLE_ORDER } from '@/tools/video/music-to-video/engine/styles'
 
 /**
+ * 旧项目风格表里引用了几件并不存在的部件（历史死键），移植时已剔除，
+ * 对账时两边同时删掉这些键，避免它们把真正的差异盖过去。
+ */
+const DEAD_KEYS: Record<string, string[]> = {
+  layout: ['pop'],
+  decor: ['hud'],
+  bg: ['candy'],
+}
+
+const stripDead = (
+  bias: Record<string, Record<string, number>>,
+): Record<string, Record<string, number>> => {
+  const out: Record<string, Record<string, number>> = {}
+  for (const [group, map] of Object.entries(bias)) {
+    const dead = DEAD_KEYS[group] ?? []
+    out[group] = Object.fromEntries(Object.entries(map).filter(([k]) => !dead.includes(k)))
+  }
+  return out
+}
+
+/**
  * 与旧项目的风格对账：夹具 jizura-styles.json 是从 JIZURA 运行期注册表导出的，
  * 每套风格的配色方案、质感、色散倍率、部件偏置都必须逐字段相等。
  *
@@ -40,14 +61,14 @@ describe('风格包与 JIZURA 对账', () => {
     const ours = STYLES[key]
     const theirs = { ...reference.styles[key] }
     expect(ours, `风格 ${key} 未移植`).toBeTruthy()
-    // 旧项目 7 套风格的 decor 里写着 hud 权重，但装饰表里从来没有 hud 这件，
-    // 属于死键（已用脚本对旧项目注册表核对过），移植时剔除，不影响任何抽样结果。
-    const decor = { ...(theirs.decor as Record<string, number> | undefined) }
-    delete decor.hud
-    theirs.decor = decor
+    // 死键两边一起删：decor.hud 是旧项目的死键，移植时已剔除，不影响任何抽样结果
+    theirs.decor = stripDead({ decor: (theirs.decor ?? {}) as Record<string, number> }).decor
+    theirs.bias = stripDead((theirs.bias ?? {}) as Record<string, Record<string, number>>)
+    const oursBias = stripDead(ours.bias as unknown as Record<string, Record<string, number>>)
     for (const field of FIELDS) {
       if (!(field in theirs)) continue
-      expect(ours[field], `${key}.${field}`).toEqual(theirs[field])
+      if (field === 'bias') expect(oursBias, `${key}.bias`).toEqual(theirs.bias)
+      else expect(ours[field], `${key}.${field}`).toEqual(theirs[field])
     }
   })
 
@@ -70,18 +91,23 @@ describe('风格包与 JIZURA 对账', () => {
     }
     for (const key of reference.order) {
       const st = STYLES[key]
-      for (const [group, map] of Object.entries(st.bias)) {
+      for (const [group, map] of Object.entries(
+        stripDead(st.bias as unknown as Record<string, Record<string, number>>),
+      )) {
         for (const part of Object.keys(map))
           expect(orders[group], `${key}.bias.${group}.${part}`).toContain(part)
       }
       for (const part of Object.keys(st.decor ?? {}))
-        expect(orders.decor, `${key}.decor.${part}`).toContain(part)
+        if (!(DEAD_KEYS.decor ?? []).includes(part))
+          expect(orders.decor, `${key}.decor.${part}`).toContain(part)
     }
   })
 
-  it('集合归属标记：首版 12 套可随机，追加 12 套要打标记，和風两套另算', () => {
+  it('集合归属标记：首版 12 套可随机，追加分要打标记，带集合开关的三套另算', () => {
     for (const key of reference.order) {
-      expect(Boolean(STYLES[key].extra), `${key}.extra`).toBe(!BASE_STYLES.includes(key))
+      // 带 set 的风格（恐怖三套）有自己的开关，不算"追加分"（与旧项目 11q_sets.js 一致）
+      const isExtra = !BASE_STYLES.includes(key) && !STYLES[key].set
+      expect(Boolean(STYLES[key].extra), `${key}.extra`).toBe(isExtra)
       expect(Boolean(STYLES[key].traditional), `${key}.traditional`).toBe(
         key === 'sakura' || key === 'sumi',
       )

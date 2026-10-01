@@ -13,7 +13,7 @@
  * - trans 由 `trReg()` 统一包一层：p<=0 就是上一镜静帧、p>=1 就是本镜，收尾还原 ctx。
  *
  * 中文适配（见移植契约）：
- * - 旧项目的 isKanji / isKata 判定换成 ../script 的 isHan / isKana（中文歌词不含假名，
+ * - JIZURA的 isKanji / isKata 判定换成 ../script 的 isHan / isKana（中文歌词不含假名，
  *   假名分支实际不会命中，保留判定形状）；
  * - `env.cut` 在本仓库是 `Cut | null`，逐处取局部变量判空；pre / post 钩子与本镜同帧执行，
  *   直接闭包引用 apply 里已经判过空的 `cut`；
@@ -758,7 +758,7 @@ const TREAT: Record<string, TreatDef> = {
       const off = miOf(it)
       if (!N) return
       const chars = lay.map((g) => g.ch).filter((c) => c.trim())
-      // 旧项目分「汉字 / 片假名 / 拉丁」，这里取「汉字 / 假名 / 拉丁」
+      // JIZURA分「汉字 / 片假名 / 拉丁」，这里取「汉字 / 假名 / 拉丁」
       const isK = (c: string) => isHan(c) || isKana(c) || isLatin(c)
       let v = P.v
       if (v === 'kanji' && !(chars.some(isK) && chars.some((c) => !isK(c)))) v = 'alt'

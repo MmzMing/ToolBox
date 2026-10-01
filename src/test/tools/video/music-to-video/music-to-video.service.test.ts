@@ -352,4 +352,33 @@ describe('工程文件读写', () => {
     expect(got?.seed).toBe(base.seed)
     expect(got?.fps).toBe(base.fps)
   })
+
+  it('三套集合的开关真的门控随机挑选（文字PV / キネティック / 恐怖）', () => {
+    const partKeys = (project: ReturnType<typeof defaultProject>) => {
+      const plan = buildPlan(project, null)
+      const onCut = plan.cuts.flatMap((c) => [
+        c.layout,
+        c.enter,
+        c.exit,
+        c.hold,
+        c.treat,
+        c.bg,
+        c.cam,
+      ])
+      return onCut.concat(plan.cuts.flatMap((c) => c.decor.map((d) => d.id)))
+    }
+    const base = {
+      ...defaultProject(),
+      lyrics: ['风把夜色吹薄', '我在亮的地方等你', '一二三四五六七八九十'].join('\n'),
+    }
+
+    // 默认：文字PV系与キネティック开、恐怖关 → 前者抽得到，hr* 永远抽不到
+    const on = partKeys(base)
+    expect(on.some((k) => k.startsWith('ty'))).toBe(true)
+    expect(on.some((k) => k.startsWith('hr'))).toBe(false)
+
+    // 全关：三套都不参与随机挑选
+    const off = partKeys({ ...base, typo: false, kinetic: false })
+    expect(off.some((k) => /^(ty|kn|hr)/.test(k))).toBe(false)
+  })
 })

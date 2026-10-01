@@ -8,9 +8,10 @@
  * 部件的 mood 标签：layout/enter/exit 直接由本表的白名单派生；hold/decor 见 MOOD_TAGS；
  * treat/bg/cam/fx/trans 的标签写在各部件定义里（parts.ts）。
  */
-import type { FxSettings, GroupKey } from './types'
+import type { FxSettings, GroupKey, PartSet } from './types'
 
-export type MoodKey = 'glitch' | 'calm' | 'pop' | 'graphic' | 'editorial' | 'emotional' | 'chaos'
+export type MoodKey =
+  'glitch' | 'calm' | 'pop' | 'graphic' | 'editorial' | 'emotional' | 'horror' | 'chaos'
 
 /** FxSettings 中取值为 number 的强度项（koma 虽在列，但按 mood 单独抽候选） */
 export type NumericFxKey = {
@@ -35,6 +36,13 @@ export type Mood = {
   flashChance?: number
   /** HUD 开关候选（重复项即权重） */
   hudPick?: string[]
+  /**
+   * 隶属某个部件集合的情绪：只有该集合的开关打开时才可能被抽到；
+   * 反过来，只有抽到这个情绪时才会用到该集合的部件（omakase 的 moodSetOk）。
+   */
+  set?: PartSet
+  /** 白名单之外"顺手捎上"的概率，默认 0.22；horror 更低（0.1） */
+  sprinkle?: number
 }
 
 /** JIZURA 在 omakase 里对所有 mood 一视同仁的两项抽样 */
@@ -153,6 +161,27 @@ export const MOODS: Record<MoodKey, Mood> = {
     styles: ['noir', 'paper', 'hud', 'mono', 'crimson'],
     koma: [12, 0],
   },
+  // 恐怖：只有打开「恐怖演出」开关时才可能抽到，部件与配色整套跟着来
+  horror: {
+    ...COMMON,
+    set: 'horror',
+    fx: {
+      motion: [0.35, 0.65],
+      glitch: [0.3, 0.7],
+      chroma: [0.2, 0.5],
+      decor: [0.3, 0.6],
+      density: [0.3, 0.55],
+      texture: [0.7, 1],
+      bgSwitch: [0.1, 0.3],
+    },
+    layout: ['center', 'vcols', 'stack', 'huge', 'type'],
+    enter: ['flicker', 'blur', 'type', 'scramble'],
+    exit: ['blur', 'glitch', 'fall', 'drift'],
+    styles: ['noir', 'mono', 'crimson'],
+    noHold: ['wave'],
+    koma: [12, 8, 0],
+    sprinkle: 0.1,
+  },
   // 全家桶：不限制任何部件，强度拉满
   chaos: {
     ...COMMON,
@@ -181,6 +210,7 @@ export const MOOD_ORDER: MoodKey[] = [
   'graphic',
   'editorial',
   'emotional',
+  'horror',
   'chaos',
 ]
 
@@ -225,7 +255,7 @@ type TaggableGroup = 'layout' | 'enter' | 'exit' | 'hold' | 'decor'
  * JIZURA 的核心部件（05_anim / 06_layouts / 07_decor）不写 tags，
  * 而是在 08b_omakase.js 载入时用 MOODS 白名单补上，hold / decor 另给一张补充表
  * （就是下面的 MOOD_TAGS）。标签会被 registry.taggedWith 反查，也参与 planner 对
- * 故障系保持动效的权重修正，所以必须在注册表合并后就位，抽样结果才对得上旧项目。
+ * 故障系保持动效的权重修正，所以必须在注册表合并后就位，抽样结果才对得上JIZURA。
  */
 export function applyMoodTags(
   tables: Partial<Record<TaggableGroup, Record<string, { tags?: string[] }>>>,

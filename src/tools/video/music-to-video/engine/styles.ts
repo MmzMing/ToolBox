@@ -10,6 +10,7 @@
  * 名称与说明性文案一律走 i18n，这里只放渲染需要的数据。
  */
 import { FONTS } from './fonts'
+import { HORROR_STYLE_ORDER, horrorStyles } from './packs/styles-horror'
 import { EXTRA_STYLE_ORDER, extraStyles } from './packs/style-packs'
 import { markStyle } from './sets'
 import type { ColorOverrides, Project, Scheme, StylePack } from './types'
@@ -626,10 +627,15 @@ const CORE_STYLE_ORDER: string[] = [
 ]
 
 // 追加风格包按 JIZURA 的注册顺序接在后面，并同样打上集合标记
+Object.entries(horrorStyles).forEach(([key, style]) => markStyle(style, key))
 Object.entries(extraStyles).forEach(([key, style]) => markStyle(style, key))
 CORE_STYLE_ORDER.forEach((key) => markStyle(STYLES[key], key))
-export const STYLE_ORDER: string[] = [...CORE_STYLE_ORDER, ...EXTRA_STYLE_ORDER]
-Object.assign(STYLES, extraStyles)
+export const STYLE_ORDER: string[] = [
+  ...CORE_STYLE_ORDER,
+  ...HORROR_STYLE_ORDER,
+  ...EXTRA_STYLE_ORDER,
+]
+Object.assign(STYLES, horrorStyles, extraStyles)
 
 /** 只挑用户真填过的底色三元组 */
 function pickDefined(ov: ColorOverrides, keys: readonly ('bg' | 'fg' | 'sub')[]): Partial<Scheme> {

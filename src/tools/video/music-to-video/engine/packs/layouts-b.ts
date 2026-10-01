@@ -58,7 +58,7 @@ const slotsOf = (t: string): string[] => [
 ]
 
 /**
- * 一行小号副标题。旧项目这里是「假名转罗马音」，中文没有对应物，
+ * 一行小号副标题。JIZURA这里是「假名转罗马音」，中文没有对应物，
  * 按 note → lineText 兜底（角色不变：仍是一行与主文字不同的小字）。
  */
 const romaOf = (cut: Cut): string | null => {
@@ -198,7 +198,7 @@ const mainLines = (text: string, W: number, H: number, perL = 11, perP = 5): str
 }
 
 /**
- * 滚动杂字池：旧项目取片假名表的一半，这里换成《千字文》起手的常用汉字，
+ * 滚动杂字池：JIZURA取片假名表的一半，这里换成《千字文》起手的常用汉字，
  * 角色相同（雨柱 / 老虎机 / 翻页板上滚动的无意义字）。
  */
 const SCRAMBLE =
@@ -529,7 +529,7 @@ const tapePath = (
 
 /* ---------- 书体见本用的展示字体池 ---------- */
 
-/** 本仓库字体目录里的等价物（旧项目是一串日文面） */
+/** 本仓库字体目录里的等价物（JIZURA是一串日文面） */
 const SPEC_FONTS = [
   'sans_black',
   'serif',

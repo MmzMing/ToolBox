@@ -13,13 +13,17 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
 import { GROUP_KEYS, defOf, isSpecial, orderOf } from '../engine/registry'
-import type { GroupKey, Project } from '../engine/types'
+import { SET_ORDER, setOn } from '../engine/sets'
+import type { GroupKey, PartSet, Project } from '../engine/types'
 
 type PartsPanelProps = {
   enabled: Project['enabled']
   extra: boolean
   traditional: boolean
+  /** 三套带独立开关的集合（文字PV系 / キネティック / 恐怖） */
+  sets: Record<PartSet, boolean>
   onFlags: (part: { extra?: boolean; traditional?: boolean }) => void
+  onSetFlag: (set: PartSet, on: boolean) => void
   onSet: (group: GroupKey, key: string, on: boolean) => void
   onBulk: (group: GroupKey, mode: 'on' | 'off' | 'flip') => void
 }
@@ -39,13 +43,15 @@ export function PartsPanel({
   enabled,
   extra,
   traditional,
+  sets,
   onFlags,
+  onSetFlag,
   onSet,
   onBulk,
 }: PartsPanelProps) {
   const { t } = useTranslation('tools-video', { keyPrefix: 'music-to-video' })
   const [query, setQuery] = useState('')
-  // 707 件全渲染会拖慢面板，所以只渲染展开的分组
+  // 860 件全渲染会拖慢面板，所以只渲染展开的分组
   const [open, setOpen] = useState<Record<string, boolean>>({})
 
   const groups = useMemo(() => {
@@ -87,6 +93,12 @@ export function PartsPanel({
           <Label className="text-[11px] font-medium">{t('parts.useTraditional')}</Label>
           <Switch checked={traditional} onCheckedChange={(v) => onFlags({ traditional: v })} />
         </div>
+        {SET_ORDER.map((set) => (
+          <div key={set} className="flex items-center justify-between gap-2">
+            <Label className="text-[11px] font-medium">{t(`parts.set_${set}`)}</Label>
+            <Switch checked={sets[set]} onCheckedChange={(v) => onSetFlag(set, v)} />
+          </div>
+        ))}
         <p className="text-muted-foreground text-[10px] leading-4">{t('parts.setsHint')}</p>
       </div>
 
@@ -130,8 +142,10 @@ export function PartsPanel({
               <div className="grid grid-cols-2 gap-x-2 gap-y-0.5 px-2 pb-2">
                 {shown.map((k) => {
                   const def = defOf(group, k)
-                  const excluded = (def?.extra && !extra) || (def?.traditional && !traditional)
-                  // 悬停显示 key 与适用情绪，和旧项目的做法一致（手法列表的 title）
+                  const setOff = Boolean(def?.set && !setOn(sets, def.set))
+                  const excluded =
+                    (def?.extra && !extra) || (def?.traditional && !traditional) || setOff
+                  // 悬停显示 key 与适用情绪，和JIZURA的做法一致（手法列表的 title）
                   const moods = (def?.tags ?? []).map((m) => t(`moods.${m}`)).join('、')
                   return (
                     <label
@@ -156,6 +170,11 @@ export function PartsPanel({
                       {def?.traditional ? (
                         <span className="text-muted-foreground text-[9px]">
                           {t('parts.badgeTraditional')}
+                        </span>
+                      ) : null}
+                      {def?.set ? (
+                        <span className="text-primary text-[9px]">
+                          {t(`parts.badge_${def.set}`)}
                         </span>
                       ) : null}
                     </label>

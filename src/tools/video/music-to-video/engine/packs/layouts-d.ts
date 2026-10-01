@@ -95,7 +95,7 @@ const gIn = (env: Env): boolean => env.lt < 0.6 && env.pOut <= 0
 /** 印在物件上的字只保留不打乱位置的保持动效 */
 const plateHold = (cut: Cut): boolean =>
   !['still', 'jitter', 'breathe', 'glitchtick'].includes(cut.hold)
-/** 旧项目的假名→罗马音副行没有对应物，改用歌词行尾注释兜底 */
+/** JIZURA的假名→罗马音副行没有对应物，改用歌词行尾注释兜底 */
 const romajiOf = (cut: Cut): string | null => (cut.note ? flat(cut.note) : null)
 /** 副标题一行：整句 ≠ 本镜文字就用整句，否则注释，最后退化成编号 */
 const altCopy = (cut: Cut): string => {

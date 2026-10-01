@@ -18,8 +18,9 @@ import { useTranslation } from 'react-i18next'
 
 import { Separator } from '@/components/ui/separator'
 import { FONTS } from '../engine/fonts'
-import type { Plan, Project } from '../engine/types'
+import { THEME_ORDER, type ThemeId } from '../engine/omakase'
 import { TipButton } from './TipButton'
+import type { Plan, Project } from '../engine/types'
 
 type ProposalPanelProps = {
   project: Project
@@ -30,6 +31,9 @@ type ProposalPanelProps = {
   histIndex: number
   histLength: number
   onHist: (delta: number) => void
+  /** 一键随机的方向；不选则与JIZURA的普通「おまかせ」一致 */
+  theme: ThemeId | null
+  onTheme: (theme: ThemeId | null) => void
 }
 
 /** 只换一面的四个入口 */
@@ -49,6 +53,8 @@ export function ProposalPanel({
   histIndex,
   histLength,
   onHist,
+  theme,
+  onTheme,
 }: ProposalPanelProps) {
   const { t } = useTranslation('tools-video', { keyPrefix: 'music-to-video' })
   const sc = plan.style.schemes[0]
@@ -107,6 +113,26 @@ export function ProposalPanel({
             <Icon className="size-4" />
           </TipButton>
         ))}
+
+        <Separator orientation="vertical" className="mx-1 h-5" />
+
+        {/* 方向：把一键随机限定在一个主题里（对应JIZURA的 テーマ） */}
+        <span className="text-muted-foreground shrink-0 text-[11px]" title={t('themeTitle')}>
+          {t('themeTitle')}
+        </span>
+        <select
+          className="border-input bg-background h-7 shrink-0 rounded-md border px-1.5 text-[11px]"
+          aria-label={t('themeTitle')}
+          value={theme ?? 'none'}
+          onChange={(e) => onTheme(e.target.value === 'none' ? null : (e.target.value as ThemeId))}
+        >
+          <option value="none">{t('themes.none')}</option>
+          {THEME_ORDER.map((id) => (
+            <option key={id} value={id}>
+              {t(`themes.${id}`)}
+            </option>
+          ))}
+        </select>
         <TipButton
           size="icon"
           variant="destructive"

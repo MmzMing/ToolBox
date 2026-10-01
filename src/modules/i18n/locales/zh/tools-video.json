@@ -133,7 +133,7 @@
       "flip": "反转",
       "useExtra": "使用追加部件",
       "useTraditional": "使用传统纹样部件",
-      "setsHint": "这两个开关只约束随机挑选；逐行手工指定不受限制。带「新」的是首版之后追加的部件，带「传」的是围绕传统器物与纹样的部件。",
+      "setsHint": "这三个开关只影响自动挑选：关掉的集合不会被随机抽到，逐行手工指定仍然可用。",
       "excludedHint": "集合开关已关闭，随机不会选它；仍可逐行手工指定",
       "badgeExtra": "新",
       "badgeTraditional": "传",
@@ -279,7 +279,51 @@
         "maskReveal": "文字窗",
         "contour": "等高线",
         "halftoneBig": "网点大字",
-        "stencil": "镂空模板"
+        "stencil": "镂空模板",
+        "hrFlashlight": "手电筒",
+        "hrDoorGap": "门缝",
+        "hrWallScrawl": "墙上涂写",
+        "hrCctv": "监控屏幕",
+        "hrOuija": "通灵板",
+        "hrMissing": "寻人启事",
+        "hrWrongOne": "唯一不对的字",
+        "hrRisingDark": "从黑暗爬出",
+        "hrRedacted": "涂黑文件",
+        "hrStaticTv": "雪花电视",
+        "hrSpiritPhoto": "灵异照片",
+        "hrWrongShadow": "不对劲的影子",
+        "tyKeySplit": "大字夹排",
+        "tyCropGiant": "出框大字",
+        "tyCross": "十字排",
+        "tyBandHide": "带状遮字",
+        "tyRuby": "标音注记",
+        "tyBaseline": "格线排版",
+        "tyScaleSteps": "字级递增",
+        "tyJustify": "等宽堆叠",
+        "tyIndexTable": "字表",
+        "tySplitType": "断字错位",
+        "tyErode": "渐削重复",
+        "tyVRuler": "竖排刻度",
+        "tyFullTrack": "满版字距",
+        "tyStatCount": "字数显示",
+        "tyMargin": "留白",
+        "tyRotBlock": "旋转字块",
+        "tySquare": "方块排",
+        "tyLineFocus": "行中强调",
+        "knSlamStack": "堆叠重击",
+        "knQuarterTurn": "直角转向",
+        "knSwapCenter": "逐字替换",
+        "knZoomDive": "钻入字中",
+        "knFlowSnap": "流动后对齐",
+        "knSeesaw": "跷跷板",
+        "knTypeSlam": "打字→重击",
+        "knRhythmCuts": "逐字分镜",
+        "knPathRide": "环形轨道",
+        "knGearWords": "齿轮",
+        "knCollide": "正面冲撞",
+        "knTumble": "翻滚方块",
+        "knReflow": "竖排转横排",
+        "knPadGrid": "打击垫"
       },
       "enter": {
         "cut": "直切",
@@ -381,7 +425,32 @@
         "inkBleed": "墨色晕染",
         "neonOn": "霓虹点亮",
         "cursorSweep": "光标扫过",
-        "stamp": "盖章"
+        "stamp": "盖章",
+        "hrBlinkCreep": "眨眼之间",
+        "hrJumpScare": "突然跳出",
+        "hrUneasy": "不安的出现",
+        "hrVhold": "垂直同步",
+        "hrMirrorSnap": "镜像字",
+        "hrManifest": "缓缓浮现",
+        "hrClawReveal": "爪痕浮现",
+        "tyKeyFirst": "主字先行",
+        "tyLineWipe": "逐行擦入",
+        "tyZoomOne": "逐字放大",
+        "tyUnderLift": "从底线升起",
+        "tyDotGrow": "点化为字",
+        "tyBracketOpen": "括号展开",
+        "tyRetype": "打错重打",
+        "tyRubyDrop": "从注音落下",
+        "knWordSlam": "逐词重击",
+        "knTypeToSlam": "打字→放大",
+        "knReplaceIn": "替换登场",
+        "knHingeDrop": "铰链落下",
+        "knLoopIn": "绕圈进场",
+        "knPushIn": "推入",
+        "knInertia": "急刹车",
+        "knWordSpin": "逐词旋转",
+        "knDiveIn": "从镜头飞入",
+        "knStretchOut": "伸展弹出"
       },
       "hold": {
         "still": "静止",
@@ -421,7 +490,21 @@
         "zoomSlow": "缓缓推近",
         "stretchPulse": "横向拉伸拍",
         "glitchJump": "偶尔错位",
-        "echoTrail": "拖出残像"
+        "echoTrail": "拖出残像",
+        "hrTwitch": "抽搐",
+        "hrStare": "凝视的字",
+        "hrLagOne": "慢一拍的字",
+        "hrFlickerLight": "将熄的灯",
+        "tyKeyPulse": "主字脉动",
+        "tyReadCursor": "阅读光标",
+        "tyOutlineBlink": "空心闪烁",
+        "tyTrackStep": "字距跳段",
+        "knWordPulse": "逐词节拍",
+        "knCounterRock": "反向摇摆",
+        "knWordRide": "词语冲浪",
+        "knTickShift": "滴答位移",
+        "knBeatLean": "随拍倾斜",
+        "knGapBreath": "词间呼吸"
       },
       "exit": {
         "cut": "直切",
@@ -509,7 +592,30 @@
         "popOut": "弹开消失",
         "burn": "烧穿消失",
         "sweepCover": "亮条掩走",
-        "shatterLite": "四分割飞散"
+        "shatterLite": "四分割飞散",
+        "hrPulledDown": "被拖下去",
+        "hrLookBack": "留下一字",
+        "hrTurnAway": "转身背对",
+        "hrShiver": "颤抖消失",
+        "hrSwallow": "被黑暗吞没",
+        "hrFlickerDie": "闪烁熄灭",
+        "hrDrain": "滴落",
+        "tyStrike": "划线删除",
+        "tyToDot": "缩回圆点",
+        "tyLineFeed": "换行送出",
+        "tyBracketClose": "括号合上",
+        "tyToIndex": "化为编号",
+        "tyKeyLast": "留下一字",
+        "tyUnderSink": "沉入底线",
+        "tyFoldVert": "折成竖排",
+        "knWordKick": "逐词踢飞",
+        "knPushOut": "推出退场",
+        "knDiveGlyph": "冲入一字",
+        "knLaunch": "急起步",
+        "knWordBlink": "逐词熄灭",
+        "knCloseGap": "收拢消失",
+        "knJumpCutOut": "跳切",
+        "knStackAway": "叠起落下"
       },
       "decor": {
         "grid": "网格",
@@ -626,7 +732,22 @@
         "verticalStrip": "竖排带",
         "romajiLine": "罗马字副标",
         "bracketsJP": "方头括号",
-        "seal": "落款印章"
+        "seal": "落款印章",
+        "hrScratches": "抓痕",
+        "hrSigil": "魔法阵",
+        "hrWatchEye": "注视之眼",
+        "hrStaticPatch": "杂讯碎片",
+        "hrDustBeam": "光束与尘埃",
+        "hrDrips": "垂落的墨",
+        "hrCracks": "裂痕",
+        "tyColophon": "版权页",
+        "tyRunningHead": "书眉页码",
+        "tyGlyphBody": "字身分割线",
+        "tyTextRule": "文字线条",
+        "tyTypeScale": "字级样本",
+        "tyBigPunct": "巨大引号",
+        "knSpeedTrail": "跟随速度线",
+        "knWordTicks": "词数计数器"
       },
       "treat": {
         "none": "不做加工",
@@ -682,7 +803,17 @@
         "cutShift": "切断错位",
         "focusPull": "虚焦推移",
         "spotChar": "一字标贴",
-        "ransom": "剪贴文字"
+        "ransom": "剪贴文字",
+        "hrInkBleed": "晕染滴落",
+        "hrEroded": "风化",
+        "hrRedact": "涂黑",
+        "hrDoubleExp": "双重曝光",
+        "tyHollowKey": "单字镂空",
+        "tyHeadRules": "天地线",
+        "tyHeadBig": "首字放大",
+        "tyIndexSup": "字序号",
+        "knWordScale": "大小词",
+        "knWordPlate": "逐词反白"
       },
       "bg": {
         "none": "纯色",
@@ -749,7 +880,11 @@
         "eqBars": "背景均衡器",
         "borderFrame": "粗边框",
         "letterbox": "宽银幕黑边",
-        "noiseField": "噪声涌动"
+        "noiseField": "噪声涌动",
+        "hrFailingLamp": "将熄的灯",
+        "hrCorridor": "昏暗走廊",
+        "hrMold": "蔓延的污渍",
+        "hrDeadTrees": "枯树林"
       },
       "cam": {
         "push": "缓慢推近",
@@ -784,7 +919,15 @@
         "driftDiag": "斜向漂移",
         "shakeHard": "剧烈抖动",
         "dollyIn": "推轨前进",
-        "stepZoom": "阶梯变焦"
+        "stepZoom": "阶梯变焦",
+        "hrNervous": "惊恐手持",
+        "hrDutchSnap": "突然倾斜",
+        "knReadPan": "随读平移",
+        "knTiltKick": "逐词倾斜",
+        "knCardFlip": "翻牌",
+        "knShearKick": "斜切弹动",
+        "knJumpCut": "跳切",
+        "knRushIn": "从远处冲来"
       },
       "fx": {
         "chroma": "色散跳",
@@ -852,7 +995,10 @@
         "zoomPunch": "冲击变焦",
         "lightSweep": "光束扫过",
         "crtOff": "显像管关机",
-        "splitSlide": "上下错位滑动"
+        "splitSlide": "上下错位滑动",
+        "hrSubliminal": "潜意识闪现",
+        "hrSignalLoss": "信号中断",
+        "hrPassingShadow": "掠过的影子"
       },
       "trans": {
         "slide": "推拉",
@@ -877,8 +1023,24 @@
         "sliceShift": "分条错移",
         "cubeTurn": "立方转场",
         "flashCross": "闪光转场",
-        "pixelate": "马赛克转场"
-      }
+        "pixelate": "马赛克转场",
+        "hrStaticCut": "杂讯转场",
+        "hrBlink": "眨眼",
+        "tyRuleWipe": "格线擦换",
+        "tyGridCells": "稿纸格填入",
+        "knCornerSwing": "转角回旋",
+        "knStutterCut": "节奏跳切",
+        "knStripSlam": "条幅落下"
+      },
+      "useTypo": "文字PV系的部件",
+      "useKinetic": "キネティック的部件",
+      "useHorror": "恐怖演出（会加入「恐怖」氛围）",
+      "badge_typo": "文",
+      "badge_kinetic": "キ",
+      "badge_horror": "ホ",
+      "set_typo": "文字PV系",
+      "set_kinetic": "キネティック",
+      "set_horror": "恐怖演出"
     },
     "styles": {
       "noir": "黑色电影",
@@ -904,7 +1066,10 @@
       "candy": "糖果",
       "acid": "酸性",
       "sumi": "墨与朱",
-      "gold": "金夜"
+      "gold": "金夜",
+      "hrRuin": "废墟",
+      "hrNightRec": "深夜录像",
+      "hrCurse": "诅咒之信"
     },
     "mood": {
       "none": "不指定"
@@ -916,7 +1081,8 @@
       "graphic": "平面构成",
       "editorial": "编辑排版",
       "emotional": "情绪向",
-      "chaos": "全部都要"
+      "chaos": "全部都要",
+      "horror": "恐怖"
     },
     "colors": {
       "bg": "底色",
@@ -987,7 +1153,10 @@
       "candy": "薄荷/草莓/柠檬/葡萄的粉彩、圆滚弹跳的字",
       "acid": "黑 × 酸性绿 × 品红、粗砺的字体与破碎的画面",
       "sumi": "和纸的本白、墨的毛笔字、朱红的落款",
-      "gold": "漆黑与金箔、象牙白的明朝、闪耀的光"
+      "gold": "漆黑与金箔、象牙白的明朝、闪耀的光",
+      "hrRuin": "褪色灰绿、锈红与回响的宋体",
+      "hrNightRec": "漆黑画面、监控影像的白与红、雪花噪点",
+      "hrCurse": "泛黄信纸、褪色墨迹与暗红笔迹"
     },
     "hud": {
       "auto": "跟随风格",
@@ -1016,7 +1185,14 @@
       "local": "歌词与音频只在你自己的浏览器里处理，不会上传到任何服务器。",
       "engine": "渲染引擎移植自 MIT 许可的开源项目 JIZURA（© 2026 hakoniwa）；MP4 封装用 mp4-muxer（MIT）；界面字体来自 Google Fonts 各书体（SIL OFL 1.1）。",
       "title": "关于与许可",
-      "online": "在线曲库是可选功能，默认关闭：开启后，你填的歌单标识会发送给你配置的第三方 Meting 实例，音频与歌词由该服务返回。工具不搭建后端、不缓存音频，发布前请自行确认曲目授权。"
+      "online": "在线曲库是可选功能，默认关闭：开启后，你填的歌单标识会发送给你配置的第三方 Meting 实例，音频与歌词由该服务返回。工具不搭建后端、不缓存音频，发布前请自行确认曲目授权。",
+      "sourceTitle": "开源项目与来源",
+      "sourceName": "JIZURA 字面 — 文字PV自動構成ツール",
+      "sourceBy": "作者：hakoniwa（852wa）／版权所有 © 2026",
+      "sourceRepoLabel": "开源项目地址",
+      "sourceCopyrightLabel": "版权与许可",
+      "sourceCopyright": "MIT License（可自由使用、修改、再分发，需保留版权与许可声明）",
+      "sourceNote": "本工具的构图、动效、装饰、转场与配色部件均逐条移植自该项目；数值常量、缓动曲线与随机种子算法照搬，以保证同样的歌词与种子渲染出同样的画面。"
     },
     "ae": {
       "note": "浏览器版新增的 {{subs}} 处表现，已换成 AE 面板里最接近的一件（文字加工、背景图形、运镜与镜头衔接在 AE 版尚未支持）。"
@@ -1067,6 +1243,16 @@
       "local": "本地文件",
       "online": "在线曲库",
       "clear": "移除已选音频"
+    },
+    "themeTitle": "方向（把一键随机限定在一个主题里）",
+    "themes": {
+      "none": "不限定",
+      "lyricpv": "文字PV",
+      "kinetic": "キネティック",
+      "wa": "和风",
+      "horror": "恐怖",
+      "pop": "流行",
+      "ballad": "抒情"
     }
   }
 }

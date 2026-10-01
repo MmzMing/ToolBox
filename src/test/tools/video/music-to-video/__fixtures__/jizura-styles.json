@@ -12,6 +12,9 @@
     "blueprint",
     "rouge",
     "mono",
+    "hrRuin",
+    "hrNightRec",
+    "hrCurse",
     "sakura",
     "ocean",
     "sunset",
@@ -27,6 +30,8 @@
   ],
   "styles": {
     "noir": {
+      "name": "ノワール・クロマ",
+      "desc": "黒地・白文字・シアン/琥珀の色ズレ",
       "schemes": [
         {
           "bg": "#060607",
@@ -58,17 +63,41 @@
         "body": ["gothic_med"],
         "mono": ["mono"]
       },
-      "texture": { "grain": 0.9, "paper": 0, "scan": 0 },
+      "texture": {
+        "grain": 0.9,
+        "paper": 0,
+        "scan": 0
+      },
       "ghost": 1,
       "bias": {
-        "layout": { "vcols": 2, "condensed": 2, "marquee": 1.6, "tile": 1.4, "center": 1.2 },
-        "enter": { "assemble": 2.2, "slice": 1.8, "stretch": 1.4 },
-        "exit": { "explode": 1.8, "fall": 1.2, "drift": 1.4 }
+        "layout": {
+          "vcols": 2,
+          "condensed": 2,
+          "marquee": 1.6,
+          "tile": 1.4,
+          "center": 1.2
+        },
+        "enter": {
+          "assemble": 2.2,
+          "slice": 1.8,
+          "stretch": 1.4
+        },
+        "exit": {
+          "explode": 1.8,
+          "fall": 1.2,
+          "drift": 1.4
+        }
       },
-      "decor": { "rings": 0.8, "hud": 0.4, "slash": 0.6 },
+      "decor": {
+        "rings": 0.8,
+        "hud": 0.4,
+        "slash": 0.6
+      },
       "hud": false
     },
     "crimson": {
+      "name": "クリムゾン・シグナル",
+      "desc": "深紅地・白と黒の二段組み・データ破損",
       "schemes": [
         {
           "bg": "#C8103F",
@@ -110,18 +139,41 @@
         "body": ["gothic_med", "sansui"],
         "mono": ["mono"]
       },
-      "texture": { "grain": 0.6, "paper": 0, "scan": 0.4 },
+      "texture": {
+        "grain": 0.6,
+        "paper": 0,
+        "scan": 0.4
+      },
       "ghost": 0.8,
       "bias": {
-        "layout": { "huge": 2, "marquee": 1.6, "scatter": 1.5, "stack": 1.3, "type": 1.3 },
-        "enter": { "scramble": 1.6, "slice": 1.6, "type": 1.3 },
-        "exit": { "glitch": 2, "slice": 1.6 }
+        "layout": {
+          "huge": 2,
+          "marquee": 1.6,
+          "scatter": 1.5,
+          "stack": 1.3,
+          "type": 1.3
+        },
+        "enter": {
+          "scramble": 1.6,
+          "slice": 1.6,
+          "type": 1.3
+        },
+        "exit": {
+          "glitch": 2,
+          "slice": 1.6
+        }
       },
-      "decor": { "hud": 1, "arrows": 0.8, "rings": 0.8 },
+      "decor": {
+        "hud": 1,
+        "arrows": 0.8,
+        "rings": 0.8
+      },
       "hud": true,
       "glitchBoost": 1.4
     },
     "caution": {
+      "name": "コーション",
+      "desc": "黄色地・赤と青のアクセント・計器UI",
       "schemes": [
         {
           "bg": "#F4D21F",
@@ -163,17 +215,41 @@
         "body": ["gothic_bold"],
         "mono": ["mono"]
       },
-      "texture": { "grain": 0.5, "paper": 0.25, "scan": 0 },
+      "texture": {
+        "grain": 0.5,
+        "paper": 0.25,
+        "scan": 0
+      },
       "ghost": 0.55,
       "bias": {
-        "layout": { "ring": 2.2, "mixed": 2, "circle": 1.4, "gloss": 1.2 },
-        "enter": { "pop": 1.6, "spin": 1.5, "wipe": 1.2 },
-        "exit": { "scatter": 1.5, "shrink": 1.2 }
+        "layout": {
+          "ring": 2.2,
+          "mixed": 2,
+          "circle": 1.4,
+          "gloss": 1.2
+        },
+        "enter": {
+          "pop": 1.6,
+          "spin": 1.5,
+          "wipe": 1.2
+        },
+        "exit": {
+          "scatter": 1.5,
+          "shrink": 1.2
+        }
       },
-      "decor": { "hud": 1, "rings": 1, "arrows": 1, "counter": 0.8, "barcode": 0.8 },
+      "decor": {
+        "hud": 1,
+        "rings": 1,
+        "arrows": 1,
+        "counter": 0.8,
+        "barcode": 0.8
+      },
       "hud": true
     },
     "magenta": {
+      "name": "ポップ・マゼンタ",
+      "desc": "ショッキングピンク×白・太丸ゴシック・引き出し線",
       "schemes": [
         {
           "bg": "#FF0A8C",
@@ -215,17 +291,43 @@
         "body": ["round", "gothic_bold"],
         "mono": ["mono"]
       },
-      "texture": { "grain": 0.3, "paper": 0, "scan": 0 },
+      "texture": {
+        "grain": 0.3,
+        "paper": 0,
+        "scan": 0
+      },
       "ghost": 0.35,
       "bias": {
-        "layout": { "wave": 2.2, "gloss": 1.6, "huge": 1.6, "pill": 1.4, "scatter": 1.2 },
-        "enter": { "pop": 2, "drop": 1.6, "spin": 1.3, "blur": 1.2 },
-        "exit": { "scatter": 1.6, "shrink": 1.4, "blur": 1.2 }
+        "layout": {
+          "wave": 2.2,
+          "gloss": 1.6,
+          "huge": 1.6,
+          "pill": 1.4,
+          "scatter": 1.2
+        },
+        "enter": {
+          "pop": 2,
+          "drop": 1.6,
+          "spin": 1.3,
+          "blur": 1.2
+        },
+        "exit": {
+          "scatter": 1.6,
+          "shrink": 1.4,
+          "blur": 1.2
+        }
       },
-      "decor": { "leaders": 1, "counter": 1, "sparks": 0.8, "shapes": 0.6 },
+      "decor": {
+        "leaders": 1,
+        "counter": 1,
+        "sparks": 0.8,
+        "shapes": 0.6
+      },
       "hud": false
     },
     "paper": {
+      "name": "ペーパー・インク",
+      "desc": "紙の質感・藍とマゼンタ・明朝の残像",
       "schemes": [
         {
           "bg": "#ECE9E3",
@@ -282,17 +384,42 @@
         "body": ["mincho"],
         "mono": ["mono"]
       },
-      "texture": { "grain": 0.7, "paper": 1, "scan": 0 },
+      "texture": {
+        "grain": 0.7,
+        "paper": 1,
+        "scan": 0
+      },
       "ghost": 0.5,
       "bias": {
-        "layout": { "stack": 2.2, "mixed": 1.8, "huge": 1.6, "vcols": 1.4, "circle": 1.2 },
-        "enter": { "wipe": 1.6, "stretch": 1.4, "blur": 1.2, "slice": 1.2 },
-        "exit": { "drift": 1.6, "wipe": 1.4 }
+        "layout": {
+          "stack": 2.2,
+          "mixed": 1.8,
+          "huge": 1.6,
+          "vcols": 1.4,
+          "circle": 1.2
+        },
+        "enter": {
+          "wipe": 1.6,
+          "stretch": 1.4,
+          "blur": 1.2,
+          "slice": 1.2
+        },
+        "exit": {
+          "drift": 1.6,
+          "wipe": 1.4
+        }
       },
-      "decor": { "bars": 1, "blobs": 0.8, "shapes": 0.6, "waveform": 0.4 },
+      "decor": {
+        "bars": 1,
+        "blobs": 0.8,
+        "shapes": 0.6,
+        "waveform": 0.4
+      },
       "hud": false
     },
     "hud": {
+      "name": "ダークHUD",
+      "desc": "炭色地・細線フレーム・橙の差し色・日食",
       "schemes": [
         {
           "bg": "#131315",
@@ -323,18 +450,44 @@
         "body": ["gothic_med"],
         "mono": ["mono"]
       },
-      "texture": { "grain": 1, "paper": 0, "scan": 0.2 },
+      "texture": {
+        "grain": 1,
+        "paper": 0,
+        "scan": 0.2
+      },
       "ghost": 0.6,
       "bias": {
-        "layout": { "circle": 2, "ring": 1.6, "vcols": 1.4, "center": 1.2, "gloss": 1 },
-        "enter": { "blur": 1.6, "type": 1.4, "assemble": 1.3 },
-        "exit": { "blur": 1.4, "drift": 1.4, "explode": 1.2 }
+        "layout": {
+          "circle": 2,
+          "ring": 1.6,
+          "vcols": 1.4,
+          "center": 1.2,
+          "gloss": 1
+        },
+        "enter": {
+          "blur": 1.6,
+          "type": 1.4,
+          "assemble": 1.3
+        },
+        "exit": {
+          "blur": 1.4,
+          "drift": 1.4,
+          "explode": 1.2
+        }
       },
-      "decor": { "hud": 1, "rings": 1, "arrows": 1, "grid": 0.8, "slash": 0.6 },
+      "decor": {
+        "hud": 1,
+        "rings": 1,
+        "arrows": 1,
+        "grid": 0.8,
+        "slash": 0.6
+      },
       "hud": true,
       "glow": 1.4
     },
     "mint": {
+      "name": "ミント・ターミナル",
+      "desc": "黒×青緑×ライム・ラベル貼り・スリットスキャン",
       "schemes": [
         {
           "bg": "#0A0E0D",
@@ -376,17 +529,41 @@
         "body": ["gothic_med", "sansui"],
         "mono": ["mono", "dot"]
       },
-      "texture": { "grain": 0.8, "paper": 0, "scan": 0.6 },
+      "texture": {
+        "grain": 0.8,
+        "paper": 0,
+        "scan": 0.6
+      },
       "ghost": 0.9,
       "bias": {
-        "layout": { "labels": 2.4, "tile": 1.6, "marquee": 1.4, "type": 1.4, "diag": 1.2 },
-        "enter": { "scramble": 1.8, "type": 1.6, "flicker": 1.4 },
-        "exit": { "glitch": 1.6, "slice": 1.4 }
+        "layout": {
+          "labels": 2.4,
+          "tile": 1.6,
+          "marquee": 1.4,
+          "type": 1.4,
+          "diag": 1.2
+        },
+        "enter": {
+          "scramble": 1.8,
+          "type": 1.6,
+          "flicker": 1.4
+        },
+        "exit": {
+          "glitch": 1.6,
+          "slice": 1.4
+        }
       },
-      "decor": { "hud": 1, "grid": 0.8, "barcode": 0.8, "sparks": 0.5 },
+      "decor": {
+        "hud": 1,
+        "grid": 0.8,
+        "barcode": 0.8,
+        "sparks": 0.5
+      },
       "hud": true
     },
     "specimen": {
+      "name": "スペシメン",
+      "desc": "墨色地・明朝・辞書の注釈と引き出し線",
       "schemes": [
         {
           "bg": "#1B1A1C",
@@ -417,17 +594,41 @@
         "body": ["mincho"],
         "mono": ["mono"]
       },
-      "texture": { "grain": 0.6, "paper": 0.3, "scan": 0 },
+      "texture": {
+        "grain": 0.6,
+        "paper": 0.3,
+        "scan": 0
+      },
       "ghost": 0.25,
       "bias": {
-        "layout": { "gloss": 2.6, "vcols": 1.8, "mixed": 1.4, "center": 1.2, "tile": 1 },
-        "enter": { "type": 1.8, "blur": 1.6, "wipe": 1.2 },
-        "exit": { "blur": 1.6, "drift": 1.2, "wipe": 1.2 }
+        "layout": {
+          "gloss": 2.6,
+          "vcols": 1.8,
+          "mixed": 1.4,
+          "center": 1.2,
+          "tile": 1
+        },
+        "enter": {
+          "type": 1.8,
+          "blur": 1.6,
+          "wipe": 1.2
+        },
+        "exit": {
+          "blur": 1.6,
+          "drift": 1.2,
+          "wipe": 1.2
+        }
       },
-      "decor": { "leaders": 1, "slash": 0.8, "rings": 0.4 },
+      "decor": {
+        "leaders": 1,
+        "slash": 0.8,
+        "rings": 0.4
+      },
       "hud": false
     },
     "transit": {
+      "name": "トランジット",
+      "desc": "オリーブ×黄色・矢印と標識・網点",
       "schemes": [
         {
           "bg": "#5B582B",
@@ -469,17 +670,41 @@
         "body": ["gothic_bold"],
         "mono": ["mono"]
       },
-      "texture": { "grain": 0.8, "paper": 0.2, "scan": 0 },
+      "texture": {
+        "grain": 0.8,
+        "paper": 0.2,
+        "scan": 0
+      },
       "ghost": 0.5,
       "bias": {
-        "layout": { "mixed": 2, "scatter": 1.6, "diag": 1.4, "huge": 1.2 },
-        "enter": { "spin": 1.6, "drop": 1.4, "pop": 1.2, "stretch": 1.2 },
-        "exit": { "scatter": 1.4, "stretch": 1.4 }
+        "layout": {
+          "mixed": 2,
+          "scatter": 1.6,
+          "diag": 1.4,
+          "huge": 1.2
+        },
+        "enter": {
+          "spin": 1.6,
+          "drop": 1.4,
+          "pop": 1.2,
+          "stretch": 1.2
+        },
+        "exit": {
+          "scatter": 1.4,
+          "stretch": 1.4
+        }
       },
-      "decor": { "arrows": 1.4, "shapes": 1, "counter": 0.8, "rings": 0.6 },
+      "decor": {
+        "arrows": 1.4,
+        "shapes": 1,
+        "counter": 0.8,
+        "rings": 0.6
+      },
       "hud": false
     },
     "blueprint": {
+      "name": "ブループリント",
+      "desc": "鮮青×白×黒・図形コラージュ・斜め帯",
       "schemes": [
         {
           "bg": "#1B1BE8",
@@ -521,17 +746,41 @@
         "body": ["gothic_bold"],
         "mono": ["mono", "dot"]
       },
-      "texture": { "grain": 0.4, "paper": 0, "scan": 0 },
+      "texture": {
+        "grain": 0.4,
+        "paper": 0,
+        "scan": 0
+      },
       "ghost": 0.6,
       "bias": {
-        "layout": { "diag": 2.2, "labels": 1.4, "huge": 1.4, "condensed": 1.2 },
-        "enter": { "wipe": 1.6, "slice": 1.6, "stretch": 1.3 },
-        "exit": { "wipe": 1.6, "slice": 1.4, "glitch": 1.2 }
+        "layout": {
+          "diag": 2.2,
+          "labels": 1.4,
+          "huge": 1.4,
+          "condensed": 1.2
+        },
+        "enter": {
+          "wipe": 1.6,
+          "slice": 1.6,
+          "stretch": 1.3
+        },
+        "exit": {
+          "wipe": 1.6,
+          "slice": 1.4,
+          "glitch": 1.2
+        }
       },
-      "decor": { "shapes": 1.4, "stripes": 1, "slash": 1, "grid": 0.6 },
+      "decor": {
+        "shapes": 1.4,
+        "stripes": 1,
+        "slash": 1,
+        "grid": 0.6
+      },
       "hud": false
     },
     "rouge": {
+      "name": "ルージュ・グラデ",
+      "desc": "明るいグレー地・赤のグラデーション・カプセル",
       "schemes": [
         {
           "bg": "#E4E2E0",
@@ -564,18 +813,41 @@
         "body": ["gothic_med"],
         "mono": ["mono"]
       },
-      "texture": { "grain": 0.4, "paper": 0, "scan": 0 },
+      "texture": {
+        "grain": 0.4,
+        "paper": 0,
+        "scan": 0
+      },
       "ghost": 0.4,
       "bias": {
-        "layout": { "huge": 2.2, "pill": 2, "mixed": 1.4, "labels": 1.2, "center": 1.2 },
-        "enter": { "zoom": 1.6, "wipe": 1.4, "pop": 1.2 },
-        "exit": { "shrink": 1.6, "wipe": 1.2 }
+        "layout": {
+          "huge": 2.2,
+          "pill": 2,
+          "mixed": 1.4,
+          "labels": 1.2,
+          "center": 1.2
+        },
+        "enter": {
+          "zoom": 1.6,
+          "wipe": 1.4,
+          "pop": 1.2
+        },
+        "exit": {
+          "shrink": 1.6,
+          "wipe": 1.2
+        }
       },
-      "decor": { "hud": 0.8, "leaders": 0.8, "stripes": 0.6 },
+      "decor": {
+        "hud": 0.8,
+        "leaders": 0.8,
+        "stripes": 0.6
+      },
       "hud": true,
       "useGrad": true
     },
     "mono": {
+      "name": "モノ・RGB",
+      "desc": "灰色の空間・白い明朝・強いRGB分離・座標の円",
       "schemes": [
         {
           "bg": "#3B3D41",
@@ -606,17 +878,462 @@
         "body": ["mincho"],
         "mono": ["mono"]
       },
-      "texture": { "grain": 0.9, "paper": 0, "scan": 0.3 },
+      "texture": {
+        "grain": 0.9,
+        "paper": 0,
+        "scan": 0.3
+      },
       "ghost": 1.3,
       "bias": {
-        "layout": { "circle": 1.8, "ring": 1.6, "pill": 1.4, "tile": 1.4, "vcols": 1.3 },
-        "enter": { "assemble": 1.4, "blur": 1.4, "zoom": 1.3 },
-        "exit": { "explode": 1.4, "glitch": 1.4, "blur": 1.2 }
+        "layout": {
+          "circle": 1.8,
+          "ring": 1.6,
+          "pill": 1.4,
+          "tile": 1.4,
+          "vcols": 1.3
+        },
+        "enter": {
+          "assemble": 1.4,
+          "blur": 1.4,
+          "zoom": 1.3
+        },
+        "exit": {
+          "explode": 1.4,
+          "glitch": 1.4,
+          "blur": 1.2
+        }
       },
-      "decor": { "rings": 1.4, "hud": 0.6, "dots": 1 },
+      "decor": {
+        "rings": 1.4,
+        "hud": 0.6,
+        "dots": 1
+      },
       "hud": false
     },
+    "hrRuin": {
+      "name": "廃墟",
+      "desc": "褪せた緑灰色・錆の赤・明朝の残響",
+      "moods": ["horror"],
+      "set": "horror",
+      "schemes": [
+        {
+          "bg": "#161B18",
+          "fg": "#D3DACF",
+          "sub": "#7D887E",
+          "accent": "#B0473A",
+          "accent2": "#6E8B6B",
+          "ink": "#D3DACF",
+          "dim": "#1F2621",
+          "ghostA": "#5E7A62",
+          "ghostB": "#8A3A30"
+        },
+        {
+          "bg": "#8C958A",
+          "fg": "#141814",
+          "sub": "#2E362F",
+          "accent": "#6A1A14",
+          "accent2": "#E4E8DF",
+          "ink": "#141814",
+          "dim": "#848D82",
+          "ghostA": "#3F4D41",
+          "ghostB": "#6A1A14"
+        },
+        {
+          "bg": "#0C0F0D",
+          "fg": "#A9B8A6",
+          "sub": "#5D6B5E",
+          "accent": "#C24A3A",
+          "accent2": "#A9B8A6",
+          "ink": "#A9B8A6",
+          "dim": "#161B17",
+          "ghostA": "#2F4A36",
+          "ghostB": "#5E1E18"
+        }
+      ],
+      "fonts": {
+        "display": ["mincho_black", "shippori"],
+        "serif": ["mincho", "mincho_light"],
+        "body": ["mincho_light"],
+        "mono": ["mono"]
+      },
+      "texture": {
+        "grain": 1,
+        "paper": 0.15,
+        "scan": 0.1
+      },
+      "ghost": 0.55,
+      "bias": {
+        "layout": {
+          "hrFlashlight": 1.6,
+          "hrDoorGap": 1.3,
+          "hrWallScrawl": 1.2,
+          "hrCctv": 1.2,
+          "hrOuija": 0.9,
+          "hrMissing": 1,
+          "hrWrongOne": 1.5,
+          "hrRisingDark": 1.3,
+          "hrRedacted": 1,
+          "hrStaticTv": 1,
+          "hrSpiritPhoto": 1,
+          "hrWrongShadow": 1.3,
+          "center": 1.1,
+          "vcols": 1.2,
+          "pop": 0.3
+        },
+        "enter": {
+          "hrBlinkCreep": 1.3,
+          "hrJumpScare": 0.9,
+          "hrUneasy": 1.6,
+          "hrVhold": 1.1,
+          "hrMirrorSnap": 1,
+          "hrManifest": 1.6,
+          "hrClawReveal": 1,
+          "blur": 1.2,
+          "flicker": 1.2,
+          "pop": 0.2,
+          "bounceBig": 0.1,
+          "bubbles": 0.1
+        },
+        "exit": {
+          "hrPulledDown": 1.4,
+          "hrLookBack": 1.3,
+          "hrTurnAway": 1.2,
+          "hrShiver": 1.2,
+          "hrSwallow": 1.3,
+          "hrFlickerDie": 1.3,
+          "hrDrain": 1.2,
+          "blur": 1.1,
+          "popOut": 0.1,
+          "balloonOff": 0.1
+        },
+        "treat": {
+          "hrEroded": 1.6,
+          "hrInkBleed": 1.2,
+          "hrDoubleExp": 1.2,
+          "hrRedact": 0.6,
+          "rainbow": 0.1,
+          "sticker": 0.1
+        },
+        "bg": {
+          "hrFailingLamp": 1.6,
+          "hrCorridor": 1.4,
+          "hrMold": 1.4,
+          "hrDeadTrees": 1.2,
+          "polka": 0.1,
+          "candy": 0.1
+        },
+        "cam": {
+          "hrNervous": 1.4,
+          "hrDutchSnap": 1.1,
+          "handheld": 1.2,
+          "bounce": 0.1,
+          "jelly": 0.1
+        },
+        "fx": {
+          "hrPassingShadow": 1.2,
+          "hrSubliminal": 1,
+          "hrSignalLoss": 0.8,
+          "dustScratches": 1.2,
+          "starGlint": 0.1
+        }
+      },
+      "decor": {
+        "hrDustBeam": 1.6,
+        "hrCracks": 1.2,
+        "hrSigil": 0.8,
+        "hrScratches": 1,
+        "hrWatchEye": 0.6,
+        "hrDrips": 0.8,
+        "confetti": 0.05,
+        "heartsStars": 0.05
+      },
+      "hud": false,
+      "glow": 0.4
+    },
+    "hrNightRec": {
+      "name": "深夜の録画",
+      "desc": "真っ黒な画面・監視映像の白と赤・砂嵐",
+      "moods": ["horror"],
+      "set": "horror",
+      "schemes": [
+        {
+          "bg": "#050505",
+          "fg": "#EDEDED",
+          "sub": "#8A8A8A",
+          "accent": "#E3261E",
+          "accent2": "#FFFFFF",
+          "ink": "#EDEDED",
+          "dim": "#121212",
+          "ghostA": "#6E6E6E",
+          "ghostB": "#E3261E"
+        },
+        {
+          "bg": "#0B0E0B",
+          "fg": "#D8F0D8",
+          "sub": "#6F866F",
+          "accent": "#FF3A2A",
+          "accent2": "#D8F0D8",
+          "ink": "#D8F0D8",
+          "dim": "#141A14",
+          "ghostA": "#3E6B3E",
+          "ghostB": "#FF3A2A"
+        },
+        {
+          "bg": "#DADADA",
+          "fg": "#0A0A0A",
+          "sub": "#4A4A4A",
+          "accent": "#C8140E",
+          "accent2": "#0A0A0A",
+          "ink": "#0A0A0A",
+          "dim": "#CCCCCC",
+          "ghostA": "#8A8A8A",
+          "ghostB": "#C8140E"
+        }
+      ],
+      "fonts": {
+        "display": ["gothic_bold", "gothic_black"],
+        "serif": ["mincho"],
+        "body": ["gothic_med"],
+        "mono": ["mono", "dot"]
+      },
+      "texture": {
+        "grain": 1.2,
+        "paper": 0,
+        "scan": 0.7
+      },
+      "ghost": 0.8,
+      "bias": {
+        "layout": {
+          "hrFlashlight": 1.6,
+          "hrDoorGap": 1.3,
+          "hrWallScrawl": 1.2,
+          "hrCctv": 2.2,
+          "hrOuija": 0.9,
+          "hrMissing": 1,
+          "hrWrongOne": 1.5,
+          "hrRisingDark": 1.3,
+          "hrRedacted": 1.3,
+          "hrStaticTv": 1.6,
+          "hrSpiritPhoto": 1,
+          "hrWrongShadow": 1.3,
+          "center": 1.1,
+          "vcols": 1.2,
+          "pop": 0.3,
+          "type": 1.2
+        },
+        "enter": {
+          "hrBlinkCreep": 1.3,
+          "hrJumpScare": 0.9,
+          "hrUneasy": 1.6,
+          "hrVhold": 1.8,
+          "hrMirrorSnap": 1,
+          "hrManifest": 1.6,
+          "hrClawReveal": 1,
+          "blur": 1.2,
+          "flicker": 1.2,
+          "pop": 0.2,
+          "bounceBig": 0.1,
+          "bubbles": 0.1,
+          "glitchIn": 1
+        },
+        "exit": {
+          "hrPulledDown": 1.4,
+          "hrLookBack": 1.3,
+          "hrTurnAway": 1.2,
+          "hrShiver": 1.2,
+          "hrSwallow": 1.3,
+          "hrFlickerDie": 1.8,
+          "hrDrain": 1.2,
+          "blur": 1.1,
+          "popOut": 0.1,
+          "balloonOff": 0.1,
+          "glitch": 1
+        },
+        "treat": {
+          "hrDoubleExp": 1.4,
+          "hrRedact": 1.2,
+          "glitchSplit": 1,
+          "rainbow": 0.1
+        },
+        "bg": {
+          "hrFailingLamp": 1.4,
+          "hrCorridor": 1.6,
+          "vhsBand": 1.4,
+          "noiseField": 1,
+          "polka": 0.1
+        },
+        "cam": {
+          "hrNervous": 1.8,
+          "hrDutchSnap": 1,
+          "handheld": 1.2,
+          "jelly": 0.1
+        },
+        "fx": {
+          "hrSignalLoss": 1.6,
+          "hrSubliminal": 1.3,
+          "hrPassingShadow": 1,
+          "tvStatic": 1.4,
+          "trackingNoise": 1.2,
+          "vhsRoll": 1.2,
+          "starGlint": 0.1
+        }
+      },
+      "decor": {
+        "hrStaticPatch": 1.6,
+        "hrWatchEye": 1,
+        "hrCracks": 0.8,
+        "hrScratches": 0.8,
+        "timecodeBar": 1,
+        "hud": 1,
+        "confetti": 0.05
+      },
+      "hud": true,
+      "glow": 0.5,
+      "glitchBoost": 1.2
+    },
+    "hrCurse": {
+      "name": "呪いの手紙",
+      "desc": "黄ばんだ便箋・褪せた墨・暗い赤の書き込み",
+      "moods": ["horror"],
+      "set": "horror",
+      "schemes": [
+        {
+          "bg": "#D8CBA4",
+          "fg": "#2A2017",
+          "sub": "#6B5B45",
+          "accent": "#7E1410",
+          "accent2": "#3F3326",
+          "ink": "#2A2017",
+          "dim": "#CDBF97",
+          "ghostA": "#9A2A20",
+          "ghostB": "#8A7A5E",
+          "paper": true
+        },
+        {
+          "bg": "#1C140E",
+          "fg": "#E3D5B0",
+          "sub": "#9A8866",
+          "accent": "#B8261C",
+          "accent2": "#E3D5B0",
+          "ink": "#E3D5B0",
+          "dim": "#271D15",
+          "ghostA": "#6E1510",
+          "ghostB": "#5A4A34",
+          "paper": true
+        },
+        {
+          "bg": "#C4B28A",
+          "fg": "#3A0D0A",
+          "sub": "#6E4A3A",
+          "accent": "#1E1812",
+          "accent2": "#7E1410",
+          "ink": "#3A0D0A",
+          "dim": "#B9A67D",
+          "ghostA": "#7E1410",
+          "ghostB": "#6E5E44",
+          "paper": true
+        }
+      ],
+      "fonts": {
+        "display": ["klee", "brush", "mincho_black"],
+        "serif": ["klee", "mincho"],
+        "body": ["klee", "mincho"],
+        "mono": ["mono"]
+      },
+      "texture": {
+        "grain": 0.7,
+        "paper": 1,
+        "scan": 0
+      },
+      "ghost": 0.4,
+      "bias": {
+        "layout": {
+          "hrFlashlight": 1.6,
+          "hrDoorGap": 1.3,
+          "hrWallScrawl": 2,
+          "hrCctv": 0.5,
+          "hrOuija": 1.3,
+          "hrMissing": 1.6,
+          "hrWrongOne": 1.5,
+          "hrRisingDark": 1.3,
+          "hrRedacted": 1,
+          "hrStaticTv": 1,
+          "hrSpiritPhoto": 1.5,
+          "hrWrongShadow": 1.3,
+          "center": 1.1,
+          "vcols": 1.2,
+          "pop": 0.3,
+          "letterPaper": 1.2
+        },
+        "enter": {
+          "hrBlinkCreep": 1.3,
+          "hrJumpScare": 0.9,
+          "hrUneasy": 1.6,
+          "hrVhold": 1.1,
+          "hrMirrorSnap": 1,
+          "hrManifest": 1.6,
+          "hrClawReveal": 1.4,
+          "blur": 1.2,
+          "flicker": 1.2,
+          "pop": 0.2,
+          "bounceBig": 0.1,
+          "bubbles": 0.1,
+          "inkBleed": 1.4
+        },
+        "exit": {
+          "hrPulledDown": 1.4,
+          "hrLookBack": 1.3,
+          "hrTurnAway": 1.2,
+          "hrShiver": 1.2,
+          "hrSwallow": 1.3,
+          "hrFlickerDie": 1.3,
+          "hrDrain": 1.8,
+          "blur": 1.1,
+          "popOut": 0.1,
+          "balloonOff": 0.1,
+          "burn": 1
+        },
+        "treat": {
+          "hrInkBleed": 1.8,
+          "hrEroded": 1.3,
+          "hrRedact": 0.8,
+          "sticker": 0.1,
+          "chrome": 0.1
+        },
+        "bg": {
+          "hrMold": 1.8,
+          "hrFailingLamp": 1,
+          "tornPaper": 1,
+          "polka": 0.1
+        },
+        "cam": {
+          "hrNervous": 1,
+          "hrDutchSnap": 1.2,
+          "driftDiag": 1
+        },
+        "fx": {
+          "hrSubliminal": 1.2,
+          "hrPassingShadow": 1,
+          "filmBurn": 1,
+          "dustScratches": 1.4,
+          "starGlint": 0.1
+        }
+      },
+      "decor": {
+        "hrDrips": 1.6,
+        "hrScratches": 1.2,
+        "hrSigil": 1.2,
+        "hrCracks": 0.8,
+        "crossOut": 1,
+        "scribbleCircle": 0.8,
+        "confetti": 0.05
+      },
+      "hud": false,
+      "glow": 0.3
+    },
     "sakura": {
+      "name": "サクラ",
+      "desc": "淡い桜色・深い梅紫・夜桜・丸文字と明朝",
       "moods": ["emotional", "calm"],
       "schemes": [
         {
@@ -672,7 +1389,11 @@
         "body": ["kiwi"],
         "mono": ["mono"]
       },
-      "texture": { "grain": 0.35, "paper": 0.35, "scan": 0 },
+      "texture": {
+        "grain": 0.35,
+        "paper": 0.35,
+        "scan": 0
+      },
       "ghost": 0.45,
       "bias": {
         "layout": {
@@ -723,7 +1444,12 @@
           "bigStripes": 0.4,
           "noiseField": 0.4
         },
-        "cam": { "driftDiag": 1.4, "pullOut": 1.2, "tiltUp": 1.2, "shakeHard": 0.3 },
+        "cam": {
+          "driftDiag": 1.4,
+          "pullOut": 1.2,
+          "tiltUp": 1.2,
+          "shakeHard": 0.3
+        },
         "fx": {
           "lightSweep": 1.4,
           "whiteFrame": 1.2,
@@ -747,6 +1473,8 @@
       "wa": true
     },
     "ocean": {
+      "name": "深海",
+      "desc": "濃紺の深海・シアンの発光・泡と細いゴシック",
       "moods": ["calm", "emotional"],
       "schemes": [
         {
@@ -800,7 +1528,11 @@
         "body": ["sansui"],
         "mono": ["mono"]
       },
-      "texture": { "grain": 0.6, "paper": 0, "scan": 0 },
+      "texture": {
+        "grain": 0.6,
+        "paper": 0,
+        "scan": 0
+      },
       "ghost": 0.75,
       "bias": {
         "layout": {
@@ -833,7 +1565,13 @@
           "blur": 1.2,
           "popOut": 0.5
         },
-        "treat": { "glow": 1.6, "softShadow": 1.2, "gradientV": 1.1, "marker": 0.4, "boxed": 0.5 },
+        "treat": {
+          "glow": 1.6,
+          "softShadow": 1.2,
+          "gradientV": 1.1,
+          "marker": 0.4,
+          "boxed": 0.5
+        },
         "bg": {
           "ripples": 1.6,
           "particlesBg": 1.4,
@@ -843,8 +1581,19 @@
           "checker": 0.3,
           "polka": 0.4
         },
-        "cam": { "driftDiag": 1.4, "dollyIn": 1.2, "roll": 1.1, "tiltUp": 1.1, "bounce": 0.4 },
-        "fx": { "waveWarp": 1.6, "lightSweep": 1.1, "rgbSplit": 0.8, "strobe": 0.4 }
+        "cam": {
+          "driftDiag": 1.4,
+          "dollyIn": 1.2,
+          "roll": 1.1,
+          "tiltUp": 1.1,
+          "bounce": 0.4
+        },
+        "fx": {
+          "waveWarp": 1.6,
+          "lightSweep": 1.1,
+          "rgbSplit": 0.8,
+          "strobe": 0.4
+        }
       },
       "decor": {
         "risingParticles": 1.6,
@@ -860,6 +1609,8 @@
       "extra": true
     },
     "sunset": {
+      "name": "夕焼けグラデ",
+      "desc": "橙から菫へのグラデーション・太い明朝・逆光",
       "moods": ["emotional", "pop"],
       "schemes": [
         {
@@ -917,7 +1668,11 @@
         "body": ["gothic_med"],
         "mono": ["mono"]
       },
-      "texture": { "grain": 0.55, "paper": 0, "scan": 0 },
+      "texture": {
+        "grain": 0.55,
+        "paper": 0,
+        "scan": 0
+      },
       "ghost": 0.6,
       "bias": {
         "layout": {
@@ -966,7 +1721,12 @@
           "halftoneFade": 0.8,
           "tvBars": 0.3
         },
-        "cam": { "dollyIn": 1.3, "pullOut": 1.2, "tiltUp": 1.2, "crashZoom": 0.8 },
+        "cam": {
+          "dollyIn": 1.3,
+          "pullOut": 1.2,
+          "tiltUp": 1.2,
+          "crashZoom": 0.8
+        },
         "fx": {
           "lightSweep": 1.6,
           "filmBurn": 1.4,
@@ -989,6 +1749,8 @@
       "extra": true
     },
     "forest": {
+      "name": "森の手帖",
+      "desc": "苔と生成り・樹皮の茶・鉛筆の手書き文字",
       "moods": ["calm", "editorial", "emotional"],
       "schemes": [
         {
@@ -1044,7 +1806,11 @@
         "body": ["klee"],
         "mono": ["mono"]
       },
-      "texture": { "grain": 0.7, "paper": 0.5, "scan": 0 },
+      "texture": {
+        "grain": 0.7,
+        "paper": 0.5,
+        "scan": 0
+      },
       "ghost": 0.45,
       "bias": {
         "layout": {
@@ -1093,8 +1859,18 @@
           "retroGrid": 0.2,
           "tvBars": 0.2
         },
-        "cam": { "handheld": 1.5, "driftDiag": 1.2, "tiltUp": 1.2, "whipIn": 0.4 },
-        "fx": { "filmBurn": 1.2, "lightSweep": 1, "strobe": 0.3, "posterize": 0.3 }
+        "cam": {
+          "handheld": 1.5,
+          "driftDiag": 1.2,
+          "tiltUp": 1.2,
+          "whipIn": 0.4
+        },
+        "fx": {
+          "filmBurn": 1.2,
+          "lightSweep": 1,
+          "strobe": 0.3,
+          "posterize": 0.3
+        }
       },
       "decor": {
         "scribbleUnder": 1.2,
@@ -1110,6 +1886,8 @@
       "extra": true
     },
     "vapor": {
+      "name": "ヴェイパー",
+      "desc": "薄紫とパステルのピンク/水色・明朝・VHSのにじみ",
       "moods": ["pop", "emotional", "glitch"],
       "schemes": [
         {
@@ -1167,7 +1945,11 @@
         "body": ["sansui"],
         "mono": ["dot", "mono"]
       },
-      "texture": { "grain": 0.5, "paper": 0, "scan": 0.55 },
+      "texture": {
+        "grain": 0.5,
+        "paper": 0,
+        "scan": 0.55
+      },
       "ghost": 0.95,
       "bias": {
         "layout": {
@@ -1216,7 +1998,12 @@
           "sunburst": 0.8,
           "borderFrame": 0.5
         },
-        "cam": { "roll": 1.3, "driftDiag": 1.2, "dutch": 1.1, "pullOut": 1 },
+        "cam": {
+          "roll": 1.3,
+          "driftDiag": 1.2,
+          "dutch": 1.1,
+          "pullOut": 1
+        },
         "fx": {
           "vhsRoll": 1.7,
           "trackingNoise": 1.5,
@@ -1241,6 +2028,8 @@
       "extra": true
     },
     "newsprint": {
+      "name": "新聞",
+      "desc": "灰色の更紙・墨と赤・見出し明朝・CMYの版ズレと網点",
       "moods": ["editorial", "graphic"],
       "schemes": [
         {
@@ -1286,7 +2075,11 @@
         "body": ["mincho"],
         "mono": ["mono"]
       },
-      "texture": { "grain": 0.9, "paper": 0.9, "scan": 0 },
+      "texture": {
+        "grain": 0.9,
+        "paper": 0.9,
+        "scan": 0
+      },
       "ghost": 0.45,
       "bias": {
         "layout": {
@@ -1342,7 +2135,12 @@
           "bokehBg": 0.2,
           "retroGrid": 0.2
         },
-        "cam": { "panL": 1.3, "panR": 1.3, "stepZoom": 1.1, "roll": 0.3 },
+        "cam": {
+          "panL": 1.3,
+          "panR": 1.3,
+          "stepZoom": 1.1,
+          "roll": 0.3
+        },
         "fx": {
           "posterize": 1.2,
           "blackFrame": 1.2,
@@ -1367,6 +2165,8 @@
       "extra": true
     },
     "synth80": {
+      "name": "シンセ80s",
+      "desc": "黒地にネオンのマゼンタ/シアン・立体文字・走査線",
       "moods": ["pop", "glitch", "emotional"],
       "schemes": [
         {
@@ -1421,7 +2221,11 @@
         "body": ["gothic_bold"],
         "mono": ["mono", "dot"]
       },
-      "texture": { "grain": 0.4, "paper": 0, "scan": 0.75 },
+      "texture": {
+        "grain": 0.4,
+        "paper": 0,
+        "scan": 0.75
+      },
       "ghost": 1,
       "bias": {
         "layout": {
@@ -1474,7 +2278,13 @@
           "dotGrid": 0.4,
           "halftoneFade": 0.5
         },
-        "cam": { "beatPunch": 1.4, "stepZoom": 1.2, "dollyIn": 1.1, "whipIn": 1, "handheld": 0.4 },
+        "cam": {
+          "beatPunch": 1.4,
+          "stepZoom": 1.2,
+          "dollyIn": 1.1,
+          "whipIn": 1,
+          "handheld": 0.4
+        },
         "fx": {
           "crtOff": 1.5,
           "strobe": 1.3,
@@ -1500,6 +2310,8 @@
       "extra": true
     },
     "kraft": {
+      "name": "クラフト紙",
+      "desc": "クラフト紙と生成り・スタンプの朱と藍・マステ",
       "moods": ["pop", "editorial", "graphic"],
       "schemes": [
         {
@@ -1557,7 +2369,11 @@
         "body": ["klee"],
         "mono": ["mono"]
       },
-      "texture": { "grain": 0.7, "paper": 1, "scan": 0 },
+      "texture": {
+        "grain": 0.7,
+        "paper": 1,
+        "scan": 0
+      },
       "ghost": 0.5,
       "bias": {
         "layout": {
@@ -1610,8 +2426,19 @@
           "retroGrid": 0.2,
           "noiseField": 0.3
         },
-        "cam": { "handheld": 1.3, "stepZoom": 1.1, "bounce": 1, "roll": 0.4 },
-        "fx": { "panelWipe": 1.2, "posterize": 1, "whiteFrame": 0.8, "vhsRoll": 0.3, "crtOff": 0.2 }
+        "cam": {
+          "handheld": 1.3,
+          "stepZoom": 1.1,
+          "bounce": 1,
+          "roll": 0.4
+        },
+        "fx": {
+          "panelWipe": 1.2,
+          "posterize": 1,
+          "whiteFrame": 0.8,
+          "vhsRoll": 0.3,
+          "crtOff": 0.2
+        }
       },
       "decor": {
         "tapePieces": 1.8,
@@ -1628,6 +2455,8 @@
       "extra": true
     },
     "candy": {
+      "name": "キャンディ",
+      "desc": "ミント/いちご/レモン/ぶどうのパステル・丸く弾む文字",
       "moods": ["pop"],
       "schemes": [
         {
@@ -1681,7 +2510,11 @@
         "body": ["round", "kiwi"],
         "mono": ["mono"]
       },
-      "texture": { "grain": 0.15, "paper": 0, "scan": 0 },
+      "texture": {
+        "grain": 0.15,
+        "paper": 0,
+        "scan": 0
+      },
       "ghost": 0.4,
       "bias": {
         "layout": {
@@ -1741,7 +2574,13 @@
           "noiseField": 0.2,
           "scanBars": 0.3
         },
-        "cam": { "bounce": 1.4, "beatPunch": 1.2, "stepZoom": 1, "dutch": 0.4, "shakeHard": 0.4 },
+        "cam": {
+          "bounce": 1.4,
+          "beatPunch": 1.2,
+          "stepZoom": 1,
+          "dutch": 0.4,
+          "shakeHard": 0.4
+        },
         "fx": {
           "zoomPunch": 1.2,
           "whiteFrame": 1.1,
@@ -1768,6 +2607,8 @@
       "extra": true
     },
     "acid": {
+      "name": "アシッド",
+      "desc": "黒×酸性グリーン×マゼンタ・荒い書体と壊れた画面",
       "moods": ["glitch", "graphic"],
       "schemes": [
         {
@@ -1821,7 +2662,11 @@
         "body": ["sansui"],
         "mono": ["dot", "mono"]
       },
-      "texture": { "grain": 1, "paper": 0, "scan": 0.45 },
+      "texture": {
+        "grain": 1,
+        "paper": 0,
+        "scan": 0.45
+      },
       "ghost": 1.25,
       "bias": {
         "layout": {
@@ -1917,6 +2762,8 @@
       "extra": true
     },
     "sumi": {
+      "name": "墨と朱",
+      "desc": "和紙の生成り・墨の筆文字・朱の落款",
       "moods": ["calm", "emotional", "editorial"],
       "schemes": [
         {
@@ -1974,7 +2821,11 @@
         "body": ["klee"],
         "mono": ["mono"]
       },
-      "texture": { "grain": 0.6, "paper": 0.8, "scan": 0 },
+      "texture": {
+        "grain": 0.6,
+        "paper": 0.8,
+        "scan": 0
+      },
       "ghost": 0.35,
       "bias": {
         "layout": {
@@ -2031,7 +2882,13 @@
           "eqBars": 0.1,
           "tvBars": 0.1
         },
-        "cam": { "handheld": 1.3, "tiltUp": 1.2, "dollyIn": 1.2, "bounce": 0.3, "beatPunch": 0.4 },
+        "cam": {
+          "handheld": 1.3,
+          "tiltUp": 1.2,
+          "dollyIn": 1.2,
+          "bounce": 0.3,
+          "beatPunch": 0.4
+        },
         "fx": {
           "blackFrame": 1.2,
           "filmBurn": 1.1,
@@ -2057,6 +2914,8 @@
       "wa": true
     },
     "gold": {
+      "name": "金夜",
+      "desc": "漆黒と金箔・象牙の明朝・きらめく光",
       "moods": ["emotional", "calm", "editorial"],
       "schemes": [
         {
@@ -2114,7 +2973,11 @@
         "body": ["mincho_light"],
         "mono": ["mono"]
       },
-      "texture": { "grain": 0.6, "paper": 0, "scan": 0 },
+      "texture": {
+        "grain": 0.6,
+        "paper": 0,
+        "scan": 0
+      },
       "ghost": 0.5,
       "bias": {
         "layout": {

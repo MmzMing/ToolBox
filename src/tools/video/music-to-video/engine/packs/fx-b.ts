@@ -10,7 +10,7 @@
  * - 界面名走 fx-b.names.json（旧日文原名），def 上不留 name；
  * - 旧代码把 alpha 先 toFixed(3) 再拼进 rgba 串，本文件 `al()` 做同样的三位小数收敛。
  *
- * 离屏缓冲与旧项目一样是模块级复用（buf(i,w,h)，尺寸变了才重建，索引编号也保持一致）；
+ * 离屏缓冲与JIZURA一样是模块级复用（buf(i,w,h)，尺寸变了才重建，索引编号也保持一致）；
  * 网点、隔行条纹、Bayer 矩阵、雪花噪点各自带一张缓存表。
  */
 import type { FxDef, FxInfo, PackParts, PlanEvent, Scheme } from '../types'
@@ -117,7 +117,7 @@ const huePair = (sc: Scheme): [number, number] => {
   return [cs[0].h, B ? B.h : cs[0].h + 170]
 }
 
-/** 模块级离屏缓冲：只在输出尺寸变化时重建（索引编号与旧项目一一对应） */
+/** 模块级离屏缓冲：只在输出尺寸变化时重建（索引编号与JIZURA一一对应） */
 const BUF: HTMLCanvasElement[] = []
 const buf = (i: number, w: number, h: number): HTMLCanvasElement => {
   const nw = Math.max(1, w | 0)
