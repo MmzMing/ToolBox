@@ -37,3 +37,6 @@ public/codecs/*
 !public/codecs/gif
 public/wasm/*
 !public/wasm/gif.wasm
+
+# AI 生图中间产物，成品图在 public/food
+vibe_images/

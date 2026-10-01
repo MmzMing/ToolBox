@@ -1,10 +1,12 @@
-import { lazy, type ComponentType, type LazyExoticComponent } from 'react'
-import type { LucideIcon } from 'lucide-react'
+import { lazy, type ComponentType, type LazyExoticComponent, type SVGProps } from 'react'
 
 import type { CategoryKey } from './categories'
 
 /** 新工具标记窗口期：创建 14 天内显示 NEW 徽标 */
 const NEW_TOOL_WINDOW_MS = 14 * 24 * 60 * 60 * 1000
+
+/** 图标组件：lucide 图标，或 `src/components/icons/` 下的自绘 SVG（约定见 AGENTS.md §6） */
+export type ToolIcon = ComponentType<SVGProps<SVGSVGElement>>
 
 /**
  * 工具定义（注册前）。分类由所在分类目录的 index.ts 统一挂载，
@@ -17,7 +19,7 @@ export interface RawTool {
   readonly path: string
   /** 搜索关键词（中英文混合），用于 Command Palette 模糊搜索 */
   readonly keywords: string[]
-  readonly icon: LucideIcon
+  readonly icon: ToolIcon
   /** 组件加载器，组件需 default export：() => import('./HashText') */
   readonly component: () => Promise<{ default: ComponentType }>
   /** ISO 创建日期（YYYY-MM-DD），两周内自动标记 isNew */

@@ -2,13 +2,13 @@
 
 # ToolBox
 
-**免费开源的开发者在线工具箱** —— 48 个工具全部在浏览器本地运行，数据不上传服务器。
+**免费开源的开发者在线工具箱** —— 52 个工具全部在浏览器本地运行，数据不上传服务器。
 
 [中文](./README.md) · [English](./README.en.md)
 
 ![License MIT](https://img.shields.io/badge/license-MIT-0ea95e)
 ![release](https://img.shields.io/badge/release-v0.1.0-orange)
-![tools](https://img.shields.io/badge/tools-48-brightgreen)
+![tools](https://img.shields.io/badge/tools-52-brightgreen)
 ![built with React](https://img.shields.io/badge/built%20with-React%2019-61dafb)
 ![Vite](https://img.shields.io/badge/Vite-8-646cff)
 ![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178c6)
@@ -29,13 +29,13 @@ UUID/令牌生成、二维码、图片压缩、Cron 与 Chmod、时间戳、正�
 
 ## 功能
 
-### 工具清单（9 个分类 / 48 个工具）
+### 工具清单（9 个分类 / 52 个工具）
 
 | 分类   | 数量 | 包含                                                                                                                             |
 | ------ | ---- | -------------------------------------------------------------------------------------------------------------------------------- |
 | 求职   | 2    | 简历工坊（9 套模板、分页预览、PDF 导出、本地文件夹同步）、工资计算器                                                             |
-| 图片   | 6    | 二维码转换、WiFi 二维码、图片压缩转换、图片堆叠、图片转拼豆、AI 生图画布                                                         |
-| 视频   | 1    | 文字PV（分镜式音乐视频，在线曲库默认关闭）                                                                                       |
+| 图片   | 9    | 二维码转换、WiFi 二维码、图片压缩转换、GIF 压缩、GIF 制作、GIF 编辑器、图片堆叠、图片转拼豆、AI 生图画布                         |
+| 视频   | 2    | 文字PV（分镜式音乐视频，在线曲库默认关闭）、视频转 GIF                                                                           |
 | 加密   | 7    | 文本哈希计算、文本加密、Bcrypt 哈希、UUID / ULID 生成器、密钥工坊、密码强度分析、PDF 签名校验                                    |
 | Web    | 8    | URL 解析、User-Agent 解析、设备信息、跳转链接解码、HTML 实体、OTP 验证码、域名解析查询、IP 查询                                  |
 | 开发   | 9    | 格式工作台、编解码、时间戳转换、cURL 命令生成、Cron 表达式生成、Chmod 计算、颜色格式转换、Docker Run 转 Compose、GitHub 加速下载 |

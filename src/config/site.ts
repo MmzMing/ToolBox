@@ -38,6 +38,18 @@ export const siteConfig = {
   ogImage: '/images/og-image.png',
   /** 浏览器 UI 着色与 Safari 固定标签页着色 */
   themeColor: '#0ea95e',
+  /**
+   * 备案信息：侧栏底部常驻展示，两条都必须链到官方查询页（工信部 / 全国互联网安全管理服务平台）。
+   * 备案号是法定标识、不随界面语言变化，因此不进 i18n；police-badge.png 是公安备案官方徽标位图，
+   * 无法用 currentColor 重绘，故不走 components/icons 而是放 public/images。
+   */
+  beian: {
+    icp: '粤ICP备2026073665号-1',
+    icpUrl: 'https://beian.miit.gov.cn/#/Integrated/index',
+    police: '粤公网安备44060602003342号',
+    policeUrl: 'https://beian.mps.gov.cn/#/query/webSearch?code=44060602003342',
+    policeIcon: '/images/police-badge.png',
+  },
   icons: {
     /** 多尺寸容器，旧浏览器兜底 */
     ico: `${ICON_DIR}/favicon.ico`,

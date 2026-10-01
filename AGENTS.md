@@ -12,21 +12,21 @@
 
 ## 2. 目录结构与职责（禁止越界存放）
 
-| 目录                 | 职责                                                                  | 禁止                                      |
-| -------------------- | --------------------------------------------------------------------- | ----------------------------------------- |
-| `src/components/`    | 跨页面/跨工具复用的通用组件（ PascalCase 文件夹或单文件）             | 放页面专属组件、业务逻辑                  |
-| `src/composable/`    | React Hooks（`useXxx.ts`），可复用的有状态逻辑                        | 放 UI 渲染、放纯函数                      |
-| `src/layouts/`       | 布局壳：BaseLayout（侧栏+顶栏+内容区）、ToolLayout（工具页头）        | 放业务组件                                |
-| `src/modules/`       | 横切功能模块：`command-palette/`、`i18n/`、`seo/`、`ai/` 等，各自内聚 | 相互 import 造成循环依赖                  |
-| `src/pages/`         | 路由页面级组件（首页、404、关于页）                                   | 放可复用组件                              |
-| `src/plugins/`       | 应用初始化装配：router、i18n 注册、Provider 组合                      | 放业务逻辑                                |
-| `src/stores/`        | zustand 全局 store（`xxx.store.ts`）                                  | 放组件局部状态                            |
-| `src/tools/`         | 工具实现，按分类分目录，每工具一个目录                                | 工具之间相互 import                       |
-| `src/utils/`         | 跨工具共用的纯函数工具集（文件名净化、base64、PNG 元数据、LRU 等）    | 有 React 状态、有副作用、放单工具专属逻辑 |
-| `src/lib/`           | shadcn 基础设施（`utils.ts` 的 `cn` 等）                              | 业务代码                                  |
-| `src/components/ui/` | shadcn CLI 生成的组件，**不手改**（除非升级）                         | 直接改生成代码                            |
-| `scripts/`           | Node 脚本（脚手架、sitemap 生成）                                     | 引入浏览器 API                            |
-| `docs/`              | 中文文档（deployment/design/development + INDEX.md）                  | 放代码                                    |
+| 目录                 | 职责                                                                                                          | 禁止                                         |
+| -------------------- | ------------------------------------------------------------------------------------------------------------- | -------------------------------------------- |
+| `src/components/`    | 跨页面/跨工具复用的通用组件（PascalCase 文件夹或单文件）；`icons/` 收纳所有非 lucide 的自绘 SVG 图标（见 §6） | 放页面专属组件、业务逻辑、把图标写进工具目录 |
+| `src/composable/`    | React Hooks（`useXxx.ts`），可复用的有状态逻辑                                                                | 放 UI 渲染、放纯函数                         |
+| `src/layouts/`       | 布局壳：BaseLayout（侧栏+顶栏+内容区）、ToolLayout（工具页头）                                                | 放业务组件                                   |
+| `src/modules/`       | 横切功能模块：`command-palette/`、`i18n/`、`seo/`、`ai/` 等，各自内聚                                         | 相互 import 造成循环依赖                     |
+| `src/pages/`         | 路由页面级组件（首页、404、关于页）                                                                           | 放可复用组件                                 |
+| `src/plugins/`       | 应用初始化装配：router、i18n 注册、Provider 组合                                                              | 放业务逻辑                                   |
+| `src/stores/`        | zustand 全局 store（`xxx.store.ts`）                                                                          | 放组件局部状态                               |
+| `src/tools/`         | 工具实现，按分类分目录，每工具一个目录                                                                        | 工具之间相互 import                          |
+| `src/utils/`         | 跨工具共用的纯函数工具集（文件名净化、base64、PNG 元数据、LRU 等）                                            | 有 React 状态、有副作用、放单工具专属逻辑    |
+| `src/lib/`           | shadcn 基础设施（`utils.ts` 的 `cn` 等）                                                                      | 业务代码                                     |
+| `src/components/ui/` | shadcn CLI 生成的组件，**不手改**（除非升级）                                                                 | 直接改生成代码                               |
+| `scripts/`           | Node 脚本（脚手架、sitemap 生成）                                                                             | 引入浏览器 API                               |
+| `docs/`              | 中文文档（deployment/design/development + INDEX.md）                                                          | 放代码                                       |
 
 ## 3. 命名规范
 
@@ -60,7 +60,15 @@
   亮暗主题自动生效。
 - 复用既有通用组件：可复制输出用 `components/copyable/*`；文本转换类工具骨架用
   `components/format-transformer.tsx`；工具卡片用 `components/tool-card.tsx`。
-- 图标只用 `lucide-react`，尺寸统一 `size={16}`（内联）或 `className="size-4"`。
+- 图标默认只用 `lucide-react`，尺寸统一 `size={16}`（内联）或 `className="size-4"`。
+  确实需要 lucide 之外的图标（品牌 mark、工具专属图标）时，从 [Iconify](https://icon-sets.iconify.design/)
+  取 SVG，**统一放 `src/components/icons/`，一个图标一个文件**：文件名 `<语义名>-icon.tsx`（kebab-case），
+  导出 `function XxxIcon(props: SVGProps<SVGSVGElement>)`，根 `<svg>` 带 `viewBox`，颜色一律走
+  `currentColor` 以跟随主题令牌（填充型写 `fill="currentColor"`；描边型写
+  `fill="none" stroke="currentColor" strokeWidth={1.5}`，二者都允许），文件顶部注释标出 Iconify
+  原始 id 以便回溯来源。
+  禁止把这类 SVG 散落在工具目录里，也禁止引入 `@iconify/react` 这类运行时拉取图标的依赖
+  （站点离线可用是底线）。
 - 间距体系遵循 4 的倍数（`p-2/3/4/6`…）；页面内容区容器 `mx-auto w-full max-w-6xl px-4`。
 - 响应式断点（与 `composable/use-breakpoint.ts` 一致）：
   手机 `<768`、平板 `768–1279`、PC `>=1280`（与 Tailwind md/xl 对齐）。布局在三种断点下都必须可用。

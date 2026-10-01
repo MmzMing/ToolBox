@@ -34,6 +34,9 @@ interface SidebarContentProps {
 const siteLinkClass =
   'flex items-center gap-2 rounded-md px-2 py-1.5 text-sm no-underline text-muted-foreground transition-colors hover:bg-accent hover:text-foreground hover:no-underline'
 
+const beianLinkClass =
+  'rounded-sm no-underline transition-colors hover:text-foreground hover:no-underline focus-visible:ring-ring focus-visible:ring-1 focus-visible:outline-none'
+
 /**
  * 侧栏内容：Logo（点击回首页）+ 8 个分类的手风琴导航。
  * 收藏夹与最近使用展示在首页（设计调整：侧栏只承担分类导航职责）。
@@ -121,6 +124,33 @@ export function SidebarContent({ onNavigate, withSiteLinks }: SidebarContentProp
           </a>
         </div>
       )}
+
+      {/* 备案号属法定常驻信息，桌面侧栏与移动抽屉都要渲染，不能收进 withSiteLinks */}
+      <div className="text-muted-foreground flex shrink-0 flex-col gap-1 border-t px-4 py-3 text-[11px] leading-tight">
+        <a
+          href={siteConfig.beian.icpUrl}
+          target="_blank"
+          rel="noreferrer"
+          className={beianLinkClass}
+        >
+          {siteConfig.beian.icp}
+        </a>
+        <a
+          href={siteConfig.beian.policeUrl}
+          target="_blank"
+          rel="noreferrer"
+          className={cn(beianLinkClass, 'flex items-center gap-1.5')}
+        >
+          <img
+            src={siteConfig.beian.policeIcon}
+            alt={tCommon('beian.policeAlt')}
+            width={36}
+            height={40}
+            className="h-4 w-auto shrink-0"
+          />
+          {siteConfig.beian.police}
+        </a>
+      </div>
     </div>
   )
 }

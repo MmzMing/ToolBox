@@ -138,8 +138,14 @@ describe('drawFortune', () => {
   })
 
   it('draws every level somewhere across many seeds (weights are not degenerate)', () => {
+    // 必须钉住一个非节假日日期：不传 now 会取今天，命中 HOLIDAYS 时 bad 率是 0，
+    // 这条断言就会在 1/1、2/14、5/1、10/1、12/25 当天无故失败。
+    const weekday = new Date(2026, 8, 21)
     const levels = new Set(
-      Array.from({ length: 200 }, (_, i) => drawFortune({ name: `n${i}`, seed: i * 997 }).level),
+      Array.from(
+        { length: 200 },
+        (_, i) => drawFortune({ name: `n${i}`, now: weekday, seed: i * 997 }).level,
+      ),
     )
     expect(levels.has('good')).toBe(true)
     expect(levels.has('bad')).toBe(true)

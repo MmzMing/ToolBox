@@ -1,4 +1,142 @@
 {
+  "barbecue-planner": {
+    "title": "烧烤规划器",
+    "description": "按 1–20 人点具体菜品与撒料蘸料，自动算出采购克重与串数、调料耗材用量、腌料配比、带真实钟点的烤制时间线、炉具炭量与中心温度安全线，清单可勾选、可划掉、可出图。",
+    "fields": {
+      "people": "人数",
+      "peopleValue": "{{n}} 人",
+      "appetite": "饭量",
+      "equipment": "烤制设备",
+      "diet": "忌口与偏好",
+      "grillStart": "开烤时间"
+    },
+    "diet": {
+      "on": "已开 {{n}} 项",
+      "none": "无限制"
+    },
+    "tabs": {
+      "dishes": "菜单",
+      "shopping": "采购清单",
+      "recipe": "配方",
+      "sauces": "撒料·蘸料",
+      "timeline": "烤制时间线",
+      "equipment": "炉具与炭",
+      "safety": "食品安全"
+    },
+    "dish": {
+      "groupHint": "本组 {{total}} 道，已点 {{picked}} 道",
+      "selectAll": "本组全选",
+      "clearGroup": "本组清空",
+      "selectMatches": "选中这些",
+      "clearMatches": "取消选中",
+      "noDevice": "当前设备烤不了",
+      "needsMarinate": "需提前腌",
+      "search": "搜索菜名…",
+      "searchClear": "清空搜索",
+      "searchHint": "找到 {{total}} 道，已点 {{picked}} 道",
+      "noSearchResult": "没有匹配的菜 —— 换个词，或清空搜索框翻分组。"
+    },
+    "sauce": {
+      "basic": "基本",
+      "basicHint": "买来直接用的成品调料，勾了才进采购清单；不勾就是这次不带。",
+      "blend": "调配",
+      "hint": "共 {{total}} 种，已选 {{picked}} 种。撒料、刷酱、蘸料按口味自由组合；腌料不用选，跟着所点的肉自动配套。",
+      "fits": "本桌适配 {{n}} 道",
+      "noFit": "本桌没有适配的菜",
+      "yieldPeople": "约 {{n}} 人份"
+    },
+    "summary": {
+      "picked": "已点",
+      "meat": "生肉",
+      "skewers": "肉串",
+      "charcoal": "木炭",
+      "grill": "炉长",
+      "window": "烤制窗口"
+    },
+    "toolbar": {
+      "needDishes": "还没点菜 — 在「菜单」里勾几道，这里会汇总总量与炉具建议。"
+    },
+    "actions": {
+      "openList": "采购清单",
+      "copyList": "复制清单",
+      "reset": "重置",
+      "generateImage": "生成图片",
+      "rendering": "生成中…"
+    },
+    "badge": {
+      "gap": "资料缺口",
+      "optional": "按需",
+      "dropped": "不需要"
+    },
+    "recipe": {
+      "heat": "辣度",
+      "timing": "施加时机",
+      "glutenFreeSwap": "无麸质替换",
+      "marinadeKind": "腌料",
+      "refHint": "调研到的每一版配方都原样列在这里，是参考而不是本桌的用量表 —— 既不随点了什么菜增减，也不按人数缩放。要带哪几样去菜市场，在「菜单」的「撒料·蘸料」里勾。"
+    },
+    "timeline": {
+      "startHint": "钟点按开烤 {{time}} 推导；跨零点的提前量会显示成前一天的时刻。"
+    },
+    "equipment": {
+      "grillTitle": "烤炉与产能",
+      "suggestedGrate": "建议炉长",
+      "ratedFor": "该档适用人数",
+      "perBatch": "单批容量",
+      "skewerUnit": "串",
+      "totalSkewers": "总串数",
+      "batches": "批次",
+      "perBatchTime": "单批时长",
+      "window": "烤制窗口",
+      "charcoal": "木炭",
+      "batchNote": "只有 150 cm 档的「一批约 40 串」有明确来源，其余炉长按炉长线性折算。",
+      "heatZones": "火力档位",
+      "handTest": "手掌可停留",
+      "heatNote": "通用炭烤炉温需 200 ℃ 以上；手放在烤网上方只能撑 2 秒就是大火，4 秒是中火。",
+      "charcoalTitle": "炭种对比",
+      "yakitoriTitle": "烧鸟炭床与家用复刻",
+      "coalBed": "炭床",
+      "distance": "串距热源",
+      "smokerTitle": "烟熏炉温与木材",
+      "yieldBody": "美式清单里的生重已按出成率上浮（牛胸 43%、猪肩 50%、猪腰 65%、整鸡 34%）。换算依据是「1 磅成品约喂 2.6 人」，人均熟肉 175–340 g。",
+      "yieldTotal": "本桌生肉合计"
+    },
+    "safety": {
+      "meat": "肉种",
+      "form": "形态",
+      "tempC": "中心温度",
+      "rest": "静置"
+    },
+    "shop": {
+      "progress": "已买 {{done}} / {{total}} 项",
+      "clearChecks": "清空勾选",
+      "qty": "数量",
+      "less": "减少",
+      "more": "增加",
+      "resetOne": "恢复默认量",
+      "resetAll": "全部重置默认",
+      "zeroed": "{{n}} 项置 0 不买",
+      "qtyHint": "数量随便改：点 −／+ 或直接在框里输入，改成 0 就是这次不买 —— 行还留在屏上，但不进复制文本与导出图。改数量只改这一行，木炭、串数与腌料配比仍按调研基准推导。",
+      "textVersion": "文本版（手动复制兜底）",
+      "textHint": "浏览器拦住剪贴板权限时（非 HTTPS 页面、或窗口失去焦点），直接在这里全选复制。置 0 的行不会出现在这段文本里。"
+    },
+    "custom": {
+      "add": "加一样",
+      "name": "名称",
+      "qty": "数量",
+      "unit": "单位",
+      "submit": "添加",
+      "cancel": "取消",
+      "remove": "删掉这一项"
+    },
+    "toast": {
+      "imageDone": "图片已生成并下载",
+      "imageFailed": "图片生成失败，请重试"
+    },
+    "emptyResult": "当前组合下没有任何可烤食材 —— 换一个设备或放宽忌口开关。",
+    "conflictTitle": "来源在这些点上互相矛盾，工具不做取舍，由你选口径。",
+    "disclaimer": "数据来自公开配方、监管科普与行业标准，供参考而非规范；请结合自家炉具与食材实际情况调整。"
+  },
   "chinese-kinship-calculator": {
     "title": "亲戚关系计算",
     "description": "点选或输入称谓链，算出中国亲戚之间准确的当面叫法与书面称呼，支持由称呼反查关系、逆推辈分并展示整棵关系树。",

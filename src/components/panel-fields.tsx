@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 import { useId } from 'react'
-import { ChevronDown } from 'lucide-react'
+import { ChevronDown, CircleHelp } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
 import { Card } from '@/components/ui/card'
@@ -17,14 +17,38 @@ import {
 } from '@/components/ui/select'
 import { Slider } from '@/components/ui/slider'
 import { Switch } from '@/components/ui/switch'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 
 /**
- * 右侧操作栏的统一控件语言：一整块被细线分段的可折叠面板，标签在上、控件撑满整格、
- * 说明落在控件下方。单位写进标签括号（`边距(px)`），输入框就不会被后缀挤窄。
+ * 右侧操作栏的统一控件语言：一整块被细线分段的可折叠面板，标签在上、控件撑满整格。
+ * 单位写进标签括号（`边距(px)`），输入框就不会被后缀挤窄。
  * 段内是两列网格，跨两列用 `span: 2`；窄栏里两列各占一半，宽栏里也不会拉成一条河。
+ *
+ * 两种说明各走各的通道：`tip` 是**静态解释**，收成标签后的问号 + 悬停气泡，
+ * 不占版面；`hint` 是**随操作变化的行内读数/状态**（滑块当前值、被抬到延时下限的帧数），
+ * 必须一直看得见，所以留在控件下方。
  */
 const HINT = 'text-muted-foreground text-xs leading-tight'
 const SPAN2 = 'col-span-2'
+const LABEL_ROW = 'flex items-center gap-1'
+
+function FieldTip({ text }: { text: string }) {
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <span
+          tabIndex={0}
+          className="text-muted-foreground focus-visible:ring-ring inline-flex size-4 shrink-0 cursor-help items-center justify-center rounded-sm outline-none focus-visible:ring-1"
+        >
+          <CircleHelp className="size-3.5" aria-hidden="true" />
+        </span>
+      </TooltipTrigger>
+      <TooltipContent side="top" className="max-w-56">
+        {text}
+      </TooltipContent>
+    </Tooltip>
+  )
+}
 
 export function PanelGroup({ className, children }: { className?: string; children: ReactNode }) {
   return <Card className={cn('gap-0 divide-y p-0', className)}>{children}</Card>
@@ -58,34 +82,40 @@ export function PanelSection({
 export function PanelField({
   label,
   hint,
+  tip,
   span = 1,
   htmlFor,
   children,
 }: {
   label: string
   hint?: string
+  tip?: string
   span?: 1 | 2
   htmlFor?: string
   children: ReactNode
 }) {
   return (
     <div className={cn('flex flex-col gap-1.5', span === 2 && SPAN2)}>
-      <Label htmlFor={htmlFor} className="text-xs">
-        {label}
-      </Label>
+      <div className={LABEL_ROW}>
+        <Label htmlFor={htmlFor} className="text-xs">
+          {label}
+        </Label>
+        {tip && <FieldTip text={tip} />}
+      </div>
       {children}
       {hint && <p className={HINT}>{hint}</p>}
     </div>
   )
 }
 
-type FieldProps = { label: string; hint?: string; span?: 1 | 2 }
+type FieldProps = { label: string; hint?: string; tip?: string; span?: 1 | 2 }
 
 export function PanelNumberField({
   label,
   value,
   onChange,
   hint,
+  tip,
   placeholder,
   min,
   max,
@@ -103,7 +133,7 @@ export function PanelNumberField({
 }) {
   const id = useId()
   return (
-    <PanelField label={label} hint={hint} span={span} htmlFor={id}>
+    <PanelField label={label} hint={hint} tip={tip} span={span} htmlFor={id}>
       <Input
         id={id}
         type="number"
@@ -126,6 +156,7 @@ export function PanelTextField({
   value,
   onChange,
   hint,
+  tip,
   placeholder,
   disabled,
   type = 'text',
@@ -139,7 +170,7 @@ export function PanelTextField({
 }) {
   const id = useId()
   return (
-    <PanelField label={label} hint={hint} span={span} htmlFor={id}>
+    <PanelField label={label} hint={hint} tip={tip} span={span} htmlFor={id}>
       <Input
         id={id}
         type={type}
@@ -160,6 +191,7 @@ export function PanelSelectField({
   onChange,
   options,
   hint,
+  tip,
   disabled,
   span = 1,
 }: FieldProps & {
@@ -170,7 +202,7 @@ export function PanelSelectField({
 }) {
   const id = useId()
   return (
-    <PanelField label={label} hint={hint} span={span} htmlFor={id}>
+    <PanelField label={label} hint={hint} tip={tip} span={span} htmlFor={id}>
       <Select value={value} disabled={disabled} onValueChange={onChange}>
         <SelectTrigger id={id} className="w-full">
           <SelectValue />
@@ -191,6 +223,7 @@ export function PanelSelectField({
 export function PanelSwitchField({
   label,
   hint,
+  tip,
   checked,
   onChange,
   span = 1,
@@ -206,6 +239,7 @@ export function PanelSwitchField({
         <Label htmlFor={id} className="text-xs font-normal">
           {label}
         </Label>
+        {tip && <FieldTip text={tip} />}
       </div>
       {hint && <p className={HINT}>{hint}</p>}
     </div>
@@ -218,6 +252,7 @@ export function PanelRadioField({
   onChange,
   options,
   hint,
+  tip,
   span = 2,
 }: FieldProps & {
   value: string
@@ -225,7 +260,7 @@ export function PanelRadioField({
   options: readonly PanelSelectOption[]
 }) {
   return (
-    <PanelField label={label} hint={hint} span={span}>
+    <PanelField label={label} hint={hint} tip={tip} span={span}>
       <RadioGroup
         value={value}
         onValueChange={onChange}
@@ -259,6 +294,7 @@ export function PanelSliderField({
   max,
   step = 1,
   format,
+  tip,
   span = 1,
 }: {
   label: string
@@ -268,11 +304,18 @@ export function PanelSliderField({
   max: number
   step?: number
   format?: (value: number) => string
+  tip?: string
   span?: 1 | 2
 }) {
   const id = useId()
   return (
-    <PanelField label={label} span={span} htmlFor={id} hint={format ? format(value) : undefined}>
+    <PanelField
+      label={label}
+      span={span}
+      htmlFor={id}
+      tip={tip}
+      hint={format ? format(value) : undefined}
+    >
       <Slider
         id={id}
         min={min}

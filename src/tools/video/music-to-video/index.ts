@@ -1,4 +1,4 @@
-import { Video } from 'lucide-react'
+import { LyricVideoIcon } from '@/components/icons/lyric-video-icon'
 
 import { defineTool } from '../../define-tool'
 
@@ -20,7 +20,7 @@ export const tool = defineTool({
     '视频生成',
     '导出',
   ],
-  icon: Video,
+  icon: LyricVideoIcon,
   component: () => import('./MusicToVideo'),
   createdAt: '2026-09-23',
   immersive: true,

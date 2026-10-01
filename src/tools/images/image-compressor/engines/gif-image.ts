@@ -1,72 +1,26 @@
-/**
- * Reference：
- * https://github.com/renzhezhilu/gifsicle-wasm-browser
- * https://www.lcdf.org/gifsicle/man.html
- */
-
+import { optimizeGif } from '@/modules/gif/optimize'
 import { ImageBase, type ProcessOutput } from './image-base'
-
-interface GifsicleModule {
-  gifsicle: (options: {
-    data: Array<{ file: ArrayBuffer; name: string }>
-    command: string[]
-  }) => Promise<Array<{ file: BlobPart }>>
-}
-
-let _gifsicle: GifsicleModule['gifsicle'] | null = null
-
-async function getGifsicle() {
-  if (!_gifsicle) {
-    const path = '/codecs/gif/index.browser.js'
-    const mod = (await import(/* @vite-ignore */ path)) as GifsicleModule
-    _gifsicle = mod.gifsicle
-  }
-  return _gifsicle
-}
 
 export class GifImage extends ImageBase {
   async compress(): Promise<ProcessOutput> {
     const { width, height, x, y } = this.getOutputDimension()
-    const inputName = 'input.gif'
-    const outputName = 'output.gif'
-
-    const commands: string[] = [`--optimize=3`, `--colors=${this.option.gif.colors}`]
-
     const resizeMethod = this.option.resize.method
     const isCrop =
       resizeMethod === 'presetCrop' ||
       resizeMethod === 'setCropRatio' ||
       resizeMethod === 'setCropSize'
-    if (isCrop) {
-      commands.push(`--crop=${x},${y}+${width}x${height}`)
-    } else if (width !== this.info.width || height !== this.info.height) {
-      commands.push(`--resize=${width}x${height}`)
-    }
 
-    if (this.option.gif.dithering) {
-      commands.push(`--dither=floyd-steinberg`)
-    }
-    commands.push(`--output=/out/${outputName}`)
-    commands.push(inputName)
-    const buffer = await this.info.blob.arrayBuffer()
-    const gifsicle = await getGifsicle()
-    const result = await gifsicle({
-      data: [
-        {
-          file: buffer,
-          name: inputName,
-        },
-      ],
-      command: [commands.join(' ')],
+    const blob = await optimizeGif(await this.info.blob.arrayBuffer(), {
+      optimizeLevel: 3,
+      maxColors: this.option.gif.colors,
+      dither: this.option.gif.dithering,
+      ...(isCrop
+        ? { crop: { x, y, width, height } }
+        : width !== this.info.width || height !== this.info.height
+          ? { resize: { width, height } }
+          : {}),
     })
 
-    if (!Array.isArray(result) || result.length !== 1) {
-      return this.failResult()
-    }
-
-    const blob = new Blob([result[0].file], {
-      type: this.info.blob.type,
-    })
     return {
       width,
       height,

@@ -7,7 +7,8 @@ import type { Tool } from '@/tools/define-tool'
 import { cn } from '@/lib/utils'
 
 interface FavoriteButtonProps {
-  tool: Tool
+  /** 只需要 path：整页式工具自带头部时传的是 index.ts 里的 DefinedTool */
+  tool: Pick<Tool, 'path'>
   className?: string
   /** 嵌进可聚焦容器（如命令面板卡片）时置 -1，避免多出 Tab 停靠点 */
   tabIndex?: number

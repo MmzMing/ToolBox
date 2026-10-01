@@ -54,6 +54,9 @@
   "collapseSidebar": "Collapse sidebar",
   "openMenu": "Open navigation menu",
   "backHome": "Back to home",
+  "beian": {
+    "policeAlt": "PSB filing badge"
+  },
   "crashTitle": "Something went wrong",
   "crashDescription": "The app hit an unexpected error. Your data lives on this device and is not lost — reloading usually fixes it.",
   "reload": "Reload",

@@ -1,4 +1,4 @@
-import { Images } from 'lucide-react'
+import { ImageStackIcon } from '@/components/icons/image-stack-icon'
 
 import { defineTool } from '../../define-tool'
 
@@ -34,7 +34,7 @@ export const tool = defineTool({
     '裁切',
     '画布比例',
   ],
-  icon: Images,
+  icon: ImageStackIcon,
   component: () => import('./ImageStack'),
   createdAt: '2026-09-25',
   // 模板栏/样式栏与长图配置栏都要排得下两列滑块，窄了会挤成一行一个

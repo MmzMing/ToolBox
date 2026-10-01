@@ -2,13 +2,13 @@
 
 # ToolBox
 
-**A free, open-source toolbox for developers** — 48 tools that all run locally in the browser. Nothing is uploaded.
+**A free, open-source toolbox for developers** — 52 tools that all run locally in the browser. Nothing is uploaded.
 
 [中文](./README.md) · [English](./README.en.md)
 
 ![License MIT](https://img.shields.io/badge/license-MIT-0ea95e)
 ![release](https://img.shields.io/badge/release-v0.1.0-orange)
-![tools](https://img.shields.io/badge/tools-48-brightgreen)
+![tools](https://img.shields.io/badge/tools-52-brightgreen)
 ![built with React](https://img.shields.io/badge/built%20with-React%2019-61dafb)
 ![Vite](https://img.shields.io/badge/Vite-8-646cff)
 ![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178c6)
@@ -31,13 +31,13 @@ files you can host anywhere.
 
 ## Features
 
-### Tools (9 categories / 48 tools)
+### Tools (9 categories / 52 tools)
 
 | Category    | Count | Includes                                                                                                                                                      |
 | ----------- | ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Job Search  | 2     | Resume Studio (9 templates, page breaks, PDF export, folder sync), Salary Calculator                                                                          |
-| Images      | 6     | QR Code Converter, WiFi QR, Image Compress & Convert, Image Stack, Image to Perler Beads, AI Image Gen Canvas                                                 |
-| Video       | 1     | Text PV (storyboard music video; online music library off by default)                                                                                         |
+| Images      | 9     | QR Code Converter, WiFi QR, Image Compress & Convert, GIF Compressor, GIF Maker, GIF Editor, Image Stack, Image to Perler Beads, AI Image Gen Canvas          |
+| Video       | 2     | Text PV (storyboard music video; online music library off by default), Video to GIF                                                                           |
 | Crypto      | 7     | Hash Text, Text Encryption, Bcrypt Hash, UUID / ULID Generator, Key Generator, Password Strength, PDF Signature Checker                                       |
 | Web         | 8     | URL Parser, User-Agent Parser, Device Information, Safelink Decoder, HTML Entities, OTP, DNS Lookup, IP Lookup                                                |
 | Development | 9     | Format Studio, Encoder / Decoder, Timestamp Converter, cURL Command Builder, Cron, Chmod, Color Converter, Docker Run to Compose, GitHub Download Accelerator |

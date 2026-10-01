@@ -1,4 +1,4 @@
-import { Sparkles } from 'lucide-react'
+import { AiImageGenIcon } from '@/components/icons/ai-image-gen-icon'
 
 import { defineTool } from '../../define-tool'
 
@@ -18,7 +18,7 @@ export const tool = defineTool({
     '反推提示词',
     '画布',
   ],
-  icon: Sparkles,
+  icon: AiImageGenIcon,
   component: () => import('./AiImageGen'),
   createdAt: '2026-09-22',
   immersive: true,
