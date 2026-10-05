@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 
-import { normalizePlannerInput, planBarbecue } from './barbecue-planner.service'
+import { applyOverride, normalizePlannerInput, planBarbecue } from './barbecue-planner.service'
 import { DishPicker } from './components/DishPicker'
 import { EquipmentSection, YieldNote } from './components/EquipmentSection'
 import { RecipeSection } from './components/RecipeSection'
@@ -13,7 +13,7 @@ import { SafetySection } from './components/SafetySection'
 import { TimelineSection } from './components/TimelineSection'
 import { Toolbar } from './components/Toolbar'
 import { CONFLICTS } from './data/shared'
-import type { PlannerInput } from './types'
+import type { PlannerInput, ServeUnit, ShoppingLine } from './types'
 
 const EMPTY_INPUT: Partial<PlannerInput> = {
   people: 6,
@@ -36,6 +36,17 @@ export default function BarbecuePlanner() {
   const hasSelection = input.dishes.length > 0
   const plan = useMemo(() => planBarbecue(input), [input])
 
+  /** 手动模式的数量框以「当前算出来的这一行」为初值，所以按食材 id 索引一次 */
+  const lineById = useMemo(() => {
+    const map = new Map<string, ShoppingLine>()
+    for (const group of plan.shopping.groups) {
+      for (const line of group.lines) {
+        map.set(line.ingredientId, line)
+      }
+    }
+    return map
+  }, [plan])
+
   const patch = (next: Partial<PlannerInput>) =>
     setInput((previous) => normalizePlannerInput({ ...previous, ...next }))
 
@@ -45,6 +56,14 @@ export default function BarbecuePlanner() {
         ? input.dishes.filter((item) => item !== id)
         : [...input.dishes, id],
     })
+
+  /** 卡片上直接填数量：写进的就是采购清单步进器那份 overrides，两处改的是同一个数 */
+  const setDishQty = (id: string, amount: number) =>
+    patch({ overrides: applyOverride(input.overrides, id, amount) })
+
+  /** 换量词同样两边共用：卡片下拉和清单下拉改的是同一份 unitChoices */
+  const setDishUnit = (id: string, unit: ServeUnit) =>
+    patch({ unitChoices: { ...input.unitChoices, [id]: unit } })
 
   const bulkDishes = (ids: string[], select: boolean) =>
     patch({
@@ -153,6 +172,11 @@ export default function BarbecuePlanner() {
           sauces={input.sauces}
           basics={input.basics}
           mode={input.equipmentMode}
+          qtyMode={input.qtyMode}
+          lineOf={(id) => lineById.get(id)}
+          onQtyMode={(qtyMode) => patch({ qtyMode })}
+          onQuantity={setDishQty}
+          onUnit={setDishUnit}
           onToggle={toggleDish}
           onBulk={bulkDishes}
           onToggleSauce={toggleSauce}

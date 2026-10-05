@@ -175,9 +175,12 @@ export default function GifEditor() {
       try {
         const bytes = await file.arrayBuffer()
         setLoading({ phase: 'parse', total: 0 })
-        const decoded = await decode(bytes, (progress) =>
-          setLoading({ phase: progress.phase, total: progress.total }),
-        )
+        const decoded = await decode(bytes, (progress) => {
+          // 这条通道只会发 parse/frames，matte 阶段属于另一组请求
+          if (progress.phase === 'parse' || progress.phase === 'frames') {
+            setLoading({ phase: progress.phase, total: progress.total })
+          }
+        })
         setFrames(decoded.frames)
         setMeta(decoded.descriptor)
         setFileName(file.name)

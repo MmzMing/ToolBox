@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useRef } from 'react'
 
 import type { GifWriterOptions } from '../encode'
+import type { ColorSeed, MatteOutput } from '../matte'
+import type { MatteParams, MatteStroke } from '../matte-pipeline'
 import type { GifsicleOptions } from '../optimize'
 import type { FramePayload, GifProgress, GifRequest, GifResponse } from '../protocol'
 import type { GifDescriptor, RgbaFrame } from '../types'
@@ -10,6 +12,17 @@ type Pending = {
   reject: (reason: Error) => void
   onProgress?: (progress: GifProgress) => void
 }
+
+/** 一次抠图计算的全部入参：源帧已经常驻在 worker 里，所以这里没有像素 */
+type MatteJob = {
+  token: number
+  seeds: ColorSeed[]
+  params: MatteParams
+  strokes: MatteStroke[]
+  output: MatteOutput
+}
+
+type MattePreviewJob = MatteJob & { frameIndex: number }
 
 /**
  * 与 gif.worker 的 promise 化通道：一个工具一个实例，卸载即 terminate。
@@ -124,5 +137,116 @@ export function useGifWorker() {
     [call],
   )
 
-  return { inspect, optimize, encode, decode }
+  return { inspect, optimize, encode, decode, ...useMatteChannel(call) }
+}
+
+/**
+ * 抠图通道：源帧一次 transfer 进 worker 常驻，之后每次交互只发参数、只收结果帧。
+ *
+ * Worker 崩溃后常驻帧就没了（缓冲区已经 transfer 走，主线程手上是空数组），
+ * 所以这里不尝试重放 load：调用方收到 rejection 后应当重新解码再 load。
+ */
+function useMatteChannel(
+  call: <T extends GifRequest>(
+    request: Omit<T, 'id'>,
+    transfer?: Transferable[],
+    onProgress?: (progress: GifProgress) => void,
+  ) => Promise<Extract<GifResponse, { type: T['type'] }>>,
+) {
+  const load = useCallback(
+    async (token: number, frames: FramePayload[]): Promise<boolean> => {
+      const response = await call<Extract<GifRequest, { type: 'matteLoad' }>>(
+        { type: 'matteLoad', token, frames },
+        frames.map((frame) => frame.rgba.buffer),
+      )
+      return response.hasTemporalModel
+    },
+    [call],
+  )
+
+  const preview = useCallback(
+    async (input: MattePreviewJob): Promise<RgbaFrame> => {
+      const response = await call<Extract<GifRequest, { type: 'mattePreview' }>>({
+        type: 'mattePreview',
+        frameIndex: input.frameIndex,
+        token: input.token,
+        seeds: input.seeds,
+        params: input.params,
+        strokes: input.strokes,
+        output: input.output,
+      })
+      return response.frame
+    },
+    [call],
+  )
+
+  const render = useCallback(
+    async (input: MatteJob, onProgress?: (progress: GifProgress) => void): Promise<RgbaFrame[]> => {
+      const response = await call<Extract<GifRequest, { type: 'matteRender' }>>(
+        {
+          type: 'matteRender',
+          token: input.token,
+          seeds: input.seeds,
+          params: input.params,
+          strokes: input.strokes,
+          output: input.output,
+        },
+        undefined,
+        onProgress,
+      )
+      return response.frames
+    },
+    [call],
+  )
+
+  const exportGif = useCallback(
+    async (
+      input: MatteJob & { encode: GifWriterOptions },
+      onProgress?: (progress: GifProgress) => void,
+    ): Promise<Blob> => {
+      const response = await call<Extract<GifRequest, { type: 'matteExport' }>>(
+        {
+          type: 'matteExport',
+          token: input.token,
+          seeds: input.seeds,
+          params: input.params,
+          strokes: input.strokes,
+          output: input.output,
+          encode: input.encode,
+        },
+        undefined,
+        onProgress,
+      )
+      return response.blob
+    },
+    [call],
+  )
+
+  const sample = useCallback(
+    async (
+      token: number,
+      frameIndex: number,
+      x: number,
+      y: number,
+    ): Promise<[number, number, number]> => {
+      const response = await call<Extract<GifRequest, { type: 'matteSample' }>>({
+        type: 'matteSample',
+        token,
+        frameIndex,
+        x,
+        y,
+      })
+      return response.color
+    },
+    [call],
+  )
+
+  const unload = useCallback(
+    async (token: number): Promise<void> => {
+      await call<Extract<GifRequest, { type: 'matteUnload' }>>({ type: 'matteUnload', token })
+    },
+    [call],
+  )
+
+  return { load, preview, render, exportGif, unload, sample }
 }

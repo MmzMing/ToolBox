@@ -21,12 +21,12 @@ import {
   droppedLineCount,
   isAdjusted,
   isDropped,
-  lineUnitLabel,
   selectableLineIds,
   stepAmount,
   stepForUnit,
 } from '../engine'
 import type { BarbecuePlan, CustomItem, PurchaseGroupId, ServeUnit, ShoppingLine } from '../types'
+import { UnitSelect } from './UnitSelect'
 
 /**
  * 数量步进器。改到 0 就是"这次不买"，
@@ -37,11 +37,13 @@ function QtyCell({
   lang,
   onCommit,
   onReset,
+  onUnit,
 }: {
   line: ShoppingLine
   lang: 'zh' | 'en'
   onCommit: (amount: number | null) => void
   onReset: () => void
+  onUnit: (unit: ServeUnit) => void
 }) {
   const { t } = useTranslation('tools-life', { keyPrefix: 'barbecue-planner' })
   const [draft, setDraft] = useState<string | null>(null)
@@ -118,7 +120,7 @@ function QtyCell({
         <Plus className="size-3.5" />
       </button>
       <span className="text-muted-foreground min-w-8 shrink-0 text-center text-[11px] whitespace-nowrap">
-        {lineUnitLabel(line, lang)}
+        <UnitSelect value={line.unit} ariaLabel={line.name[lang]} onChange={onUnit} />
       </span>
       {adjusted ? (
         <button
@@ -142,6 +144,7 @@ function LineRow({
   onToggle,
   onCommit,
   onReset,
+  onUnit,
   onRemove,
 }: {
   line: ShoppingLine
@@ -150,6 +153,7 @@ function LineRow({
   onToggle: () => void
   onCommit: (amount: number | null) => void
   onReset: () => void
+  onUnit: (unit: ServeUnit) => void
   /** 只有自定义行能整条删掉 —— 调研来的行删了会丢掉默认量这个参照 */
   onRemove?: () => void
 }) {
@@ -217,7 +221,7 @@ function LineRow({
           </Badge>
         ) : null}
       </button>
-      <QtyCell line={line} lang={lang} onCommit={onCommit} onReset={onReset} />
+      <QtyCell line={line} lang={lang} onCommit={onCommit} onReset={onReset} onUnit={onUnit} />
       {onRemove ? (
         <button
           type="button"
@@ -336,6 +340,7 @@ export function ShoppingSection({
   onToggle,
   onToggleGroup,
   onQuantity,
+  onUnit,
   onResetAll,
   onAddCustom,
   onRemoveCustom,
@@ -346,6 +351,7 @@ export function ShoppingSection({
   onToggle: (id: string) => void
   onToggleGroup: (ids: string[], select: boolean) => void
   onQuantity: (id: string, amount: number | null) => void
+  onUnit: (id: string, unit: ServeUnit) => void
   onResetAll: () => void
   onAddCustom: (group: PurchaseGroupId, item: Omit<CustomItem, 'id' | 'group'>) => void
   onRemoveCustom: (id: string) => void
@@ -438,6 +444,7 @@ export function ShoppingSection({
                     onToggle={() => onToggle(line.ingredientId)}
                     onCommit={(amount) => onQuantity(line.ingredientId, amount)}
                     onReset={() => onQuantity(line.ingredientId, null)}
+                    onUnit={(unit) => onUnit(line.ingredientId, unit)}
                     onRemove={
                       customIds.has(line.ingredientId)
                         ? () => onRemoveCustom(line.ingredientId)

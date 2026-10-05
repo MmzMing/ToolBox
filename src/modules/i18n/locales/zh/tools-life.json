@@ -36,6 +36,11 @@
       "searchHint": "找到 {{total}} 道，已点 {{picked}} 道",
       "noSearchResult": "没有匹配的菜 —— 换个词，或清空搜索框翻分组。"
     },
+    "qty": {
+      "auto": "自动",
+      "manual": "手动",
+      "hint": "自动：每道菜的量由引擎按人数和勾选的菜数摊薄；手动：勾上的卡片右下角直接填数量。"
+    },
     "sauce": {
       "basic": "基本",
       "basicHint": "买来直接用的成品调料，勾了才进采购清单；不勾就是这次不带。",
@@ -111,6 +116,7 @@
       "progress": "已买 {{done}} / {{total}} 项",
       "clearChecks": "清空勾选",
       "qty": "数量",
+      "unit": "单位",
       "less": "减少",
       "more": "增加",
       "resetOne": "恢复默认量",

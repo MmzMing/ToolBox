@@ -9,6 +9,7 @@ import {
   makerBudget,
   rejectedFileCount,
   type MakerSettings,
+  transparencyFor,
 } from '@/tools/images/gif-maker/gif-maker.service'
 import { moveItem, reverseItems } from '@/utils/array-ops'
 
@@ -148,5 +149,17 @@ describe('makerBudget', () => {
 describe('DEFAULT_SETTINGS', () => {
   it('starts on a conservative desktop width with optimisation on', () => {
     expect(DEFAULT_SETTINGS).toMatchObject({ width: 320, fps: 5, loopCount: 0, optimize: true })
+  })
+})
+
+describe('transparencyFor', () => {
+  it('requests 1-bit transparency only for the transparent matte', () => {
+    expect(transparencyFor('transparent')).toMatchObject({ threshold: 127, dispose: 2 })
+    expect(transparencyFor('white')).toBeUndefined()
+    expect(transparencyFor('black')).toBeUndefined()
+  })
+
+  it('defaults to a transparent matte so the encoder is asked for transparency', () => {
+    expect(transparencyFor(DEFAULT_SETTINGS.matte)).toBeDefined()
   })
 })

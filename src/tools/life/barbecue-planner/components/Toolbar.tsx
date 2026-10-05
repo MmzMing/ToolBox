@@ -38,7 +38,14 @@ import {
 import { elementToPng } from '../capture'
 import { APPETITE_TIERS, DIET_TAGS, EQUIPMENT_MODES } from '../data/shared'
 import { formatMinutes } from '../measure'
-import type { BarbecuePlan, CustomItem, DietTag, PlannerInput, PurchaseGroupId } from '../types'
+import type {
+  BarbecuePlan,
+  CustomItem,
+  DietTag,
+  PlannerInput,
+  PurchaseGroupId,
+  ServeUnit,
+} from '../types'
 import { ShoppingSection } from './ShoppingSection'
 import { ShoppingPoster } from './ShoppingPoster'
 
@@ -134,6 +141,10 @@ export function Toolbar({
   /** 改数量：null 表示撤回这一行的手动值，回到引擎默认量；0 表示这次不买 */
   const applyQty = (id: string, amount: number | null) =>
     onChange({ overrides: applyOverride(input.overrides, id, amount) })
+
+  /** 换量词：只改"这一项按什么买"，数字原样留着 */
+  const applyUnit = (id: string, unit: ServeUnit) =>
+    onChange({ unitChoices: { ...input.unitChoices, [id]: unit } })
 
   /** 自定义行的 id 在这里派生：表单里的 plan 快照可能已经过期，重新取一次才不会撞车 */
   const addCustom = (group: PurchaseGroupId, item: Omit<CustomItem, 'id' | 'group'>) =>
@@ -356,6 +367,7 @@ export function Toolbar({
                       onToggle={toggleLine}
                       onToggleGroup={toggleGroup}
                       onQuantity={applyQty}
+                      onUnit={applyUnit}
                       onResetAll={() => onChange({ overrides: {} })}
                       onAddCustom={addCustom}
                       onRemoveCustom={removeCustom}

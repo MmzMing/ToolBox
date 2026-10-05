@@ -36,6 +36,11 @@
       "searchHint": "{{total}} match(es), {{picked}} selected",
       "noSearchResult": "Nothing matches — try another word, or clear the box to browse the groups."
     },
+    "qty": {
+      "auto": "Auto",
+      "manual": "Manual",
+      "hint": "Auto: the engine splits each dish across what you picked, based on headcount. Manual: type a quantity on every picked card."
+    },
     "sauce": {
       "basic": "Ready-made",
       "basicHint": "Bottled and bagged seasonings you use straight away — only the checked ones reach the shopping list.",
@@ -111,6 +116,7 @@
       "progress": "{{done}} / {{total}} bought",
       "clearChecks": "Clear checks",
       "qty": "Quantity",
+      "unit": "Unit",
       "less": "Less",
       "more": "More",
       "resetOne": "Back to default",

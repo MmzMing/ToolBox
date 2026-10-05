@@ -58,6 +58,7 @@ import {
   MIN_FRAMES,
   rejectedFileCount,
   targetBytesFor,
+  transparencyFor,
   WIDTH_OPTIONS,
 } from './gif-maker.service'
 
@@ -157,10 +158,12 @@ export default function GifMaker() {
         settings.fill,
         setProgress,
       )
+      const transparency = transparencyFor(settings.matte)
       let blob = await encode(frames, {
         maxColors: settings.colors,
         loopCount: settings.loopCount,
         delayCs,
+        transparency,
       })
       let note = t('note-encoded', { width: canvas.width, height: canvas.height })
 
@@ -184,7 +187,8 @@ export default function GifMaker() {
       } else if (settings.optimize || settings.dither) {
         blob = await optimize(await blob.arrayBuffer(), {
           optimizeLevel: 3,
-          maxColors: settings.colors,
+          // 透明帧的调色板里已预留透明槽，再让 gifsicle 重量化有把它并掉的风险
+          maxColors: transparency ? undefined : settings.colors,
           dither: settings.dither,
         })
         note = t('note-optimized', { colors: settings.colors })

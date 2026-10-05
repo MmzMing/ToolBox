@@ -4,6 +4,7 @@ import {
   CUSTOM_UNIT_CHOICES,
   adjustedLineCount,
   applyOverride,
+  apportionPieces,
   assertPlanInvariants,
   buildShopping,
   clockAt,
@@ -12,6 +13,7 @@ import {
   formatMass,
   isAdjusted,
   isDropped,
+  lineUnitLabel,
   normalizePlannerInput,
   nextCustomId,
   planBarbecue,
@@ -51,10 +53,12 @@ const BASE: PlannerInput = {
   dishes: DISHES,
   diets: [],
   equipmentMode: 'charcoal',
+  qtyMode: 'auto',
   grillStart: '18:30',
   sauces: ['cn-s-classic'],
   basics: ALL_BASICS,
   overrides: {},
+  unitChoices: {},
   conflictChoices: {},
   customs: [],
 }
@@ -766,5 +770,129 @@ describe('referenceRecipe', () => {
     const bigTable = scaleRecipe(recipe, 6000, 6, false)
     expect(referenceRecipe(recipe).lines.map((line) => line.amount)).toEqual(['150', '40'])
     expect(bigTable.lines.map((line) => line.amount)).toEqual(['450', '120'])
+  })
+})
+
+describe('apportionPieces', () => {
+  it('splits evenly between equal claims', () => {
+    expect(apportionPieces([1, 1, 1], 9)).toEqual([3, 3, 3])
+  })
+
+  it('keeps bigger claims ahead without hard-coding their lead', () => {
+    expect(apportionPieces([12, 6], 12, 1)).toEqual([8, 4])
+    expect(apportionPieces([12, 6, 12], 12, 1)).toEqual([5, 3, 4])
+  })
+
+  it('never lets an existing dish grow when another one joins', () => {
+    // 除数法的卖点：house / population 单调，不会像最大余额法那样触发 Alabama 悖论
+    const two = apportionPieces([12, 6], 12, 1)
+    const three = apportionPieces([12, 6, 12], 12, 1)
+    expect(three[0]).toBeLessThan(two[0])
+    expect(three[1]).toBeLessThan(two[1])
+  })
+
+  it('never drops below the floor even when that overshoots the budget', () => {
+    // 1 个人点 5 道按件买的菜：预算只有 2 件，但菜市场买不到 0.4 只鸡翅
+    expect(apportionPieces([2, 1, 1, 1, 1], 2, 1)).toEqual([1, 1, 1, 1, 1])
+  })
+
+  it('returns nothing when there is no budget or nothing to split', () => {
+    expect(apportionPieces([], 10)).toEqual([])
+    expect(apportionPieces([5, 5], 0)).toEqual([0, 0])
+  })
+})
+
+describe('unit choices', () => {
+  const lineOf = (result: ReturnType<typeof plan>, id: string) =>
+    result.shopping.groups
+      .flatMap((group) => group.lines)
+      .find((entry) => entry.ingredientId === id)
+
+  it('relabels a line without touching the number', () => {
+    const plain = plan({ dishes: ['cn-bacon'] })
+    const swapped = plan({ dishes: ['cn-bacon'], unitChoices: { 'cn-bacon': 'pack' } })
+    expect(lineOf(plain, 'cn-bacon')?.amount).toBe(18)
+    expect(lineUnitLabel(lineOf(plain, 'cn-bacon') as ShoppingLine, 'zh')).toBe('片')
+    expect(lineOf(swapped, 'cn-bacon')?.amount).toBe(18)
+    expect(lineUnitLabel(lineOf(swapped, 'cn-bacon') as ShoppingLine, 'zh')).toBe('包')
+  })
+
+  it('drops unknown line ids and units the market does not sell by', () => {
+    const result = normalizePlannerInput({
+      ...BASE,
+      unitChoices: { 'cn-bacon': 'slice', 'cn-nope': 'pack', 'jp-momo': 'skewer' } as Record<
+        string,
+        ServeUnit
+      >,
+    })
+    // skewer 是"炉子上的一串"，不是菜市场买法，所以归一化阶段就丢掉
+    expect(result.unitChoices).toEqual({ 'cn-bacon': 'slice' })
+  })
+
+  it('leaves every other line on its sourced counter', () => {
+    const result = plan({ dishes: ['cn-bacon', 'cn-sausage'], unitChoices: { 'cn-bacon': 'pack' } })
+    expect(lineOf(result, 'cn-sausage')?.unit).toBe('stick')
+  })
+})
+
+describe('per-piece dilution', () => {
+  function lineOf(result: ReturnType<typeof plan>, id: string): ShoppingLine {
+    const line = result.shopping.groups
+      .flatMap((group) => group.lines)
+      .find((entry) => entry.ingredientId === id)
+    expect(line, id).toBeDefined()
+    return line as ShoppingLine
+  }
+
+  const totalOf = (result: ReturnType<typeof plan>, ids: string[]) =>
+    ids.reduce((sum, id) => sum + (lineOf(result, id).amount ?? 0), 0)
+
+  it('leaves a lone per-piece dish at its sourced per-head amount', () => {
+    // 鸡翅人均 2 只 × 6 人；同池只有一道时无需摊薄，行为与改动前一致
+    expect(lineOf(plan({ dishes: ['cn-chicken-wing'] }), 'cn-chicken-wing').amount).toBe(12)
+  })
+
+  it('shrinks every dish when another per-piece dish joins the same pool', () => {
+    const two = plan({ dishes: ['cn-chicken-wing', 'cn-chicken-drumstick'] })
+    expect(lineOf(two, 'cn-chicken-wing').amount).toBe(8)
+    expect(lineOf(two, 'cn-chicken-drumstick').amount).toBe(4)
+
+    const three = plan({
+      dishes: ['cn-chicken-wing', 'cn-chicken-drumstick', 'cn-chicken-feet'],
+    })
+    expect(lineOf(three, 'cn-chicken-wing').amount).toBe(5)
+    expect(lineOf(three, 'cn-chicken-drumstick').amount).toBe(3)
+    expect(lineOf(three, 'cn-chicken-feet').amount).toBe(4)
+  })
+
+  it('caps the pool at the largest single dish instead of summing the picks', () => {
+    const ids = ['cn-chicken-wing', 'cn-chicken-drumstick', 'cn-chicken-feet']
+    expect(totalOf(plan({ dishes: ids }), ids)).toBe(12)
+  })
+
+  it('keeps the diluted figure as the default, so no row looks hand-edited', () => {
+    const result = plan({ dishes: ['cn-chicken-wing', 'cn-chicken-drumstick'] })
+    for (const id of ['cn-chicken-wing', 'cn-chicken-drumstick']) {
+      const line = lineOf(result, id)
+      expect(line.baseAmount).toBe(line.amount)
+      expect(isAdjusted(line)).toBe(false)
+    }
+    expect(adjustedLineCount(result)).toBe(0)
+  })
+
+  it('dilutes across the meat pool, which covers both 畜肉 and 禽肉', () => {
+    // 香肠与鸡翅抢的是同一个肉池，所以点了鸡翅就要少买香肠 —— 这是摊薄，不是串场
+    const mixed = plan({ dishes: ['cn-sausage', 'cn-chicken-wing', 'cn-chicken-drumstick'] })
+    expect(lineOf(mixed, 'cn-sausage').amount).toBe(4)
+    expect(lineOf(mixed, 'cn-chicken-wing').amount).toBe(5)
+    expect(lineOf(mixed, 'cn-chicken-drumstick').amount).toBe(3)
+  })
+
+  it('leaves dishes in other pools alone', () => {
+    // 海鲜池独立：生蚝人均 3 只 × 6 人，禽肉点多少都不该动它
+    const plain = plan({ dishes: ['cn-oyster'] })
+    const mixed = plan({ dishes: ['cn-oyster', 'cn-chicken-wing', 'cn-chicken-drumstick'] })
+    expect(lineOf(plain, 'cn-oyster').amount).toBe(18)
+    expect(lineOf(mixed, 'cn-oyster').amount).toBe(18)
   })
 })

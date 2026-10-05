@@ -17,8 +17,16 @@ import {
   UNIT_LABELS,
 } from '../data/index'
 import { formatMinutes, isNum, midpoint } from '../measure'
-import type { EquipmentMode, Ingredient, PurchaseGroupId, ServeUnit } from '../types'
+import type {
+  EquipmentMode,
+  Ingredient,
+  PurchaseGroupId,
+  QtyMode,
+  ServeUnit,
+  ShoppingLine,
+} from '../types'
 import { DishThumb } from './DishThumb'
+import { UnitSelect } from './UnitSelect'
 
 const GROUP_ORDER = DISH_GROUP_ORDER as readonly PurchaseGroupId[]
 const SAUCE_TAB = 'sauce'
@@ -58,6 +66,7 @@ function Tile({
   badges,
   meta,
   imageId,
+  corner,
 }: {
   on: boolean
   disabled?: boolean
@@ -67,43 +76,50 @@ function Tile({
   meta: React.ReactNode
   /** 给了就在左边摆一张缩略图：菜品有图，配方没有 */
   imageId?: string
+  /** 右下角那一格：手动模式下是数量填写框，其余时候不传 */
+  corner?: React.ReactNode
 }) {
   return (
-    <button
-      type="button"
-      aria-pressed={on}
-      disabled={disabled}
-      onClick={onClick}
+    <Card
       className={[
-        'focus-visible:ring-ring rounded-lg focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none',
-        disabled ? 'cursor-not-allowed opacity-45' : '',
+        // 左图、中信息、右列（上勾选 + 下数量）。Card 默认 flex-col，这里必须显式转成一行
+        'relative flex h-full flex-row items-stretch gap-2.5 rounded-lg border-none p-2 text-left transition-colors',
+        on ? 'bg-primary/8 ring-primary ring-1' : 'bg-card ring-border ring-1',
+        disabled ? 'opacity-45' : '',
       ].join(' ')}
     >
-      <Card
+      {/* 整卡点击切换勾选，但右下角那一格要能独立输入，所以点击区做成铺底的按钮，
+          内容和控件浮在它上面 —— 嵌套 button 是非法 HTML */}
+      <button
+        type="button"
+        aria-pressed={on}
+        aria-label={title}
+        disabled={disabled}
+        onClick={onClick}
         className={[
-          // Card 默认 flex-col，这里必须显式转成一行：左图、中信息、右上角勾选
-          'relative flex h-full flex-row items-center gap-2.5 rounded-lg border-none p-2 text-left transition-colors',
-          on ? 'bg-primary/8 ring-primary ring-1' : 'bg-card hover:bg-accent/50 ring-border ring-1',
+          'focus-visible:ring-ring absolute inset-0 rounded-lg focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none',
+          disabled ? 'cursor-not-allowed' : 'hover:bg-accent/50',
         ].join(' ')}
-      >
-        {/* 包一层：Card 对"直接子元素里的首图"会去掉内边距并改成上圆角，那是整幅头图的排法 */}
-        {imageId ? (
-          <span className="shrink-0">
-            <DishThumb id={imageId} name={title} />
-          </span>
-        ) : null}
-        <span className="flex min-w-0 flex-1 flex-col gap-0.5 pr-5">
-          <span className="flex flex-wrap items-center gap-1.5">
-            <span className="truncate text-sm">{title}</span>
-            {badges}
-          </span>
-          <span className="text-muted-foreground flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[11px]">
-            {meta}
-          </span>
+      />
+      {/* 包一层：Card 对"直接子元素里的首图"会去掉内边距并改成上圆角，那是整幅头图的排法 */}
+      {imageId ? (
+        <span className="pointer-events-none relative shrink-0">
+          <DishThumb id={imageId} name={title} />
         </span>
+      ) : null}
+      <span className="pointer-events-none relative flex min-w-0 flex-1 flex-col justify-center gap-0.5">
+        <span className="flex flex-wrap items-center gap-1.5">
+          <span className="truncate text-sm">{title}</span>
+          {badges}
+        </span>
+        <span className="text-muted-foreground flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[11px]">
+          {meta}
+        </span>
+      </span>
+      <span className="pointer-events-none relative flex shrink-0 flex-col items-end justify-between">
         <span
           className={[
-            'absolute top-1.5 right-1.5 grid size-4 place-items-center rounded-sm border text-[9px] leading-none',
+            'grid size-4 place-items-center rounded-sm border text-[9px] leading-none',
             on
               ? 'bg-primary border-primary text-primary-foreground'
               : 'bg-background border-border',
@@ -112,24 +128,99 @@ function Tile({
         >
           {on ? <Check className="size-3" /> : null}
         </span>
-      </Card>
-    </button>
+        {corner ? <span className="pointer-events-auto">{corner}</span> : null}
+      </span>
+    </Card>
   )
 }
 
-/** 一道菜一格：左边缩略图，中间两行信息（烤制时间／规格／要不要腌），右边勾选圈。 */
+/**
+ * 手动模式下的卡片数量框：只认整数，空值等于"没填"而不是"不买"，
+ * 与采购清单里的步进器共用同一份 overrides，两处改的是同一个数。
+ */
+function CardQty({
+  name,
+  value,
+  unit,
+  onCommit,
+  onUnit,
+}: {
+  name: string
+  value: number
+  unit: ServeUnit
+  onCommit: (amount: number) => void
+  onUnit: (unit: ServeUnit) => void
+}) {
+  const { t } = useTranslation('tools-life', { keyPrefix: 'barbecue-planner' })
+  const [draft, setDraft] = useState<string | null>(null)
+  const commit = () => {
+    const raw = draft ?? ''
+    setDraft(null)
+    if (raw.trim() === '') {
+      return
+    }
+    const parsed = Number(raw)
+    if (Number.isFinite(parsed)) {
+      onCommit(Math.max(0, Math.round(parsed)))
+    }
+  }
+  const shown = draft ?? String(value)
+  const edited = draft !== null && draft !== String(value)
+
+  return (
+    <span className="flex items-center gap-1">
+      <input
+        type="text"
+        inputMode="numeric"
+        aria-label={`${name} ${t('shop.qty')}`}
+        value={shown}
+        // 选中即改数字，不必先手动清空；Enter 提交，Esc 放弃草稿
+        onFocus={(event) => event.target.select()}
+        onChange={(event) => setDraft(event.target.value.replace(/[^\d]/g, ''))}
+        onBlur={commit}
+        onKeyDown={(event) => {
+          if (event.key === 'Enter') {
+            event.currentTarget.blur()
+          }
+          if (event.key === 'Escape') {
+            setDraft(null)
+            event.currentTarget.blur()
+          }
+        }}
+        onClick={(event) => event.stopPropagation()}
+        className={[
+          'bg-background h-6 w-12 rounded border px-1 text-center font-mono text-xs tabular-nums outline-none',
+          edited ? 'border-primary' : 'border-border',
+        ].join(' ')}
+      />
+      <UnitSelect value={unit} ariaLabel={name} onChange={onUnit} />
+    </span>
+  )
+}
+
+/** 一道菜一格：左边缩略图，中间两行信息（烤制时间／规格／要不要腌），右边上勾选下数量。 */
 function DishTile({
   item,
   mode,
   lang,
   on,
   onToggle,
+  manual,
+  line,
+  onQuantity,
+  onUnit,
 }: {
   item: Ingredient
   mode: EquipmentMode
   lang: 'zh' | 'en'
   on: boolean
   onToggle: () => void
+  /** 手动模式：勾上的卡片右下角才出现数量框 */
+  manual: boolean
+  /** 这道菜当前算出来的采购行，缺席表示引擎没给它量（比如忌口排除了） */
+  line: ShoppingLine | undefined
+  onQuantity: (amount: number) => void
+  onUnit: (unit: ServeUnit) => void
 }) {
   const { t } = useTranslation('tools-life', { keyPrefix: 'barbecue-planner' })
   const window = item.cook.windows.find((w) => w.mode === mode)
@@ -141,6 +232,17 @@ function DishTile({
       onClick={onToggle}
       title={item.name[lang]}
       imageId={item.id}
+      corner={
+        manual && on && line && line.amount !== null ? (
+          <CardQty
+            name={item.name[lang]}
+            value={line.amount}
+            unit={line.unit}
+            onCommit={onQuantity}
+            onUnit={onUnit}
+          />
+        ) : null
+      }
       meta={
         <>
           {window ? (
@@ -165,23 +267,34 @@ export function DishPicker({
   sauces,
   basics,
   mode,
+  qtyMode,
+  lineOf,
   onToggle,
   onBulk,
   onToggleSauce,
   onBulkSauces,
   onToggleBasic,
   onBulkBasics,
+  onQtyMode,
+  onQuantity,
+  onUnit,
 }: {
   selected: string[]
   sauces: string[]
   basics: string[]
   mode: EquipmentMode
+  qtyMode: QtyMode
+  /** 取某道菜当前算出来的采购行，手动模式的数量框以它为初值 */
+  lineOf: (id: string) => ShoppingLine | undefined
   onToggle: (id: string) => void
   onBulk: (ids: string[], select: boolean) => void
   onToggleSauce: (id: string) => void
   onBulkSauces: (ids: string[], select: boolean) => void
   onToggleBasic: (id: string) => void
   onBulkBasics: (ids: string[], select: boolean) => void
+  onQtyMode: (mode: QtyMode) => void
+  onQuantity: (id: string, amount: number) => void
+  onUnit: (id: string, unit: ServeUnit) => void
 }) {
   const { t, i18n } = useTranslation('tools-life', { keyPrefix: 'barbecue-planner' })
   const lang = i18n.language.startsWith('zh') ? 'zh' : 'en'
@@ -220,29 +333,49 @@ export function DishPicker({
 
   return (
     <div className="flex flex-col gap-3">
-      <div className="relative">
-        <Search
-          className="text-muted-foreground pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2"
-          aria-hidden
-        />
-        <Input
-          value={query}
-          onChange={(event) => setQuery(event.target.value)}
-          placeholder={t('dish.search')}
-          aria-label={t('dish.search')}
-          className="h-8 pr-8 pl-8 text-sm"
-        />
-        {query ? (
-          <button
-            type="button"
-            onClick={() => setQuery('')}
-            aria-label={t('dish.searchClear')}
-            title={t('dish.searchClear')}
-            className="text-muted-foreground hover:text-foreground absolute top-1/2 right-1.5 grid size-6 -translate-y-1/2 place-items-center rounded"
-          >
-            <X className="size-3.5" />
-          </button>
-        ) : null}
+      <div className="flex items-center gap-2">
+        <div className="relative min-w-0 flex-1">
+          <Search
+            className="text-muted-foreground pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2"
+            aria-hidden
+          />
+          <Input
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder={t('dish.search')}
+            aria-label={t('dish.search')}
+            className="h-8 pr-8 pl-8 text-sm"
+          />
+          {query ? (
+            <button
+              type="button"
+              onClick={() => setQuery('')}
+              aria-label={t('dish.searchClear')}
+              title={t('dish.searchClear')}
+              className="text-muted-foreground hover:text-foreground absolute top-1/2 right-1.5 grid size-6 -translate-y-1/2 place-items-center rounded"
+            >
+              <X className="size-3.5" />
+            </button>
+          ) : null}
+        </div>
+
+        {/* 数量谁说了算：auto 由引擎按池摊薄，manual 时每张勾上的卡片右下角出现填写框 */}
+        <div
+          className="bg-muted flex shrink-0 items-center gap-0.5 rounded-md p-0.5"
+          title={t('qty.hint')}
+        >
+          {(['auto', 'manual'] as const).map((option) => (
+            <Button
+              key={option}
+              size="sm"
+              variant={qtyMode === option ? 'default' : 'ghost'}
+              className="h-7 px-2 text-xs"
+              onClick={() => onQtyMode(option)}
+            >
+              {t(`qty.${option}`)}
+            </Button>
+          ))}
+        </div>
       </div>
 
       {keyword ? (
@@ -277,6 +410,10 @@ export function DishPicker({
                   lang={lang}
                   on={selected.includes(item.id)}
                   onToggle={() => onToggle(item.id)}
+                  manual={qtyMode === 'manual'}
+                  line={lineOf(item.id)}
+                  onQuantity={(amount) => onQuantity(item.id, amount)}
+                  onUnit={(unit) => onUnit(item.id, unit)}
                 />
               ))}
             </div>
@@ -347,6 +484,10 @@ export function DishPicker({
                       lang={lang}
                       on={selected.includes(item.id)}
                       onToggle={() => onToggle(item.id)}
+                      manual={qtyMode === 'manual'}
+                      line={lineOf(item.id)}
+                      onQuantity={(amount) => onQuantity(item.id, amount)}
+                      onUnit={(unit) => onUnit(item.id, unit)}
                     />
                   ))}
                 </div>

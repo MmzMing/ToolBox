@@ -26,6 +26,9 @@ export type Measure =
 
 export type CuisineId = 'cn' | 'jp' | 'kr' | 'us'
 
+/** 每道菜买多少：auto = 由引擎按采购池摊薄；manual = 在点菜卡片上自己填 */
+export type QtyMode = 'auto' | 'manual'
+
 export type AppetiteTier = 'light' | 'standard' | 'heavy'
 
 export type DietTag = 'noSpicy' | 'vegetarianFirst' | 'glutenFree' | 'noSeafood' | 'kidFriendly'
@@ -238,6 +241,11 @@ export type PlannerInput = {
   /** 自由勾选的蘸料／撒料配方 id；腌料仍由所选菜品自动决定 */
   sauces: string[]
   /**
+   * 数量是引擎摊的还是自己填的。manual 时卡片右下角出现填写框，
+   * 写进的还是同一份 overrides —— 点菜页和采购清单改的是同一个数。
+   */
+  qtyMode: QtyMode
+  /**
    * 勾选带走的「基本」成品调料 id（蒜蓉辣酱、蜂蜜这类买来直接用的）。
    * 与 sauces 分开：那是自己配的方子，这是菜市场一瓶一瓶的东西。
    */
@@ -248,6 +256,11 @@ export type PlannerInput = {
    * 缺席 = 用引擎算出来的默认量。
    */
   overrides: Record<string, number>
+  /**
+   * 把某一行的买法换成别的量词（"10 片" 改成 "10 包"）。
+   * 只换标签、不换数字 —— 数据里没有单件净重，换算就是凭空编一个克数。
+   */
+  unitChoices: Record<string, ServeUnit>
   conflictChoices: Record<string, string>
   /** 各分组卡片末尾手动补的那一行，只影响清单，不参与肉量/串数/炭/配方的推导 */
   customs: CustomItem[]

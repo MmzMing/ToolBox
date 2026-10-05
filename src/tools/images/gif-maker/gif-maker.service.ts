@@ -1,5 +1,6 @@
 import { estimateGifBytes, checkBudget, limitsFor, type BudgetVerdict } from '@/modules/gif/budget'
 import { canvasForRatio, type Bounds, type FillMode } from '@/modules/gif/crop'
+import type { GifTransparency } from '@/modules/gif/encode'
 import type { MatteColor } from '@/modules/gif/image-frames'
 import { targetOf, type PlatformTargetId } from '@/modules/gif/targets'
 
@@ -48,6 +49,14 @@ export const DEFAULT_SETTINGS: MakerSettings = {
   optimize: true,
   target: 'off',
   customKb: 200,
+}
+
+/**
+ * GIF 只有 1-bit 透明：白/黑底走不透明路径，透明底要显式给编码器一个阈值，
+ * 否则 framesFromFiles 留下的 alpha 会在量化时被直接丢掉（导出的其实是不透明图）。
+ */
+export function transparencyFor(matte: MatteColor): GifTransparency | undefined {
+  return matte === 'transparent' ? { threshold: 127, dispose: 2 } : undefined
 }
 
 /** 画布尺寸：比例跟随第一张图时按等比收口，锁定时长边 = width */

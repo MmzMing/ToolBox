@@ -27,6 +27,7 @@ import type {
   LocalText,
   PlannerInput,
   PurchaseGroupId,
+  QtyMode,
   Recipe,
   RecipeItem,
   RecipePlan,
@@ -39,6 +40,7 @@ import type {
 } from './types'
 
 const APPETITE_IDS: readonly AppetiteTier[] = ['light', 'standard', 'heavy']
+const QTY_MODES: readonly QtyMode[] = ['auto', 'manual']
 const DIET_IDS: readonly DietTag[] = [
   'noSpicy',
   'vegetarianFirst',
@@ -125,8 +127,13 @@ export function normalizePlannerInput(raw: Partial<PlannerInput>): PlannerInput 
       raw.overrides,
       customs.map((item) => item.id),
     ),
+    unitChoices: normalizeUnitChoices(
+      raw.unitChoices,
+      customs.map((item) => item.id),
+    ),
     diets: dedupe((raw.diets ?? []).filter((id) => isOneOf(DIET_IDS, id))),
     equipmentMode: isOneOf(MODE_IDS, raw.equipmentMode) ? raw.equipmentMode : 'charcoal',
+    qtyMode: isOneOf(QTY_MODES, raw.qtyMode) ? raw.qtyMode : 'auto',
     grillStart: normalizeClock(raw.grillStart),
     conflictChoices,
     customs,
@@ -200,6 +207,24 @@ function normalizeOverrides(
       continue
     }
     out[id] = Math.min(MAX_QTY, Math.max(0, Math.round(value)))
+  }
+  return out
+}
+
+/**
+ * 换行上的量词：只认清单里真实存在的行号与菜市场买得到的单位。
+ * 非法值整条丢掉，让那一行回到数据自带的量词 —— 猜一个单位会把"10 片"显示成"10 瓶"。
+ */
+function normalizeUnitChoices(
+  raw: Record<string, ServeUnit> | undefined,
+  extraIds: readonly string[] = [],
+): Record<string, ServeUnit> {
+  const out: Record<string, ServeUnit> = {}
+  for (const [id, unit] of Object.entries(raw ?? {})) {
+    if ((!LINE_IDS.includes(id) && !extraIds.includes(id)) || !CUSTOM_UNIT_CHOICES.includes(unit)) {
+      continue
+    }
+    out[id] = unit
   }
   return out
 }
@@ -303,6 +328,77 @@ function allocatePool(
     result.set(item.id, yieldPct && yieldPct > 0 ? each / (yieldPct / 100) : each)
   }
   return result
+}
+
+/**
+ * Webster / Sainte-Laguë 除数法分配整数件数：每次把下一份发给"边际商 w/(2s+1)"最大的那道。
+ * 刻意不用最大余额法（Hamilton）：Balinski–Young 不可能定理说明「满足 quota」与
+ * 「无悖论」不可兼得，而最大余额法会触发 Alabama / population 悖论 ——
+ * 表现就是多勾一道菜，别道的量反而涨回去，正是用户最不能接受的行为。
+ * 除数法按构造满足 house 与 population 单调，且不像 Jefferson/d'Hondt 那样系统性偏袒大项。
+ * floor 是菜市场下限：0.4 只鸡翅买不到，宁可每样保底 1 件让总数略超预算，
+ * 也不能四舍五入成 0 让人空手上桌。
+ */
+export function apportionPieces(weights: readonly number[], total: number, floor = 0): number[] {
+  const count = weights.length
+  if (count === 0 || total <= 0) {
+    return weights.map(() => 0)
+  }
+  const out = weights.map(() => floor)
+  let left = Math.round(total) - floor * count
+  for (; left > 0; left -= 1) {
+    let best = 0
+    let bestKey = -Infinity
+    for (let i = 0; i < count; i += 1) {
+      // 已分到的份数用 s 表示，再拿一份的边际价值是 w/(2s+1)
+      const key = weights[i] / (2 * (out[i] - floor) + 1)
+      if (key > bestKey) {
+        bestKey = key
+        best = i
+      }
+    }
+    out[best] += 1
+  }
+  return out
+}
+
+/**
+ * 按人头计数的菜（生蚝 3 只/人、鸡翅 1 只/人…）共享一个件数预算。
+ * 预算取这些菜里单人份最大那道 × 人数，再按各自的人均件数摊：
+ * 只勾 1 道时结果与「人均 × 人数」完全相同，多勾一道就整体摊薄 ——
+ * 一桌人吃得下的件数是有限的，这既是用户点菜时的直觉，也是池内项已有的行为。
+ */
+function dilutePieceLines(lines: ShoppingLine[]): void {
+  for (const pool of POOL_KEYS) {
+    const rows: { line: ShoppingLine; weight: number }[] = []
+    for (const line of lines) {
+      const item = INGREDIENT_BY_ID[line.ingredientId]
+      if (!item || item.qty.mode !== 'perPerson' || POOL_OF_GROUP[item.group] !== pool) {
+        continue
+      }
+      if (line.baseAmount === null || line.amount === null) {
+        // 资料缺口的行没有量可摊
+        continue
+      }
+      rows.push({ line, weight: line.baseAmount })
+    }
+    if (rows.length < 2) {
+      continue
+    }
+    // baseAmount 已经是「人均 × 人数」，所以预算上限直接取最大那道，不再乘一次人数
+    const cap = Math.max(...rows.map((row) => row.weight))
+    const shares = apportionPieces(
+      rows.map((row) => row.weight),
+      cap,
+      1,
+    )
+    rows.forEach((row, index) => {
+      // baseAmount 一起改写：摊薄后的值才是这一行的"默认量"，
+      // 否则每行都会挂上"已改过"和恢复按钮，采购清单看起来全是手动痕迹
+      row.line.amount = shares[index]
+      row.line.baseAmount = shares[index]
+    })
+  }
 }
 
 function composeLine(
@@ -432,6 +528,7 @@ export function buildShopping(input: PlannerInput, universe: readonly Ingredient
       lines.push(line)
     }
   }
+  dilutePieceLines(lines)
 
   const byGroup = new Map<PurchaseGroupId, ShoppingLine[]>()
   for (const line of lines) {
@@ -504,6 +601,12 @@ export function buildShopping(input: PlannerInput, universe: readonly Ingredient
       const override = input.overrides[line.ingredientId]
       if (override !== undefined && line.baseAmount !== null) {
         line.amount = override
+      }
+      const unit = input.unitChoices[line.ingredientId]
+      if (unit) {
+        // 只换量词，数字原样留着；食材自带的量词让位给用户选的
+        line.unit = unit
+        line.unitLabel = undefined
       }
     }
   }
