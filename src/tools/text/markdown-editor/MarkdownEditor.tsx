@@ -427,10 +427,10 @@ export default function MarkdownEditor() {
     <div
       className={
         fullscreen
-          ? 'bg-background fixed inset-0 z-50 flex h-svh flex-col'
-          : // BaseLayout 是 min-h-svh + 文档级滚动（main 只有 flex-1），所以 h-full 在这里
-            // 解析不出确定高度、工具栏会跟着页面滚走。减掉 sticky 顶栏的 h-14 自己撑满。
-            'flex h-[calc(100svh-3.5rem)] min-h-0 flex-col'
+          ? 'bg-background fixed inset-0 z-40 flex h-svh flex-col'
+          : // 画布类工具要贴边用满，main 不加顶部留白；有自己标题行的得自己补上，
+            // 否则标题会钻到悬浮胶囊底下
+            'flex h-full min-h-0 flex-col pt-(--shell-immersive-inset-top)'
       }
     >
       <EditorToolbar

@@ -85,7 +85,7 @@ export function SessionDock({
   }
 
   return (
-    <div className="bg-card/90 fixed top-1/2 right-3 z-50 flex -translate-y-1/2 flex-col items-center gap-1 rounded-xl border p-1.5 shadow-lg backdrop-blur">
+    <div className="bg-card/90 fixed top-1/2 right-3 z-40 flex -translate-y-1/2 flex-col items-center gap-1 rounded-xl border p-1.5 shadow-lg backdrop-blur">
       <input
         ref={fileRef}
         type="file"

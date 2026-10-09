@@ -50,10 +50,18 @@
   "about": "About",
   "actions": "Quick actions",
   "breadcrumbHome": "Tools",
-  "openSidebar": "Show sidebar",
-  "collapseSidebar": "Collapse sidebar",
   "openMenu": "Open navigation menu",
   "backHome": "Back to home",
+  "dock": {
+    "home": "Home",
+    "categories": "Tool categories",
+    "tools": "{{category}} tools",
+    "menu": "Menu",
+    "settings": "Quick actions",
+    "brightness": "Brightness",
+    "expand": "Show navigation",
+    "more": "More"
+  },
   "beian": {
     "policeAlt": "PSB filing badge"
   },

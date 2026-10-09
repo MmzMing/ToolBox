@@ -64,7 +64,8 @@ export function ToolLayout({ tool, children, fill = false, wide = false }: ToolL
 
   if (fill) {
     // 沉浸式工具自管页面头部与留白（画布类要贴边，卡片网格类自己加 padding），
-    // 这里只给 SEO（无可见头部）与打通到视口的高度链。
+    // 这里只给 SEO（无可见头部）与打通到视口的高度链——app-shell 的 `<main>` 有确定
+    // 高度，所以 `h-full` 现在真的能铺满。
     // sr-only 的 h1 不能省：整页式工具没有可见标题，缺 H1 就等于缺页面主题。
     return (
       <div className="flex h-full min-h-0 w-full flex-col">

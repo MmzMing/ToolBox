@@ -7,10 +7,10 @@ const MIN_FILL_HEIGHT = 320
 const BOTTOM_GAP_PX = 24
 
 /**
- * 实测「视窗剩余高度」交给工作台铺满，窗口尺寸或上方内容变化时重测。
+ * 实测「滚动容器剩余高度」交给工作台铺满，容器尺寸或上方内容变化时重测。
  *
- * 不靠祖先的高度链：工具页的布局没有把高度打通到视口，实测更稳，也不会因为
- * 描述文案折行、上方多出一条错误提示而把高度算错。
+ * 不靠祖先的高度链，也不看 `window.scrollY`：app-shell 模式下唯一的滚动容器是
+ * `<main>`，文档本身永不滚动，`window.scrollY` 恒为 0，拿它算会把高度算大。
  *
  * @param enabled 只在需要铺满的布局（如 PC 分栏）下测量，否则返回 `null`
  * @returns `rootRef` 挂到工作台根节点，`height` 为其像素高度（不测量时为 null）
@@ -26,13 +26,22 @@ export function useFillHeight(enabled: boolean) {
       return
     }
 
+    const scroller = element.closest<HTMLElement>('[data-app-shell-scroll]')
+
     const measure = () => {
-      const top = element.getBoundingClientRect().top + window.scrollY
-      setHeight(Math.max(MIN_FILL_HEIGHT, Math.round(window.innerHeight - top - BOTTOM_GAP_PX)))
+      // 无 app-shell 时（如简历编辑器那套独立壳）退回视口口径
+      const viewportHeight = scroller !== null ? scroller.clientHeight : window.innerHeight
+      const top =
+        element.getBoundingClientRect().top -
+        (scroller !== null ? scroller.getBoundingClientRect().top : 0) +
+        (scroller?.scrollTop ?? 0)
+      setHeight(Math.max(MIN_FILL_HEIGHT, Math.round(viewportHeight - top - BOTTOM_GAP_PX)))
     }
 
     measure()
+    const scrollTarget: EventTarget = scroller ?? window
     window.addEventListener('resize', measure)
+    scrollTarget.addEventListener('scroll', measure, { passive: true })
     // 上方的错误提示出现/消失会改变本元素的起始位置，用父容器尺寸变化兜住
     const parent = element.parentElement
     const observer =
@@ -42,6 +51,7 @@ export function useFillHeight(enabled: boolean) {
     }
     return () => {
       window.removeEventListener('resize', measure)
+      scrollTarget.removeEventListener('scroll', measure)
       observer?.disconnect()
     }
   }, [enabled])

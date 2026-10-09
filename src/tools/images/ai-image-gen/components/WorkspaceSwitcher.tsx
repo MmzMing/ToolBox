@@ -62,7 +62,7 @@ export function WorkspaceSwitcher({
   }
 
   return (
-    <div className="pointer-events-none absolute inset-x-3 top-3 z-30 flex">
+    <div className="pointer-events-none absolute inset-x-3 top-3 z-30 flex md:top-(--shell-inset-top)">
       <div
         className="pointer-events-auto relative w-40"
         onPointerEnter={hold}

@@ -132,7 +132,15 @@ export function IoCard({
   )
 
   return (
-    <Card className={cn('relative gap-0 p-0', fillHeight ? 'h-full' : 'h-80 xl:h-96')}>
+    <Card
+      className={cn(
+        // 用 border 而不是 Card 默认的 ring：ring 是画在边框盒之外的 box-shadow，
+        // 而面板与卡片完全齐边，ResizablePanel 的 overflow 会把外缘那 1px 裁掉，
+        // 浅色模式下白底白卡，线条就直接消失了。border 画在盒内，裁不到。
+        'border-border relative gap-0 border p-0 ring-0',
+        fillHeight ? 'h-full' : 'h-80 xl:h-96',
+      )}
+    >
       {!floatingActions && (
         <CardHeader className="flex items-center justify-between gap-2 border-b pt-4">
           <CardTitle className="flex items-center gap-1.5 text-sm font-medium">

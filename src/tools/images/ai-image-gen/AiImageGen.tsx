@@ -240,7 +240,7 @@ export default function AiImageGen() {
       {/* 配置提示贴在顶栏：对话框已经挂到各节点底下了，底部不再占一整格。
           窄屏靠右，左边让开工作区卡片（w-40）、右边让开 dock（56px），否则三条会叠在一起 */}
       {!connection ? (
-        <div className="pointer-events-none absolute inset-x-3 top-3 z-20 flex justify-end pr-14 md:justify-center md:pr-0">
+        <div className="pointer-events-none absolute inset-x-3 top-3 z-20 flex justify-end pr-14 md:top-(--shell-inset-top) md:justify-center md:pr-0">
           <button
             type="button"
             onClick={openSettings}

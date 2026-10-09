@@ -29,12 +29,10 @@ export default function ToolPage({ tool }: { tool: Tool }) {
 }
 
 function ToolLoading() {
-  // 撑到视口六成高，圆环才会落在页面垂直中部。原来只有 min-h-64（256px），
-  // 扣掉布局顶栏与工具页头部后，圆环停在描述正下方、看着贴顶。
-  // 取值按「顶栏 56 + 工具页头部/描述/留白 ≈ 115」估：60svh 上下时圆心约在视口 49% 处；
-  // 用 svh 不用 vh，移动端地址栏伸缩时不会跟着跳。
+  // app-shell 下 `<main>` 是唯一的滚动容器，`h-full` 就能铺满一屏；非沉浸页拿不到
+  // 确定高度时退回 40svh 兜底，避免占位块把 main 撑出第二条滚动条。
   return (
-    <div className="flex min-h-[60svh] items-center justify-center">
+    <div className="flex h-full min-h-[40svh] items-center justify-center">
       <RingLoader />
     </div>
   )

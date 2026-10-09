@@ -55,6 +55,15 @@
   --color-rule-escape: var(--rule-escape);
   --color-rule-clean: var(--rule-clean);
   --color-rule-convert: var(--rule-convert);
+  /* 悬浮层（dock / 胶囊 / 二级面板）专用语义令牌：亮暗各一套，组件内禁止散写 bg-card/90 */
+  --color-dock: var(--dock-bg);
+  --color-dock-foreground: var(--dock-fg);
+  --color-dock-panel: var(--dock-panel-bg);
+  --color-dock-panel-foreground: var(--dock-fg);
+  --color-dock-border: var(--dock-border);
+  --color-dock-accent: var(--dock-accent);
+  --shadow-dock: var(--dock-shadow);
+  --blur-dock: var(--dock-blur);
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -104,6 +113,23 @@
   /* Markdown 预览的行内强调色（博客同款：紫色波浪下划线 / 红色粗删除线） */
   --md-italic-wavy: oklch(0.6 0.15 285);
   --md-del-line: oklch(0.58 0.21 27);
+  /* 悬浮 dock：半透白底 + 强阴影，亮色下靠阴影而非描边分层 */
+  --dock-bg: oklch(1 0 0 / 82%);
+  --dock-fg: oklch(0.205 0 0);
+  --dock-panel-bg: oklch(1 0 0 / 94%);
+  --dock-border: oklch(0.75 0 0 / 30%);
+  --dock-accent: var(--primary);
+  --dock-shadow: 0 10px 30px -6px oklch(0 0 0 / 18%), 0 2px 6px -2px oklch(0 0 0 / 12%);
+  --dock-blur: 14px;
+  /* app-shell 内容留白：手机底部 dock 占高，桌面/平板左侧 dock 与顶部胶囊占位 */
+  --shell-inset-top: 0rem;
+  --shell-inset-inline-start: 0rem;
+  --shell-inset-bottom: 4.5rem;
+  /* 沉浸页的顶部让位由工具自己的头部承担（见 GifEditor 等），main 不再加 padding：
+     那条 padding 带属于 main，既会在画布的点阵背景上切出一块纯色，
+     又会把落在里面的点击收进 main 的 pointerdown，误触发 dock 折叠 */
+  --shell-immersive-inset-top: 0rem;
+  --shell-immersive-inset-bottom: 4.5rem;
 }
 
 .dark {
@@ -144,6 +170,25 @@
   --sidebar-ring: oklch(0.556 0 0);
   --md-italic-wavy: oklch(0.75 0.12 285);
   --md-del-line: oklch(0.7 0.19 25);
+  /* 暗色主体按设计定在 #161616：比页面底（≈#0d0d0d）亮一档才分得开，
+     带 alpha 是为了留住毛玻璃，纯不透明会糊成一块板 */
+  --dock-bg: #161616e0;
+  --dock-fg: oklch(0.985 0 0);
+  --dock-panel-bg: #161616f5;
+  --dock-border: oklch(1 0 0 / 14%);
+  --dock-shadow: 0 10px 30px -6px oklch(0 0 0 / 60%), 0 2px 6px -2px oklch(0 0 0 / 45%);
+}
+
+/* 平板与桌面：左侧 dock 与顶部胶囊接管，底部 dock 让位。
+   底部不再留常驻带——备案号只在首页页脚出现 */
+@media (min-width: 768px) {
+  :root {
+    --shell-inset-top: 4.5rem;
+    --shell-inset-inline-start: 5rem;
+    --shell-inset-bottom: 0rem;
+    --shell-immersive-inset-top: 3.5rem;
+    --shell-immersive-inset-bottom: 0rem;
+  }
 }
 
 @layer base {

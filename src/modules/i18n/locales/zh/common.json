@@ -50,10 +50,18 @@
   "about": "关于",
   "actions": "快捷操作",
   "breadcrumbHome": "工具集",
-  "openSidebar": "展开侧栏",
-  "collapseSidebar": "收起侧栏",
   "openMenu": "打开导航菜单",
   "backHome": "返回首页",
+  "dock": {
+    "home": "主页",
+    "categories": "工具分类",
+    "tools": "{{category}} 的工具",
+    "menu": "菜单",
+    "settings": "快捷入口",
+    "brightness": "亮度",
+    "expand": "展开导航",
+    "more": "更多"
+  },
   "beian": {
     "policeAlt": "公安备案标识"
   },

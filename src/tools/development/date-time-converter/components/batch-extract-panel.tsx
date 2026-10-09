@@ -92,7 +92,7 @@ export function BatchExtractPanel() {
       )}
 
       <div className="grid gap-4 xl:grid-cols-2">
-        <div className="flex h-[26rem] flex-col gap-2 self-start xl:sticky xl:top-20 xl:h-[32rem]">
+        <div className="flex h-[26rem] flex-col gap-2 self-start xl:sticky xl:top-(--shell-inset-top) xl:h-[32rem]">
           <ToggleGroup
             type="single"
             size="sm"
@@ -124,8 +124,8 @@ export function BatchExtractPanel() {
         </div>
 
         <div className="flex min-w-0 flex-col gap-3">
-          {/* 常驻工具条：钉在 sticky 顶栏（h-14）下方，长列表滚动时排序 / 过滤 / 复制始终可达 */}
-          <div className="bg-background/95 sticky top-14 z-10 -mb-3 flex flex-col gap-3 pb-3 backdrop-blur-sm">
+          {/* 常驻工具条：钉在滚动容器顶部、悬浮胶囊组之下，长列表滚动时排序 / 过滤 / 复制始终可达 */}
+          <div className="bg-background/95 sticky top-(--shell-inset-top) z-10 -mb-3 flex flex-col gap-3 pb-3 backdrop-blur-sm">
             <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
               <div className="text-muted-foreground flex flex-wrap items-center gap-x-2 text-xs">
                 <Stat label={t('count')} value={String(visible.length)} />
