@@ -645,7 +645,8 @@ export default function GifEditor() {
   )
 
   return (
-    <div className="flex h-full min-h-0 flex-col pt-(--shell-immersive-inset-top)">
+    // 与 gif-bg-remover 同理：沉浸页的 main 无 padding，不限宽会让预览帧被放大到发糊
+    <div className="mx-auto flex h-full min-h-0 w-full max-w-screen-2xl flex-col pt-(--shell-immersive-inset-top)">
       <header className="flex shrink-0 flex-wrap items-center gap-x-3 gap-y-1 px-4 py-2">
         <span className="bg-primary/10 text-primary flex size-9 shrink-0 items-center justify-center rounded-lg">
           <tool.icon className="size-5" />

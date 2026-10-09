@@ -849,7 +849,8 @@ export default function GifBgRemover() {
   )
 
   return (
-    <div className="flex h-full min-h-0 flex-col pt-(--shell-immersive-inset-top)">
+    // 沉浸页的 main 不带 padding，宽度只在这里收口：画布撑满视口会把小 GIF 放大到发糊
+    <div className="mx-auto flex h-full min-h-0 w-full max-w-screen-2xl flex-col pt-(--shell-immersive-inset-top)">
       <header className="flex shrink-0 flex-wrap items-center gap-x-3 gap-y-1 px-4 py-2">
         <span className="bg-primary/10 text-primary flex size-9 shrink-0 items-center justify-center rounded-lg">
           <tool.icon className="size-5" />

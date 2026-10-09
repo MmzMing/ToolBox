@@ -2,7 +2,7 @@ import { House, Info, Menu, Search, Settings } from 'lucide-react'
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
 import { useEffect, useRef, useState } from 'react'
 import type { CSSProperties, ComponentType, ReactNode, SVGProps } from 'react'
-import { useLocation, useNavigate } from 'react-router'
+import { useLocation, useNavigate, Link } from 'react-router'
 import { useTranslation } from 'react-i18next'
 
 import { GithubIcon } from '@/components/icons/github-icon'
@@ -150,7 +150,7 @@ export function MobileDock({ homeActive, onOpenPalette }: MobileDockProps) {
         aria-label={t('dock.settings')}
         className="bg-dock text-dock-foreground shadow-dock backdrop-blur-dock flex items-center gap-2 rounded-full p-1"
       >
-        <LabeledKey icon={House} label={t('dock.home')} href="/" active={homeActive} />
+        <LabeledKey icon={House} label={t('dock.home')} to="/" active={homeActive} />
 
         <div className="relative flex items-center justify-center">
           <AnimatePresence initial={false}>
@@ -198,23 +198,21 @@ export function MobileDock({ homeActive, onOpenPalette }: MobileDockProps) {
   )
 }
 
-type LabeledKeyProps = {
-  icon: ComponentType<SVGProps<SVGSVGElement>>
-  label: string
-  href?: string
-  active?: boolean
-  onActivate?: () => void
-}
-
 /** dock 两端的「图标 + 文字」键：只留文字与图标，不要胶囊底、描边和阴影 */
 const labeledKeyClass =
   'text-dock-foreground/80 hover:text-dock-foreground flex h-11 shrink-0 items-center gap-1.5 rounded-full px-3 text-sm no-underline outline-none transition-colors duration-200 hover:no-underline motion-reduce:transition-none'
 
-/**
- * dock 两端的「图标 + 文字」键：常驻可见，不像顶栏那样要悬停才长出文字。
- * 它们贴在 dock 自己的玻璃条上，再叠一层胶囊底就会变成双层底。
- */
-function LabeledKey({ icon: Icon, label, href, active = false, onActivate }: LabeledKeyProps) {
+type LabeledKeyProps = {
+  icon: ComponentType<SVGProps<SVGSVGElement>>
+  label: string
+  /** 站内路由：必须走 Link，裸 `<a href>` 会整页重载，dev 下表现为白屏数秒、dock 一起消失 */
+  to?: string
+  active?: boolean
+  onActivate?: () => void
+}
+
+/** dock 两端的「图标 + 文字」键：常驻可见，不像顶栏那样要悬停才长出文字 */
+function LabeledKey({ icon: Icon, label, to, active = false, onActivate }: LabeledKeyProps) {
   const classes = cn(labeledKeyClass, active && 'text-dock-accent')
   const inner = (
     <>
@@ -223,14 +221,14 @@ function LabeledKey({ icon: Icon, label, href, active = false, onActivate }: Lab
     </>
   )
 
-  return href === undefined ? (
+  return to === undefined ? (
     <button type="button" aria-label={label} onClick={onActivate} className={classes}>
       {inner}
     </button>
   ) : (
-    <a href={href} aria-label={label} className={classes}>
+    <Link to={to} aria-label={label} className={classes}>
       {inner}
-    </a>
+    </Link>
   )
 }
 

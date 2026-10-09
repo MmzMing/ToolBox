@@ -37,9 +37,10 @@ export function NavList(props: NavListProps) {
 
   if (props.mode === 'panel') {
     const group = toolsByCategory.find((entry) => entry.category === props.category)
+    // 工具整组右移，与浮层顶部的分类标题错开，和手机抽屉保持同一套层级
     return (
       <nav
-        className="flex flex-col gap-0.5"
+        className="flex flex-col gap-0.5 ps-5"
         aria-label={t('dock.tools', { category: tCategory(props.category) })}
       >
         {(group?.tools ?? []).map((tool) => (
