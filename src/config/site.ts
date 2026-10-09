@@ -28,6 +28,8 @@ export const siteConfig = {
   siteUrl: 'https://tool.mmzhiku.xyz',
   /** GitHub 仓库地址 */
   githubUrl: 'https://github.com/MmzMing/ToolBox',
+  /** 本站仓库标识（owner/name）：关于页卡片据此向 GitHub 公开接口读 star/fork */
+  githubRepo: 'MmzMing/ToolBox',
   /** 博客地址 */
   blogUrl: 'https://tblog.mmzhiku.xyz',
   /**

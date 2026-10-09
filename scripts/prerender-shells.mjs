@@ -132,11 +132,14 @@ const toolBody = (tool) =>
     )}</a></p>`,
     '</main>',
   ].join('\n')
-const aboutBody = (title, intro) =>
+const aboutBody = (title, qa) =>
   [
     '<main class="mx-auto w-full max-w-4xl px-4 py-8">',
     `  <h1 class="text-2xl font-bold md:text-3xl">${escapeHtml(title)}</h1>`,
-    `  <p class="text-muted-foreground mt-3 text-sm leading-relaxed md:text-base">${escapeHtml(intro)}</p>`,
+    ...qa.flatMap(([question, answer]) => [
+      `  <h2 class="mt-10 text-xl font-semibold md:text-2xl">${escapeHtml(question)}</h2>`,
+      `  <p class="text-muted-foreground mt-3 text-sm leading-relaxed md:text-base">${escapeHtml(answer)}</p>`,
+    ]),
     `  <p class="mt-6 text-sm"><a href="${escapeHtml(pageUrl(''))}">${escapeHtml(
       breadcrumbHome,
     )}</a> · <a href="${escapeHtml(pageUrl('llms.txt'))}">llms.txt</a></p>`,
@@ -178,13 +181,24 @@ for (const tool of tools) {
 }
 
 const aboutTitle = interpolate(requireCopy(zhAbout, 'title', 'about'), { site: siteName })
-const aboutIntro = interpolate(requireCopy(zhAbout, 'intro', 'about'), {
-  site: siteName,
-  count: tools.length,
-})
+/** 关于页问答：正文与 about-page.tsx 的 Q1–Q6 同源，q6 的协议名在两句之间 */
+const aboutQa = ['q1', 'q2', 'q3', 'q4', 'q5'].map((key) => [
+  requireCopy(zhAbout, `${key}Title`, 'about'),
+  interpolate(requireCopy(zhAbout, `${key}Body`, 'about'), {
+    site: siteName,
+    count: tools.length,
+    categories: readCategoryOrder(root).length,
+  }),
+])
+aboutQa.push([
+  requireCopy(zhAbout, 'q6Title', 'about'),
+  [requireCopy(zhAbout, 'q6Body', 'about'), 'MIT', requireCopy(zhAbout, 'q6Tail', 'about')].join(
+    ' ',
+  ),
+])
 emit(
   'about',
-  aboutBody(aboutTitle, aboutIntro),
+  aboutBody(aboutTitle, aboutQa),
   buildSeoHead({
     // about.title 自身已含品牌名（「关于 {{site}}」），不再拼后缀，否则品牌在一次出现两遍
     title: aboutTitle,
