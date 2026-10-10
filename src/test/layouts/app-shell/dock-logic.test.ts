@@ -137,29 +137,20 @@ describe('nextFocusIndex', () => {
 })
 
 describe('isDockCollapsed', () => {
-  it('stays expanded on ordinary tool pages', () => {
-    expect(
-      isDockCollapsed({ collapsedAt: '/text-diff', pathname: '/text-diff', immersive: false }),
-    ).toBe(false)
+  it('collapses on an ordinary tool page once its content area has been used', () => {
+    expect(isDockCollapsed({ collapsedAt: '/text-diff', pathname: '/text-diff' })).toBe(true)
+    expect(isDockCollapsed({ collapsedAt: '/qr-code', pathname: '/qr-code' })).toBe(true)
   })
 
-  it('collapses once the content area has been used on an immersive page', () => {
-    expect(
-      isDockCollapsed({ collapsedAt: '/gif-editor', pathname: '/gif-editor', immersive: true }),
-    ).toBe(true)
+  it('collapses on an immersive page the same way', () => {
+    expect(isDockCollapsed({ collapsedAt: '/gif-editor', pathname: '/gif-editor' })).toBe(true)
   })
 
   it('expands again after navigating away and back', () => {
-    expect(
-      isDockCollapsed({
-        collapsedAt: '/gif-editor',
-        pathname: '/markdown-editor',
-        immersive: true,
-      }),
-    ).toBe(false)
-    expect(isDockCollapsed({ collapsedAt: null, pathname: '/gif-editor', immersive: true })).toBe(
+    expect(isDockCollapsed({ collapsedAt: '/gif-editor', pathname: '/markdown-editor' })).toBe(
       false,
     )
+    expect(isDockCollapsed({ collapsedAt: null, pathname: '/gif-editor' })).toBe(false)
   })
 })
 

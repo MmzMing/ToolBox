@@ -154,19 +154,20 @@ export function nextFocusIndex(input: {
 }
 
 /**
- * dock 是否折成左下角那颗按钮。
+ * dock 是否折成左边缘那颗按钮。
  *
- * 只在沉浸式工具页成立（普通工具页要靠 dock 频繁切换，收起来等于把导航弄丢），
- * 并且比对折叠时所在的路由：换页后自动展开，比在 effect 里补一次 setState 少一轮渲染。
+ * 任何页面碰一下内容区都折——画布类工具要把画面让出来，普通工具页同样不需要
+ * 一列图标条常驻挡在左侧；换页后自动展开，比在 effect 里补一次 setState 少一轮渲染。
  */
-export function isDockCollapsed(input: {
-  collapsedAt: string | null
-  pathname: string
-  immersive: boolean
-}): boolean {
-  const { collapsedAt, pathname, immersive } = input
-  return immersive && collapsedAt !== null && collapsedAt === pathname
+export function isDockCollapsed(input: { collapsedAt: string | null; pathname: string }): boolean {
+  return input.collapsedAt !== null && input.collapsedAt === input.pathname
 }
+
+/** 折叠按钮静止时向视窗外缩的位移：44px 的键正好只剩半截露在外面 */
+export const DOCK_HANDLE_RETRACT_X = -22
+
+/** 鼠标移开后延迟这么久才收回半截，横向掠过左边缘时按钮才不会一闪一闪 */
+export const DOCK_HANDLE_RETRACT_DELAY_MS = 1000
 
 /** 手机 dock 齿轮展开时，动作键沿上半圆散开的落点（相对齿轮中心，屏幕坐标 y 向下） */
 export type FanSlot = { x: number; y: number }

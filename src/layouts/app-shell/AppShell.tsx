@@ -1,4 +1,4 @@
-import { House, LayoutGrid } from 'lucide-react'
+import { House } from 'lucide-react'
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
 import { useState } from 'react'
 import { Outlet, useLocation } from 'react-router'
@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next'
 
 import { BeianCaption } from '@/layouts/app-shell/BeianCaption'
 import { CategoryPanel } from '@/layouts/app-shell/CategoryPanel'
-import { dockItemClass } from '@/components/pill-styles'
+import { DockHandle } from '@/layouts/app-shell/DockHandle'
 import { DockRail } from '@/layouts/app-shell/DockRail'
 import { MobileDock } from '@/layouts/app-shell/MobileDock'
 import { TopCapsules } from '@/layouts/app-shell/TopCapsules'
@@ -61,7 +61,7 @@ export function AppShell() {
   const [collapsedAt, setCollapsedAt] = useState<string | null>(null)
 
   const immersive = isImmersivePath(location.pathname, tools)
-  const dockCollapsed = isDockCollapsed({ collapsedAt, pathname: location.pathname, immersive })
+  const dockCollapsed = isDockCollapsed({ collapsedAt, pathname: location.pathname })
 
   const activeTool = getToolByPath(location.pathname)
   const routeCategory = routeCategoryOf(location.pathname, tools)
@@ -119,40 +119,24 @@ export function AppShell() {
           {dockCollapsed ? (
             <motion.div
               key="dock-handle"
-              // 这颗按钮只在沉浸式工具页出现，而那些工具的画布工具条就贴在左下角
-              // （AI 生图画布的缩放条在 bottom-3、高约 56px），所以抬到它上方。
-              className="absolute bottom-20 left-3 z-40"
-              style={{ originX: 0, originY: 1 }}
+              // 折叠按钮与展开后的图标条共用左边缘这条垂直中线。容器 inset-y-0 会盖住
+              // 整条左边的内容区，所以容器不吃指针，只有那颗键吃。
+              className="pointer-events-none absolute inset-y-0 left-0 z-40 flex items-center"
               initial={{ opacity: 0, scale: 0.4 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.4 }}
               transition={dockTransition}
             >
-              <button
-                type="button"
-                aria-label={t('dock.expand')}
-                onClick={() => setCollapsedAt(null)}
-                className={cn(
-                  dockItemClass(false, 'accent'),
-                  'bg-dock text-dock-foreground shadow-dock backdrop-blur-dock pointer-events-auto',
-                )}
-              >
-                <LayoutGrid className="size-5" />
-              </button>
+              <DockHandle label={t('dock.expand')} onExpand={() => setCollapsedAt(null)} />
             </motion.div>
           ) : (
             <motion.div
               key="dock-rail"
               className="pointer-events-none absolute inset-y-0 left-3 z-40 flex items-center"
-              style={{ originX: 0, originY: 1 }}
+              style={{ originX: 0, originY: 0.5 }}
               initial={{ opacity: 0, x: reducedMotion ? 0 : -24 }}
               animate={{ opacity: 1, x: 0 }}
-              exit={{
-                opacity: 0,
-                scale: 0.3,
-                x: reducedMotion ? 0 : -30,
-                y: reducedMotion ? 0 : 120,
-              }}
+              exit={{ opacity: 0, scale: 0.3, x: reducedMotion ? 0 : -30 }}
               transition={dockTransition}
             >
               {/* 图标条与浮层共用一个悬停容器：鼠标从键位横移到浮层不会触发 leave，
@@ -191,9 +175,9 @@ export function AppShell() {
 
       <main
         data-app-shell-scroll=""
-        // 沉浸页上第一次碰内容区就把 dock 折到左下角，把画布整个让给用户；
-        // dock 自己不在 main 里，所以点键位不会触发折叠。
-        onPointerDown={immersive ? () => setCollapsedAt(location.pathname) : undefined}
+        // 第一次碰内容区就把 dock 折到左边缘，把画面整个让给用户；
+        // dock 与浮层都不在 main 里，所以点键位不会触发折叠。
+        onPointerDown={() => setCollapsedAt(location.pathname)}
         className={cn(
           // 普通页：让出顶部胶囊带、左侧 dock 条与手机底部 dock。
           // 沉浸页：main 一律不加 padding，画布从视口顶铺到底——
