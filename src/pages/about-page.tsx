@@ -2,6 +2,8 @@ import { BookOpen, Heart, ShieldCheck, Zap } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
 import { DocumentMeta } from '@/modules/seo/document-meta'
+import { Faq } from '@/components/faq'
+import type { FaqItem } from '@/components/faq'
 import { RepoCard } from '@/components/repo-card'
 import { ShieldBadge } from '@/components/shield-badge'
 import { siteConfig } from '@/config/site'
@@ -25,8 +27,8 @@ const techStack = [
 ]
 
 /**
- * 关于页：一问一答。每个问题一行加粗标题，答案落在带头像的气泡里；
- * 需要展示卡片/徽章的问题把内容放在气泡下方，并与气泡左边缘对齐。
+ * 关于页：聊天气泡式问答。问题靠左成泡，点一下答案从右下弹入；
+ * 需要展示卡片/徽章的问题把内容放在答案气泡下方的整宽区里。
  */
 export default function AboutPage() {
   const { t } = useTranslation('about')
@@ -34,13 +36,12 @@ export default function AboutPage() {
   const site = { site: tCommon('siteName') }
   const count = { count: tools.length }
 
-  return (
-    <div className="mx-auto w-full max-w-4xl px-4 py-8">
-      <DocumentMeta title={t('title', site)} description={t('metaDescription')} path="/about" />
-
-      <h1 className="text-2xl font-bold md:text-3xl">{t('title', site)}</h1>
-
-      <Qa title={t('q1Title')} body={t('q1Body', { ...site, ...count })}>
+  const items: FaqItem[] = [
+    {
+      id: 'what',
+      question: t('q1Title'),
+      answer: t('q1Body', { ...site, ...count }),
+      detail: (
         <RepoCard
           owner="MmzMing"
           name="ToolBox"
@@ -49,107 +50,97 @@ export default function AboutPage() {
           url={siteConfig.githubUrl}
           license="MIT"
         />
-      </Qa>
-
-      <Qa title={t('q2Title')} body={t('q2Body', { ...count, categories: toolsByCategory.length })}>
-        <CategoryGrid />
-      </Qa>
-
-      <Qa title={t('q3Title')} body={t('q3Body')} />
-
-      <Qa title={t('q4Title')} body={t('q4Body')} />
-
-      <Qa title={t('q5Title')} body={t('q5Body')}>
+      ),
+    },
+    {
+      id: 'tools',
+      question: t('q2Title'),
+      answer: t('q2Body', { ...count, categories: toolsByCategory.length }),
+      detail: <CategoryGrid />,
+    },
+    { id: 'privacy', question: t('q3Title'), answer: t('q3Body') },
+    { id: 'why', question: t('q4Title'), answer: t('q4Body') },
+    {
+      id: 'stack',
+      question: t('q5Title'),
+      answer: t('q5Body'),
+      detail: (
         <div className="flex flex-wrap gap-2">
           {techStack.map((badge) => (
             <ShieldBadge key={badge.label} {...badge} />
           ))}
         </div>
-      </Qa>
-
-      <Qa
-        title={t('q6Title')}
-        body={
-          <>
-            {t('q6Body')}{' '}
-            <a
-              className="text-primary underline underline-offset-4"
-              href="./LICENSE"
-              target="_blank"
-              rel="noreferrer"
-            >
-              MIT
-            </a>{' '}
-            {t('q6Tail')}
-          </>
-        }
-      />
-
-      <div className="mt-12 grid gap-4 md:grid-cols-3">
-        <FeatureCard icon={ShieldCheck} title={t('privacyTitle')} body={t('privacyBody')} />
-        <FeatureCard icon={Zap} title={t('fastTitle')} body={t('fastBody')} />
-        <FeatureCard
-          icon={Heart}
-          title={t('openSourceTitle')}
-          body={
-            <>
-              {t('openSourceBody')}{' '}
-              <a
-                className="text-primary underline underline-offset-4"
-                href={siteConfig.githubUrl}
-                target="_blank"
-                rel="noreferrer"
-              >
-                tools
-              </a>
-            </>
-          }
-        />
-      </div>
-
-      <div className="mt-4">
-        <RepoCard
-          owner="MmzMing"
-          name="my-blog"
-          description={t('blogDescription')}
-          url={siteConfig.blogUrl}
-          icon={BookOpen}
-        />
-      </div>
-    </div>
-  )
-}
-
-type QaProps = {
-  /** 完整问句，含「Q1：」前缀——标点形态随语言不同，故写进 i18n */
-  title: string
-  body: ReactNode
-  /** 气泡下方的补充内容（仓库卡片、分类网格、徽章等） */
-  children?: ReactNode
-}
-
-function Qa({ title, body, children }: QaProps) {
-  const { t: tCommon } = useTranslation('common')
+      ),
+    },
+    {
+      id: 'license',
+      question: t('q6Title'),
+      answer: (
+        <>
+          {t('q6Body')}{' '}
+          <a
+            className="underline underline-offset-4"
+            href="./LICENSE"
+            target="_blank"
+            rel="noreferrer"
+          >
+            MIT
+          </a>{' '}
+          {t('q6Tail')}
+        </>
+      ),
+    },
+  ]
 
   return (
-    <section className="mt-10">
-      <h2 className="text-xl font-semibold md:text-2xl">{title}</h2>
-      <div className="mt-3 flex items-start gap-3">
-        <img
-          src={siteConfig.icons.brand}
-          alt=""
-          className="size-9 shrink-0 rounded-full md:size-11"
-        />
-        <div className="bg-card ring-foreground/15 min-w-0 flex-1 rounded-2xl rounded-tl-sm p-4 ring-1">
-          <p className="text-primary text-xs font-semibold">{tCommon('siteName')}</p>
-          <p className="text-muted-foreground mt-1.5 text-sm leading-relaxed md:text-base">
-            {body}
-          </p>
+    <div className="mx-auto w-full max-w-4xl px-4 py-8">
+      <DocumentMeta title={t('title', site)} description={t('metaDescription')} path="/about" />
+
+      <h1 className="text-2xl font-bold md:text-3xl">{t('title', site)}</h1>
+
+      <section aria-labelledby="about-features" className="mt-8">
+        <h2 id="about-features" className="text-xl font-semibold md:text-2xl">
+          {t('featuresTitle')}
+        </h2>
+        <div className="mt-3 grid gap-4 md:grid-cols-3">
+          <FeatureCard icon={ShieldCheck} title={t('privacyTitle')} body={t('privacyBody')} />
+          <FeatureCard icon={Zap} title={t('fastTitle')} body={t('fastBody')} />
+          <FeatureCard
+            icon={Heart}
+            title={t('openSourceTitle')}
+            body={
+              <>
+                {t('openSourceBody')}{' '}
+                <a
+                  className="text-primary underline underline-offset-4"
+                  href={siteConfig.githubUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  tools
+                </a>
+              </>
+            }
+          />
         </div>
-      </div>
-      {/* 左缩进 = 头像宽 + gap，让补充内容与气泡左边缘对齐 */}
-      {children && <div className="mt-3 ml-12 md:ml-14">{children}</div>}
-    </section>
+        <div className="mt-4">
+          <RepoCard
+            owner="MmzMing"
+            name="my-blog"
+            description={t('blogDescription')}
+            url={siteConfig.blogUrl}
+            icon={BookOpen}
+          />
+        </div>
+      </section>
+
+      <section aria-labelledby="about-faq" className="mt-10">
+        <h2 id="about-faq" className="text-xl font-semibold md:text-2xl">
+          {t('faqTitle')}
+        </h2>
+        <Faq items={items} defaultOpen="what" level={3} className="mt-3" />
+      </section>
+    </div>
   )
 }
 

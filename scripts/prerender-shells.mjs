@@ -132,12 +132,14 @@ const toolBody = (tool) =>
     )}</a></p>`,
     '</main>',
   ].join('\n')
-const aboutBody = (title, qa) =>
+const aboutBody = (title, faqTitle, qa) =>
   [
     '<main class="mx-auto w-full max-w-4xl px-4 py-8">',
     `  <h1 class="text-2xl font-bold md:text-3xl">${escapeHtml(title)}</h1>`,
+    // 层级与 about-page.tsx 一致：小节标题占 h2，问题降一级
+    `  <h2 class="mt-10 text-xl font-semibold md:text-2xl">${escapeHtml(faqTitle)}</h2>`,
     ...qa.flatMap(([question, answer]) => [
-      `  <h2 class="mt-10 text-xl font-semibold md:text-2xl">${escapeHtml(question)}</h2>`,
+      `  <h3 class="mt-8 text-lg font-semibold md:text-xl">${escapeHtml(question)}</h3>`,
       `  <p class="text-muted-foreground mt-3 text-sm leading-relaxed md:text-base">${escapeHtml(answer)}</p>`,
     ]),
     `  <p class="mt-6 text-sm"><a href="${escapeHtml(pageUrl(''))}">${escapeHtml(
@@ -198,7 +200,7 @@ aboutQa.push([
 ])
 emit(
   'about',
-  aboutBody(aboutTitle, aboutQa),
+  aboutBody(aboutTitle, requireCopy(zhAbout, 'faqTitle', 'about'), aboutQa),
   buildSeoHead({
     // about.title 自身已含品牌名（「关于 {{site}}」），不再拼后缀，否则品牌在一次出现两遍
     title: aboutTitle,

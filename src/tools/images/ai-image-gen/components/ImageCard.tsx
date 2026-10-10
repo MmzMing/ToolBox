@@ -1,12 +1,13 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { AlertTriangle, Ban, Download, Eye, Loader2, ScanSearch, Trash2, X } from 'lucide-react'
+import { AlertTriangle, Ban, Download, Eye, ScanSearch, Trash2, X } from 'lucide-react'
 
+import { GridReveal } from '@/components/grid-reveal/grid-reveal'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { Skeleton } from '@/components/ui/skeleton'
 import { cn } from '@/lib/utils'
 import { buildImageFileName } from '@/utils/file-name'
 
+import { aspectRatioOf } from '../ai-image-gen.service'
 import { ActionBar, ActionButton } from '../canvas/nodes/action-bar'
 import type { ImageRecord } from '../idb'
 import { objectUrlOf } from '../object-url'
@@ -16,6 +17,15 @@ import { NodeDialog } from './NodeDialog'
 
 export type CardItem =
   { kind: 'slot'; job: Job; slot: JobSlot } | { kind: 'image'; record: ImageRecord }
+
+/** 出图接口不给进度事件，只能按经验值自估分裂节奏：请求超时前网格始终停在七成附近 */
+const GEN_REVEAL_ESTIMATE_MS = 9000
+
+/**
+ * 已经演过揭示的记录 id。画布按可视区挂载节点，同一张图会被反复挂载，
+ * 每次挂载都重播一遍的话，拖动画布就是一屏格子在抖。
+ */
+const revealedIds = new Set<string>()
 
 type ImageCardProps = {
   item: CardItem
@@ -53,11 +63,21 @@ export function ImageCard({
 }: ImageCardProps) {
   const { t } = useTranslation('tools-images')
   const [detailsOpen, setDetailsOpen] = useState(false)
+  const [settled, setSettled] = useState(false)
 
   const record = item.kind === 'image' ? item.record : undefined
   const job = item.kind === 'slot' ? item.job : undefined
   const slot = item.kind === 'slot' ? item.slot : undefined
   const src = record ? objectUrlOf(record.id, record.blob) : ''
+
+  // 节点尺寸由画布按出图比例算好，格子树沿用同一个比例
+  const ratio = record
+    ? record.width && record.height
+      ? record.width / record.height
+      : aspectRatioOf(record.meta.params.aspect)
+    : job
+      ? aspectRatioOf(job.params.aspect)
+      : 1
 
   const status = slot?.status ?? 'done'
   const errorCode = slot?.errorCode ?? job?.errorCode
@@ -94,7 +114,19 @@ export function ImageCard({
         )}
       >
         <div className="block h-full w-full cursor-grab" onDoubleClick={handleDoubleClick}>
-          {record && src ? (
+          {record && src && !settled && !revealedIds.has(record.id) ? (
+            <GridReveal
+              src={src}
+              alt={record.meta.prompt}
+              aspect={ratio}
+              className="h-full w-full rounded-none"
+              style={{ aspectRatio: 'auto' }}
+              onRevealComplete={() => {
+                revealedIds.add(record.id)
+                setSettled(true)
+              }}
+            />
+          ) : record && src ? (
             <img
               src={src}
               alt={record.meta.prompt}
@@ -116,15 +148,17 @@ export function ImageCard({
               <p className="text-muted-foreground text-xs">{t('ai-image-gen.card.cancelled')}</p>
             </div>
           ) : (
-            <div className="relative flex h-full min-h-24 flex-col items-center justify-center gap-2 p-4">
-              <Skeleton className="absolute inset-0 animate-pulse rounded-none" />
-              <Loader2 className="text-muted-foreground relative size-5 animate-spin" />
-              <p className="text-muted-foreground relative text-xs">
-                {status === 'pending'
+            <GridReveal
+              aspect={ratio}
+              caption={
+                status === 'pending'
                   ? t('ai-image-gen.card.queued')
-                  : t('ai-image-gen.card.generating')}
-              </p>
-            </div>
+                  : t('ai-image-gen.card.generating')
+              }
+              estimatedDuration={GEN_REVEAL_ESTIMATE_MS}
+              className="h-full w-full rounded-none"
+              style={{ aspectRatio: 'auto' }}
+            />
           )}
         </div>
 

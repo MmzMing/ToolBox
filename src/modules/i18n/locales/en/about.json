@@ -1,6 +1,8 @@
 {
   "title": "About {{site}}",
   "metaDescription": "Free open-source online toolbox: crypto, converters, encoders, web, text and image utilities. Everything runs locally in your browser, nothing is collected or uploaded. MIT licensed.",
+  "featuresTitle": "Features",
+  "faqTitle": "FAQ",
   "q1Title": "Q1: What is this site?",
   "q1Body": "{{site}} is a free, open-source online toolbox with {{count}} everyday tools: crypto, format converters, encoders, web utilities, text and image tools.",
   "repoDescription": "All {{count}} tools run locally in your browser — no backend, no accounts, no analytics. Nothing you paste is ever uploaded to a server.",
