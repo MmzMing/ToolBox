@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { Outlet, useLocation } from 'react-router'
 import { useTranslation } from 'react-i18next'
 
+import { PageBlurVeil } from '@/components/page-blur-veil'
 import { BeianCaption } from '@/layouts/app-shell/BeianCaption'
 import { CategoryPanel } from '@/layouts/app-shell/CategoryPanel'
 import { DockHandle } from '@/layouts/app-shell/DockHandle'
@@ -193,6 +194,9 @@ export function AppShell() {
         {/* 备案号属法定信息，按站点惯例只在首页页脚出现；工具页正文不该被它占位 */}
         {isHome && <BeianCaption className="pt-2 pb-4" />}
       </main>
+
+      {/* 换路由时重挂载，显影动画因此逐页重播；z-30 压在内容区之上、dock（z-40）之下 */}
+      <PageBlurVeil key={location.pathname} />
     </div>
   )
 }

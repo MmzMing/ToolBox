@@ -27,8 +27,8 @@ export function dockItemKey(item: DockItem): string {
 /** 悬浮导航的两种形态：桌面/平板的左侧图标条，手机的底部胶囊条 */
 export type DockMode = 'rail' | 'bottom'
 
-/** 一级分类浮层的落点：桌面用浮层面板，手机用底部抽屉 */
-export type PanelMode = 'floating' | 'sheet'
+/** 一级分类的落点：桌面用左侧浮层面板，手机用 dock 原地变形出的卡片 */
+export type PanelMode = 'floating' | 'card'
 
 /** 博客/关于/GitHub 三个外链入口的落点（只在渲染顶栏胶囊的两档有意义） */
 export type ExternalLinkMode = 'inline' | 'menu'
@@ -60,7 +60,7 @@ const LAYOUTS: Record<Breakpoint, ShellLayout> = {
   },
   mobile: {
     dock: 'bottom',
-    panel: 'sheet',
+    panel: 'card',
     // 手机不渲染顶栏胶囊，这一项取值无消费者，只是为了让 ShellLayout 的字段保持完整
     externalLinks: 'inline',
     breadcrumb: false,

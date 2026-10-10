@@ -35,7 +35,9 @@
   "themeLight": "Light",
   "themeDark": "Dark",
   "themeSystem": "System",
+  "themeCycle": "Theme: {{current}}. Click to switch to {{next}}.",
   "language": "Language",
+  "localeCycle": "Language: {{current}}. Click to switch to {{next}}.",
   "favorites": "Favorites",
   "favoritesEmpty": "No favorites yet, click the star on a tool page to add one",
   "favoriteAdd": "Add to favorites",
@@ -60,6 +62,8 @@
     "settings": "Quick actions",
     "brightness": "Brightness",
     "expand": "Show navigation",
+    "collapse": "Hide navigation",
+    "back": "Back to categories",
     "more": "More"
   },
   "beian": {

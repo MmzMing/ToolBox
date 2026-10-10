@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { beforeEach, describe, expect, it } from 'vitest'
 
-import { usePreferencesStore } from '@/stores/preferences.store'
+import { nextLocale, usePreferencesStore } from '@/stores/preferences.store'
 
 const STORAGE_KEY = 'toolbox.preferences'
 
@@ -75,5 +75,12 @@ describe('preferences store', () => {
 
     usePreferencesStore.getState().setActiveCategory(null)
     expect(usePreferencesStore.getState().activeCategory).toBeNull()
+  })
+})
+
+describe('nextLocale', () => {
+  it('flips to the other supported locale so one tap is enough', () => {
+    expect(nextLocale('zh')).toBe('en')
+    expect(nextLocale('en')).toBe('zh')
   })
 })

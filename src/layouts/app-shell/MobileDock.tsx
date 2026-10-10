@@ -1,37 +1,33 @@
-import { House, Info, Menu, Search, Settings } from 'lucide-react'
+import { ArrowLeft, House, Info, LayoutGrid, Menu, Search, Settings, X } from 'lucide-react'
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
-import { useEffect, useRef, useState } from 'react'
-import type { CSSProperties, ComponentType, ReactNode, SVGProps } from 'react'
-import { useLocation, useNavigate, Link } from 'react-router'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import type { ComponentType, ReactNode, SVGProps } from 'react'
+import { Link, useLocation, useNavigate } from 'react-router'
 import { useTranslation } from 'react-i18next'
 
 import { GithubIcon } from '@/components/icons/github-icon'
 import { LocaleSwitcher } from '@/components/locale-switcher'
 import { ThemeToggle } from '@/components/theme-toggle'
-import { pillClass } from '@/components/pill-styles'
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-} from '@/components/ui/sheet'
+import { dockItemClass, pillClass } from '@/components/pill-styles'
 import { fanSlots } from '@/layouts/app-shell/dock-logic'
 import { NavList } from '@/layouts/nav-list'
 import { siteConfig } from '@/config/site'
+import { categoryIcons } from '@/tools/categories'
+import type { CategoryKey } from '@/tools/categories'
+import { toolsByCategory } from '@/tools'
 import { cn } from '@/lib/utils'
-
-/** 抽屉整宽滑入滑出：ui/sheet 内置的 slide-in-from-bottom-10 位移只有 40px，内联变量优先级更高 */
-const sheetSlideStyle = {
-  '--tw-enter-translate-y': '100%',
-  '--tw-exit-translate-y': '100%',
-} as CSSProperties
 
 /** 齿轮散开后动作键沿上半圆排布的半径，以及逐个错开的间隔 */
 const FAN_RADIUS = 132
 const FAN_STAGGER = 0.035
 
 const fanSpring = { type: 'spring' as const, duration: 0.5, bounce: 0.28 }
+
+/** 横向条 ⇄ 卡片的形变，与 dock 折叠、顶栏面包屑分离同一套 spring */
+const shellSpring = { type: 'spring' as const, duration: 0.45, bounce: 0.18 }
+
+/** 内容换层比外壳形变慢半拍起，形变最扭曲的那一截由外壳的缩放独自扛 */
+const contentFade = { duration: 0.22, delay: 0.14 }
 
 /** 散开时那颗玻璃底：齿轮键本身是透明的，浮在画面上要自带底 */
 const fanGlassClass = cn(pillClass, 'bg-dock text-dock-foreground shadow-dock backdrop-blur-dock')
@@ -41,35 +37,58 @@ type MobileDockProps = {
   onOpenPalette: () => void
 }
 
+/** 卡片停在第几级：null 是分类网格，否则是该分类的工具列表 */
+type CardState = { open: boolean; category: CategoryKey | null; pathname: string }
+
 /**
  * 手机档底部 dock：左主页、中齿轮、右菜单，两端是「图标 + 文字」。
  *
- * 齿轮展开时把五个快捷入口沿上半圆散开到 dock 上方，收起时原路收回，像个收纳盒。
- * 搜索/语言/主题/关于/GitHub 从原来的五键条挪进了这里，常驻那条只剩三个高频入口。
+ * 菜单键不再是底部抽屉，而是让整条 dock 原地变形为一张响应式卡片——外壳用 motion 的
+ * layout 投影做形变，卡片与条互为对方的进出场，尺寸完全由内容决定，不测像素。
+ * 卡片内两级：分类图标网格 → 该分类的工具列表，与桌面档「图标条 + 分类浮层」同一套心智。
+ *
+ * 齿轮仍走扇形：五个快捷入口沿上半圆散开到 dock 上方。
  */
 export function MobileDock({ homeActive, onOpenPalette }: MobileDockProps) {
   const { t } = useTranslation('common')
+  const { t: tCategory } = useTranslation('categories')
   const location = useLocation()
   const navigate = useNavigate()
   const reducedMotion = useReducedMotion() === true
   const dockRef = useRef<HTMLDivElement | null>(null)
-  const [sheetOpen, setSheetOpen] = useState(false)
   // 散开态记着所在路由：换页即派生成收起，省掉一次 effect 里的 setState
   const [fan, setFan] = useState(() => ({ open: false, pathname: location.pathname }))
   const fanOpen = fan.pathname === location.pathname && fan.open
-  const [openMenu, setOpenMenu] = useState<'locale' | 'theme' | null>(null)
+  // 卡片同理，另外记着停在第几级
+  const [card, setCard] = useState<CardState>(() => ({
+    open: false,
+    category: null,
+    pathname: location.pathname,
+  }))
+  const cardOpen = card.pathname === location.pathname && card.open
 
   const setFanOpen = (open: boolean) => setFan({ open, pathname: location.pathname })
 
-  const owner = (key: 'locale' | 'theme') => ({
-    open: openMenu === key,
-    // 关闭回调只允许抹掉自己那一项，否则会把同一次点击里另一个菜单的开启覆盖掉
-    onOpenChange: (next: boolean) =>
-      setOpenMenu((current) => (next ? key : current === key ? null : current)),
-  })
+  const dismissAll = useCallback(() => {
+    const pathname = location.pathname
+    setFan({ open: false, pathname })
+    setCard({ open: false, category: null, pathname })
+  }, [location.pathname])
+
+  const toggleCard = () =>
+    setCard(
+      cardOpen
+        ? { open: false, category: null, pathname: location.pathname }
+        : { open: true, category: null, pathname: location.pathname },
+    )
+
+  const openCategory = (category: CategoryKey) =>
+    setCard({ open: true, category, pathname: location.pathname })
+
+  const backToCategories = () => setCard((current) => ({ ...current, category: null }))
 
   useEffect(() => {
-    if (!fanOpen) {
+    if (!fanOpen && !cardOpen) {
       return
     }
     const dismissOnOutsidePointer = (event: PointerEvent) => {
@@ -77,25 +96,25 @@ export function MobileDock({ homeActive, onOpenPalette }: MobileDockProps) {
       if (dockRef.current?.contains(target)) {
         return
       }
-      // 语言/主题的下拉内容挂在 body 上的 portal 里，点它不属于"点了 dock 外面"，
-      // 否则一选语言扇形就被判成外点而缩回去
-      if (target instanceof Element && target.closest('[role=menu]')) {
-        return
+      dismissAll()
+    }
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        dismissAll()
       }
-      setFan({ open: false, pathname: location.pathname })
     }
     document.addEventListener('pointerdown', dismissOnOutsidePointer)
-    return () => document.removeEventListener('pointerdown', dismissOnOutsidePointer)
-  }, [fanOpen, location.pathname])
-
-  const openSheet = () => setSheetOpen(true)
-
-  const closeSheet = () => setSheetOpen(false)
+    document.addEventListener('keydown', closeOnEscape)
+    return () => {
+      document.removeEventListener('pointerdown', dismissOnOutsidePointer)
+      document.removeEventListener('keydown', closeOnEscape)
+    }
+  }, [cardOpen, dismissAll, fanOpen])
 
   const slots = fanSlots(5, FAN_RADIUS)
   const fanChildren: ReactNode[] = [
-    <ThemeToggle variant="dock" className={fanGlassClass} {...owner('theme')} />,
-    <LocaleSwitcher variant="dock" className={fanGlassClass} {...owner('locale')} />,
+    <ThemeToggle variant="dock" className={fanGlassClass} />,
+    <LocaleSwitcher variant="dock" className={fanGlassClass} />,
     <FanButton
       icon={Search}
       label={t('searchPlaceholder')}
@@ -123,78 +142,174 @@ export function MobileDock({ homeActive, onOpenPalette }: MobileDockProps) {
     </a>,
   ]
 
+  const cardToolCount =
+    card.category === null
+      ? 0
+      : (toolsByCategory.find((group) => group.category === card.category)?.tools.length ?? 0)
+  const CardIcon = card.category === null ? null : categoryIcons[card.category]
+
   return (
-    <>
-      <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
-        <SheetContent
-          side="bottom"
-          showCloseButton={false}
-          className="bg-dock-panel inset-x-2 bottom-2 h-[78svh] max-h-[78svh] gap-0 overflow-hidden rounded-none border p-0 duration-300"
-          style={sheetSlideStyle}
-        >
-          <SheetHeader className="sr-only">
-            <SheetTitle>{t('dock.categories')}</SheetTitle>
-            <SheetDescription>{t('openMenu')}</SheetDescription>
-          </SheetHeader>
-
-          <div className="inset-scrollbar min-h-0 flex-1 overflow-y-auto p-3">
-            <NavList mode="sheet" onNavigate={closeSheet} />
-          </div>
-        </SheetContent>
-      </Sheet>
-
-      <div
-        ref={dockRef}
-        role="toolbar"
-        aria-orientation="horizontal"
-        aria-label={t('dock.settings')}
-        className="bg-dock text-dock-foreground shadow-dock backdrop-blur-dock flex items-center gap-2 rounded-full p-1"
-      >
-        <LabeledKey icon={House} label={t('dock.home')} to="/" active={homeActive} />
-
-        <div className="relative flex items-center justify-center">
-          <AnimatePresence initial={false}>
-            {fanOpen &&
-              slots.map((slot, index) => (
-                <motion.div
-                  key={index}
-                  className="absolute"
-                  initial={reducedMotion ? false : { x: 0, y: 0, scale: 0.2, opacity: 0 }}
-                  animate={{ x: slot.x, y: slot.y, scale: 1, opacity: 1 }}
-                  exit={{
-                    x: 0,
-                    y: 0,
-                    scale: 0.2,
-                    opacity: 0,
-                    transition: reducedMotion
-                      ? { duration: 0 }
-                      : { delay: (slots.length - index - 1) * FAN_STAGGER },
-                  }}
-                  transition={
-                    reducedMotion ? { duration: 0 } : { ...fanSpring, delay: index * FAN_STAGGER }
-                  }
-                >
-                  {fanChildren[index]}
-                </motion.div>
-              ))}
-          </AnimatePresence>
-
-          <motion.button
-            type="button"
-            aria-label={t('dock.settings')}
-            aria-expanded={fanOpen}
-            onClick={() => setFanOpen(!fanOpen)}
-            animate={{ scale: fanOpen && !reducedMotion ? 1.14 : 1, rotate: fanOpen ? 90 : 0 }}
-            transition={fanSpring}
-            className="bg-primary text-primary-foreground relative z-10 flex size-11 items-center justify-center rounded-full"
+    <motion.div
+      ref={dockRef}
+      layout
+      initial={false}
+      transition={reducedMotion ? { duration: 0 } : shellSpring}
+      className={cn(
+        // 无边框，玻璃底 + 阴影浮起来。overflow-hidden 只在卡片态挂：常驻会把齿轮
+        // 散开的扇形键削掉，那五个键本来就浮在条上方 132px 的溢出的区域里
+        'bg-dock text-dock-foreground shadow-dock backdrop-blur-dock',
+        cardOpen ? 'w-[calc(100vw-1.5rem)] max-w-md overflow-hidden rounded-4xl' : 'rounded-full',
+      )}
+    >
+      <AnimatePresence initial={false} mode="popLayout">
+        {cardOpen ? (
+          <motion.div
+            key="dock-card"
+            layout
+            initial={reducedMotion ? false : { opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0, transition: { duration: reducedMotion ? 0 : 0.12 } }}
+            transition={reducedMotion ? { duration: 0 } : contentFade}
+            className="flex min-h-0 flex-col"
           >
-            <Settings className="size-5" />
-          </motion.button>
-        </div>
+            <header className="flex items-center gap-1.5 px-4 pt-2 pb-1">
+              {card.category === null ? (
+                <>
+                  <LayoutGrid className="text-dock-foreground/70 size-5 shrink-0" />
+                  <h2 className="text-dock-foreground text-sm font-medium">
+                    {t('dock.categories')}
+                  </h2>
+                </>
+              ) : (
+                <>
+                  <button
+                    type="button"
+                    aria-label={t('dock.back')}
+                    onClick={backToCategories}
+                    className={dockItemClass(false)}
+                  >
+                    <ArrowLeft className="size-5" />
+                  </button>
+                  {CardIcon === null ? null : (
+                    <CardIcon className="text-dock-foreground/70 size-5 shrink-0" />
+                  )}
+                  <h2 className="text-dock-foreground truncate text-sm font-medium">
+                    {tCategory(card.category)}
+                  </h2>
+                  <span className="text-muted-foreground text-xs">{cardToolCount}</span>
+                </>
+              )}
+              <button
+                type="button"
+                aria-label={t('dock.collapse')}
+                onClick={dismissAll}
+                className={cn(dockItemClass(false), 'ms-auto')}
+              >
+                <X className="size-5" />
+              </button>
+            </header>
 
-        <LabeledKey icon={Menu} label={t('dock.menu')} onActivate={openSheet} active={sheetOpen} />
-      </div>
-    </>
+            {card.category === null ? (
+              <CategoryGrid onPick={openCategory} />
+            ) : (
+              <div className="inset-scrollbar max-h-[50svh] min-h-0 overflow-y-auto p-2">
+                <NavList category={card.category} onNavigate={dismissAll} />
+              </div>
+            )}
+          </motion.div>
+        ) : (
+          <motion.div
+            key="dock-bar"
+            layout
+            role="toolbar"
+            aria-orientation="horizontal"
+            aria-label={t('dock.settings')}
+            initial={reducedMotion ? false : { opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0, transition: { duration: reducedMotion ? 0 : 0.12 } }}
+            transition={reducedMotion ? { duration: 0 } : contentFade}
+            className="flex items-center gap-2 p-1"
+          >
+            <LabeledKey icon={House} label={t('dock.home')} to="/" active={homeActive} />
+
+            <div className="relative flex items-center justify-center">
+              <AnimatePresence initial={false}>
+                {fanOpen &&
+                  slots.map((slot, index) => (
+                    <motion.div
+                      key={index}
+                      className="absolute"
+                      initial={reducedMotion ? false : { x: 0, y: 0, scale: 0.2, opacity: 0 }}
+                      animate={{ x: slot.x, y: slot.y, scale: 1, opacity: 1 }}
+                      exit={{
+                        x: 0,
+                        y: 0,
+                        scale: 0.2,
+                        opacity: 0,
+                        transition: reducedMotion
+                          ? { duration: 0 }
+                          : { delay: (slots.length - index - 1) * FAN_STAGGER },
+                      }}
+                      transition={
+                        reducedMotion
+                          ? { duration: 0 }
+                          : { ...fanSpring, delay: index * FAN_STAGGER }
+                      }
+                    >
+                      {fanChildren[index]}
+                    </motion.div>
+                  ))}
+              </AnimatePresence>
+
+              <motion.button
+                type="button"
+                aria-label={t('dock.settings')}
+                aria-expanded={fanOpen}
+                onClick={() => setFanOpen(!fanOpen)}
+                animate={{ scale: fanOpen && !reducedMotion ? 1.14 : 1, rotate: fanOpen ? 90 : 0 }}
+                transition={fanSpring}
+                className="bg-primary text-primary-foreground relative z-10 flex size-11 items-center justify-center rounded-full"
+              >
+                <Settings className="size-5" />
+              </motion.button>
+            </div>
+
+            <LabeledKey
+              icon={Menu}
+              label={t('dock.menu')}
+              onActivate={toggleCard}
+              expanded={cardOpen}
+              active={cardOpen}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
+  )
+}
+
+/** 卡片第一级：分类图标网格，点进去在同一张卡片里换成该分类的工具列表 */
+function CategoryGrid({ onPick }: { onPick: (category: CategoryKey) => void }) {
+  const { t: tCategory } = useTranslation('categories')
+
+  return (
+    <div className="grid grid-cols-3 gap-1 p-2">
+      {toolsByCategory.map(({ category, tools }) => {
+        const Icon = categoryIcons[category]
+        return (
+          <button
+            key={category}
+            type="button"
+            onClick={() => onPick(category)}
+            className="text-dock-foreground/75 hover:bg-foreground/10 hover:text-dock-foreground focus-visible:ring-dock-accent flex flex-col items-center gap-1 rounded-2xl px-1 py-2 transition-colors duration-200 outline-none focus-visible:ring-2 motion-reduce:transition-none"
+          >
+            <Icon className="size-5 shrink-0" />
+            <span className="max-w-full truncate text-xs">{tCategory(category)}</span>
+            <span className="text-muted-foreground text-[11px] leading-none">{tools.length}</span>
+          </button>
+        )
+      })}
+    </div>
   )
 }
 
@@ -208,11 +323,20 @@ type LabeledKeyProps = {
   /** 站内路由：必须走 Link，裸 `<a href>` 会整页重载，dev 下表现为白屏数秒、dock 一起消失 */
   to?: string
   active?: boolean
+  /** disclosure 模式播报展开态：菜单键开的是同级卡片，不是链接 */
+  expanded?: boolean
   onActivate?: () => void
 }
 
 /** dock 两端的「图标 + 文字」键：常驻可见，不像顶栏那样要悬停才长出文字 */
-function LabeledKey({ icon: Icon, label, to, active = false, onActivate }: LabeledKeyProps) {
+function LabeledKey({
+  icon: Icon,
+  label,
+  to,
+  active = false,
+  expanded,
+  onActivate,
+}: LabeledKeyProps) {
   const classes = cn(labeledKeyClass, active && 'text-dock-accent')
   const inner = (
     <>
@@ -222,7 +346,13 @@ function LabeledKey({ icon: Icon, label, to, active = false, onActivate }: Label
   )
 
   return to === undefined ? (
-    <button type="button" aria-label={label} onClick={onActivate} className={classes}>
+    <button
+      type="button"
+      aria-label={label}
+      aria-expanded={expanded}
+      onClick={onActivate}
+      className={classes}
+    >
       {inner}
     </button>
   ) : (

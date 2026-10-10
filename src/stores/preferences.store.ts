@@ -7,6 +7,17 @@ import { categoryKeys, type CategoryKey } from '@/tools/categories'
 export const supportedLocales = ['zh', 'en'] as const
 export type Locale = (typeof supportedLocales)[number]
 
+/**
+ * 语言键点一下走的下一档：两态时就是「另一个」，将来往 supportedLocales 里加第三档
+ * 就自动变成循环，组件不用改。
+ *
+ * 放在 store 旁边而不是 modules/i18n：那边顶层是 import.meta.glob，node 测试环境跑不动。
+ */
+export function nextLocale(current: Locale): Locale {
+  const index = supportedLocales.indexOf(current)
+  return supportedLocales[(index + 1) % supportedLocales.length] ?? current
+}
+
 interface PreferencesState {
   /** 界面语言（i18next 由此驱动，见 modules/i18n） */
   locale: Locale

@@ -1,6 +1,5 @@
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
 import { Search } from 'lucide-react'
-import { useState } from 'react'
 import { Link } from 'react-router'
 import { useTranslation } from 'react-i18next'
 
@@ -46,21 +45,6 @@ export function TopCapsules({
   const reducedMotion = useReducedMotion()
   const { t } = useTranslation('common')
   const showCrumbs = breadcrumbVisible && !isHome
-  /**
-   * 三个下拉各自是一个独立的 DropdownMenu 根，互不知情；
-   * 模态层与悬停展开会让"关掉上一个"这件事依赖事件时序，偶发出现两个同开。
-   * 这里用一个 owner 保证互斥，不再依赖时序。
-   */
-  const [openMenu, setOpenMenu] = useState<'locale' | 'theme' | 'more' | null>(null)
-  const owner = (key: 'locale' | 'theme' | 'more') => ({
-    open: openMenu === key,
-    /**
-     * 点 B 的触发器时，A 的"我关掉了"回调和 B 的"我要开"回调会在同一次点击里都到达。
-     * 不加这个归属判断，后到的关闭会把刚设好的 key 又抹成 null，结果是两个都不开。
-     */
-    onOpenChange: (next: boolean) =>
-      setOpenMenu((current) => (next ? key : current === key ? null : current)),
-  })
 
   return (
     <div className="mx-auto flex w-full max-w-5xl items-center justify-between gap-3">
@@ -109,9 +93,9 @@ export function TopCapsules({
             </kbd>
           }
         />
-        <LocaleSwitcher variant="pill" {...owner('locale')} />
-        <ThemeToggle variant="pill" {...owner('theme')} />
-        <ExternalLinks mode={externalLinks} {...owner('more')} />
+        <LocaleSwitcher variant="pill" />
+        <ThemeToggle variant="pill" />
+        <ExternalLinks mode={externalLinks} />
       </div>
     </div>
   )

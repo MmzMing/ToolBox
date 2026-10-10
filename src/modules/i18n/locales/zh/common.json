@@ -35,7 +35,9 @@
   "themeLight": "浅色",
   "themeDark": "深色",
   "themeSystem": "跟随系统",
+  "themeCycle": "主题：{{current}}，点按切到{{next}}",
   "language": "语言",
+  "localeCycle": "语言：{{current}}，点按切到 {{next}}",
   "favorites": "收藏夹",
   "favoritesEmpty": "暂无收藏，点击工具页右上角的星标添加",
   "favoriteAdd": "添加到收藏",
@@ -60,6 +62,8 @@
     "settings": "快捷入口",
     "brightness": "亮度",
     "expand": "展开导航",
+    "collapse": "收起导航",
+    "back": "返回分类",
     "more": "更多"
   },
   "beian": {

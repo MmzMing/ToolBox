@@ -1,4 +1,4 @@
-import type { ButtonHTMLAttributes, ComponentType, ReactNode, Ref, SVGProps } from 'react'
+import type { ButtonHTMLAttributes, ComponentType, ReactNode, Ref } from 'react'
 import { Link } from 'react-router'
 
 import { pillClass } from '@/components/pill-styles'
@@ -21,7 +21,8 @@ const expandingClass = cn(
 
 type PillOwnProps = {
   label: string
-  icon: ComponentType<SVGProps<SVGSVGElement>>
+  /** 图标位只用到 className，所以收得比 SVG 组件更宽：语言键在那里放的是文字徽标 */
+  icon: ComponentType<{ className?: string }>
   /** 常驻在图标右侧、不参与展开的内容（如 ⌘K 键帽） */
   persistent?: ReactNode
   /** 手机底部 dock：只留图标，触屏没有 hover，展开会卡在文字态 */
@@ -32,7 +33,7 @@ type PillOwnProps = {
  * 顶栏操作胶囊按钮：平时只露图标，悬停 / 聚焦 / 菜单展开时在图标右侧长出文字，
  * 并把相邻胶囊往两边推开。取代了原来的 Tooltip。
  *
- * 必须把没声明的 props 原样转发到 `<button>` 上：语言与主题下拉是用
+ * 必须把没声明的 props 原样转发到 `<button>` 上：「更多」外链菜单是用
  * `DropdownMenuTrigger asChild` 套它的，Radix 注入的 onPointerDown / aria-haspopup /
  * data-state 一旦在这里被丢掉，菜单就再也打不开了。
  */
@@ -94,7 +95,7 @@ function PillInner({
   iconOnly,
 }: {
   label: string
-  Icon: ComponentType<SVGProps<SVGSVGElement>>
+  Icon: ComponentType<{ className?: string }>
   persistent?: ReactNode
   iconOnly: boolean
 }) {

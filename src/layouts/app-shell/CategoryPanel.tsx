@@ -110,8 +110,9 @@ export function CategoryPanel({
             <span className="truncate text-sm font-medium">{tCategory(category)}</span>
             <span className="text-muted-foreground text-xs">{toolCount}</span>
           </div>
-          <div className="inset-scrollbar max-h-[calc(100svh-8rem)] overflow-y-auto p-1.5">
-            <NavList mode="panel" category={category} onNavigate={onNavigate} />
+          {/* 工具整组右移，与面板顶部的分类标题错开；层级留白由容器负责，NavList 只管列表本身 */}
+          <div className="inset-scrollbar max-h-[calc(100svh-8rem)] overflow-y-auto px-1.5 ps-5 pb-1.5">
+            <NavList category={category} onNavigate={onNavigate} />
           </div>
         </motion.div>
       )}

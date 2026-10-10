@@ -35,7 +35,7 @@ describe('resolveShellLayout', () => {
   it('drops the top capsules and the breadcrumb on mobile', () => {
     expect(resolveShellLayout('mobile')).toEqual({
       dock: 'bottom',
-      panel: 'sheet',
+      panel: 'card',
       // 手机不渲染顶栏胶囊，外链落点这项取值无消费者
       externalLinks: 'inline',
       breadcrumb: false,

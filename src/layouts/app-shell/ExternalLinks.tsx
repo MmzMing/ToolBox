@@ -17,9 +17,6 @@ import type { ExternalLinkMode } from '@/layouts/app-shell/dock-logic'
 type ExternalLinksProps = {
   /** inline：桌面全展开；menu：平板收进「更多」 */
   mode: ExternalLinkMode
-  /** 「更多」菜单的受控开关，与顶栏其余下拉互斥 */
-  open?: boolean
-  onOpenChange?: (open: boolean) => void
 }
 
 type ExternalLink = {
@@ -36,12 +33,12 @@ const links: readonly ExternalLink[] = [
 ]
 
 /** 博客 / 关于 / GitHub 三个站外入口，按断点收成两种形态 */
-export function ExternalLinks({ mode, open, onOpenChange }: ExternalLinksProps) {
+export function ExternalLinks({ mode }: ExternalLinksProps) {
   const { t } = useTranslation('common')
 
   if (mode === 'menu') {
     return (
-      <DropdownMenu open={open} onOpenChange={onOpenChange}>
+      <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <ActionPill label={t('dock.more')} icon={MoreHorizontal} />
         </DropdownMenuTrigger>

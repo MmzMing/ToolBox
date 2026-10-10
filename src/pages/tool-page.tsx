@@ -1,6 +1,5 @@
 import { Suspense, useEffect, useRef } from 'react'
 
-import { RingLoader } from '@/components/ring-loader'
 import { ToolLayout } from '@/layouts/tool-layout'
 import { useToolsStore } from '@/stores/tools.store'
 import type { Tool } from '@/tools/define-tool'
@@ -19,21 +18,12 @@ export default function ToolPage({ tool }: { tool: Tool }) {
 
   const ToolComponent = tool.lazyComponent
 
+  // fallback 留空：切页手感交给 AppShell 的显影层，这里不再插一块转圈占位
   return (
     <ToolLayout tool={tool} fill={tool.immersive} wide={tool.wide}>
-      <Suspense fallback={<ToolLoading />}>
+      <Suspense fallback={null}>
         <ToolComponent />
       </Suspense>
     </ToolLayout>
-  )
-}
-
-function ToolLoading() {
-  // app-shell 下 `<main>` 是唯一的滚动容器，`h-full` 就能铺满一屏；非沉浸页拿不到
-  // 确定高度时退回 40svh 兜底，避免占位块把 main 撑出第二条滚动条。
-  return (
-    <div className="flex h-full min-h-[40svh] items-center justify-center">
-      <RingLoader />
-    </div>
   )
 }
