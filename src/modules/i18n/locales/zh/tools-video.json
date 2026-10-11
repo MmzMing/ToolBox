@@ -1244,6 +1244,7 @@
       "online": "在线曲库",
       "clear": "移除已选音频"
     },
+    "themeLabel": "方向",
     "themeTitle": "方向（把一键随机限定在一个主题里）",
     "themes": {
       "none": "不限定",

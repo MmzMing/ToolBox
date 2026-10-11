@@ -1244,6 +1244,7 @@
       "online": "Online library",
       "clear": "Remove audio"
     },
+    "themeLabel": "Theme",
     "themeTitle": "Direction (narrows the randomiser to one theme)",
     "themes": {
       "none": "Any",

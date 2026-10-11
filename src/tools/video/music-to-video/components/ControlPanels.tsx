@@ -27,7 +27,6 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { ScrollArea } from '@/components/ui/scroll-area'
 import {
   Select,
   SelectContent,
@@ -234,8 +233,9 @@ export function ControlPanels(props: PanelsProps) {
 
   return (
     <Tabs defaultValue="source" className="flex min-h-0 flex-1 flex-col gap-0">
-      {/* 标签栏钉在面板顶端，不进滚动区：内容各自滚动时它不会跟着跑，各标签下位置也一致。
-          列数按当前模式的标签数走，简易模式才不会在右边留下空格子 */}
+      {/* 标签栏不进滚动区：xl 下面板内滚时它不会跟着跑，各标签下位置也一致；
+          窄屏整页主滚动，它会随内容一起滚走。列数按当前模式的标签数走，
+          简易模式才不会在右边留下空格子 */}
       <TabsList
         style={{ gridTemplateColumns: `repeat(${TABS.length}, minmax(0, 1fr))` }}
         className="mx-2 mt-2 grid h-9 w-auto shrink-0 gap-0.5 p-1 sm:mx-3 sm:mt-3"
@@ -248,7 +248,8 @@ export function ControlPanels(props: PanelsProps) {
         ))}
       </TabsList>
 
-      <ScrollArea className="min-h-0 flex-1">
+      {/* 窄屏不内滚：这块跟着页面主滚动长高，标签栏一起滚走；xl 才收成内滚区 */}
+      <div className="xl:inset-scrollbar min-w-0 xl:min-h-0 xl:flex-1 xl:overflow-y-auto">
         <div className="flex flex-col gap-3 p-2 sm:p-3">
           {header ? <div className="flex flex-col gap-2.5">{header}</div> : null}
           <TabsContent value="source" className="flex flex-col gap-2.5">
@@ -729,7 +730,7 @@ export function ControlPanels(props: PanelsProps) {
             />
           </TabsContent>
         </div>
-      </ScrollArea>
+      </div>
     </Tabs>
   )
 }

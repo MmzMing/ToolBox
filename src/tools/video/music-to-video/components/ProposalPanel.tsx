@@ -73,7 +73,8 @@ export function ProposalPanel({
 
   return (
     <div className="flex flex-col gap-1.5">
-      <div className="flex items-center gap-1">
+      {/* 手机上这一排塞得下就一行，塞不下折行：不换行会把整块面板撑到比卡片还宽 */}
+      <div className="flex flex-wrap items-center gap-1">
         <TipButton
           size="icon"
           variant="outline"
@@ -116,23 +117,28 @@ export function ProposalPanel({
 
         <Separator orientation="vertical" className="mx-1 h-5" />
 
-        {/* 方向：把一键随机限定在一个主题里（对应JIZURA的 テーマ） */}
-        <span className="text-muted-foreground shrink-0 text-[11px]" title={t('themeTitle')}>
-          {t('themeTitle')}
+        {/* 方向：把一键随机限定在一个主题里（对应JIZURA的 テーマ）；全称只进 tooltip，
+            摆在行里会挤掉右边。标签与下拉捆成一组，折行时不会被拆到两行 */}
+        <span className="flex min-w-0 items-center gap-1">
+          <span className="text-muted-foreground shrink-0 text-[11px]" title={t('themeTitle')}>
+            {t('themeLabel')}
+          </span>
+          <select
+            className="border-input bg-background h-7 min-w-0 rounded-md border px-1.5 text-[11px]"
+            aria-label={t('themeTitle')}
+            value={theme ?? 'none'}
+            onChange={(e) =>
+              onTheme(e.target.value === 'none' ? null : (e.target.value as ThemeId))
+            }
+          >
+            <option value="none">{t('themes.none')}</option>
+            {THEME_ORDER.map((id) => (
+              <option key={id} value={id}>
+                {t(`themes.${id}`)}
+              </option>
+            ))}
+          </select>
         </span>
-        <select
-          className="border-input bg-background h-7 shrink-0 rounded-md border px-1.5 text-[11px]"
-          aria-label={t('themeTitle')}
-          value={theme ?? 'none'}
-          onChange={(e) => onTheme(e.target.value === 'none' ? null : (e.target.value as ThemeId))}
-        >
-          <option value="none">{t('themes.none')}</option>
-          {THEME_ORDER.map((id) => (
-            <option key={id} value={id}>
-              {t(`themes.${id}`)}
-            </option>
-          ))}
-        </select>
         <TipButton
           size="icon"
           variant="destructive"

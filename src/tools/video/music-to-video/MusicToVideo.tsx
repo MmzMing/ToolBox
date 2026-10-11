@@ -615,7 +615,7 @@ export default function MusicToVideo() {
 
   const tapLine = tapIndex != null ? plan.lines[tapIndex] : null
 
-  /* ---------------- 面板顶部两块：宽屏钉住，窄屏交给滚动区 ---------------- */
+  /* ---------------- 面板顶部两块：宽屏钉住，窄屏交给页面主滚动 ---------------- */
   const easyHint = (
     <div className="flex flex-col gap-2">
       <p className="text-muted-foreground text-[11px] leading-4">{t('easy.hint')}</p>
@@ -668,9 +668,15 @@ export default function MusicToVideo() {
     </>
   )
 
+  /*
+   * 窄屏不锁高度：整页交给 app-shell 的 `<main>` 主滚动，卡片自然长高。
+   * `shrink-0` 是必需的——`min-h-full` 顶掉了 flex 子项默认的 min-height:auto，
+   * 父级那 768px 的确定高度会把这块压回视口高，内容改由溢出撑开，底部留白也就丢了。
+   * xl 才恢复成视口锁定的左右分栏，面板各自内滚。
+   */
   return (
-    <div className="flex h-full min-h-0 flex-col pt-(--shell-immersive-inset-top)">
-      <header className="flex shrink-0 flex-wrap items-center gap-x-3 gap-y-1 px-3 py-2 sm:px-4">
+    <div className="flex min-h-full shrink-0 flex-col pt-(--shell-immersive-inset-top) xl:h-full xl:min-h-0">
+      <header className="flex shrink-0 flex-wrap items-center gap-x-3 gap-y-1 py-2 sm:px-4">
         <span className="bg-primary/10 text-primary flex size-9 shrink-0 items-center justify-center rounded-lg">
           <tool.icon className="size-5" />
         </span>
@@ -828,7 +834,9 @@ export default function MusicToVideo() {
         </div>
       </header>
 
-      <div className="flex min-h-0 flex-1 flex-col gap-2 px-2 pb-2 xl:flex-row xl:gap-3 xl:overflow-hidden xl:px-4 xl:pb-4">
+      {/* 手机端底部留白自己给：`<main>` 那份 padding-bottom 在 Chromium 里不算进可滚区域，
+          靠它会让卡片最后一截停在 dock 底下 */}
+      <div className="flex flex-col gap-2 pb-(--shell-immersive-inset-bottom) sm:px-4 sm:pb-4 xl:min-h-0 xl:flex-1 xl:flex-row xl:gap-3 xl:overflow-hidden">
         <div className="flex h-[34svh] min-h-[180px] shrink-0 flex-col xl:h-auto xl:min-h-0 xl:flex-1">
           <PreviewStage
             plan={plan}
@@ -849,7 +857,8 @@ export default function MusicToVideo() {
           />
         </div>
 
-        <aside className="bg-card/50 flex min-h-[240px] w-full flex-1 flex-col overflow-hidden rounded-lg border xl:h-auto xl:min-h-0 xl:w-[400px] xl:flex-none">
+        {/* 窄屏：卡片不吃高度、不内滚，左右各留 8px 让圆角看得见；xl 才钉成 400px 侧栏 */}
+        <aside className="bg-card/50 mx-2 flex min-w-0 flex-col overflow-hidden rounded-lg border sm:mx-0 xl:h-auto xl:min-h-0 xl:w-[400px] xl:flex-none">
           {isDesktop ? (
             <>
               {simple ? (

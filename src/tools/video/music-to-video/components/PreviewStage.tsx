@@ -289,7 +289,8 @@ export function PreviewStage({
 
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-2">
-      <div className="relative min-h-0 flex-1 overflow-hidden rounded-lg border bg-black">
+      {/* 手机端整块贴屏幕左右边缘，所以圆角与左右描边只在 sm 以上出现，否则边角上会啃出两块背景色 */}
+      <div className="relative min-h-0 flex-1 overflow-hidden rounded-none border border-x-0 bg-black sm:rounded-lg sm:border-x">
         <canvas ref={canvasRef} className="absolute inset-0 size-full object-contain" />
       </div>
 
@@ -301,7 +302,7 @@ export function PreviewStage({
         aria-valuemax={Math.round(plan.duration * 100)}
         aria-valuenow={0}
         tabIndex={0}
-        className="border-background/60 text-foreground/70 focus-visible:ring-ring h-12 w-full shrink-0 cursor-pointer touch-none rounded-md border outline-none focus-visible:ring-2"
+        className="border-background/60 text-foreground/70 focus-visible:ring-ring h-12 w-full shrink-0 cursor-pointer touch-none rounded-none border border-x-0 outline-none focus-visible:ring-2 sm:rounded-md sm:border-x"
         onPointerDown={(e) => {
           draggingRef.current = true
           e.currentTarget.setPointerCapture(e.pointerId)
