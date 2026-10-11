@@ -165,5 +165,30 @@
       "encryptedPdf": "The PDF is encrypted and cannot be imported.",
       "unknown": "An unknown error occurred."
     }
+  },
+  "tour": {
+    "intro": "Page tour",
+    "welcome": "What would you like to look at? I can show you around.",
+    "ai": "AI assistant (in progress)",
+    "progress": "Stop {{n}} of {{total}}",
+    "next": "Next",
+    "done": "Finish tour",
+    "fastSpeed": "Speak faster",
+    "normalSpeed": "Back to normal speed",
+    "replay": "Replay this line",
+    "steps": {
+      "dock": {
+        "body": "This is the navigation. Click a category to reveal its tools; click the same one again to close it. You can also collapse the rail against the left edge."
+      },
+      "search": {
+        "body": "Search every tool here — Chinese names, English names and keywords all match. The pill in the top bar is the same entry, with its shortcut shown on it."
+      },
+      "topNav": {
+        "body": "These pills up top are search, language and theme. To the right are the blog, GitHub and about links."
+      },
+      "circuit": {
+        "body": "This circuit board is the whole toolset: each chip is a category. Light up a category tab on a chip to expand that group’s tools."
+      }
+    }
   }
 }

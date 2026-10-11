@@ -92,6 +92,7 @@ function HeroSearch() {
   return (
     <div
       ref={wrapRef}
+      data-tour="search"
       className="relative flex justify-center"
       style={{ width: expandedWidth + expandedOffset }}
     >

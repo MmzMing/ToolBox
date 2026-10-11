@@ -151,6 +151,7 @@ export function MobileDock({ homeActive, onOpenPalette }: MobileDockProps) {
   return (
     <motion.div
       ref={dockRef}
+      data-tour="dock"
       layout
       initial={false}
       transition={reducedMotion ? { duration: 0 } : shellSpring}

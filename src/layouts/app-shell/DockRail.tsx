@@ -61,6 +61,7 @@ export function DockRail({
   return (
     <div
       role="toolbar"
+      data-tour="dock"
       aria-orientation="vertical"
       aria-label={label}
       onKeyDown={handleKeyDown}

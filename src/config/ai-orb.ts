@@ -1,4 +1,6 @@
 import type { FluidOrbProps } from '@/components/fluid-orb/types'
+import type { TourKey } from '@/modules/page-tour/targets'
+import type { VoiceLine } from '@/modules/page-tour/tour-voice'
 
 /**
  * AI 悬浮球的产品级配置。
@@ -20,6 +22,12 @@ export type AIOrbConfig = {
     mobileSize: number
   }
   orb: Partial<FluidOrbProps>
+  tour: {
+    /** 配音总开关：false 时不建 AudioContext、不请求任何音效；气泡右上角那枚是重播键 */
+    sound: boolean
+    /** 每一步用哪套人声。想手调某句的语气，给它显式 clips 数组即可 */
+    lines: Record<TourKey, VoiceLine>
+  }
 }
 
 export const aiOrbConfig: AIOrbConfig = {
@@ -43,5 +51,16 @@ export const aiOrbConfig: AIOrbConfig = {
     /** 眼睛：颜色走主题 foreground 令牌，暗底近白、亮底近黑，并跟随鼠标 */
     eyes: true,
     mood: 'idle',
+  },
+  tour: {
+    sound: true,
+    lines: {
+      // 不写 clips 就按正文一字一音推导（同一句话永远同一个调）。
+      // 想手调某句的语气，给它一个 clips 数组即可，见 tour-voice.ts 的 VoiceLine。
+      dock: { emotion: 'normal' },
+      search: { emotion: 'determined' },
+      topNav: { emotion: 'normal' },
+      circuit: { emotion: 'surprised' },
+    },
   },
 }

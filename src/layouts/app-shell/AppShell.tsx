@@ -6,6 +6,8 @@ import { useTranslation } from 'react-i18next'
 
 import { PageBlurVeil } from '@/components/page-blur-veil'
 import { AIOrbDock } from '@/components/ai/AIOrbDock'
+import { TourSpotlight } from '@/modules/page-tour/TourSpotlight'
+import { usePageTour } from '@/modules/page-tour/use-page-tour'
 import { BeianCaption } from '@/layouts/app-shell/BeianCaption'
 import { CategoryPanel } from '@/layouts/app-shell/CategoryPanel'
 import { DockHandle } from '@/layouts/app-shell/DockHandle'
@@ -46,6 +48,7 @@ export function AppShell() {
   const reducedMotion = useReducedMotion() === true
   const breakpoint = useBreakpoint()
   const layout = resolveShellLayout(breakpoint)
+  const tour = usePageTour(breakpoint)
 
   const openPalette = useSearchStore((state) => state.setOpen)
   const activeCategory = usePreferencesStore((state) => state.activeCategory)
@@ -103,7 +106,10 @@ export function AppShell() {
   return (
     <div className="bg-background relative flex h-svh flex-col overflow-hidden">
       {layout.topCapsules && (
-        <div className="pointer-events-none absolute inset-x-0 top-0 z-20 flex px-6 pt-4">
+        <div
+          data-tour="topNav"
+          className="pointer-events-none absolute inset-x-0 top-0 z-20 flex px-6 pt-4"
+        >
           <div className="w-full">
             <TopCapsules
               crumbs={crumbs}
@@ -225,8 +231,10 @@ export function AppShell() {
 
       {/* 换路由时重挂载，显影动画因此逐页重播；z-30 压在内容区之上、dock（z-40）之下 */}
       <PageBlurVeil key={location.pathname} />
+      {/* 首页导览的聚光层：盖住 dock 与内容，只有当前目标那块是清晰的 */}
+      <TourSpotlight rect={tour.rect} onStop={tour.stop} />
       {/* AI 悬浮球：默认由 aiOrbConfig.enabled 关着，这里挂了也不渲染 */}
-      <AIOrbDock />
+      <AIOrbDock tour={tour} />
     </div>
   )
 }

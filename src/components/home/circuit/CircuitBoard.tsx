@@ -62,7 +62,7 @@ export function CircuitBoard() {
   }, [])
 
   return (
-    <section className="mt-6 md:mt-8" aria-label={t('circuit.ariaLabel')}>
+    <section data-tour="circuit" className="mt-6 md:mt-8" aria-label={t('circuit.ariaLabel')}>
       <div className="@container w-full">
         <div
           className="relative w-full overflow-hidden"

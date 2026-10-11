@@ -61,6 +61,7 @@ export function DockHandle({ label, onExpand, side = 'left' }: DockHandleProps) 
   return (
     <motion.button
       type="button"
+      data-tour="dock"
       aria-label={label}
       onClick={onExpand}
       onPointerEnter={extend}
