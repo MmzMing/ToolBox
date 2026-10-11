@@ -25,6 +25,8 @@ type CategoryChipProps = {
   flow: TraceFlow
   /** 本颗芯片的克隆体正在飞向核心，原位只留一个空座 */
   hollow: boolean
+  /** 入场弹出的延迟（秒）：按顺时针序由调用方给 */
+  introDelay: number
   onActivate: (category: CategoryKey, element: HTMLElement) => void
   chipRef: Ref<HTMLButtonElement>
 }
@@ -33,8 +35,9 @@ type CategoryChipProps = {
  * 分类小芯片：图标在上、名字在下的一颗 IC 封装，左右两侧梳出引脚。
  *
  * 外层 div 只管"钉在图纸的哪个坐标"（left/top 百分比 + 居中 transform + 静置浮动），
- * 里层 button 才交给 Motion 管 scale——两者各占一个 CSS 属性，
- * hover 的缩放因此不会把居中用的 translate(-50%,-50%) 冲掉。
+ * 中间一层负责入场的气泡弹出（CSS scale 属性），
+ * 里层 button 才交给 Motion 管 scale——三者各占一个 CSS 属性，
+ * hover 的缩放与弹出的缩放因此都不会把居中用的 translate(-50%,-50%) 冲掉。
  * 所有尺寸走 cqw 跟着版图等比缩放，不需要 JS 测量回写。
  *
  * button 里垫了一层 chip-charge 背光：流星光头抵达本颗焊盘的瞬间（循环零点）
@@ -47,6 +50,7 @@ export function CategoryChip({
   driftDelay,
   flow,
   hollow,
+  introDelay,
   onActivate,
   chipRef,
 }: CategoryChipProps) {
@@ -71,41 +75,46 @@ export function CategoryChip({
         } as CSSProperties
       }
     >
-      <motion.button
-        ref={chipRef}
-        type="button"
-        aria-haspopup="dialog"
-        aria-label={label}
-        onClick={(event) => onActivate(slot.category, event.currentTarget)}
-        whileHover={{ scale: hollow ? 1 : 1.06 }}
-        whileTap={{ scale: 0.95 }}
-        animate={{ opacity: hollow ? 0.22 : 1 }}
-        transition={{ type: 'spring', duration: 0.42, bounce: 0.26 }}
-        className={cn(
-          'chip-live relative size-full overflow-visible rounded-lg',
-          'focus-visible:ring-ring focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none',
-          'cursor-pointer hover:z-10',
-        )}
+      <div
+        className="circuit-pop-in size-full"
+        style={{ '--circuit-in-delay': `${introDelay}s` } as CSSProperties}
       >
-        {/* 充电背光：垫在脸下面，内阴影从四边往里泛光，颜色跟本颗分类色 */}
-        <span
-          aria-hidden="true"
-          className="chip-charge pointer-events-none absolute inset-0 rounded-lg"
-          style={
-            {
-              '--circuit-flow-duration': `${flow.duration}s`,
-              '--circuit-flow-delay': `${flow.delay}s`,
-            } as CSSProperties
-          }
-        />
-        <ChipFace
-          label={label}
-          Icon={Icon}
-          color={color}
-          iconSize={metric(0.24)}
-          fontSize={metric(0.125)}
-        />
-      </motion.button>
+        <motion.button
+          ref={chipRef}
+          type="button"
+          aria-haspopup="dialog"
+          aria-label={label}
+          onClick={(event) => onActivate(slot.category, event.currentTarget)}
+          whileHover={{ scale: hollow ? 1 : 1.06 }}
+          whileTap={{ scale: 0.95 }}
+          animate={{ opacity: hollow ? 0.22 : 1 }}
+          transition={{ type: 'spring', duration: 0.42, bounce: 0.26 }}
+          className={cn(
+            'chip-live bg-card relative size-full overflow-visible rounded-lg',
+            'focus-visible:ring-ring focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none',
+            'cursor-pointer hover:z-10',
+          )}
+        >
+          {/* 充电背光：垫在脸下面，内阴影从四边往里泛光，颜色跟本颗分类色 */}
+          <span
+            aria-hidden="true"
+            className="chip-charge pointer-events-none absolute inset-0 rounded-lg"
+            style={
+              {
+                '--circuit-flow-duration': `${flow.duration}s`,
+                '--circuit-flow-delay': `${flow.delay}s`,
+              } as CSSProperties
+            }
+          />
+          <ChipFace
+            label={label}
+            Icon={Icon}
+            color={color}
+            iconSize={metric(0.24)}
+            fontSize={metric(0.125)}
+          />
+        </motion.button>
+      </div>
     </div>
   )
 }

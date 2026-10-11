@@ -8,11 +8,13 @@ import {
   chipBoxOf,
   circuitIndexOf,
   flowFor,
+  introOf,
   meander,
   sidesFor,
   toPath,
   toRoundedPath,
   type BoardLayout,
+  type ChipSlot,
   type Point,
 } from '@/components/home/circuit/circuit-layout'
 import { categoryKeys } from '@/tools/categories'
@@ -291,5 +293,52 @@ describe('circuit-layout: decoration and flow', () => {
   it('numbers categories from 1 in registry order', () => {
     expect(circuitIndexOf(categoryKeys[0])).toBe(1)
     expect(circuitIndexOf(categoryKeys[categoryKeys.length - 1])).toBe(categoryKeys.length)
+  })
+})
+
+describe('circuit-layout: entrance timing', () => {
+  /** 屏幕坐标（y 朝下）里 atan2 的 0 指向 3 点，旋 90° 让 12 点方向成为顺时针起点 */
+  function bearing(layout: BoardLayout, slot: ChipSlot): number {
+    const tau = Math.PI * 2
+    return (Math.atan2(slot.y - layout.core.y, slot.x - layout.core.x) + Math.PI / 2 + tau) % tau
+  }
+
+  /** 按弹出延迟排出的芯片，其方位角必须正好是顺时针递增的一圈 */
+  function clockwiseAngles(layout: BoardLayout): number[] {
+    const intro = introOf(layout)
+    return [...layout.slots]
+      .sort((a, b) => intro.chip[a.category] - intro.chip[b.category])
+      .map((slot) => bearing(layout, slot))
+  }
+
+  it.each(LAYOUTS)("%s pops the chips clockwise from 12 o'clock", (_name, layout) => {
+    const angles = clockwiseAngles(layout)
+    expect(angles[0]).toBeLessThan(Math.PI / 2)
+    expect(angles).toEqual([...angles].sort((a, b) => a - b))
+  })
+
+  it.each(LAYOUTS)('%s draws each trace after its own chip has popped', (_name, layout) => {
+    const intro = introOf(layout)
+    for (const slot of layout.slots) {
+      expect(intro.trace[slot.category]).toBeGreaterThan(intro.chip[slot.category])
+    }
+  })
+
+  it.each(LAYOUTS)('%s lights the comets only once every trace is drawn', (_name, layout) => {
+    const intro = introOf(layout)
+    const chips = categoryKeys.map((key) => intro.chip[key])
+    const lastTrace = Math.max(...categoryKeys.map((key) => intro.trace[key]))
+    expect(intro.core).toBeLessThan(Math.min(...chips))
+    expect(intro.flow).toBeGreaterThan(lastTrace)
+  })
+
+  it('gives every category its own pair of delays', () => {
+    const intro = introOf(BOARD_LAYOUTS.desktop)
+    expect(Object.keys(intro.chip).sort()).toEqual([...categoryKeys].sort())
+    expect(new Set(categoryKeys.map((key) => intro.chip[key])).size).toBe(categoryKeys.length)
+    for (const key of categoryKeys) {
+      expect(intro.chip[key]).toBeGreaterThan(0)
+      expect(intro.trace[key]).toBeGreaterThan(0)
+    }
   })
 })

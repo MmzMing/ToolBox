@@ -1204,6 +1204,12 @@
     inset 0 0 4.5cqw 1.2cqw color-mix(in oklch, currentColor 18%, transparent);
 }
 
+/* 四角支架：描边就是本颗的分类色（currentColor），再压一束与展开卡片同款的辉光，
+   芯片落在版图上就该是"已经通上电"的样子，而不是四段灰色折角 */
+.chip-corner {
+  filter: drop-shadow(0 0 6px color-mix(in oklch, currentColor 80%, transparent));
+}
+
 /* 芯片静置时的极轻浮动：错开的相位由内联 --circuit-drift-delay 给出，
    幅度只有 2px，是「板子活着」的暗示而不是干扰阅读的晃动 */
 @keyframes circuit-chip-drift {
@@ -1220,16 +1226,75 @@
   animation-delay: var(--circuit-drift-delay, 0s);
 }
 
+/* 入场：芯片与核心「气泡弹出」。缩放一律用独立的 scale 属性而不是 transform——
+   定位用的 translate(-50%,-50%) 与 Motion 的 hover scale 各占一个属性，互不覆盖，
+   缩到 0 时也就不会朝被缩放过的锚点塌下去。回弹写在关键帧的百分位里。 */
+@keyframes circuit-pop-in {
+  0% {
+    scale: 0;
+    opacity: 0;
+  }
+  55% {
+    scale: 1.12;
+    opacity: 1;
+  }
+  78% {
+    scale: 0.96;
+  }
+  100% {
+    scale: 1;
+    opacity: 1;
+  }
+}
+.circuit-pop-in {
+  animation: circuit-pop-in 0.45s cubic-bezier(0.33, 1, 0.68, 1) both;
+  animation-delay: var(--circuit-in-delay, 0s);
+}
+
+/* 走线从核心画向芯片：pathLength=1 把线长归一，dasharray 1 即「整条一段」，
+   偏移从 1 推到 0 就是把这段亮线从起点推出来。延迟期间靠 fill:both 保持空白 */
+@keyframes circuit-trace-draw {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+.circuit-trace-draw {
+  stroke-dasharray: 1;
+  animation: circuit-trace-draw 0.5s ease-out both;
+  animation-delay: var(--circuit-in-delay, 0s);
+}
+
+@keyframes circuit-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.circuit-fade-in {
+  animation: circuit-fade-in 0.6s ease-out both;
+  animation-delay: var(--circuit-in-delay, 0s);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .circuit-comet,
   .chip-charge,
-  .circuit-chip-drift {
+  .circuit-chip-drift,
+  .circuit-pop-in,
+  .circuit-trace-draw,
+  .circuit-fade-in {
     animation: none;
+  }
+  /* 入场动画一停，dash 图案本身也得撤掉，否则走线只剩半截 */
+  .circuit-trace-draw {
+    stroke-dasharray: none;
   }
   /* 流星各层直接藏起来：静止态不该有线尾残珠，只留导管本体 */
   .circuit-comet {
     opacity: 0;
   }
 }
-
-

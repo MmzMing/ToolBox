@@ -328,7 +328,7 @@ export function ChipDetailOverlay({ flight, onFinished }: ChipDetailOverlayProps
                 : { duration: seconds(160), ease: 'easeOut' }
             }
           >
-            <div className="relative size-full" style={{ color }}>
+            <div className="bg-card relative size-full rounded-lg" style={{ color }}>
               <ChipFace
                 label={categoryLabel}
                 Icon={Icon}

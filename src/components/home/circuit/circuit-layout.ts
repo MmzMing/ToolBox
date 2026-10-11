@@ -382,3 +382,53 @@ export function buildTraces(layout: BoardLayout): Trace[] {
     return { ...route, points, path: toRoundedPath(points, layout.chamfer), flow: flowFor(index) }
   })
 }
+
+/* ---------- 入场动效时序 ---------- */
+
+const INTRO_CHIP_START = 0.6
+const INTRO_CHIP_STEP = 0.075
+const INTRO_TRACE_START = 1.7
+const INTRO_TRACE_STEP = 0.06
+const INTRO_CORE_DELAY = 0.12
+/** 走线全部画完之后，流星与提示文字才亮 */
+const INTRO_FLOW_DELAY = 2.75
+
+export type CircuitIntro = {
+  /** 中央主芯片弹出的延迟 */
+  core: number
+  /** 流星光与提示文字淡入的延迟 */
+  flow: number
+  /** 各分类芯片的弹出延迟，按顺时针排 */
+  chip: Record<CategoryKey, number>
+  /** 各条走线从核心画向芯片的延迟，与芯片同一顺时针序 */
+  trace: Record<CategoryKey, number>
+}
+
+const TAU = Math.PI * 2
+
+/** 相对核心的方位角：0 指向 12 点方向、顺时针递增（屏幕 y 轴朝下，atan2 本身就是顺时针） */
+function bearingFromCore(core: Box, slot: ChipSlot): number {
+  return (Math.atan2(slot.y - core.y, slot.x - core.x) + Math.PI / 2 + TAU) % TAU
+}
+
+/**
+ * 入场节奏：核心先弹 → 分类芯片自 12 点方向起顺时针逐颗弹 → 走线再从核心画向各芯片。
+ * 只算延迟秒数，播放交给 CSS（animation-delay 用 --circuit-in-delay 下发），
+ * 所以断点切换、重渲染都不会打断已经跑完的时间线。
+ */
+export function introOf(layout: BoardLayout): CircuitIntro {
+  const clockwise = [...layout.slots].sort(
+    (a, b) => bearingFromCore(layout.core, a) - bearingFromCore(layout.core, b),
+  )
+  const delays = (start: number, step: number) =>
+    Object.fromEntries(
+      clockwise.map((slot, index) => [slot.category, start + index * step]),
+    ) as Record<CategoryKey, number>
+
+  return {
+    core: INTRO_CORE_DELAY,
+    flow: INTRO_FLOW_DELAY,
+    chip: delays(INTRO_CHIP_START, INTRO_CHIP_STEP),
+    trace: delays(INTRO_TRACE_START, INTRO_TRACE_STEP),
+  }
+}

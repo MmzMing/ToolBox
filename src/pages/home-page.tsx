@@ -22,11 +22,11 @@ export default function HomePage() {
     <div className="mx-auto w-full max-w-6xl px-4 py-8">
       <DocumentMeta title={t('pageTitle', site)} description={t('metaDescription')} path="/" />
 
-      <section className="flex flex-col items-center gap-6 py-14 text-center md:gap-8 md:py-20">
+      <section className="flex flex-col items-center gap-6 pt-14 text-center md:gap-8 md:pt-20">
         <h1 className="max-w-3xl text-4xl font-bold tracking-tighter text-balance sm:text-5xl md:text-6xl">
           {t('title', site)}
         </h1>
-        <p className="text-muted-foreground max-w-2xl text-base leading-relaxed text-pretty md:text-lg">
+        <p className="text-muted-foreground max-w-4xl px-2 text-base leading-relaxed text-pretty md:text-lg">
           {t('subtitle')}
         </p>
         <HeroSearch />

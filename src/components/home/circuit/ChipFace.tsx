@@ -19,8 +19,10 @@ const CORNERS = [
 ] as const
 
 /**
- * 芯片的「脸」：四角一圈折线框住中间的图标与名字，除此之外什么都不画。
+ * 芯片的「脸」：四角一圈折线压着中间的图标与名字，除此之外什么都不画。
  *
+ * 底板是宿主自己的事（版图上的 button 与飞行克隆体都铺 `bg-card`，与展开卡片同一张表面），
+ * 这样充电背光才压得住底板、又不至于被底板盖掉。
  * 版图上那颗可点的芯片与飞向核心的克隆体共用这一份外观，两边才不会在交接瞬间露馅。
  * 要求宿主是 `relative` 且已铺满目标尺寸，本组件只画内容、不管定位与交互。
  */
@@ -31,7 +33,7 @@ export function ChipFace({ label, Icon, color, iconSize, fontSize }: ChipFacePro
         <span
           key={corner}
           aria-hidden="true"
-          className={`chip-corner pointer-events-none absolute h-[32%] w-[26%] ${corner}`}
+          className={`chip-corner pointer-events-none absolute h-[32%] w-[26%] border-current ${corner}`}
         />
       ))}
 

@@ -14,6 +14,8 @@ type CoreChipProps = {
   countCaption: string
   /** 有分类芯片正飞进来：核心亮起迎接 */
   charging: boolean
+  /** 入场弹出的延迟（秒） */
+  introDelay: number
   coreRef: Ref<HTMLDivElement>
 }
 
@@ -29,7 +31,14 @@ const RADIUS_RATIO = 0.09
  *
  * 点火环挂在 wrapper 上：芯片自己 overflow-hidden，挂进去会被削平。
  */
-export function CoreChip({ layout, name, countCaption, charging, coreRef }: CoreChipProps) {
+export function CoreChip({
+  layout,
+  name,
+  countCaption,
+  charging,
+  introDelay,
+  coreRef,
+}: CoreChipProps) {
   const core = layout.core
   const color = 'var(--circuit-core)'
   const metric = (ratio: number) => cqwOf(layout, core.w * ratio)
@@ -68,7 +77,10 @@ export function CoreChip({ layout, name, countCaption, charging, coreRef }: Core
         } as CSSProperties
       }
     >
-      <div className="bg-card relative size-full overflow-hidden rounded-[9%]">
+      <div
+        className="circuit-pop-in bg-card relative size-full overflow-hidden rounded-[9%]"
+        style={{ '--circuit-in-delay': `${introDelay}s` } as CSSProperties}
+      >
         <CoreAurora radiusRatio={RADIUS_RATIO} pointer={pointer} still={reducedMotion} />
         <span className="relative flex size-full flex-col items-center justify-center gap-[3%] px-[6%] text-center">
           <img

@@ -3,7 +3,13 @@ import { useMemo } from 'react'
 
 import type { CategoryKey } from '@/tools/categories'
 
-import { buildTraces, circuitIndexOf, type BoardLayout, type Trace } from './circuit-layout'
+import {
+  buildTraces,
+  circuitIndexOf,
+  introOf,
+  type BoardLayout,
+  type Trace,
+} from './circuit-layout'
 
 /**
  * 电路走线层：一块铺满版图的 SVG。
@@ -19,6 +25,7 @@ import { buildTraces, circuitIndexOf, type BoardLayout, type Trace } from './cir
  */
 export function CircuitTraces({ layout }: { layout: BoardLayout }) {
   const traces = useMemo(() => buildTraces(layout), [layout])
+  const intro = useMemo(() => introOf(layout), [layout])
 
   return (
     <svg
@@ -28,72 +35,82 @@ export function CircuitTraces({ layout }: { layout: BoardLayout }) {
       className="pointer-events-none absolute inset-0 size-full"
     >
       {/* 线本体：常态不发光，只是一根半透明导管，光只属于跑在里面的流星；
-          拐角在 path 里已抹成圆弧，两端直接抵住芯片边，不画焊盘圆圈 */}
+          拐角在 path 里已抹成圆弧，两端直接抵住芯片边，不画焊盘圆圈。
+          入场时从核心一侧起笔画向芯片，延迟与芯片弹出同一顺时针序 */}
       <g opacity={0.3}>
         {traces.map((trace) => (
           <path
             key={trace.category}
             d={trace.path}
+            pathLength={1}
             strokeWidth={1.6}
             strokeLinecap="round"
             strokeLinejoin="round"
             fill="none"
             stroke={circuitColor(trace.category)}
+            className="circuit-trace-draw"
+            style={{ '--circuit-in-delay': `${intro.trace[trace.category]}s` } as CSSProperties}
           />
         ))}
       </g>
 
-      {/* 极光脉冲：四层细线叠成一发"光头"——宽糊晕只做极淡的外发光，
+      {/* 极光脉冲：等走线全部画完再淡入，否则线还没接通就先看见光头在跑。
+          四层细线叠成一发"光头"——宽糊晕只做极淡的外发光，
           主体是与导管同宽的细亮线，拖尾只留全程的 12%，
           冲到头就整发没入焊盘消失（扫程 >1 造出停歇空窗），
           停一拍再发下一发，不是一条拖着长尾巴的光管 */}
-      <g style={{ filter: 'blur(4px)' }} opacity={0.5}>
-        {traces.map((trace) => (
-          <CometLayer
-            key={trace.category}
-            trace={trace}
-            layer="a"
-            dash={0.12}
-            width={4.5}
-            opacity={0.3}
-          />
-        ))}
-      </g>
-      <g style={{ filter: 'blur(1.5px)' }} opacity={0.85}>
-        {traces.map((trace) => (
-          <CometLayer
-            key={trace.category}
-            trace={trace}
-            layer="b"
-            dash={0.06}
-            width={2.2}
-            opacity={0.75}
-          />
-        ))}
-      </g>
-      <g style={{ filter: 'blur(0.8px)' }}>
-        {traces.map((trace) => (
-          <CometLayer
-            key={trace.category}
-            trace={trace}
-            layer="c"
-            dash={0.018}
-            width={2.4}
-            opacity={1}
-            head
-          />
-        ))}
-        {traces.map((trace) => (
-          <CometLayer
-            key={`${trace.category}-c`}
-            trace={trace}
-            layer="d"
-            dash={0.007}
-            width={1.3}
-            opacity={0.9}
-            core
-          />
-        ))}
+      <g
+        className="circuit-fade-in"
+        style={{ '--circuit-in-delay': `${intro.flow}s` } as CSSProperties}
+      >
+        <g style={{ filter: 'blur(4px)' }} opacity={0.5}>
+          {traces.map((trace) => (
+            <CometLayer
+              key={trace.category}
+              trace={trace}
+              layer="a"
+              dash={0.12}
+              width={4.5}
+              opacity={0.3}
+            />
+          ))}
+        </g>
+        <g style={{ filter: 'blur(1.5px)' }} opacity={0.85}>
+          {traces.map((trace) => (
+            <CometLayer
+              key={trace.category}
+              trace={trace}
+              layer="b"
+              dash={0.06}
+              width={2.2}
+              opacity={0.75}
+            />
+          ))}
+        </g>
+        <g style={{ filter: 'blur(0.8px)' }}>
+          {traces.map((trace) => (
+            <CometLayer
+              key={trace.category}
+              trace={trace}
+              layer="c"
+              dash={0.018}
+              width={2.4}
+              opacity={1}
+              head
+            />
+          ))}
+          {traces.map((trace) => (
+            <CometLayer
+              key={`${trace.category}-c`}
+              trace={trace}
+              layer="d"
+              dash={0.007}
+              width={1.3}
+              opacity={0.9}
+              core
+            />
+          ))}
+        </g>
       </g>
     </svg>
   )

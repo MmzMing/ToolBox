@@ -1,4 +1,5 @@
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useMemo, useRef, useState } from 'react'
+import type { CSSProperties } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { useBreakpoint } from '@/composable/use-breakpoint'
@@ -9,7 +10,7 @@ import { CategoryChip } from './CategoryChip'
 import { ChipDetailOverlay, type ChipFlight } from './ChipDetailOverlay'
 import { CircuitTraces } from './CircuitTraces'
 import { CoreChip } from './CoreChip'
-import { flowFor, layoutOf } from './circuit-layout'
+import { flowFor, introOf, layoutOf } from './circuit-layout'
 
 function toRect(rect: DOMRect): ChipFlight['origin'] {
   return { left: rect.left, top: rect.top, width: rect.width, height: rect.height }
@@ -22,6 +23,8 @@ function toRect(rect: DOMRect): ChipFlight['origin'] {
  * 版图按断点整张换（手机竖版 / 平板偏方 / PC 宽扁），坐标是各档独立手排的，
  * 所以三种屏幕看到的是三种排布，不是同一张图缩放。
  * 芯片尺寸与字号一律走 cqw，跟着版图等比缩放。
+ *
+ * 入场时序见 introOf：核心先弹，分类芯片顺时针逐颗跟上，最后走线从核心画出去。
  */
 export function CircuitBoard() {
   const { t } = useTranslation('home')
@@ -29,6 +32,7 @@ export function CircuitBoard() {
   const { t: tCategory } = useTranslation('categories')
   const breakpoint = useBreakpoint()
   const layout = layoutOf(breakpoint)
+  const intro = useMemo(() => introOf(layout), [layout])
   const coreRef = useRef<HTMLDivElement | null>(null)
   const chipRefs = useRef(new Map<CategoryKey, HTMLButtonElement | null>())
   const [flight, setFlight] = useState<ChipFlight | null>(null)
@@ -58,7 +62,7 @@ export function CircuitBoard() {
   }, [])
 
   return (
-    <section className="mt-12 md:mt-16" aria-label={t('circuit.ariaLabel')}>
+    <section className="mt-6 md:mt-8" aria-label={t('circuit.ariaLabel')}>
       <div className="@container w-full">
         <div
           className="relative w-full overflow-hidden"
@@ -67,6 +71,7 @@ export function CircuitBoard() {
           <CircuitTraces layout={layout} />
           <CoreChip
             layout={layout}
+            introDelay={intro.core}
             name={tCommon('siteName')}
             countCaption={t('circuit.coreCount', { total: tools.length })}
             charging={flight !== null}
@@ -78,6 +83,7 @@ export function CircuitBoard() {
               layout={layout}
               slot={slot}
               label={tCategory(slot.category)}
+              introDelay={intro.chip[slot.category]}
               driftDelay={index * 0.7}
               flow={flowFor(index)}
               hollow={flight?.category === slot.category}
@@ -89,7 +95,10 @@ export function CircuitBoard() {
           ))}
         </div>
       </div>
-      <p className="text-muted-foreground mt-4 text-center text-xs md:text-sm">
+      <p
+        className="circuit-fade-in text-muted-foreground mt-4 text-center text-xs md:text-sm"
+        style={{ '--circuit-in-delay': `${intro.flow}s` } as CSSProperties}
+      >
         {t('circuit.hint')}
       </p>
 
