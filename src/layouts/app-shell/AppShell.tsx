@@ -5,6 +5,7 @@ import { Outlet, useLocation } from 'react-router'
 import { useTranslation } from 'react-i18next'
 
 import { PageBlurVeil } from '@/components/page-blur-veil'
+import { AIOrbDock } from '@/components/ai/AIOrbDock'
 import { BeianCaption } from '@/layouts/app-shell/BeianCaption'
 import { CategoryPanel } from '@/layouts/app-shell/CategoryPanel'
 import { DockHandle } from '@/layouts/app-shell/DockHandle'
@@ -224,6 +225,8 @@ export function AppShell() {
 
       {/* 换路由时重挂载，显影动画因此逐页重播；z-30 压在内容区之上、dock（z-40）之下 */}
       <PageBlurVeil key={location.pathname} />
+      {/* AI 悬浮球：默认由 aiOrbConfig.enabled 关着，这里挂了也不渲染 */}
+      <AIOrbDock />
     </div>
   )
 }
