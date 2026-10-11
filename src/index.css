@@ -46,6 +46,17 @@
   --color-background: var(--background);
   --color-fortune-good: var(--fortune-good);
   --color-fortune-normal: var(--fortune-normal);
+  --color-circuit-board: var(--circuit-board);
+  --color-circuit-core: var(--circuit-core);
+  --color-circuit-1: var(--circuit-1);
+  --color-circuit-2: var(--circuit-2);
+  --color-circuit-3: var(--circuit-3);
+  --color-circuit-4: var(--circuit-4);
+  --color-circuit-5: var(--circuit-5);
+  --color-circuit-6: var(--circuit-6);
+  --color-circuit-7: var(--circuit-7);
+  --color-circuit-8: var(--circuit-8);
+  --color-circuit-9: var(--circuit-9);
   --color-rule-sort: var(--rule-sort);
   --color-rule-case: var(--rule-case);
   --color-rule-naming: var(--rule-naming);
@@ -1061,3 +1072,164 @@
     animation-iteration-count: 1;
   }
 }
+
+/* --------------------------------------------------------------------------
+   首页电路板（components/home/circuit）
+   9 个分类各占一个色相，走线、发光、电子流都从这套令牌取色；
+   核心芯片不另配色，直接吃 --primary 让品牌绿当主板的主色。
+   -------------------------------------------------------------------------- */
+:root {
+  --circuit-board: oklch(0.985 0.004 160);
+  --circuit-core: var(--primary);
+  --circuit-1: oklch(0.55 0.13 152);
+  --circuit-2: oklch(0.55 0.16 318);
+  --circuit-3: oklch(0.6 0.15 30);
+  --circuit-4: oklch(0.58 0.13 58);
+  --circuit-5: oklch(0.53 0.16 246);
+  --circuit-6: oklch(0.56 0.11 192);
+  --circuit-7: oklch(0.54 0.15 286);
+  --circuit-8: oklch(0.55 0.13 100);
+  --circuit-9: oklch(0.55 0.17 8);
+}
+.dark {
+  --circuit-board: oklch(0.17 0.008 160);
+  --circuit-core: var(--primary);
+  --circuit-1: oklch(0.76 0.13 152);
+  --circuit-2: oklch(0.74 0.14 318);
+  --circuit-3: oklch(0.77 0.13 30);
+  --circuit-4: oklch(0.8 0.12 58);
+  --circuit-5: oklch(0.75 0.13 246);
+  --circuit-6: oklch(0.79 0.1 192);
+  --circuit-7: oklch(0.75 0.13 286);
+  --circuit-8: oklch(0.78 0.12 100);
+  --circuit-9: oklch(0.74 0.15 8);
+}
+
+/* 流星光：pathLength=1 让 dasharray/dashoffset 用「占全程的比例」表达，
+   九条长短不一的走线共用同一段节奏，速度差异只由 duration 决定。
+   关键帧里**不许出现 var()**：关键帧取值一旦在计算值阶段失效，整条属性动画
+   会被浏览器静默丢弃，光点就死在线尾。
+   注意 dasharray 的列表从 ON 段开始数，所以图案只写「ON 拖尾 + OFF 余量」两值；
+   四层拖尾长度不同、又要亮头对齐同一点，就用四组固定值 keyframes：
+   起点 = 本层 dash 长（ON 段末端＝亮头正好在 0），终点 = 起点 - 扫程 1.45。
+   扫程 = 1 + IDLE（IDLE=0.45，与 CircuitTraces 对齐）：光头没入分类焊盘后
+   整条 dash 走在路径之外——"冲到了，没了，停一拍"再发下一发 */
+@keyframes circuit-comet-a {
+  from {
+    stroke-dashoffset: 0.12;
+  }
+  to {
+    stroke-dashoffset: -1.33;
+  }
+}
+@keyframes circuit-comet-b {
+  from {
+    stroke-dashoffset: 0.06;
+  }
+  to {
+    stroke-dashoffset: -1.39;
+  }
+}
+@keyframes circuit-comet-c {
+  from {
+    stroke-dashoffset: 0.018;
+  }
+  to {
+    stroke-dashoffset: -1.432;
+  }
+}
+@keyframes circuit-comet-d {
+  from {
+    stroke-dashoffset: 0.007;
+  }
+  to {
+    stroke-dashoffset: -1.443;
+  }
+}
+
+.circuit-comet {
+  animation-duration: var(--circuit-flow-duration, 3s);
+  animation-delay: var(--circuit-flow-delay, 0s);
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+.circuit-comet-a {
+  animation-name: circuit-comet-a;
+}
+.circuit-comet-b {
+  animation-name: circuit-comet-b;
+}
+.circuit-comet-c {
+  animation-name: circuit-comet-c;
+}
+.circuit-comet-d {
+  animation-name: circuit-comet-d;
+}
+
+/* 充电背光：光头抵达焊盘在周期的 69% 处（扫程 1.45 里走完窗口 1 的那一刻），
+   背光从这一刻快速充亮，余晖拖进下一周期开头再放干净，像被充了一次电；
+   相位复用同一条走线的 delay，天然与抵达同相 */
+@keyframes circuit-chip-charge {
+  0% {
+    opacity: 0.4;
+  }
+  14% {
+    opacity: 0;
+  }
+  69% {
+    opacity: 0;
+  }
+  75% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 0.35;
+  }
+  100% {
+    opacity: 0.4;
+  }
+}
+
+.chip-charge {
+  opacity: 0;
+  animation: circuit-chip-charge var(--circuit-flow-duration, 3s) linear infinite;
+  animation-delay: var(--circuit-flow-delay, 0s);
+  background: radial-gradient(
+    115% 115% at 50% 50%,
+    transparent 52%,
+    color-mix(in oklch, currentColor 16%, transparent) 100%
+  );
+  box-shadow:
+    inset 0 0 1.4cqw 0.15cqw color-mix(in oklch, currentColor 50%, transparent),
+    inset 0 0 4.5cqw 1.2cqw color-mix(in oklch, currentColor 18%, transparent);
+}
+
+/* 芯片静置时的极轻浮动：错开的相位由内联 --circuit-drift-delay 给出，
+   幅度只有 2px，是「板子活着」的暗示而不是干扰阅读的晃动 */
+@keyframes circuit-chip-drift {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+  50% {
+    translate: 0 -2px;
+  }
+}
+.circuit-chip-drift {
+  animation: circuit-chip-drift 6s ease-in-out infinite;
+  animation-delay: var(--circuit-drift-delay, 0s);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .circuit-comet,
+  .chip-charge,
+  .circuit-chip-drift {
+    animation: none;
+  }
+  /* 流星各层直接藏起来：静止态不该有线尾残珠，只留导管本体 */
+  .circuit-comet {
+    opacity: 0;
+  }
+}
+
+

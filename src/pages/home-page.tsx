@@ -1,29 +1,9 @@
-import {
-  closestCenter,
-  DndContext,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
-  type DragEndEvent,
-} from '@dnd-kit/core'
-import { restrictToParentElement } from '@dnd-kit/modifiers'
-import {
-  arrayMove,
-  rectSortingStrategy,
-  SortableContext,
-  sortableKeyboardCoordinates,
-  useSortable,
-} from '@dnd-kit/sortable'
-import { CSS } from '@dnd-kit/utilities'
-import { GripVertical } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 
-import { ToolCard } from '@/components/tool-card'
+import { CircuitBoard } from '@/components/home/circuit/CircuitBoard'
 import { DocumentMeta } from '@/modules/seo/document-meta'
-import { Button } from '@/components/ui/button'
 import { GooeyInput } from '@/components/ui/gooey-input'
 import { useIsMobile } from '@/composable/use-breakpoint'
 import {
@@ -31,12 +11,8 @@ import {
   useToolSearchItems,
   type ToolSearchItem,
 } from '@/composable/use-tools-search'
-import { useToolsStore } from '@/stores/tools.store'
-import { categoryIcons } from '@/tools/categories'
-import { getFavoriteTools, getRecentTools, toolsByCategory } from '@/tools'
-import type { Tool } from '@/tools/define-tool'
 
-/** 首页：Hero + 收藏（可拖拽排序）+ 最近使用 + 全部分类 */
+/** 首页：大标题 + 搜索 + 分类电路板。工具清单都在板子里，页面本身不再铺卡片 */
 export default function HomePage() {
   const { t } = useTranslation('home')
   const { t: tCommon } = useTranslation('common')
@@ -56,9 +32,7 @@ export default function HomePage() {
         <HeroSearch />
       </section>
 
-      <FavoriteSection />
-      <RecentSection />
-      <AllCategoriesSection />
+      <CircuitBoard />
     </div>
   )
 }
@@ -179,141 +153,5 @@ function HeroSearchResult({ item, onPick }: { item: ToolSearchItem; onPick: () =
         </span>
       </Link>
     </li>
-  )
-}
-
-function FavoriteSection() {
-  const { t } = useTranslation('home')
-  const favorites = useToolsStore((state) => state.favorites)
-  const reorderFavorites = useToolsStore((state) => state.reorderFavorites)
-  const favoriteTools = useMemo(() => getFavoriteTools(favorites), [favorites])
-
-  const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
-    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
-  )
-
-  if (favoriteTools.length === 0) {
-    return null
-  }
-
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event
-    if (!over || active.id === over.id) {
-      return
-    }
-    const oldIndex = favorites.indexOf(String(active.id))
-    const newIndex = favorites.indexOf(String(over.id))
-    if (oldIndex >= 0 && newIndex >= 0) {
-      reorderFavorites(arrayMove(favorites, oldIndex, newIndex))
-    }
-  }
-
-  return (
-    <section className="mb-10">
-      <h2 className="mb-3 text-3xl font-semibold">{t('favorites')}</h2>
-      <DndContext
-        sensors={sensors}
-        collisionDetection={closestCenter}
-        modifiers={[restrictToParentElement]}
-        onDragEnd={handleDragEnd}
-      >
-        <SortableContext
-          items={favoriteTools.map((tool) => tool.path)}
-          strategy={rectSortingStrategy}
-        >
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {favoriteTools.map((tool) => (
-              <SortableToolCard key={tool.path} tool={tool} />
-            ))}
-          </div>
-        </SortableContext>
-      </DndContext>
-    </section>
-  )
-}
-
-/** 最近使用（常用工具）：按使用频次与时间排序取 Top 8，可一键清空 */
-function RecentSection() {
-  const { t } = useTranslation('home')
-  const { t: tCommon } = useTranslation('common')
-  const recent = useToolsStore((state) => state.recent)
-  const clearRecent = useToolsStore((state) => state.clearRecent)
-  const recentTools = useMemo(() => getRecentTools(recent), [recent])
-
-  if (recentTools.length === 0) {
-    return null
-  }
-
-  return (
-    <section className="mb-10">
-      <div className="mb-3 flex items-center gap-2">
-        <h2 className="text-3xl font-semibold">{t('recent')}</h2>
-        <Button
-          variant="ghost"
-          size="xs"
-          className="text-muted-foreground ml-auto"
-          onClick={clearRecent}
-        >
-          {tCommon('clearRecent')}
-        </Button>
-      </div>
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-        {recentTools.map((tool) => (
-          <ToolCard key={tool.path} tool={tool} />
-        ))}
-      </div>
-    </section>
-  )
-}
-
-function SortableToolCard({ tool }: { tool: Tool }) {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
-    id: tool.path,
-  })
-
-  return (
-    <div
-      ref={setNodeRef}
-      style={{ transform: CSS.Transform.toString(transform), transition }}
-      className={`group relative ${isDragging ? 'z-10 opacity-90' : ''}`}
-    >
-      <button
-        type="button"
-        aria-label="drag"
-        className="text-muted-foreground absolute top-1/2 left-1 z-10 -translate-y-1/2 cursor-grab touch-none rounded p-1 opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100 active:cursor-grabbing"
-        {...attributes}
-        {...listeners}
-      >
-        <GripVertical className="size-4" />
-      </button>
-      <ToolCard tool={tool} />
-    </div>
-  )
-}
-
-function AllCategoriesSection() {
-  const { t: tCategory } = useTranslation('categories')
-
-  return (
-    <section className="flex flex-col gap-8">
-      {toolsByCategory.map(({ category, tools }) => {
-        const Icon = categoryIcons[category]
-        return (
-          <div key={category}>
-            {/* 标题与图标按「大一号」的区块标题走；工具数量从侧栏的计数就能看出来，这里不再重复 */}
-            <div className="mb-4 flex items-center gap-3">
-              <Icon className="text-primary size-8" />
-              <h2 className="text-3xl font-semibold">{tCategory(category)}</h2>
-            </div>
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {tools.map((tool) => (
-                <ToolCard key={tool.path} tool={tool} />
-              ))}
-            </div>
-          </div>
-        )
-      })}
-    </section>
   )
 }
