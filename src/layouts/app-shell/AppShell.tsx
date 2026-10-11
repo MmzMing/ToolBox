@@ -167,11 +167,38 @@ export function AppShell() {
           )}
         </AnimatePresence>
       ) : (
-        <div className="pointer-events-none absolute inset-x-0 bottom-3 z-40 flex justify-center">
-          <div className="pointer-events-auto">
-            <MobileDock homeActive={isHome} onOpenPalette={() => openPalette(true)} />
-          </div>
-        </div>
+        <AnimatePresence initial={false} mode="popLayout">
+          {dockCollapsed ? (
+            // 手机档折到右下边缘：折到底部居中的话，露出的那半截会被浏览器手势区吃掉
+            <motion.div
+              key="dock-ball"
+              className="pointer-events-none absolute right-0 bottom-3 z-40 flex"
+              initial={{ opacity: 0, scale: 0.4 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.4 }}
+              transition={dockTransition}
+            >
+              <DockHandle
+                label={t('dock.expand')}
+                onExpand={() => setCollapsedAt(null)}
+                side="right"
+              />
+            </motion.div>
+          ) : (
+            <motion.div
+              key="dock-bar"
+              className="pointer-events-none absolute inset-x-0 bottom-3 z-40 flex justify-center"
+              initial={{ opacity: 0, scale: 0.4 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.4 }}
+              transition={dockTransition}
+            >
+              <div className="pointer-events-auto">
+                <MobileDock homeActive={isHome} onOpenPalette={() => openPalette(true)} />
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       )}
 
       <main

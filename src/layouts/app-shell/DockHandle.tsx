@@ -9,16 +9,21 @@ import { cn } from '@/lib/utils'
 /** 与图标条同一套 spring：折下去与滑出来要读作同一个动作 */
 const handleSpring = { type: 'spring' as const, duration: 0.42, bounce: 0.18 }
 
+/** 折叠键贴的这条边：桌面档是左侧图标条，手机档是底部 dock 折到右下边缘 */
+type DockHandleSide = 'left' | 'right'
+
 type DockHandleProps = {
   label: string
   onExpand: () => void
+  side?: DockHandleSide
 }
 
 /**
- * dock 折叠后留在左边缘、垂直居中的那颗按钮：静止时自动缩进视窗，只露半个球；
- * 悬停立刻滑出成完整按钮，移开 1s 后才收回，避免横向掠过左边缘时来回抖动。
+ * dock 折叠后留在边缘的那颗按钮：静止时自动缩进视窗，只露半个球；
+ * 悬停立刻滑出成完整按钮，移开 1s 后才收回，避免横向掠过边缘时来回抖动。
+ * 触屏没有悬停，所以收回侧垫一块透明命中区，半截球也点得动。
  */
-export function DockHandle({ label, onExpand }: DockHandleProps) {
+export function DockHandle({ label, onExpand, side = 'left' }: DockHandleProps) {
   const reducedMotion = useReducedMotion() === true
   const [retracted, setRetracted] = useState(false)
   const retractTimer = useRef<number | null>(null)
@@ -62,11 +67,15 @@ export function DockHandle({ label, onExpand }: DockHandleProps) {
       onPointerLeave={reducedMotion ? undefined : scheduleRetract}
       // 键盘 Tab 进来的是半截按钮，看不清也难点中，与悬停同样处理
       onFocus={extend}
-      animate={{ x: retracted ? DOCK_HANDLE_RETRACT_X : 0 }}
+      animate={{
+        x: retracted ? (side === 'left' ? DOCK_HANDLE_RETRACT_X : -DOCK_HANDLE_RETRACT_X) : 0,
+      }}
       transition={reducedMotion ? { duration: 0 } : handleSpring}
       className={cn(
         dockItemClass(false, 'accent'),
         'bg-dock text-dock-foreground shadow-dock backdrop-blur-dock pointer-events-auto',
+        'before:absolute before:inset-y-0 before:w-6 before:content-[""]',
+        side === 'left' ? 'before:-right-6' : 'before:-left-6',
       )}
     >
       <LayoutGrid className="size-5" />

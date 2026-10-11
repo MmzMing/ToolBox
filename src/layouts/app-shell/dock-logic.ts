@@ -163,7 +163,10 @@ export function isDockCollapsed(input: { collapsedAt: string | null; pathname: s
   return input.collapsedAt !== null && input.collapsedAt === input.pathname
 }
 
-/** 折叠按钮静止时向视窗外缩的位移：44px 的键正好只剩半截露在外面 */
+/**
+ * 折叠按钮静止时向视窗外缩的位移：44px 的键正好只剩半截露在外面。
+ * 这条负值给贴左边缘的桌面档用，贴右边缘的手机档取反。
+ */
 export const DOCK_HANDLE_RETRACT_X = -22
 
 /** 鼠标移开后延迟这么久才收回半截，横向掠过左边缘时按钮才不会一闪一闪 */
