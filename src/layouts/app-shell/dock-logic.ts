@@ -78,6 +78,22 @@ export function toggleCategory(current: CategoryKey | null, next: CategoryKey): 
   return current === next ? null : next
 }
 
+/**
+ * 浮层换层时内容的滑动方向。图标条是纵向的，所以方向只看两键的先后：
+ * 往下扫返回 1（新列表从下方升起、旧的往上退），往上扫返回 -1。
+ * 首次展开没有参照，按"从下方升起"处理。
+ */
+export function panelSlideDirection(
+  order: readonly CategoryKey[],
+  from: CategoryKey | null,
+  to: CategoryKey,
+): 1 | -1 {
+  if (from === null) {
+    return 1
+  }
+  return order.indexOf(to) > order.indexOf(from) ? 1 : -1
+}
+
 /** localStorage 可能被改坏：只认白名单里的分类键，其余回落 null（AGENTS.md §8） */
 export function normalizeActiveCategory(
   value: unknown,

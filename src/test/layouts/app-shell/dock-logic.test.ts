@@ -8,6 +8,7 @@ import {
   modKeyLabel,
   nextFocusIndex,
   normalizeActiveCategory,
+  panelSlideDirection,
   resolveShellLayout,
   routeCategoryOf,
   toggleCategory,
@@ -67,6 +68,20 @@ describe('normalizeActiveCategory', () => {
     expect(normalizeActiveCategory(42, KEYS)).toBeNull()
     expect(normalizeActiveCategory(['text'], KEYS)).toBeNull()
     expect(normalizeActiveCategory(undefined, [])).toBeNull()
+  })
+})
+
+describe('panelSlideDirection', () => {
+  it('rises the new layer from below when scanning down the rail', () => {
+    expect(panelSlideDirection(KEYS, 'text', 'images')).toBe(1)
+  })
+
+  it('drops the new layer in from above when scanning back up', () => {
+    expect(panelSlideDirection(KEYS, 'images', 'text')).toBe(-1)
+  })
+
+  it('treats the first open as coming from below', () => {
+    expect(panelSlideDirection(KEYS, null, 'crypto')).toBe(1)
   })
 })
 

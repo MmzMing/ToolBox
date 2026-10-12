@@ -1,6 +1,6 @@
 import { House } from 'lucide-react'
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { Outlet, useLocation } from 'react-router'
 import { useTranslation } from 'react-i18next'
 
@@ -54,6 +54,7 @@ export function AppShell() {
   const activeCategory = usePreferencesStore((state) => state.activeCategory)
   const {
     visibleCategory,
+    slideDir,
     hover,
     togglePin,
     dismiss,
@@ -64,6 +65,8 @@ export function AppShell() {
   } = useDockController({ enabled: layout.panel === 'floating' })
   // 记的是"在哪条路由上被收起的"：换页即自动展开，省掉一次 effect 里的 setState
   const [collapsedAt, setCollapsedAt] = useState<string | null>(null)
+  // 悬停容器同时是浮层的定位基准：浮层的高度变化不能再反过来挪动它的顶边
+  const railWrapRef = useRef<HTMLDivElement | null>(null)
 
   const immersive = isImmersivePath(location.pathname, tools)
   const dockCollapsed = isDockCollapsed({ collapsedAt, pathname: location.pathname })
@@ -148,9 +151,11 @@ export function AppShell() {
               transition={dockTransition}
             >
               {/* 图标条与浮层共用一个悬停容器：鼠标从键位横移到浮层不会触发 leave，
-                  否则经过两者之间那道缝隙时浮层会先关掉、点不到里面的工具 */}
+                  否则经过两者之间那道缝隙时浮层会先关掉、点不到里面的工具。
+                  浮层是绝对定位的，所以那道缝隙由容器自己的右内边距占住 */}
               <div
-                className="pointer-events-auto flex items-center gap-2"
+                ref={railWrapRef}
+                className="pointer-events-auto relative flex items-center pe-2"
                 onPointerLeave={() => hover(null)}
               >
                 <DockRail
@@ -165,7 +170,9 @@ export function AppShell() {
                 />
                 <CategoryPanel
                   category={visibleCategory}
+                  slideDir={slideDir}
                   panelRef={panelRef}
+                  containerRef={railWrapRef}
                   anchorRectFor={anchorRectFor}
                   onNavigate={dismiss}
                 />
