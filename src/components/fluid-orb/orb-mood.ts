@@ -16,8 +16,13 @@ export const ANGRY_HOLD_MS = 3500
 
 export const ANGRY_MOOD: OrbEyeMood = 'angry'
 
-/** 点击轮换的顺序：就是 39 态表本身的顺序（Lifecycle → Reactions → Agent → Product） */
-export const MOOD_CYCLE: readonly OrbEyeMood[] = ORB_EYE_MOODS
+/**
+ * 点击轮换的顺序：情绪表本身，但把 `idle` 剔掉。
+ *
+ * 球停着的默认表情就是 idle，让它进轮换等于「点一下没反应」——而轮换的全部意义是
+ * 每点一下换一张脸。走完其余 19 个再循环。
+ */
+export const MOOD_CYCLE: readonly OrbEyeMood[] = ORB_EYE_MOODS.filter((mood) => mood !== 'idle')
 
 export type MoodCycler = {
   /** 上一次给出的情绪在 MOOD_CYCLE 里的下标；-1 表示还没点过 */

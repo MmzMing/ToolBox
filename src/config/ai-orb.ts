@@ -51,6 +51,10 @@ export const aiOrbConfig: AIOrbConfig = {
     /** 眼睛：颜色走主题 foreground 令牌，暗底近白、亮底近黑，并跟随鼠标 */
     eyes: true,
     mood: 'idle',
+    /** 多久换一张脸（ms，区间内随机）。一分钟一档：常驻装饰，换太快就从"有生命"变成"在闪" */
+    eyeHoldMs: [45000, 75000],
+    /** 多久眨一次眼（ms）。比换脸勤得多——十几秒不眨就已经看着像死物了 */
+    eyeBlinkMs: [4000, 9000],
   },
   tour: {
     sound: true,

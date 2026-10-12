@@ -24,17 +24,18 @@ function clicks(gapMs: number, count: number, startAt = 0) {
 }
 
 describe('mood cycle', () => {
-  it('walks the 39 states in table order, starting from the top', () => {
-    expect(MOOD_CYCLE).toHaveLength(39)
-    expect(MOOD_CYCLE).toEqual([...ORB_EYE_MOODS])
-    expect(clicks(5000, 3).seen).toEqual([ORB_EYE_MOODS[0], ORB_EYE_MOODS[1], ORB_EYE_MOODS[2]])
+  it('walks the 20-state table in order, minus the resting mood', () => {
+    expect(ORB_EYE_MOODS).toHaveLength(20)
+    // 球停着的就是 idle，把它留在轮换里等于第一下点了没反应
+    expect(MOOD_CYCLE).toEqual(ORB_EYE_MOODS.filter((mood) => mood !== 'idle'))
+    expect(clicks(5000, 3).seen).toEqual([MOOD_CYCLE[0], MOOD_CYCLE[1], MOOD_CYCLE[2]])
   })
 
   it('wraps around instead of running off the list', () => {
-    const { seen } = clicks(5000, 40, 0)
-    expect(seen[38]).toBe(ORB_EYE_MOODS[38])
-    expect(seen[39]).toBe(ORB_EYE_MOODS[0])
-    expect(new Set(seen).size).toBe(39)
+    const { seen } = clicks(5000, MOOD_CYCLE.length + 2, 0)
+    expect(seen[MOOD_CYCLE.length - 1]).toBe(MOOD_CYCLE.at(-1))
+    expect(seen[MOOD_CYCLE.length]).toBe(MOOD_CYCLE[0])
+    expect(new Set(seen).size).toBe(MOOD_CYCLE.length)
   })
 
   it('turns angry after enough rapid clicks', () => {
@@ -64,7 +65,8 @@ describe('mood cycle', () => {
       cycler = out.next
       seen.push(out.mood)
     }
-    expect(seen).not.toContain('angry')
+    // 慢点时每一下都该是轮换表上的下一张脸；angry 本身在表里，所以只能这样断言"怒气没插进来"
+    expect(seen).toEqual([...MOOD_CYCLE.slice(0, 10)])
     expect(new Set(seen).size).toBe(10)
   })
 

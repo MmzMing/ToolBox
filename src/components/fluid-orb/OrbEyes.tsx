@@ -1,8 +1,15 @@
 import { useEffect, useRef } from 'react'
 import type { RefObject } from 'react'
 
-import { EYE_BOX, createEyeRuntime, setMood, stepEyes, type OrbEyeRuntime } from './orb-eyes'
-import type { OrbEyeMood } from './orb-eye-states'
+import {
+  EYE_BOX,
+  createEyeRuntime,
+  setMood,
+  stepEyes,
+  type EyeRhythm,
+  type OrbEyeRuntime,
+} from './orb-eyes'
+import { EYE_STAGGER_MS, type OrbEyeMood } from './orb-eye-states'
 import { cn } from '@/lib/utils'
 
 /**
@@ -15,6 +22,11 @@ type OrbEyesProps = {
   /** 眼睛铺满的这个圆就是球体本身，单位 px */
   size: number
   mood: OrbEyeMood
+  /** 换笔画的间隔区间（ms）。传引用而不是打包成对象：config 里那是模块级常量，
+   *  身份稳定，effect 依赖它才不会每帧重建运行时 */
+  eyeHoldMs: readonly [number, number]
+  /** 眨眼的间隔区间（ms） */
+  eyeBlinkMs: readonly [number, number]
   /** 关掉动画时只渲一帧静止 */
   still?: boolean
   /** 球体根节点：用它算「指针在球的哪个方向」，所以眼睛在页面任何位置都跟 */
@@ -37,6 +49,8 @@ type OrbEyesProps = {
 export function OrbEyes({
   size,
   mood,
+  eyeHoldMs,
+  eyeBlinkMs,
   still = false,
   anchorRef,
   random = Math.random,
@@ -84,8 +98,10 @@ export function OrbEyes({
     let lastFrom = -1
     let morphing = true
 
+    // 节奏在建运行时那一刻定下，之后不再读——config 是模块常量，跑起来不会变
+    const rhythm: EyeRhythm = { hold: eyeHoldMs, blink: eyeBlinkMs }
     const paint = (now: number) => {
-      const rt = (runtimeRef.current ??= createEyeRuntime(moodRef.current, now, random))
+      const rt = (runtimeRef.current ??= createEyeRuntime(moodRef.current, now, random, rhythm))
       setMood(rt, moodRef.current, now, random)
       // rect 每帧只读一次，且读发生在 rAF 里而不是 pointermove 回调里——
       // 在事件回调里量盒子会在快速甩鼠标时把强制重排塞进输入路径
@@ -106,7 +122,7 @@ export function OrbEyes({
       if (frame.shape !== lastShape || rt.from !== lastFrom || morphing) {
         lastShape = frame.shape
         lastFrom = rt.from
-        morphing = now - rt.morphAt < 400
+        morphing = now < rt.morphAt + rt.morphMs + EYE_STAGGER_MS
         for (let i = 0; i < 2; i += 1) {
           pathRefs.current[i]?.setAttribute('d', frame.eyes[i].d)
         }
@@ -157,7 +173,7 @@ export function OrbEyes({
       paintRef.current = null
       runtimeRef.current = null
     }
-  }, [anchorRef, random, still])
+  }, [anchorRef, eyeBlinkMs, eyeHoldMs, random, still])
 
   return (
     <svg

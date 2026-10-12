@@ -2,28 +2,37 @@ import { describe, expect, it } from 'vitest'
 
 import {
   EYE_BOX,
+  EYE_CENTER,
   FACE_ANCHOR,
   centroid,
   clampToDisc,
   consumeBlink,
   createEyeRuntime,
-  eyeHalfWidth,
+  eyeReach,
   eyeSlice,
-  lerpFlat,
   polyPath,
   queueBlink,
   setMood,
   stepEyes,
   type BlinkKey,
+  type EyeRhythm,
 } from '@/components/fluid-orb/orb-eyes'
 import {
-  ORB_EYE_MOODS,
+  BLINK_KEYS,
+  DOUBLE_BLINK_KEYS,
   EYE_PLAYLIST,
-  EYE_HOLD_MS,
-  BLINK_MS,
+  NO_BLINK_MOODS,
+  ORB_EYE_MOODS,
+  WINK_MOODS,
   isOrbEyeMood,
 } from '@/components/fluid-orb/orb-eye-states'
-import { ORB_EYE_POINTS, ORB_EYE_SHAPES } from '@/components/fluid-orb/orb-eye-shapes'
+import {
+  ORB_EYE_POINTS,
+  ORB_EYE_SHAPES,
+  barAt,
+  lerpBar,
+  morphedEye,
+} from '@/components/fluid-orb/orb-eye-shapes'
 
 /** 固定随机源，让播放列表与眨眼节奏在测试里可复现 */
 function fixedRandom(seed = 1) {
@@ -33,6 +42,12 @@ function fixedRandom(seed = 1) {
     return s / 0x100000000
   }
 }
+
+/**
+ * 用例专用的快节奏。产品默认是一分钟换一张脸（config 里那两档），
+ * 测试要跑的是"换得过来"这件事，不能真等一分钟，所以自己声明节奏而不是依赖默认值。
+ */
+const FAST_RHYTHM: EyeRhythm = { hold: [700, 1200], blink: [900, 1500] }
 
 function translateOf(transform: string): { x: number; y: number; sx: number; sy: number } {
   const m = /translate\(([-\d.]+) ([-\d.]+)\) scale\(([-\d.]+) ([-\d.]+)\)/u.exec(transform)
@@ -44,7 +59,7 @@ function translateOf(transform: string): { x: number; y: number; sx: number; sy:
 
 function run(mood: (typeof ORB_EYE_MOODS)[number], ms: number, pointer = { x: 0, y: 0 }) {
   const random = fixedRandom()
-  const rt = createEyeRuntime(mood, 0, random)
+  const rt = createEyeRuntime(mood, 0, random, FAST_RHYTHM)
   let frame = null
   for (let now = 0; now <= ms; now += 16.7) {
     frame = stepEyes(rt, { now, pointer, random })
@@ -53,10 +68,31 @@ function run(mood: (typeof ORB_EYE_MOODS)[number], ms: number, pointer = { x: 0,
 }
 
 describe('geometry data integrity', () => {
-  it('ships 25 eye shapes, each a left/right pair of the same point count', () => {
-    expect(ORB_EYE_SHAPES).toHaveLength(25)
+  it('ships 10 eye shapes, each a left/right pair of the same point count', () => {
+    expect(ORB_EYE_SHAPES).toHaveLength(10)
     for (const shape of ORB_EYE_SHAPES) {
       expect(shape).toHaveLength(ORB_EYE_POINTS * 2 * 2)
+    }
+  })
+
+  it('keeps the eye plump while a bar rotates flat', () => {
+    // 回归：插点插不出旋转——竖条的第 i 个点与横条的第 i 个点差了 90°，
+    // 平均下来中间帧只剩一坨。现在插的是参数，所以中间帧面积必须始终和两端同一量级。
+    const areaOf = (flat: readonly number[]) => {
+      let sum = 0
+      for (let i = 0; i < flat.length; i += 2) {
+        const j = (i + 2) % flat.length
+        sum += flat[i] * flat[j + 1] - flat[j] * flat[i + 1]
+      }
+      return Math.abs(sum) / 2
+    }
+    const UPRIGHT = 0
+    const LYING = 7
+    const floor =
+      Math.min(areaOf(morphedEye(UPRIGHT, LYING, 0, 1)), areaOf(morphedEye(UPRIGHT, LYING, 1, 1))) *
+      0.6
+    for (const t of [0.25, 0.5, 0.75]) {
+      expect(areaOf(morphedEye(UPRIGHT, LYING, t, 1))).toBeGreaterThan(floor)
     }
   })
 
@@ -69,14 +105,15 @@ describe('geometry data integrity', () => {
     expect(centroid(left)).not.toEqual(centroid(right))
   })
 
-  it('covers all 39 moods with the three parallel tables', () => {
-    expect(ORB_EYE_MOODS).toHaveLength(39)
+  it('gives every one of the 20 moods a playlist of at least two shapes', () => {
+    expect(ORB_EYE_MOODS).toHaveLength(20)
     for (const mood of ORB_EYE_MOODS) {
-      expect(EYE_PLAYLIST[mood].length).toBeGreaterThan(0)
-      expect(EYE_HOLD_MS[mood][0]).toBeLessThanOrEqual(EYE_HOLD_MS[mood][1])
-      if (BLINK_MS[mood] !== null) {
-        expect(BLINK_MS[mood]![0]).toBeLessThan(BLINK_MS[mood]![1])
-      }
+      // 至少两组：单组会让 stepEyes 每个停留时长到点都原地重放一次换形脉冲
+      expect(EYE_PLAYLIST[mood].length).toBeGreaterThanOrEqual(2)
+    }
+    // 不眨眼的状态也不该被派到单眼眨——stepEyes 里 wink 是挂在眨眼分支下的
+    for (const mood of NO_BLINK_MOODS) {
+      expect(WINK_MOODS.has(mood)).toBe(false)
     }
   })
 
@@ -89,9 +126,16 @@ describe('geometry data integrity', () => {
     }
   })
 
-  it('narrows the mood union only to the 39 known names', () => {
+  it('keeps every shipped eye shape referenced by some mood', () => {
+    const referenced = new Set(ORB_EYE_MOODS.flatMap((mood) => [...EYE_PLAYLIST[mood]]))
+    expect(referenced.size).toBe(ORB_EYE_SHAPES.length)
+  })
+
+  it('narrows the mood union only to the 20 known names', () => {
     expect(isOrbEyeMood('thinking')).toBe(true)
-    expect(isOrbEyeMood('powering-down')).toBe(true)
+    expect(isOrbEyeMood('celebrate')).toBe(true)
+    // 裁剪掉的态必须不再被接受，否则拼错的旧名字会静默落回 undefined 播放列表
+    expect(isOrbEyeMood('loading')).toBe(false)
     expect(isOrbEyeMood('sleepwalking')).toBe(false)
   })
 })
@@ -104,34 +148,84 @@ describe('poly helpers', () => {
     expect(d.split('L')).toHaveLength(3)
   })
 
-  it('reports the widest horizontal reach from the centroid', () => {
-    expect(eyeHalfWidth([0, 0, 10, 0, 20, 0])).toBe(10)
+  it('measures the diagonal reach, not just the horizontal one', () => {
+    // 一条 10×40 的竖条：只按横向余量夹，外接半径少算一半，大眼睛斜着看会戳出球外
+    const bar = [0, 0, 10, 0, 10, 40, 0, 40]
+    expect(eyeReach(bar)).toBeCloseTo(Math.hypot(5, 20), 6)
   })
 
-  it('interpolates between two shapes and pins the endpoints', () => {
-    const a = [0, 0, 10, 10]
-    const b = [20, 20, 30, 30]
-    expect(lerpFlat(a, b, 0)).toEqual(a)
-    expect(lerpFlat(a, b, 1)).toEqual(b)
-    expect(lerpFlat(a, b, 0.5)).toEqual([10, 10, 20, 20])
+  it('interpolates bar parameters, rotation axis included', () => {
+    const upright = { h: 40, w: 15 }
+    const lying = { h: 30, w: 10, axis: 90 }
+    expect(lerpBar(upright, lying, 0)).toBe(upright)
+    expect(lerpBar(upright, lying, 1)).toBe(lying)
+    const mid = lerpBar(upright, lying, 0.5)
+    expect(mid.axis).toBe(45)
+    expect(mid.h).toBeCloseTo(35)
+    // 没写的字段按 0 补齐，所以插值结果总是全字段，不会因为少写一个键就跳变
+    expect(mid.chev).toBe(0)
+    expect(mid.lid).toBe(0)
+  })
+
+  it('points the caret slot upward, not downward', () => {
+    // axis 转 90° 之后 chev 的正负号反直觉，靠肉眼判过一次判错了（^ ^ 画成 v v）。
+    // 屏幕 y 越小越靠上：^ 的中间应该比两条臂的端点更高。
+    const flat = morphedEye(6, 6, 1, 1)
+    const pts: { x: number; y: number }[] = []
+    for (let i = 0; i < flat.length; i += 2) {
+      pts.push({ x: flat[i], y: flat[i + 1] })
+    }
+    const byX = [...pts].sort((a, b) => a.x - b.x)
+    const tip = byX[0]
+    const other = byX.at(-1)!
+    const midX = (tip.x + other.x) / 2
+    const peak = pts.reduce((a, b) => (Math.abs(b.x - midX) < Math.abs(a.x - midX) ? b : a))
+    expect(peak.y).toBeLessThan(tip.y)
+    expect(peak.y).toBeLessThan(other.y)
+  })
+
+  it('lets one eye differ from the other', () => {
+    // 单眼横躺与一大一小全靠 left / right 覆盖块，共享参数本身是对称的
+    const wink = barAt(8, 1)
+    const other = barAt(8, -1)
+    expect(wink.axis).toBe(90)
+    expect(other.axis ?? 0).toBe(0)
+    expect(barAt(9, 1).h).toBeLessThan(barAt(9, -1).h)
+    // 一大一小差的是尺寸，两只眼都得是正圆（h = w），别一只圆一条
+    expect(barAt(9, 1).h).toBe(barAt(9, 1).w)
+    expect(barAt(9, -1).h).toBe(barAt(9, -1).w)
   })
 })
 
 describe('blink queue', () => {
-  it('closes then reopens the lid, overshooting once on the way back', () => {
+  it('closes, holds, then reopens with exactly one overshoot on the way back', () => {
     const q: BlinkKey[] = []
     queueBlink(q, 1000, () => 0.99)
-    expect(q.map((k) => k.v)).toEqual([0.05, 0.05, 1.08, 1])
-    expect(consumeBlink(q, 1000)).toBe(0.05)
-    expect(consumeBlink(q, 1400)).toBe(1)
+    const lids = q.map((k) => k.v)
+    // 数值本身归 BLINK_KEYS 那张表管，这里钉的是"形状"：闭 → 停一下 → 睁过头一次 → 落回全开
+    expect(lids[0]).toBeLessThan(0.2)
+    expect(lids[1]).toBe(lids[0])
+    expect(lids.filter((v) => v > 1)).toHaveLength(1)
+    expect(lids.at(-1)).toBe(1)
+    expect(q.map((k) => k.at)).toEqual([...q.map((k) => k.at)].sort((a, b) => a - b))
+    expect(q[0].at).toBe(1000)
+    expect(consumeBlink(q, 1000)).toBe(lids[0])
+    expect(consumeBlink(q, 4000)).toBe(1)
     expect(q).toHaveLength(0)
   })
 
   it('appends a second blink when the roll comes up', () => {
     const q: BlinkKey[] = []
     queueBlink(q, 0, () => 0.01)
-    expect(q).toHaveLength(6)
-    expect(consumeBlink(q, 500)).toBe(1)
+    expect(q).toHaveLength(BLINK_KEYS.length + DOUBLE_BLINK_KEYS.length)
+    // 二次眨排在第一次落回全开之后，否则两次会叠成一团
+    expect(q.at(-2)!.at).toBeGreaterThan(BLINK_KEYS.at(-1)![0])
+  })
+
+  it('skips the second blink when the roll does not come up', () => {
+    const q: BlinkKey[] = []
+    queueBlink(q, 0, () => 0.99)
+    expect(q).toHaveLength(BLINK_KEYS.length)
   })
 
   it('returns null when nothing is due', () => {
@@ -147,21 +241,22 @@ describe('clampToDisc', () => {
   })
 
   it('pulls an overflowing eye back onto the radius it can occupy', () => {
-    const spot = clampToDisc(500, 114.2705, 10)
+    const spot = clampToDisc(500, EYE_CENTER, 10)
     expect(spot.x).toBeLessThan(EYE_BOX)
-    expect(spot.y).toBeCloseTo(114.2705, 3)
-    expect(Math.hypot(spot.x - 114.2705, spot.y - 114.2705)).toBeCloseTo(104.27, 1)
+    expect(spot.y).toBeCloseTo(EYE_CENTER, 3)
+    // 拉回到「球半径减掉眼睛自身半径」那一圈上
+    expect(Math.hypot(spot.x - EYE_CENTER, spot.y - EYE_CENTER)).toBeCloseTo(EYE_CENTER - 10, 1)
   })
 
   it('collapses to the centre when the eye is bigger than the disc', () => {
-    expect(clampToDisc(300, 300, 1000).x).toBeCloseTo(114.2705, 3)
+    expect(clampToDisc(300, 300, 1000).x).toBeCloseTo(EYE_CENTER, 3)
   })
 })
 
 describe('stepEyes', () => {
   it('centres the eye pair on the face anchor for every mood', () => {
-    // 回归：源数据把表情连位置一起烘进几何，不减掉每组自带的双眼中点，
-    // 换表情时整张脸会歪到球边上去
+    // 回归：谁把某格眼形整个画偏了（比如给一只眼加了 spread），不减掉双眼中点的话，
+    // 换到那个表情时整张脸会歪到球边上去
     for (const mood of ORB_EYE_MOODS) {
       const { frame } = run(mood, 60)
       const [l, r] = frame.eyes.map((e) => translateOf(e.transform))
@@ -182,21 +277,27 @@ describe('stepEyes', () => {
   it('advances the playlist so the shape index changes over time', () => {
     const seen = new Set<number>()
     const random = fixedRandom(7)
-    const rt = createEyeRuntime('thinking', 0, random)
+    const rt = createEyeRuntime('thinking', 0, random, FAST_RHYTHM)
     for (let now = 0; now < 40000; now += 16.7) {
       seen.add(stepEyes(rt, { now, pointer: null, random }).shape)
     }
     expect(seen.size).toBe(EYE_PLAYLIST.thinking.length)
   })
 
-  it('stays put on a single-shape mood', () => {
-    const { frame } = run('waking', 8000)
-    expect(frame.shape).toBe(EYE_PLAYLIST.waking[0])
+  it('paces the playlist by the rhythm it was given, not by the default', () => {
+    // 默认一分钟一张脸。用例若偷偷依赖默认值，上面那条就会变成等一分钟才通过
+    const random = fixedRandom(7)
+    const slow = createEyeRuntime('thinking', 0, random)
+    let frame = stepEyes(slow, { now: 0, pointer: null, random })
+    for (let now = 16.7; now < 40000; now += 16.7) {
+      frame = stepEyes(slow, { now, pointer: null, random })
+    }
+    expect(frame.shape).toBe(EYE_PLAYLIST.thinking[0])
   })
 
   it('closes the lid during a blink and reopens it', () => {
     const random = fixedRandom(3)
-    const rt = createEyeRuntime('listening', 0, random)
+    const rt = createEyeRuntime('listening', 0, random, FAST_RHYTHM)
     let minLid = 1
     let maxLid = 0
     for (let now = 0; now < 20000; now += 16.7) {
@@ -208,9 +309,9 @@ describe('stepEyes', () => {
     expect(maxLid).toBeGreaterThan(0.9)
   })
 
-  it('never blinks in a mood that has no blink range', () => {
+  it('never blinks in a mood listed in NO_BLINK_MOODS', () => {
     const random = fixedRandom(5)
-    const rt = createEyeRuntime('sleeping', 0, random)
+    const rt = createEyeRuntime('drowsy', 0, random, FAST_RHYTHM)
     for (let now = 0; now < 60000; now += 16.7) {
       stepEyes(rt, { now, pointer: null, random })
     }

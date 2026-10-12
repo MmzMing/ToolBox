@@ -69,6 +69,8 @@ export function FluidOrb({
   resolution = orbDefaults.resolution,
   eyes = orbDefaults.eyes,
   mood = orbDefaults.mood,
+  eyeHoldMs = orbDefaults.eyeHoldMs,
+  eyeBlinkMs = orbDefaults.eyeBlinkMs,
   className,
   style,
 }: FluidOrbProps) {
@@ -394,6 +396,8 @@ export function FluidOrb({
           <OrbEyes
             size={size}
             mood={mood}
+            eyeHoldMs={eyeHoldMs}
+            eyeBlinkMs={eyeBlinkMs}
             still={still}
             anchorRef={rootRef}
             className="text-foreground"

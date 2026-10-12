@@ -8,8 +8,10 @@
 
 /**
  * 画布边长 = size * PAD，给 halo 留外扩余量。
- * 这个值必须容得下光晕的 5σ：halo=1.4 时光晕带宽 0.105 个半径，5σ 已经越过
- * PAD=1.6 的半宽 0.8，外缘会被画布切成一条方边。
+ *
+ * 余量不需要"刚好装下 5σ"——那条算术已经错过一次（halo 一大就被画布切成方边）。
+ * 光晕在着色器里由 `haloFade` 那道窗口在画布边界前主动归零，所以 PAD 只管
+ * "光晕想铺多远"，不再管"会不会露出方边"。调大它 = 光晕更松散，调小 = 更早收掉。
  */
 export const ORB_CANVAS_PAD = 1.8
 
@@ -163,10 +165,10 @@ void main() {
   float rad = length(p);
   vec2 ring = vec2(cos(ang), sin(ang));
 
-  // 早退：光晕可达半径之外直接写透明。halo 带宽取 0.075 是为了让 5σ 落在画布内
-  // （画布半宽 0.8），否则外扩余量不够，光晕会被画布边缘切成方的。
-  float reach = 0.5 + uHalo * 0.45 + 0.04;
-  if (rad > reach) {
+  // 早退只是省算力：画布外本来就不画，超过这个半径的像素直接写透明。
+  // 光晕能不能装得下不靠这里赌，由下面 haloFade 那道窗口负责归零。
+  float canvasHalf = uSpan * 0.5;
+  if (rad > canvasHalf * 0.96) {
     fragColor = vec4(0.0);
     return;
   }
@@ -224,6 +226,10 @@ void main() {
   float haloTight = exp(-outside / max(0.0015, uHalo * 0.022)) * outsideMask;
   // 外晕比描边本身平滑得多：亮弧向外扩散成一团，而不是把内部的扇形拓出去
   float haloEnv = 0.35 + 0.65 * env;
+  // 光晕必须在画布边界之前**归零**。exp 衰减永远留一条尾巴，切在画布方形边缘上
+  // 就是一圈方边——暗底上看不出来，白底上 alpha 还要被 pow(lum, .8) 抬亮，特别明显。
+  // 窗口起点放在尾巴本来就只有 15% 的地方，所以观感上的光晕半径几乎不变。
+  float haloFade = 1.0 - smoothstep(canvasHalf * 0.78, canvasHalf * 0.96, rad);
 
   // 玻璃罩：气团是「隔着球壳看进去」的，所以采样坐标要按球面法线反向偏折。
   // 中心 nz=1 → 不偏；越靠边 nz→0 → 沿法线往里缩，图案被挤向切线方向，读作透镜
@@ -295,7 +301,7 @@ void main() {
   float spec = mix(1.0, 0.12, uInk);
   vec3 col = rimCol * rimBand * envelope * uRimIntensity * uRimBoost * tiltBoost;
   col += mix(rimCol, vec3(1.0), 0.5) * hairline * envelope * uRimIntensity * uRimBoost * tiltBoost * 0.6;
-  col += rimCol * (haloBand * 0.55 + haloTight * 0.35) * haloEnv * uHalo * uHaloBoost;
+  col += rimCol * (haloBand * 0.55 + haloTight * 0.35) * haloEnv * uHalo * uHaloBoost * haloFade;
   col += rimCol * fresnel * inside * 0.42 * uRimIntensity;
   // 焦散带：壳的截面处把气团和描边一起提亮，形成一圈贴边的亮带。
   // 它不吃 coreMask（coreMask 正是为了在边缘把气团压暗而设），否则这条带出不来。

@@ -69,6 +69,8 @@ export function AIOrbDock({ tour }: AIOrbDockProps) {
   const grab = useRef<{ dx: number; dy: number } | null>(null)
   const press = useRef<{ x: number; y: number; moved: boolean } | null>(null)
   const cycler = useRef(createMoodCycler())
+  /** 球 + 气泡的盒子。判断"点到了外面"以它为界 */
+  const rootRef = useRef<HTMLDivElement>(null)
 
   const { side } = aiOrbConfig.dock
   const size = mobile ? aiOrbConfig.dock.mobileSize : aiOrbConfig.dock.size
@@ -82,6 +84,22 @@ export function AIOrbDock({ tour }: AIOrbDockProps) {
     window.addEventListener('resize', keepInside)
     return () => window.removeEventListener('resize', keepInside)
   }, [size])
+
+  // 点盒子外面就收起。气泡是"随口一句"，不该要求用户再精准点回那颗会动的球——
+  // 尤其它可能被拖到屏幕另一头。开气泡那一下的 pointerdown 发生在 effect 挂上之前，
+  // 所以不会被自己关掉；点球那一下的 target 在盒子内，交给 endDrag 去 toggle。
+  useEffect(() => {
+    if (!bubbleOpen) {
+      return
+    }
+    const dismiss = (event: PointerEvent) => {
+      if (!rootRef.current?.contains(event.target as Node)) {
+        setBubbleOpen(false)
+      }
+    }
+    window.addEventListener('pointerdown', dismiss, true)
+    return () => window.removeEventListener('pointerdown', dismiss, true)
+  }, [bubbleOpen])
 
   const { speak, stop: stopVoice, revealed } = useTourVoice(aiOrbConfig.tour.sound)
   const reduceMotion = useReducedMotion() === true
@@ -219,6 +237,7 @@ export function AIOrbDock({ tour }: AIOrbDockProps) {
       }
     >
       <div
+        ref={rootRef}
         className={cn(
           // relative 是必须的：气泡用 absolute 定位，而外层那条带子在默认态是整屏高的
           // （inset-y-0），不给这层定位上下文的话 bottom-full 会把气泡顶出视口

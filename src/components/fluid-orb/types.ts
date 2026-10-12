@@ -59,8 +59,12 @@ export type FluidOrbProps = {
   resolution?: number
   /** 画上眼睛。颜色走主题的 foreground 令牌：暗底近白、亮底近黑 */
   eyes?: boolean
-  /** 眼睛情绪，39 态之一；只在 eyes 打开时生效 */
+  /** 眼睛情绪，20 态之一；只在 eyes 打开时生效 */
   mood?: OrbEyeMood
+  /** 播放列表换下一组笔画的间隔区间（ms）。默认一分钟一张脸 */
+  eyeHoldMs?: readonly [number, number]
+  /** 自主眨眼的间隔区间（ms） */
+  eyeBlinkMs?: readonly [number, number]
   className?: string
   style?: CSSProperties
   ref?: Ref<FluidOrbHandle>
