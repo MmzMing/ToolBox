@@ -184,16 +184,55 @@ describe('poly helpers', () => {
     expect(peak.y).toBeLessThan(other.y)
   })
 
+  it('leans the angry pair inward-down and the sad pair inward-up', () => {
+    // tilt 的正负极易记反（字段注释就记反过一次），所以钉观感事实而不是钉符号：
+    // 生气 = 靠鼻子那一端压低（\ /），委屈 = 靠鼻子那一端抬起（/ \）。
+    // 方向看协方差符号：笔画歪向哪边它就在哪边变号，镜像眼自动反。
+    // 不能用"极值 x 的端点"——笔画是旋转的，最左/最右落在圆头侧面而不是端头。
+    const sxyOf = (slot: number, side: 1 | -1) => {
+      const flat = morphedEye(slot, slot, 1, side)
+      const pts: [number, number][] = []
+      for (let i = 0; i < flat.length; i += 2) pts.push([flat[i], flat[i + 1]])
+      const n = pts.length
+      const mx = pts.reduce((a, p) => a + p[0], 0) / n
+      const my = pts.reduce((a, p) => a + p[1], 0) / n
+      let sxx = 0
+      let syy = 0
+      let sxy = 0
+      for (const [x, y] of pts) {
+        sxx += (x - mx) ** 2
+        syy += (y - my) ** 2
+        sxy += (x - mx) * (y - my)
+      }
+      return { sxy, lean: 90 - Math.abs((0.5 * Math.atan2(2 * sxy, sxx - syy) * 180) / Math.PI) }
+    }
+    const ANGRY = 3
+    const SAD = 4
+    // 右眼（side=1）内角在左边：内角压低 = y 随 x 减小而增大 = sxy 为负
+    expect(sxyOf(ANGRY, 1).sxy).toBeLessThan(0)
+    expect(sxyOf(ANGRY, -1).sxy).toBeGreaterThan(0)
+    expect(sxyOf(SAD, 1).sxy).toBeGreaterThan(0)
+    expect(sxyOf(SAD, -1).sxy).toBeLessThan(0)
+    // 两只眼歪得不一样多：生气右眼 48° 更平、左眼 40°；委屈反过来。
+    // 完全对称会读成一个图标，不像一张脸
+    expect(sxyOf(ANGRY, 1).lean).toBeGreaterThan(sxyOf(ANGRY, -1).lean)
+    expect(sxyOf(SAD, -1).lean).toBeGreaterThan(sxyOf(SAD, 1).lean)
+  })
+
   it('lets one eye differ from the other', () => {
-    // 单眼横躺与一大一小全靠 left / right 覆盖块，共享参数本身是对称的
-    const wink = barAt(8, 1)
-    const other = barAt(8, -1)
-    expect(wink.axis).toBe(90)
-    expect(other.axis ?? 0).toBe(0)
+    // 眨眼格：只有右眼折成 <，左眼保持竖条。chev 是镜像的，写到共享字段上
+    // 左眼会跟着折成 >，那一格就从眨眼变成大笑了
+    expect(barAt(8, 1).chev).toBeGreaterThan(0)
+    expect(barAt(8, -1).chev ?? 0).toBe(0)
+    // 疑惑格：一大一小 + 一高一低，但两只都得是正圆（h = w）
     expect(barAt(9, 1).h).toBeLessThan(barAt(9, -1).h)
-    // 一大一小差的是尺寸，两只眼都得是正圆（h = w），别一只圆一条
     expect(barAt(9, 1).h).toBe(barAt(9, 1).w)
     expect(barAt(9, -1).h).toBe(barAt(9, -1).w)
+    // 底边对齐：两只圆的下缘差在一两个单位内。中心齐平会读成"一大一小飘着"，
+    // 下缘齐平才像抬起一边眉毛打量你
+    const bottomOf = (side: 1 | -1) =>
+      Math.max(...morphedEye(9, 9, 1, side).filter((_, i) => i % 2 === 1))
+    expect(Math.abs(bottomOf(1) - bottomOf(-1))).toBeLessThan(3)
   })
 })
 

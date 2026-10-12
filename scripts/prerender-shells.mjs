@@ -183,20 +183,14 @@ for (const tool of tools) {
 }
 
 const aboutTitle = interpolate(requireCopy(zhAbout, 'title', 'about'), { site: siteName })
-/** 关于页问答：正文与 about-page.tsx 的 Q1–Q6 同源，q6 的协议名在两句之间 */
-const aboutQa = ['q1', 'q2', 'q3', 'q4', 'q5'].map((key) => [
+/** 关于页问答：正文与 about-page.tsx 的 Q1–Q7 同源 */
+const aboutQa = ['q1', 'q2', 'q3', 'q4', 'q5', 'q6', 'q7'].map((key) => [
   requireCopy(zhAbout, `${key}Title`, 'about'),
   interpolate(requireCopy(zhAbout, `${key}Body`, 'about'), {
     site: siteName,
     count: tools.length,
     categories: readCategoryOrder(root).length,
   }),
-])
-aboutQa.push([
-  requireCopy(zhAbout, 'q6Title', 'about'),
-  [requireCopy(zhAbout, 'q6Body', 'about'), 'MIT', requireCopy(zhAbout, 'q6Tail', 'about')].join(
-    ' ',
-  ),
 ])
 emit(
   'about',

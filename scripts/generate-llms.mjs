@@ -51,7 +51,7 @@ const sections = orderedCategories.map((category) => {
 
 const facts = [
   `- 计算位置：全部在用户浏览器本地完成，本站服务器不接收、不存储用户输入。`,
-  `- 费用：完全免费、开源（MIT），无账号、无付费墙、无使用次数限制。`,
+  `- 费用：完全免费，无账号、无付费墙、无使用次数限制；站点处于测试阶段，源码待开发完成后公开。`,
   `- 语言：中文（zh-CN）与英文双语界面，在页面内切换，共用同一 URL。`,
   `- 工具总数：${tools.length} 个。`,
   `- 页面 head 内含 schema.org WebApplication 与 BreadcrumbList 结构化数据，可直接抽取。`,
@@ -59,7 +59,7 @@ const facts = [
 
 const llms = `# ${siteName}
 
-> 免费开源的在线工具箱：${tools.length} 个开发者与日常实用工具，全部在浏览器本地运行，不收集、不上传任何用户数据。
+> 免费的在线工具箱：${tools.length} 个开发者与日常实用工具，全部在浏览器本地运行，不收集、不上传任何用户数据。
 
 ## Key Facts / 关键事实
 
@@ -96,7 +96,7 @@ const detailSections = orderedCategories.map((category) => {
 const llmsFull = `# ${siteName} - 工具全量清单 / Full Tool Index
 
 站点: ${siteUrl}/
-开源仓库: https://github.com/MmzMing/ToolBox
+仓库: https://github.com/MmzMing/ToolBox
 工具总数: ${tools.length}
 
 以下每个条目对应一个可直接访问的页面，页面内即可完整使用该工具，无需注册或安装。

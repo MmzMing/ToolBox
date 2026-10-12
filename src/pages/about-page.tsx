@@ -1,4 +1,4 @@
-import { BookOpen, Heart, ShieldCheck, Zap } from 'lucide-react'
+import { BookOpen, Cpu, FileCode2, Hash, Heart, ShieldCheck, Zap } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
 import { DocumentMeta } from '@/modules/seo/document-meta'
@@ -37,21 +37,7 @@ export default function AboutPage() {
   const count = { count: tools.length }
 
   const items: FaqItem[] = [
-    {
-      id: 'what',
-      question: t('q1Title'),
-      answer: t('q1Body', { ...site, ...count }),
-      detail: (
-        <RepoCard
-          owner="MmzMing"
-          name="ToolBox"
-          repo={siteConfig.githubRepo}
-          description={t('repoDescription', count)}
-          url={siteConfig.githubUrl}
-          license="MIT"
-        />
-      ),
-    },
+    { id: 'what', question: t('q1Title'), answer: t('q1Body', { ...site, ...count }) },
     {
       id: 'tools',
       question: t('q2Title'),
@@ -72,23 +58,12 @@ export default function AboutPage() {
         </div>
       ),
     },
+    { id: 'license', question: t('q6Title'), answer: t('q6Body') },
     {
-      id: 'license',
-      question: t('q6Title'),
-      answer: (
-        <>
-          {t('q6Body')}{' '}
-          <a
-            className="underline underline-offset-4"
-            href="./LICENSE"
-            target="_blank"
-            rel="noreferrer"
-          >
-            MIT
-          </a>{' '}
-          {t('q6Tail')}
-        </>
-      ),
+      id: 'ai',
+      question: t('q7Title'),
+      answer: t('q7Body'),
+      detail: <AiStatGrid />,
     },
   ]
 
@@ -105,23 +80,7 @@ export default function AboutPage() {
         <div className="mt-3 grid gap-4 md:grid-cols-3">
           <FeatureCard icon={ShieldCheck} title={t('privacyTitle')} body={t('privacyBody')} />
           <FeatureCard icon={Zap} title={t('fastTitle')} body={t('fastBody')} />
-          <FeatureCard
-            icon={Heart}
-            title={t('openSourceTitle')}
-            body={
-              <>
-                {t('openSourceBody')}{' '}
-                <a
-                  className="text-primary underline underline-offset-4"
-                  href={siteConfig.githubUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  tools
-                </a>
-              </>
-            }
-          />
+          <FeatureCard icon={Heart} title={t('openSourceTitle')} body={t('openSourceBody')} />
         </div>
         <div className="mt-4">
           <RepoCard
@@ -165,6 +124,56 @@ function CategoryGrid() {
           </Card>
         )
       })}
+    </div>
+  )
+}
+
+/** 人机协作的量级：模型标识与代码行数取自仓库实测，token 由 Credits 折算而来 */
+function AiStatGrid() {
+  const { t } = useTranslation('about')
+
+  const stats = [
+    {
+      id: 'model',
+      icon: Cpu,
+      label: t('statModelLabel'),
+      value: t('statModelValue'),
+      note: t('statModelNote'),
+    },
+    {
+      id: 'code',
+      icon: FileCode2,
+      label: t('statCodeLabel'),
+      value: t('statCodeValue'),
+      note: t('statCodeNote'),
+    },
+    {
+      id: 'tokens',
+      icon: Hash,
+      label: t('statTokenLabel'),
+      value: t('statTokenValue'),
+      suffix: t('statCreditsValue'),
+      note: t('statTokenNote'),
+    },
+  ]
+
+  return (
+    <div className="grid gap-3 md:grid-cols-3">
+      {stats.map(({ id, icon: Icon, label, value, suffix, note }) => (
+        <Card key={id} size="sm" className="gap-1">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-sm">
+              <Icon className="text-primary size-4" />
+              {label}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="text-muted-foreground text-xs">
+            <span className="text-foreground text-lg font-semibold">{value}</span>
+            {suffix != null && <span className="ml-2">{suffix}</span>}
+            <p className="mt-1 leading-relaxed">{note}</p>
+          </CardContent>
+        </Card>
+      ))}
     </div>
   )
 }

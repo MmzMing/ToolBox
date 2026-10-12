@@ -5,8 +5,8 @@
  * 外加"这个状态会不会偶发单眼眨"。也就是说"情绪"是这两张表共同定义的，不是一帧静态图。
  * 换笔画与眨眼的间隔是全局一档，在 `orb-defaults.ts` / `config/ai-orb.ts`，不跟着状态走。
  *
- * 10 组笔画：0 竖杠 · 1 小圆 · 2 大圆 · 3 括号 ( ) · 4 八字 \\ / · 5 眯笑 > < ·
- * 6 笑脸 ^ ^ · 7 横条 - - · 8 单眼眨 | - · 9 一大一小。
+ * 10 组笔画：0 竖杠 · 1 小圆 · 2 大圆 · 3 生气 \\ / · 4 委屈 / \\ · 5 眯笑 > < ·
+ * 6 笑脸 ^ ^ · 7 横条 - - · 8 眨眼 | < · 9 疑惑（一大一小，底边对齐）。
  *
  * 分组：Lifecycle 4 + Reactions 16 = 20。保留 listening / thinking / working 是给接 AI 留的空位，
  * 目前没有任何业务事件驱动它们。裁剪与自绘记录：
@@ -42,23 +42,23 @@ export type OrbEyeMood = (typeof ORB_EYE_MOODS)[number]
 
 /** 每个状态依次播放哪几组笔画（索引 = `orb-eye-shapes.ts` 里 ORB_EYE_BARS 的下标） */
 export const EYE_PLAYLIST: Record<OrbEyeMood, readonly number[]> = {
-  idle: [0, 3],
+  idle: [0, 1],
   listening: [1, 0],
-  thinking: [1, 4, 0],
-  working: [0, 4, 1],
+  thinking: [9, 1, 0],
+  working: [0, 3, 1],
   excited: [5, 2, 6, 1],
   surprised: [2, 1],
   suspicious: [8, 5, 7],
-  angry: [7, 5, 4],
+  angry: [3, 7],
   drowsy: [7, 4, 1],
-  happy: [6, 5, 3],
+  happy: [6, 5, 2],
   curious: [1, 9, 0],
   confused: [9, 4, 1],
   bored: [7, 0],
   proud: [2, 6, 0],
   shy: [9, 1, 7],
   sad: [4, 7, 1],
-  laughing: [5, 6, 3],
+  laughing: [5, 6, 2],
   scared: [2, 1, 7],
   playful: [8, 5, 6],
   celebrate: [6, 5, 2],

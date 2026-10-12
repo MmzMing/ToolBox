@@ -34,7 +34,12 @@ export type BarCore = {
   w: number
   /** 脊柱旋转角（度）。0 = 竖条，90 = 横条，中间值就是"正在转过去" */
   axis?: number
-  /** 屏幕空间侧倾（度）。正 = 顶端向脸中线倒（皱眉），负 = 向外倒（八字、委屈） */
+  /**
+   * 倾角（度），**从竖直方向量出去**：0 = 站直，越大越平。
+   * 符号只管方向——负 = 内角压低（反八字，生气），正 = 内角抬起（正八字，委屈）。
+   * 别改成"与水平线的夹角"：那样 25° 意味着几乎躺平，笔画必须削短削细才塞得下两只眼，
+   * 长条就不成其为长条了。方向由 orb-eyes.test.ts 的主轴角断言钉住。
+   */
   tilt?: number
   /** 弓：脊柱二次侧移，读作括号眼 ( ) */
   curve?: number
@@ -125,10 +130,9 @@ function buildEye(bar: BarCore, side: 1 | -1): number[] {
   const r = bar.w
   const curve = bar.curve ?? 0
   const chev = bar.chev ?? 0
-  const rad = ((bar.axis ?? 0) * Math.PI) / 180
+  const rad = (((bar.axis ?? 0) + (bar.tilt ?? 0)) * Math.PI) / 180
   const cos = Math.cos(rad)
   const sin = Math.sin(rad)
-  const shear = Math.tan(((bar.tilt ?? 0) * Math.PI) / 180)
   const top = -bar.h * (1 - (bar.lid ?? 0))
   const bottom = bar.h * (1 - (bar.under ?? 0))
   const cx = ORB_EYE_CENTER + side * (EYE_BASE_X + (bar.spread ?? 0))
@@ -157,10 +161,11 @@ function buildEye(bar: BarCore, side: 1 | -1): number[] {
 
   const out: number[] = []
   for (const [lx, ly] of walk) {
-    // 转到屏幕方向，再侧倾、切眼皮，最后镜像摆到脸上
-    let x = lx * cos - ly * sin
+    // 整支胶囊作为刚体旋转（axis + tilt 合成一个角），再切眼皮，最后镜像摆到脸上。
+    // 必须是旋转而不是剪切：剪切会把圆头压成斜椭圆，读出来是平行四边形，
+    // 而"圆角长条歪过去"要的是一支完完整整的圆头长条。
+    const x = lx * cos - ly * sin
     let y = lx * sin + ly * cos
-    x += shear * y
     y = Math.min(bottom, Math.max(top, y))
     out.push(round1(cx + side * x), round1(cy + y))
   }
@@ -174,28 +179,37 @@ function buildEye(bar: BarCore, side: 1 | -1): number[] {
  * 尺寸按"大眼睛"档：单眼半长 40 ≈ 球直径的 1/3。
  */
 export const ORB_EYE_BARS: readonly BarSpec[] = [
-  // 0  idle / listening / thinking / working / bored —— 日常那两条竖杠
+  // 0  idle / listening / thinking / working / curious / bored / proud —— 日常那两条竖杠
   { h: 40, w: 15 },
-  // 1  listening / curious / sad / scared —— 小圆眼，收拢注意力
-  { h: 26, w: 26 },
-  // 2  wide-eyed 全家 —— 最大的一档正圆，惊讶与害怕都靠它
-  { h: 38, w: 34 },
-  // 3  idle / happy / playful / celebrate —— 括号眼 ( )，柔和
-  { h: 38, w: 13, curve: 9 },
-  // 4  splay 八字 \ / —— 委屈、无奈、困。tilt 负 = 顶端向外倒
-  { h: 36, w: 13, tilt: -16 },
-  // 5  laughing / excited / suspicious —— 眯成 > <。笔画必须细，粗了凹口会被自己填平
+  // 1  一半的状态都用到 —— 小圆眼。spread 把它们推开：两只圆挨在一起读副眼镜，不像两只眼
+  { h: 24, w: 24, spread: 9 },
+  // 2  excited / surprised / happy / proud / laughing / scared / celebrate —— 最大的一档正圆。
+  //    半径 38 是全场最宽的，spread 不给到 10 两只圆就会咬在一起，读成一粒胶囊
+  { h: 38, w: 38, spread: 10 },
+  // 3  angry / working —— 反八字：内角压低。40°/48° 是"更平更狠"的那档，两只不一样斜
+  //    也是故意的：完全对称读成一个图标。旋转不拉伸笔画，所以 h/w 与竖杠那格同尺寸，
+  //    是一支完完整整的圆角长条歪过去，不是被剪切压扁的平行四边形
+  { h: 38, w: 13, spread: 10, left: { tilt: -40 }, right: { tilt: -48 } },
+  // 4  sad / drowsy / confused —— 正八字：内角抬起、外角耷拉，读作委屈与无奈。
+  //    角度与生气那格左右相反（左 48°、右 40°），两张脸才不会像同一格转了个方向
+  { h: 38, w: 13, spread: 10, left: { tilt: 48 }, right: { tilt: 40 } },
+  // 5  excited / suspicious / happy / laughing / playful / celebrate —— 眯成 > <。
+  //    笔画必须细，粗了凹口会被自己填平
   { h: 36, w: 10, chev: 22 },
-  // 6  happy / celebrate / proud —— ^ ^ 笑脸：横躺的脊柱再折一下。
+  // 6  excited / happy / proud / laughing / playful / celebrate —— ^ ^ 笑脸：横躺的脊柱再折一下。
   //    旋转 90° 后屏幕 y 就等于局部的 chev 值，所以正值让两条臂落到下面、中间拱起 = ^；
   //    取负就成了 v v。这个符号反直觉，方向由 orb-eyes.test.ts 那条断言钉住。
   { h: 26, w: 10, axis: 90, chev: 14 },
   // 7  flat - - —— 双眼横条：关闭、无语、睡着
-  { h: 30, w: 10, axis: 90 },
-  // 8  wink | - —— 只让右眼躺下，读作眨眼与怀疑
-  { h: 34, w: 13, right: { h: 26, w: 10, axis: 90 } },
-  // 9  odd 一大一小 —— 左眼大圆、右眼小圆。差的是尺寸不是形状，读作歪头打量、犯嘀咕
-  { h: 34, w: 34, right: { h: 20, w: 20 } },
+  { h: 30, w: 10, axis: 90, spread: 9 },
+  // 8  wink | < —— 左眼竖条、右眼眯成一个 <。chev 只写进 right 覆盖块：它是镜像的，
+  //    放到共享字段上左眼会跟着折成 >，就变成第五格的笑而不是眨眼了
+  { h: 34, w: 13, spread: 6, right: { h: 26, w: 10, chev: 15 } },
+  // 9  odd 疑惑 —— 一大一小，而且**底边对齐**。只把两只圆的中心摆在同一水平线上，
+  //    读出来是"远近不同"；让小圆沉到大圆的下缘，才像抬起一边眉毛在打量你。
+  //    offset 是每只眼偏离中心的量，所以两底边齐平要解 32 - o = -(17 - o) 那一侧的关系：
+  //    大圆半径 32、小圆 17，差值一半 ≈ 8 就是齐的。
+  { h: 32, w: 32, spread: 8, offset: 8, right: { h: 17, w: 17 } },
 ]
 
 /** 每格的右眼（覆盖块已合并），供 `morphedEye` 插值用 */
