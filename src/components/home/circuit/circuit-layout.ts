@@ -2,9 +2,13 @@ import type { Breakpoint } from '@/composable/use-breakpoint'
 import { categoryKeys, type CategoryKey } from '@/tools/categories'
 
 /**
- * 电路板首屏的「图纸层」：三套断点各有一张手工排布的不规则版图，
- * 走线按真实 PCB 的习惯生成——先从焊盘垂直出线（stub），中间用 45° 斜角过渡，
- * 再垂直进对面焊盘。这里全是纯函数与纯数据，UI 只负责画。
+ * 电路板首屏的「图纸层」：三套断点各有一张**心形**版图。
+ *
+ * 九颗分类芯片钉在心形轮廓上，主芯片坐在心口，走线是一根根平滑的三次贝塞尔：
+ * 从主芯片某条边的法线出发，到芯片朝向主芯片那条边的法线收住，两端垂直进出，
+ * 中段顺着力臂自己弯过去——把参考实现里 `mx = (a.x + b.x) / 2` 那套
+ * "直线进出、中段成弧"的习惯推广到四周发散的方向上。
+ * 这里全是纯函数与纯数据，UI 只负责画。
  *
  * 坐标系是「设计像素」：版图 width×height 与容器的 aspect-ratio 一致，
  * SVG 用 preserveAspectRatio="none" 铺满，HTML 芯片用百分比定位，两者因此严格对齐。
@@ -22,26 +26,17 @@ export type ChipSlot = {
   /** 芯片中心（设计像素） */
   x: number
   y: number
-  /** 走线在中间那段折在哪里的比例 0..1；错开它才有不规则感 */
-  bias?: number
-  /** 中段凸起绕行的幅度（设计像素，带符号）：0 或不填走直路，填了才弯弯绕绕 */
-  meander?: number
-  /** 手工指定出线/进线边，留空按主轴自动判 */
-  exit?: Side
-  entry?: Side
 }
 
 export type BoardLayout = {
   width: number
   height: number
-  /** 小芯片尺寸：同一档断点内所有芯片等大，位置各自不同 */
+  /** 小芯片尺寸：同一档断点内所有芯片等大 */
   chip: { w: number; h: number }
   core: Box
   slots: readonly ChipSlot[]
-  /** 出焊盘后的垂直引线长度 */
+  /** 控制点沿法线的最小力臂：芯片贴得再近，曲线也不会挤成一个尖 */
   stub: number
-  /** 直角处倒 45° 斜角的边长 */
-  chamfer: number
 }
 
 /** 分类 → 电路色序号（1 起，对应 index.css 的 --circuit-N） */
@@ -63,66 +58,93 @@ const OPPOSITE: Record<Side, Side> = {
   left: 'right',
 }
 
-/** 三档版图：手机竖版、平板偏方、PC 宽扁。
- * 芯片远近故意拉得很开——有的贴着核心、有的钉在边角——走线再各自绕行，
- * 于是每条线的长度、拐弯数都不一样，整张板子才像手工布的线 */
+function isHorizontal(side: Side): boolean {
+  return side === 'left' || side === 'right'
+}
+
+function add(p: Point, v: Point, scale: number): Point {
+  return { x: p.x + v.x * scale, y: p.y + v.y * scale }
+}
+
+function round(value: number): number {
+  return Math.round(value * 100) / 100
+}
+
+/* ---------- 心形版图 ---------- */
+
+/**
+ * 心形参数方程（数学坐标，y 轴朝上，x∈[-16,16]、y∈[-17,12]）：
+ * t=0 落在两瓣之间的顶部凹口，t=π 落在下面那颗尖。
+ */
+function heartAt(t: number): Point {
+  const s = Math.sin(t)
+  return {
+    x: 16 * s * s * s,
+    y: 13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t),
+  }
+}
+
+/**
+ * 九颗芯片的参数角：两瓣上各四颗（45°–135° 与镜像的 225°–315°，每 30° 一颗），
+ * 再加 180° 的下心尖一颗。左右严格镜像，心形读得出来。
+ *
+ * 不能按角度均分：心形在顶部凹口（0°/360°）和下尖（180°）两处都会急速收拢，
+ * 均分会让凹口/尖两侧那一对镜像芯片横向只剩五成宽度，直接叠在一起。
+ * 所以两端各留 45° 的空档，把点都放在两瓣外缘这段"宽处"。
+ */
+const HEART_ANGLES = [45, 75, 105, 135, 180, 225, 255, 285, 315].map((deg) => (deg * Math.PI) / 180)
+
+type HeartSpec = {
+  /** 心形中心 = 主芯片中心（设计像素） */
+  cx: number
+  cy: number
+  /** 横纵向半径系数：分开取值才能把心竖着拉长，给窄屏腾出放芯片的宽度 */
+  sx: number
+  sy: number
+}
+
+/** 把心形按 spec 摊到画布上得到九个槽位；序号顺序本身就是顺时针 */
+function heartSlots(spec: HeartSpec): ChipSlot[] {
+  return categoryKeys.map((category, k) => {
+    const p = heartAt(HEART_ANGLES[k])
+    return {
+      category,
+      x: round(spec.cx + p.x * spec.sx),
+      y: round(spec.cy - p.y * spec.sy),
+    }
+  })
+}
+
+/**
+ * 三档版图：画布、芯片与主芯片大小、心的横纵系数各自调过。
+ * 每一档都必须满足「芯片互不重叠、不压主芯片、不出画布」，
+ * 这三条由 circuit-layout 的测试逐档守住；窄屏靠把心竖着拉（sy > sx）来腾地方，
+ * 而不是把芯片缩到看不清。
+ */
 export const BOARD_LAYOUTS: Record<Breakpoint, BoardLayout> = {
   mobile: {
     width: 360,
-    height: 640,
-    chip: { w: 80, h: 56 },
-    core: { x: 180, y: 290, w: 126, h: 106 },
-    stub: 11,
-    chamfer: 9,
-    slots: [
-      { category: 'resume', x: 78, y: 70, bias: 0.62, meander: 14 },
-      { category: 'images', x: 250, y: 170, bias: 0.6, meander: -12 },
-      { category: 'crypto', x: 52, y: 200, bias: 0.35, meander: -16 },
-      { category: 'web', x: 306, y: 258, bias: 0.55, meander: 14 },
-      { category: 'development', x: 52, y: 380, bias: 0.3, meander: -16 },
-      { category: 'video', x: 300, y: 440, bias: 0.6, meander: 14 },
-      { category: 'text', x: 96, y: 500, bias: 0.45, meander: 12 },
-      { category: 'life', x: 272, y: 556, bias: 0.75, meander: -14 },
-      { category: 'cheatsheet', x: 140, y: 596, bias: 0.5, meander: -16 },
-    ],
+    height: 520,
+    chip: { w: 68, h: 46 },
+    core: { x: 180, y: 250, w: 126, h: 100 },
+    stub: 14,
+    slots: heartSlots({ cx: 180, cy: 250, sx: 9.2, sy: 13.2 }),
   },
   tablet: {
     width: 720,
-    height: 560,
-    chip: { w: 96, h: 62 },
-    core: { x: 360, y: 280, w: 176, h: 144 },
-    stub: 16,
-    chamfer: 13,
-    slots: [
-      { category: 'resume', x: 96, y: 78, bias: 0.45, meander: 20 },
-      { category: 'images', x: 300, y: 150, bias: 0.6, meander: -16 },
-      { category: 'video', x: 556, y: 66, bias: 0.1, meander: -14 },
-      { category: 'crypto', x: 646, y: 208, bias: 0.55, meander: -20 },
-      { category: 'web', x: 620, y: 420, bias: 0.4, meander: 18 },
-      { category: 'development', x: 470, y: 500, bias: 0.65, meander: -24 },
-      { category: 'text', x: 250, y: 512, bias: 0.4, meander: 18 },
-      { category: 'life', x: 96, y: 430, bias: 0.6, meander: -18 },
-      { category: 'cheatsheet', x: 64, y: 250, bias: 0.35, meander: 22 },
-    ],
+    height: 600,
+    chip: { w: 92, h: 58 },
+    core: { x: 360, y: 280, w: 160, h: 130 },
+    stub: 18,
+    slots: heartSlots({ cx: 360, cy: 280, sx: 17, sy: 15.5 }),
   },
   desktop: {
     width: 1000,
-    height: 620,
-    chip: { w: 104, h: 68 },
-    core: { x: 500, y: 310, w: 208, h: 168 },
-    stub: 20,
-    chamfer: 16,
-    slots: [
-      { category: 'resume', x: 120, y: 90, bias: 0.5, meander: -26 },
-      { category: 'images', x: 350, y: 140, bias: 0.45, meander: -20 },
-      { category: 'video', x: 700, y: 72, bias: 0.4, meander: 30 },
-      { category: 'crypto', x: 890, y: 190, bias: 0.6, meander: -26 },
-      { category: 'web', x: 860, y: 430, bias: 0.45, meander: 22 },
-      { category: 'development', x: 620, y: 480, bias: 0.55, meander: -30 },
-      { category: 'text', x: 420, y: 566, bias: 0.5, meander: 24 },
-      { category: 'life', x: 170, y: 500, bias: 0.4, meander: -22 },
-      { category: 'cheatsheet', x: 64, y: 200, bias: 0.45, meander: 28 },
-    ],
+    height: 680,
+    chip: { w: 104, h: 66 },
+    core: { x: 500, y: 330, w: 200, h: 160 },
+    stub: 22,
+    slots: heartSlots({ cx: 500, cy: 330, sx: 24, sy: 18 }),
   },
 }
 
@@ -141,8 +163,8 @@ export function pctOf(value: number, total: number): number {
 
 /**
  * 设计像素 → 容器查询单位。版图自己是 `container-type: inline-size`，
- * 1cqw 就是版图渲染宽度的 1%，于是字号、图标、圆角全跟着板子等比缩放，
- * 不需要 JS 测量再回写 —— 320px 的手机和 1440px 的桌面看到的是同一张板子的两种尺寸。
+ * 1cqw 就是版图渲染宽度的 1%，于是字号、图标、圆角全跟着版图等比缩放，
+ * 不需要 JS 测量再回写 —— 320px 的手机和 1440px 的桌面看到的是同一张图形的两种尺寸。
  */
 export function cqwOf(layout: BoardLayout, px: number): string {
   return `${(px / layout.width) * 100}cqw`
@@ -179,31 +201,22 @@ export type TraceRoute = {
   category: CategoryKey
   exit: Side
   entry: Side
-  /** 核心侧焊盘 */
+  /** 主芯片侧的起笔点（在边上） */
   from: Point
-  /** 芯片侧焊盘 */
+  /** 芯片侧的收笔点（在朝向主芯片的那条边上） */
   to: Point
-  bias: number
-  /** 中段绕行幅度（设计像素，带符号）；0 为直路 */
-  meander: number
 }
 
-function isHorizontal(side: Side): boolean {
-  return side === 'left' || side === 'right'
-}
-
-/** 同一条出边上的多条走线按沿边顺序均分锚点，否则全挤在边中点重叠成一坨 */
+/**
+ * 同一条出边上的多条走线按沿边顺序均分锚点，否则全挤在边中点重叠成一坨。
+ * 排序键必须取**该边延伸方向**上的坐标：左右两条边的锚点沿 y 分布，
+ * 上下两条边沿 x 分布；取错轴会让锚点次序和芯片次序相反，两根曲线直接打叉。
+ */
 export function assignRoutes(layout: BoardLayout): TraceRoute[] {
   const resolved = layout.slots.map((slot) => {
     const chip = chipBoxOf(layout, slot)
     const auto = sidesFor(layout.core, chip)
-    return {
-      slot,
-      chip,
-      exit: slot.exit ?? auto.exit,
-      entry: slot.entry ?? auto.entry,
-      bias: slot.bias ?? 0.5,
-    }
+    return { slot, chip, exit: auto.exit, entry: auto.entry }
   })
 
   const byExit = new Map<Side, typeof resolved>()
@@ -218,9 +231,8 @@ export function assignRoutes(layout: BoardLayout): TraceRoute[] {
 
   const anchorT = new Map<ChipSlot, number>()
   for (const [side, group] of byExit) {
-    const along = isHorizontal(side)
-      ? [...group].sort((a, b) => a.chip.x - b.chip.x)
-      : [...group].sort((a, b) => a.chip.y - b.chip.y)
+    const key = (item: (typeof group)[number]) => (isHorizontal(side) ? item.chip.y : item.chip.x)
+    const along = [...group].sort((a, b) => key(a) - key(b))
     along.forEach((item, index) => {
       anchorT.set(item.slot, (index + 1) / (along.length + 1))
     })
@@ -230,156 +242,102 @@ export function assignRoutes(layout: BoardLayout): TraceRoute[] {
     category: item.slot.category,
     exit: item.exit,
     entry: item.entry,
-    bias: item.bias,
-    meander: item.slot.meander ?? 0,
     from: boxEdge(layout.core, item.exit, anchorT.get(item.slot) ?? 0.5),
     to: boxEdge(item.chip, item.entry),
   }))
 }
 
-function add(p: Point, v: Point, scale: number): Point {
-  return { x: p.x + v.x * scale, y: p.y + v.y * scale }
+/** 一条三次贝塞尔：两端点 + 两控制点 */
+export type Curve = { from: Point; c1: Point; c2: Point; to: Point }
+
+/**
+ * 控制点力臂只按**沿法线方向的间距**算，不按两点直线距离算。
+ * 心形上不少芯片是"斜上方"：法线是竖直的，可竖直间距常常比水平偏移还小。
+ * 用直线距离会把控制点甩到芯片背后，曲线于是先冲过头再拐回来，看着就是一个结。
+ */
+export function routeCurve(route: TraceRoute, stub: number): Curve {
+  const along = isHorizontal(route.exit)
+    ? Math.abs(route.to.x - route.from.x)
+    : Math.abs(route.to.y - route.from.y)
+  const pull = Math.max(stub, along * 0.55)
+  return {
+    from: route.from,
+    c1: add(route.from, SIDE_NORMAL[route.exit], pull),
+    c2: add(route.to, SIDE_NORMAL[route.entry], pull),
+    to: route.to,
+  }
 }
 
-/** 未倒角的直角折线：出线 → 中间 Z 形（或 L 形）→ 进线 */
-function rawWaypoints(route: TraceRoute, stub: number): Point[] {
-  const exitNormal = SIDE_NORMAL[route.exit]
-  const entryNormal = SIDE_NORMAL[route.entry]
-  const a = add(route.from, exitNormal, stub)
-  const b = add(route.to, entryNormal, stub)
-  const exitHorizontal = isHorizontal(route.exit)
-  const entryHorizontal = isHorizontal(route.entry)
-
-  const middle: Point[] =
-    exitHorizontal === entryHorizontal
-      ? exitHorizontal
-        ? // 横进横出：中间两段拐一个 Z
-          [
-            { x: a.x + (b.x - a.x) * route.bias, y: a.y },
-            { x: a.x + (b.x - a.x) * route.bias, y: b.y },
-          ]
-        : [
-            { x: a.x, y: a.y + (b.y - a.y) * route.bias },
-            { x: b.x, y: a.y + (b.y - a.y) * route.bias },
-          ]
-      : exitHorizontal
-        ? [{ x: b.x, y: a.y }]
-        : [{ x: a.x, y: b.y }]
-
-  return [route.from, a, ...middle, b, route.to]
-}
-
-function unit(from: Point, to: Point): Point {
-  const dx = to.x - from.x
-  const dy = to.y - from.y
-  const length = Math.hypot(dx, dy)
-  return length === 0 ? { x: 0, y: 0 } : { x: dx / length, y: dy / length }
+export function curvePath(curve: Curve): string {
+  const { from, c1, c2, to } = curve
+  return `M${round(from.x)} ${round(from.y)} C${round(c1.x)} ${round(c1.y)} ${round(c2.x)} ${round(c2.y)} ${round(to.x)} ${round(to.y)}`
 }
 
 /**
- * 中段凸起绕行：在最长的那段中间线上顶出一个矩形包，走线立刻弯弯绕绕。
- * 凸出方向垂直于该段（水平段就竖着凸），所以新增线段仍然只有水平/垂直，
- * PCB 的直角习惯不破；幅度由 slot.meander 手排，符号决定凸向哪一侧。
+ * 把贝塞尔采成折线。曲线做不了逐段几何校验，采样之后就能按线段去查
+ * 「有没有从别的芯片底下穿过去」——那是走线最不该出现的画面。
  */
-export function meander(points: readonly Point[], amp: number): Point[] {
-  if (amp === 0 || points.length < 4) {
-    return [...points]
+export function sampleCurve(curve: Curve, steps = 16): Point[] {
+  const { from, c1, c2, to } = curve
+  const out: Point[] = []
+  for (let i = 0; i <= steps; i += 1) {
+    const t = i / steps
+    const u = 1 - t
+    out.push({
+      x: u * u * u * from.x + 3 * u * u * t * c1.x + 3 * u * t * t * c2.x + t * t * t * to.x,
+      y: u * u * u * from.y + 3 * u * u * t * c1.y + 3 * u * t * t * c2.y + t * t * t * to.y,
+    })
   }
-  let best = 1
-  let bestLen = -1
-  for (let i = 1; i < points.length - 2; i += 1) {
-    const len = Math.hypot(points[i + 1].x - points[i].x, points[i + 1].y - points[i].y)
-    if (len > bestLen) {
-      bestLen = len
-      best = i
-    }
-  }
-  if (bestLen < 60) {
-    return [...points]
-  }
-  const p = points[best]
-  const q = points[best + 1]
-  const dir = unit(p, q)
-  const normal = { x: -dir.y, y: dir.x }
-  const p1 = add(p, dir, bestLen * 0.3)
-  const p2 = add(p, dir, bestLen * 0.7)
-  const o1 = add(p1, normal, amp)
-  const o2 = add(p2, normal, amp)
-  return [...points.slice(0, best + 1), p1, o1, o2, p2, ...points.slice(best + 1)]
-}
-
-/**
- * 折线 → 圆角路径：每个内拐角砍掉 radius 长、用二次贝塞尔抹成圆弧弯，
- * 就是参考图里那种"弯曲的走线"；半径自动夹到邻边的一半，短拐不会自交。
- * points 仍保留直角折线供碰撞检测，圆角只体现在画出来的 path 上。
- */
-export function toRoundedPath(points: readonly Point[], radius: number): string {
-  if (points.length < 3) {
-    return toPath(points)
-  }
-  const parts = [`M${round(points[0].x)} ${round(points[0].y)}`]
-  for (let index = 1; index < points.length - 1; index += 1) {
-    const previous = points[index - 1]
-    const corner = points[index]
-    const next = points[index + 1]
-    const back = unit(corner, previous)
-    const forward = unit(corner, next)
-    const r = Math.min(
-      radius,
-      Math.hypot(previous.x - corner.x, previous.y - corner.y) / 2,
-      Math.hypot(next.x - corner.x, next.y - corner.y) / 2,
-    )
-    const enter = add(corner, back, r)
-    const exit = add(corner, forward, r)
-    parts.push(
-      `L${round(enter.x)} ${round(enter.y)}`,
-      `Q${round(corner.x)} ${round(corner.y)} ${round(exit.x)} ${round(exit.y)}`,
-    )
-  }
-  const last = points[points.length - 1]
-  parts.push(`L${round(last.x)} ${round(last.y)}`)
-  return parts.join(' ')
+  return out
 }
 
 export type TraceFlow = { duration: number; delay: number }
 
 export type Trace = TraceRoute & {
-  /** 绕行后的完整直角折线（含两端焊点），供碰撞检测用 */
+  /** 曲线的采样折线，供碰撞检测用 */
   points: Point[]
   path: string
   flow: TraceFlow
 }
 
-function round(value: number): number {
-  return Math.round(value * 100) / 100
-}
-
-export function toPath(points: readonly Point[]): string {
-  return points
-    .map((point, index) => `${index === 0 ? 'M' : 'L'}${round(point.x)} ${round(point.y)}`)
-    .join(' ')
-}
+/* ---------- 流星节奏：三波接力，一波扫过再静一拍 ---------- */
 
 /**
- * 流星光的节奏：周期与相位都由序号推出来，纯函数所以每帧渲染都稳定不闪。
- * 窗口 traversing 只占周期的 1/1.45：duration 2.0~3.4s 对应光头实际冲刺
- * 1.4~2.3s——"快速冲到分类，没了，停一拍"，慢了就不像脉冲像爬虫。
- * 方向固定核心→分类：光头抵达在周期 69% 处，分类卡片的充电背光
- * 用同一组 duration/delay 就能和抵达瞬间严格同相。
+ * 一颗脉冲的完整周期（秒），含冲刺与空窗；九条线共用同一个值，波次才不会随时间散架。
+ * 取值 = 两波间隔 + 两次波内递进 + 一次冲刺 + 一段全板静默。
+ */
+export const FLOW_CYCLE = 6.4
+/**
+ * 光头实际冲刺时长（秒）。抵达时刻 = FLOW_TRAVEL / FLOW_CYCLE 周期处，
+ * 芯片充电背光按这一刻对齐。
+ */
+export const FLOW_TRAVEL = 1.3
+/** 每波同时点亮的走线数 */
+const FLOW_WAVE_SIZE = 3
+/** 波与波的间隔：必须盖过「上一波最后一颗的抵达时刻」，否则两波叠成一片常亮 */
+const FLOW_WAVE_GAP = 1.65
+/** 同一波内逐颗的递进 */
+const FLOW_STAGGER = 0.16
+
+/**
+ * 三波编排：序号 0–2 / 3–5 / 6–8 各成一波，波内递进 0.16s、波间隔 1.65s。
+ * 槽位序号本身就是顺时针的，于是三波依次从右上、下心尖、左上扫过整颗心。
+ * 波间隔大于「冲刺 + 两次递进」，所以屏幕上任何时刻只有一波（三颗）在跑，
+ * 最后一发抵达后还剩约 1.5s 全板静默——呼吸感就来自这段静默。
+ * delay 取负：等价相位，但动画一挂载就已跑到自己的起跑线之前，
+ * 于是第一帧不会把光头停在线头。CSS 的充电背光与 rAF 的光束用同一条
+ * `progress = (t - delay) / duration` 公式，两者因此严格同相。
  */
 export function flowFor(index: number): TraceFlow {
-  return {
-    duration: 2.0 + (index % 5) * 0.35,
-    delay: -((index * 0.61) % 3),
-  }
+  const fire =
+    Math.floor(index / FLOW_WAVE_SIZE) * FLOW_WAVE_GAP + (index % FLOW_WAVE_SIZE) * FLOW_STAGGER
+  return { duration: FLOW_CYCLE, delay: fire - FLOW_CYCLE }
 }
 
 export function buildTraces(layout: BoardLayout): Trace[] {
   return assignRoutes(layout).map((route, index) => {
-    // 出线引线长度逐条错开（0.75~1.25 倍），线长差异再拉大一点
-    const stub = layout.stub * (0.75 + (((index * 37) % 10) / 10) * 0.5)
-    const points = meander(rawWaypoints(route, stub), route.meander ?? 0)
-    return { ...route, points, path: toRoundedPath(points, layout.chamfer), flow: flowFor(index) }
+    const curve = routeCurve(route, layout.stub)
+    return { ...route, points: sampleCurve(curve), path: curvePath(curve), flow: flowFor(index) }
   })
 }
 

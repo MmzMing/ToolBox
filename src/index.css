@@ -1075,11 +1075,13 @@
 
 /* --------------------------------------------------------------------------
    首页电路板（components/home/circuit）
-   9 个分类各占一个色相，走线、发光、电子流都从这套令牌取色；
+   走线本身是一根中性导管，九条同色——颜色只属于跑在里面的流星，
+   每个分类各占一个色相（--circuit-N），光束与芯片从这套令牌取色；
    核心芯片不另配色，直接吃 --primary 让品牌绿当主板的主色。
    -------------------------------------------------------------------------- */
 :root {
   --circuit-board: oklch(0.985 0.004 160);
+  --circuit-line: oklch(0.9 0.005 160);
   --circuit-core: var(--primary);
   --circuit-1: oklch(0.55 0.13 152);
   --circuit-2: oklch(0.55 0.16 318);
@@ -1093,6 +1095,7 @@
 }
 .dark {
   --circuit-board: oklch(0.17 0.008 160);
+  --circuit-line: oklch(0.33 0.006 160);
   --circuit-core: var(--primary);
   --circuit-1: oklch(0.76 0.13 152);
   --circuit-2: oklch(0.74 0.14 318);
@@ -1105,88 +1108,55 @@
   --circuit-9: oklch(0.74 0.15 8);
 }
 
-/* 流星光：pathLength=1 让 dasharray/dashoffset 用「占全程的比例」表达，
-   九条长短不一的走线共用同一段节奏，速度差异只由 duration 决定。
-   关键帧里**不许出现 var()**：关键帧取值一旦在计算值阶段失效，整条属性动画
-   会被浏览器静默丢弃，光点就死在线尾。
-   注意 dasharray 的列表从 ON 段开始数，所以图案只写「ON 拖尾 + OFF 余量」两值；
-   四层拖尾长度不同、又要亮头对齐同一点，就用四组固定值 keyframes：
-   起点 = 本层 dash 长（ON 段末端＝亮头正好在 0），终点 = 起点 - 扫程 1.45。
-   扫程 = 1 + IDLE（IDLE=0.45，与 CircuitTraces 对齐）：光头没入分类焊盘后
-   整条 dash 走在路径之外——"冲到了，没了，停一拍"再发下一发 */
-@keyframes circuit-comet-a {
-  from {
-    stroke-dashoffset: 0.12;
-  }
-  to {
-    stroke-dashoffset: -1.33;
-  }
+/* 流星光：一束 dash 长度固定的亮线，配一个跟着光头跑的 userSpaceOnUse 渐变
+   （尾端透明 → 头部最亮）。渐变两端的坐标由 CircuitTraces 的 rAF 循环逐帧写进
+   <linearGradient>，所以这里没有任何关键帧，只管配色。
+   为什么不用 CSS 关键帧推进：关键帧只能改 dashoffset，改不动渐变两端，
+   于是拖尾不沿路径方向渐隐，看着就是一截等高不透明的亮线——那正是"光悬在线外"的成因。
+   --circuit-trace-color 写在 <linearGradient> 自己的 style 上，
+   本规则里的 var 才能在同一个元素上取到它。
+   亮头分主题：暗色下混白当灯丝；亮色下白热头会糊成一片，直接回落到分类本色，
+   靠与 30% 导管之间的浓度差读亮度。 */
+.circuit-flow-grad {
+  --circuit-flow-tip: var(--circuit-trace-color);
 }
-@keyframes circuit-comet-b {
-  from {
-    stroke-dashoffset: 0.06;
-  }
-  to {
-    stroke-dashoffset: -1.39;
-  }
+.dark .circuit-flow-grad {
+  --circuit-flow-tip: #fff;
 }
-@keyframes circuit-comet-c {
-  from {
-    stroke-dashoffset: 0.018;
-  }
-  to {
-    stroke-dashoffset: -1.432;
-  }
+.circuit-flow-tail {
+  stop-color: var(--circuit-trace-color);
+  stop-opacity: 0;
 }
-@keyframes circuit-comet-d {
-  from {
-    stroke-dashoffset: 0.007;
-  }
-  to {
-    stroke-dashoffset: -1.443;
-  }
+.circuit-flow-body {
+  stop-color: var(--circuit-trace-color);
+  stop-opacity: 0.55;
+}
+.circuit-flow-head {
+  stop-color: var(--circuit-flow-tip);
+  stop-opacity: 1;
 }
 
-.circuit-comet {
-  animation-duration: var(--circuit-flow-duration, 3s);
-  animation-delay: var(--circuit-flow-delay, 0s);
-  animation-timing-function: linear;
-  animation-iteration-count: infinite;
-}
-.circuit-comet-a {
-  animation-name: circuit-comet-a;
-}
-.circuit-comet-b {
-  animation-name: circuit-comet-b;
-}
-.circuit-comet-c {
-  animation-name: circuit-comet-c;
-}
-.circuit-comet-d {
-  animation-name: circuit-comet-d;
-}
-
-/* 充电背光：光头抵达焊盘在周期的 69% 处（扫程 1.45 里走完窗口 1 的那一刻），
-   背光从这一刻快速充亮，余晖拖进下一周期开头再放干净，像被充了一次电；
-   相位复用同一条走线的 delay，天然与抵达同相 */
+/* 充电背光：光头抵达芯片在周期的 20.3% 处（FLOW_TRAVEL / FLOW_CYCLE = 1.3 / 6.4），
+   背光从这一刻快速充亮再拖一段余晖，像被充了一次电；
+   相位复用同一条走线的 duration/delay，与 rAF 用的是同一条公式，天然同相 */
 @keyframes circuit-chip-charge {
   0% {
-    opacity: 0.4;
-  }
-  14% {
     opacity: 0;
   }
-  69% {
+  20% {
     opacity: 0;
   }
-  75% {
+  24% {
     opacity: 1;
   }
-  90% {
-    opacity: 0.35;
+  38% {
+    opacity: 0.3;
+  }
+  55% {
+    opacity: 0;
   }
   100% {
-    opacity: 0.4;
+    opacity: 0;
   }
 }
 
@@ -1281,7 +1251,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .circuit-comet,
   .chip-charge,
   .circuit-chip-drift,
   .circuit-pop-in,
@@ -1293,7 +1262,8 @@
   .circuit-trace-draw {
     stroke-dasharray: none;
   }
-  /* 流星各层直接藏起来：静止态不该有线尾残珠，只留导管本体 */
+  /* 流星靠 rAF 逐帧写 opacity，循环一停就没人碰它：光束组挂载时本身就是 0，
+     静止态只剩导管本体。这条是 JS 整页没跑起来时的兜底 */
   .circuit-comet {
     opacity: 0;
   }

@@ -1,5 +1,10 @@
 import { motion } from 'motion/react'
-import type { CSSProperties, Ref } from 'react'
+import type {
+  CSSProperties,
+  FocusEvent as ReactFocusEvent,
+  PointerEvent as ReactPointerEvent,
+  Ref,
+} from 'react'
 
 import { cn } from '@/lib/utils'
 import { categoryIcons, type CategoryKey } from '@/tools/categories'
@@ -25,6 +30,10 @@ type CategoryChipProps = {
   flow: TraceFlow
   /** 本颗芯片的克隆体正在飞向核心，原位只留一个空座 */
   hollow: boolean
+  /** 别的芯片正被 hover/聚焦：本颗退到背景 */
+  dimmed: boolean
+  /** 指针进入或键盘聚焦到本颗（null 表示离开）：只给鼠标与 focus-visible 上报，触屏不粘住 */
+  onHover: (category: CategoryKey | null) => void
   /** 入场弹出的延迟（秒）：按顺时针序由调用方给 */
   introDelay: number
   onActivate: (category: CategoryKey, element: HTMLElement) => void
@@ -50,6 +59,8 @@ export function CategoryChip({
   driftDelay,
   flow,
   hollow,
+  dimmed,
+  onHover,
   introDelay,
   onActivate,
   chipRef,
@@ -59,6 +70,19 @@ export function CategoryChip({
   const color = `var(--circuit-${circuitIndexOf(slot.category)})`
   /** 芯片上的尺寸一律按封装宽度的比例取，三档版图长得一样、只是大小不同 */
   const metric = (ratio: number) => cqwOf(layout, layout.chip.w * ratio)
+
+  // 触屏没有真正的 hover，手指一落就钉住不放会把其余走线一直压暗，
+  // 所以只认鼠标指针与键盘焦点两种进入方式
+  const handlePointerEnter = (event: ReactPointerEvent<HTMLButtonElement>) => {
+    if (event.pointerType === 'mouse') {
+      onHover(slot.category)
+    }
+  }
+  const handleFocus = (event: ReactFocusEvent<HTMLButtonElement>) => {
+    if (event.currentTarget.matches(':focus-visible')) {
+      onHover(slot.category)
+    }
+  }
 
   return (
     <div
@@ -84,10 +108,14 @@ export function CategoryChip({
           type="button"
           aria-haspopup="dialog"
           aria-label={label}
+          onPointerEnter={handlePointerEnter}
+          onPointerLeave={() => onHover(null)}
+          onFocus={handleFocus}
+          onBlur={() => onHover(null)}
           onClick={(event) => onActivate(slot.category, event.currentTarget)}
           whileHover={{ scale: hollow ? 1 : 1.06 }}
           whileTap={{ scale: 0.95 }}
-          animate={{ opacity: hollow ? 0.22 : 1 }}
+          animate={{ opacity: hollow ? 0.22 : dimmed ? 0.45 : 1 }}
           transition={{ type: 'spring', duration: 0.42, bounce: 0.26 }}
           className={cn(
             'chip-live bg-card relative size-full overflow-visible rounded-lg',
