@@ -24,7 +24,7 @@
     "create:tool": "node scripts/create-tool.mjs",
     "generate:sitemap": "node scripts/generate-sitemap.mjs",
     "prepare": "husky",
-    "lint-staged": "lint-staged"
+    "lint-staged": "lint-staged --max-arg-length 4000"
   },
   "lint-staged": {
     "*.{ts,tsx}": [
