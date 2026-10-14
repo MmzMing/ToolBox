@@ -251,7 +251,12 @@ export function AIOrbDock({ tour }: AIOrbDockProps) {
       >
         <FluidOrb size={size} {...aiOrbConfig.orb} mood={mood} />
         {bubbleOpen || showTourBubble ? (
-          <OrbBubble anchor={anchor}>
+          <OrbBubble
+            anchor={anchor}
+            // 讲解气泡逐字露出，w-max 会让它每多一个字就横向抖一次，直到撞上上限。
+            // 这里把宽度先钉到上限那一档，让文本只往下长行数
+            className={showTourBubble ? 'w-[min(19rem,calc(100vw-1.5rem))]' : undefined}
+          >
             {showTourBubble ? (
               <div className="flex flex-col gap-2">
                 <div className="flex items-center justify-between gap-3">

@@ -104,9 +104,9 @@
 
 .md-preview a {
   font-weight: 500;
-  color: var(--primary, #2f6bff);
+  color: var(--primary, #141414);
   text-decoration: underline;
-  text-decoration-color: var(--primary, #2f6bff);
+  text-decoration-color: var(--primary, #141414);
   text-decoration-style: dashed;
   text-decoration-thickness: 1px;
   text-underline-offset: 4px;
@@ -118,7 +118,7 @@
 .md-preview a:active {
   text-decoration: none;
   background: var(--accent, #ebf0fb);
-  border-bottom: 1px dashed var(--primary, #2f6bff);
+  border-bottom: 1px dashed var(--primary, #141414);
 }
 
 /* --- 列表 --- */
@@ -149,7 +149,7 @@
 
 .md-preview input[type='checkbox'] {
   margin-right: 0.4em;
-  accent-color: var(--primary, #2f6bff);
+  accent-color: var(--primary, #141414);
 }
 
 /* --- 行内代码：无描边，只有底色与小圆角 --- */
@@ -187,7 +187,7 @@
   font-weight: 700;
   letter-spacing: 0.025ch;
   text-transform: uppercase;
-  color: var(--primary, #2f6bff);
+  color: var(--primary, #141414);
   pointer-events: none;
   transition: opacity 0.2s ease;
 }

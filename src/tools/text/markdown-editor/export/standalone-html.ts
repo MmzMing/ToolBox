@@ -13,8 +13,8 @@ const EXPORT_CSS = `
 html,body{margin:0}
 .md-preview{min-height:100vh;padding:32px 16px 64px}
 @page{size:A4;margin:16mm}
-.hljs{color:#080B12}
-.hljs-comment,.hljs-quote{color:#696F7B;font-style:italic}
+.hljs{color:#0B0B0B}
+.hljs-comment,.hljs-quote{color:#6F6F6F;font-style:italic}
 .hljs-keyword,.hljs-selector-tag,.hljs-literal,.hljs-doctag{color:#7756D0}
 .hljs-string,.hljs-regexp,.hljs-addition{color:#007A3A}
 .hljs-number,.hljs-symbol,.hljs-bullet,.hljs-attr{color:#C26300}

@@ -2,6 +2,8 @@
   "siteName": "MmzMing的工具箱",
   "searchPlaceholder": "搜索工具…",
   "noResults": "未找到匹配的工具",
+  "clearSearch": "清除搜索",
+  "closePalette": "关闭命令面板",
   "select": {
     "placeholder": "请选择",
     "searchPlaceholder": "搜索选项…",

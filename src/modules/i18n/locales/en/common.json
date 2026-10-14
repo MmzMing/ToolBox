@@ -2,6 +2,8 @@
   "siteName": "MmzMing's Toolbox",
   "searchPlaceholder": "Search tools…",
   "noResults": "No matching tools found",
+  "clearSearch": "Clear search",
+  "closePalette": "Close command palette",
   "select": {
     "placeholder": "Select…",
     "searchPlaceholder": "Search…",

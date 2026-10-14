@@ -16,6 +16,7 @@ import {
   pctOf,
   type BoardLayout,
   type ChipSlot,
+  type Side,
   type TraceFlow,
 } from './circuit-layout'
 import { ChipFace } from './ChipFace'
@@ -28,6 +29,8 @@ type CategoryChipProps = {
   driftDelay: number
   /** 对应走线的流星节奏：充电背光靠它和光头抵达的瞬间同相 */
   flow: TraceFlow
+  /** 本颗朝向核心的那条边，与走线的收笔边同一条（由 assignRoutes 定） */
+  entry: Side
   /** 本颗芯片的克隆体正在飞向核心，原位只留一个空座 */
   hollow: boolean
   /** 别的芯片正被 hover/聚焦：本颗退到背景 */
@@ -38,6 +41,18 @@ type CategoryChipProps = {
   introDelay: number
   onActivate: (category: CategoryKey, element: HTMLElement) => void
   chipRef: Ref<HTMLButtonElement>
+}
+
+/** 焊点直径与环宽（设计像素）：与导管同一档粗细，点心取页面底色像打了个孔 */
+const PORT = 9
+const PORT_RING = 1.5
+
+/** 焊点落位：骑在朝向核心的那条边的中点上，正是走线的收笔处 */
+const PORT_AT: Record<Side, string> = {
+  left: 'left-0 top-1/2',
+  right: 'left-full top-1/2',
+  top: 'left-1/2 top-0',
+  bottom: 'left-1/2 top-full',
 }
 
 /**
@@ -58,6 +73,7 @@ export function CategoryChip({
   label,
   driftDelay,
   flow,
+  entry,
   hollow,
   dimmed,
   onHover,
@@ -140,6 +156,22 @@ export function CategoryChip({
             color={color}
             iconSize={metric(0.24)}
             fontSize={metric(0.125)}
+          />
+          {/* 焊点在 button 里：跟着芯片一起缩放、一起被压暗，走线看着才是接在它上面 */}
+          <span
+            aria-hidden="true"
+            className={cn(
+              'bg-background pointer-events-none absolute rounded-full',
+              PORT_AT[entry],
+            )}
+            style={
+              {
+                width: cqwOf(layout, PORT),
+                height: cqwOf(layout, PORT),
+                translate: '-50% -50%',
+                boxShadow: `inset 0 0 0 ${cqwOf(layout, PORT_RING)} var(--circuit-line)`,
+              } as CSSProperties
+            }
           />
         </motion.button>
       </div>

@@ -1,23 +1,40 @@
 import { BookOpen, Info, Moon, Search, Shuffle, X } from 'lucide-react'
 import { Command as CommandPrimitive } from 'cmdk'
-import { useMemo, useRef, useState } from 'react'
+import { AnimatePresence, motion } from 'motion/react'
+import type { Transition } from 'motion/react'
+import { type ComponentProps, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
 
 import { GithubIcon } from '@/components/icons/github-icon'
 import { EmptyStates } from '@/components/empty-states/EmptyStates'
-import { Button } from '@/components/ui/button'
-import { Command, CommandList, CommandSeparator } from '@/components/ui/command'
-import { InputGroup, InputGroupAddon } from '@/components/ui/input-group'
+import { Button, buttonVariants } from '@/components/ui/button'
+import { Command, CommandList } from '@/components/ui/command'
 import { createToolsFuse, useToolSearchItems } from '@/composable/use-tools-search'
+import { usePrefersReducedMotion } from '@/composable/use-prefers-reduced-motion'
+import { modKeyLabel } from '@/layouts/app-shell/dock-logic'
 import { useTheme } from '@/modules/theme/theme-context'
 import { siteConfig } from '@/config/site'
+import { cn } from '@/lib/utils'
+import { motionTokens } from '@/lib/motion-tokens'
 import { useSearchStore } from '@/stores/search.store'
 import { useToolsStore } from '@/stores/tools.store'
 import { getFavoriteTools, getRecentTools, tools, toolsByCategory } from '@/tools'
 
 import { PaletteGroup } from './palette-group'
 import { PaletteToolCards } from './palette-tool-card'
+
+const { blur, duration, ease, spring } = motionTokens
+
+/** 退场比入场快一拍：清除按钮收起时不留残影，右侧键帽正顺着 popLayout 的弹簧归位 */
+const LEAVE: Transition = { duration: duration.quick, ease: [...ease.standard] }
+
+/** 徽标键随平台取 ⌘ 或 Ctrl，与快捷键实际监听的 metaKey || ctrlKey 一致 */
+const MOD_KEY = modKeyLabel(typeof navigator === 'undefined' ? '' : navigator.userAgent)
+
+/** ⌘K 键帽：描边小方片；Esc 是纯文字，两者一明一暗分出主次 */
+const keyCap =
+  'border-input bg-muted/50 text-foreground flex h-7 shrink-0 items-center gap-1 rounded-lg border px-2 font-mono text-xs leading-none'
 
 /**
  * 面板正文：查询词在 search store（打开时由 setOpen(true) 清零），cmdk 选中项与键盘高亮留在本地。
@@ -27,6 +44,7 @@ import { PaletteToolCards } from './palette-tool-card'
 export function PaletteBody() {
   const { t } = useTranslation('common')
   const { t: tCategory } = useTranslation('categories')
+  const reduced = usePrefersReducedMotion()
   const navigate = useNavigate()
   const setOpen = useSearchStore((state) => state.setOpen)
   const query = useSearchStore((state) => state.query)
@@ -42,6 +60,21 @@ export function PaletteBody() {
 
   const hasQuery = query.trim() !== ''
   const keyboardActiveValue = keyboardNav ? activeValue : null
+
+  /** 清除按钮的进出场：透明度瞬间到位，尺寸与模糊量交给 snappy 弹簧；减弱动效时一律归零 */
+  const clearMotion: ComponentProps<typeof motion.button> = reduced
+    ? {
+        initial: false,
+        animate: { opacity: 1, scale: 1, filter: 'blur(0px)' },
+        exit: { opacity: 0, transition: { duration: 0 } },
+        transition: { duration: 0 },
+      }
+    : {
+        initial: { opacity: 0, scale: 0.6, filter: `blur(${blur.subtle}px)` },
+        animate: { opacity: 1, scale: 1, filter: 'blur(0px)' },
+        exit: { opacity: 0, scale: 0.6, filter: `blur(${blur.subtle}px)`, transition: LEAVE },
+        transition: { default: spring.snappy, opacity: { duration: duration.instant } },
+      }
 
   const matchedTools = useMemo(() => {
     const trimmed = query.trim()
@@ -68,43 +101,63 @@ export function PaletteBody() {
       }}
       className="min-h-0 flex-1 p-0"
     >
-      <div className="shrink-0 px-3 pt-3 pb-2.5">
-        <InputGroup className="h-11 rounded-xl md:h-12">
-          <InputGroupAddon>
-            <Search className="size-4" />
-          </InputGroupAddon>
+      {/* 搜索区用一层浅底与下方结果区分色，不再画分隔线 */}
+      <div className="bg-muted/40 shrink-0">
+        <div className="flex items-center gap-3 px-4 py-3">
+          <Search
+            size={18}
+            strokeWidth={1.75}
+            className="text-muted-foreground shrink-0"
+            aria-hidden="true"
+          />
           <CommandPrimitive.Input
             ref={inputRef}
             value={query}
             onValueChange={setQuery}
             placeholder={t('searchPlaceholder')}
-            className="text-foreground flex-1 bg-transparent text-sm outline-hidden"
+            className="placeholder:text-muted-foreground/70 min-w-0 flex-1 bg-transparent text-base outline-hidden"
           />
-          <InputGroupAddon align="inline-end">
-            {hasQuery ? (
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon-xs"
-                aria-label={t('clear')}
-                onClick={() => {
-                  setQuery('')
-                  inputRef.current?.focus()
-                }}
-              >
-                <X />
-              </Button>
-            ) : (
-              <kbd className="bg-muted/60 text-muted-foreground flex h-5 items-center gap-1 rounded border px-1.5 font-mono text-[11px] leading-none">
-                Esc
-              </kbd>
-            )}
-          </InputGroupAddon>
-        </InputGroup>
+          {/* 清除按钮退场时会被转成 absolute，锚点就是这层；不写 relative 它会去找更外的定位祖先 */}
+          <div className="relative flex shrink-0 items-center gap-2">
+            <AnimatePresence initial={false} mode="popLayout">
+              {hasQuery && (
+                <motion.button
+                  key="clear"
+                  type="button"
+                  aria-label={t('clearSearch')}
+                  className={cn(
+                    buttonVariants({ variant: 'ghost', size: 'icon-xs' }),
+                    'shrink-0 transition-colors',
+                  )}
+                  onClick={() => {
+                    setQuery('')
+                    inputRef.current?.focus()
+                  }}
+                  {...clearMotion}
+                >
+                  <X className="size-3.5" aria-hidden="true" />
+                </motion.button>
+              )}
+            </AnimatePresence>
+            {/* Esc 是纯文字、⌘K 是键帽：一个提示怎么关，一个提示从哪儿再唤起 */}
+            <button
+              type="button"
+              className="text-muted-foreground hover:text-foreground shrink-0 text-sm font-medium transition-colors"
+              aria-label={t('closePalette')}
+              onClick={() => setOpen(false)}
+            >
+              Esc
+            </button>
+            <kbd className={keyCap}>
+              <span>{MOD_KEY}</span>
+              <span>K</span>
+            </kbd>
+          </div>
+        </div>
 
         {/* 快捷操作只在浏览态出现，一旦输入查询词就让位给结果 */}
         {!hasQuery && (
-          <div className="mt-2.5">
+          <div className="px-4 pb-3.5">
             <PaletteActions goTo={goTo} onClose={() => setOpen(false)} />
           </div>
         )}
@@ -112,7 +165,7 @@ export function PaletteBody() {
 
       <CommandList
         onPointerEnter={() => setKeyboardNav(false)}
-        className="max-h-none min-h-0 flex-1 px-3 pb-3"
+        className="max-h-none min-h-0 flex-1 px-4 pb-4"
       >
         {/* 有查询词时只留搜索结果，收藏/最近分组一并隐藏 */}
         {!hasQuery && <PinnedGroups goTo={goTo} activeValue={keyboardActiveValue} />}
@@ -237,7 +290,6 @@ function PinnedGroups({ goTo, activeValue }: { goTo: GoTo; activeValue: string |
           />
         </PaletteGroup>
       )}
-      <CommandSeparator className="my-1" />
     </>
   )
 }

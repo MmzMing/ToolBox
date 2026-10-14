@@ -95,54 +95,56 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
-/* 全局品牌色板：主色 = #2F6BFF（oklch(0.581 0.229 264)），底色纯白。
-   中性色一律带 0.008~0.02 的微量蓝（hue 264），让灰阶读起来是"冷灰"而不是纯灰，
-   与主色同色系；色相只在此处与 chart/board 派生层出现，组件内不得再写死颜色。
+/* 全局色板：黑白灰单色主题。主色就是中性色的反相——亮色黑底白字、暗色白底黑字，
+   全站不再引入品牌蓝。中性面一律 0 色相；暗色按 #141414（页面）→ #191919（卡片与浮层）
+   → #242424（悬浮与选中）三档阶梯排布，hover 再亮一档到 #2e2e2e。
+   色相只留给 destructive / warning / favorite / chart / circuit / syntax 这些语义色，
+   组件内不得再写死颜色。
    .theme-light 与 :root 同一套值：需要把某个子树钉成亮色的导出图（如烧烤购物小票）
    挂这个类即可，禁止再把令牌值抄一份进组件。 */
 :root,
 .theme-light {
   color-scheme: light;
   --background: oklch(1 0 0);
-  --foreground: oklch(0.15 0.015 264);
+  --foreground: oklch(0.15 0 0);
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.15 0.015 264);
+  --card-foreground: oklch(0.15 0 0);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.15 0.015 264);
-  --primary: oklch(0.581 0.229 264);
-  --primary-foreground: oklch(0.98 0.006 264);
-  --secondary: oklch(0.968 0.008 264);
-  --secondary-foreground: oklch(0.21 0.02 264);
-  --muted: oklch(0.968 0.008 264);
-  --muted-foreground: oklch(0.54 0.02 264);
-  --accent: oklch(0.955 0.015 264);
-  --accent-foreground: oklch(0.21 0.02 264);
+  --popover-foreground: oklch(0.15 0 0);
+  --primary: oklch(0.19 0 0);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.968 0 0);
+  --secondary-foreground: oklch(0.21 0 0);
+  --muted: oklch(0.968 0 0);
+  --muted-foreground: oklch(0.54 0 0);
+  --accent: oklch(0.955 0 0);
+  --accent-foreground: oklch(0.21 0 0);
   --destructive: oklch(0.577 0.245 27.325);
   /* 提醒黄：只用于「还能用但有风险」的说明条，比 destructive 轻一档 */
   --warning: oklch(0.66 0.15 76);
-  --warning-foreground: oklch(0.21 0.02 264);
-  --border: oklch(0.918 0.008 264);
-  --input: oklch(0.918 0.008 264);
-  --ring: oklch(0.581 0.229 264 / 60%);
-  /* 图表色：以品牌蓝为起点的同色系顺序色阶（数值越大越浅） */
+  --warning-foreground: oklch(0.21 0 0);
+  --border: oklch(0.918 0 0);
+  --input: oklch(0.918 0 0);
+  --ring: oklch(0.19 0 0 / 45%);
+  /* 图表色：数值型数据的顺序色阶（数值越大越浅）。蓝在这里只是数据色，与主色无关 */
   --chart-1: oklch(0.581 0.229 264);
   --chart-2: oklch(0.65 0.19 262);
   --chart-3: oklch(0.74 0.15 258);
   --chart-4: oklch(0.83 0.1 254);
   --chart-5: oklch(0.91 0.055 250);
   --radius: 0.625rem;
-  --sidebar: oklch(0.982 0.006 264);
-  --sidebar-foreground: oklch(0.15 0.015 264);
-  --sidebar-primary: oklch(0.581 0.229 264);
-  --sidebar-primary-foreground: oklch(0.98 0.006 264);
-  --sidebar-accent: oklch(0.955 0.015 264);
-  --sidebar-accent-foreground: oklch(0.21 0.02 264);
-  --sidebar-border: oklch(0.918 0.008 264);
-  --sidebar-ring: oklch(0.581 0.229 264 / 60%);
+  --sidebar: oklch(0.982 0 0);
+  --sidebar-foreground: oklch(0.15 0 0);
+  --sidebar-primary: oklch(0.19 0 0);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.955 0 0);
+  --sidebar-accent-foreground: oklch(0.21 0 0);
+  --sidebar-border: oklch(0.918 0 0);
+  --sidebar-ring: oklch(0.19 0 0 / 45%);
   /* 全局 chrome 色：媒体遮罩用纯色，浓淡交给 bg-overlay/85 这类修饰符；
-     favorite 是收藏星标；strength-1..5 是密码强度由红到品牌蓝的五档递进 */
-  --overlay: oklch(0.17 0.02 264);
-  --overlay-foreground: oklch(0.98 0.006 264);
+     favorite 是收藏星标；strength-1..5 是密码强度由红到蓝的五档递进 */
+  --overlay: oklch(0.17 0 0);
+  --overlay-foreground: oklch(0.98 0 0);
   --favorite: oklch(0.83 0.16 84);
   --strength-1: oklch(0.577 0.245 27);
   --strength-2: oklch(0.65 0.19 45);
@@ -154,9 +156,9 @@
   --md-del-line: oklch(0.58 0.21 27);
   /* 悬浮 dock：半透白底 + 强阴影，亮色下靠阴影而非描边分层 */
   --dock-bg: oklch(1 0 0 / 82%);
-  --dock-fg: oklch(0.21 0.02 264);
+  --dock-fg: oklch(0.21 0 0);
   --dock-panel-bg: oklch(1 0 0 / 94%);
-  --dock-border: oklch(0.75 0.02 264 / 32%);
+  --dock-border: oklch(0.75 0 0 / 32%);
   --dock-accent: var(--primary);
   --dock-shadow: 0 10px 30px -6px oklch(0 0 0 / 18%), 0 2px 6px -2px oklch(0 0 0 / 12%);
   --dock-blur: 14px;
@@ -173,44 +175,46 @@
 
 .dark {
   color-scheme: dark;
-  --background: oklch(0.15 0.012 264);
-  --foreground: oklch(0.985 0.005 264);
-  --card: oklch(0.2 0.016 264);
-  --card-foreground: oklch(0.985 0.005 264);
-  --popover: oklch(0.2 0.016 264);
-  --popover-foreground: oklch(0.985 0.005 264);
-  /* 暗底上的品牌蓝提到 0.72 一档，仍是同一色相（264），只是把亮度让给对比度 */
-  --primary: oklch(0.72 0.16 264);
-  --primary-foreground: oklch(0.16 0.04 264);
-  --secondary: oklch(0.268 0.016 264);
-  --secondary-foreground: oklch(0.965 0.008 264);
-  --muted: oklch(0.268 0.016 264);
-  --muted-foreground: oklch(0.71 0.02 264);
-  --accent: oklch(0.28 0.028 264);
-  --accent-foreground: oklch(0.965 0.008 264);
+  /* 三档中性灰阶梯：页面 #141414 → 卡片与浮层 #191919 → 悬浮与选中 #242424，
+     hover 再亮一档；色相全为 0，不再带冷调蓝 */
+  --background: oklch(0.191 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.213 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.213 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  /* 暗底上的主按钮是白底黑字：主色就是页面底色的反相 */
+  --primary: oklch(0.985 0 0);
+  --primary-foreground: oklch(0.191 0 0);
+  --secondary: oklch(0.261 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.261 0 0);
+  --muted-foreground: oklch(0.7 0 0);
+  --accent: oklch(0.3 0 0);
+  --accent-foreground: oklch(0.985 0 0);
   --destructive: oklch(0.704 0.191 22.216);
   /* 暗底上的黄要提亮一档，否则压在 card 上读不清 */
   --warning: oklch(0.81 0.14 82);
-  --warning-foreground: oklch(0.16 0.03 264);
+  --warning-foreground: oklch(0.191 0 0);
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.72 0.16 264 / 60%);
+  --ring: oklch(0.985 0 0 / 55%);
   --chart-1: oklch(0.72 0.16 264);
   --chart-2: oklch(0.65 0.19 262);
   --chart-3: oklch(0.581 0.229 258);
   --chart-4: oklch(0.5 0.2 254);
   --chart-5: oklch(0.42 0.15 250);
-  --sidebar: oklch(0.2 0.016 264);
-  --sidebar-foreground: oklch(0.985 0.005 264);
-  --sidebar-primary: oklch(0.72 0.16 264);
-  --sidebar-primary-foreground: oklch(0.16 0.04 264);
-  --sidebar-accent: oklch(0.28 0.028 264);
-  --sidebar-accent-foreground: oklch(0.965 0.008 264);
+  --sidebar: oklch(0.213 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.985 0 0);
+  --sidebar-primary-foreground: oklch(0.191 0 0);
+  --sidebar-accent: oklch(0.3 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.72 0.16 264 / 60%);
+  --sidebar-ring: oklch(0.985 0 0 / 55%);
   /* 暗色下遮罩要更沉一点才压得住图，星标与强度档同时提一档亮度 */
-  --overlay: oklch(0.12 0.014 264);
-  --overlay-foreground: oklch(0.98 0.006 264);
+  --overlay: oklch(0.13 0 0);
+  --overlay-foreground: oklch(0.98 0 0);
   --favorite: oklch(0.86 0.15 86);
   --strength-1: oklch(0.704 0.191 22);
   --strength-2: oklch(0.76 0.17 45);
@@ -219,12 +223,12 @@
   --strength-5: oklch(0.72 0.16 264);
   --md-italic-wavy: oklch(0.75 0.12 285);
   --md-del-line: oklch(0.7 0.19 25);
-  /* 暗色主体按设计定在 #161616 那一档（同色相冷调后是 #161921）：比页面底亮一档才分得开，
+  /* 悬浮外壳压在 #141414 之上，取卡片那一档 #191919；
      带 alpha 是为了留住毛玻璃，纯不透明会糊成一块板 */
-  --dock-bg: oklch(0.215 0.015 264 / 88%);
-  --dock-fg: oklch(0.985 0.005 264);
-  --dock-panel-bg: oklch(0.215 0.015 264 / 96%);
-  --dock-border: oklch(0.9 0.02 264 / 14%);
+  --dock-bg: oklch(0.213 0 0 / 88%);
+  --dock-fg: oklch(0.985 0 0);
+  --dock-panel-bg: oklch(0.213 0 0 / 96%);
+  --dock-border: oklch(0.9 0 0 / 14%);
   --dock-shadow: 0 10px 30px -6px oklch(0 0 0 / 60%), 0 2px 6px -2px oklch(0 0 0 / 45%);
 }
 
@@ -1104,13 +1108,13 @@
    首页电路板（components/home/circuit）
    走线本身是一根中性导管，九条同色——颜色只属于跑在里面的流星，
    每个分类各占一个色相（--circuit-N），光束与芯片从这套令牌取色；
-   核心芯片不另配色，直接吃 --primary 让品牌蓝当主板的主色。
-   分类色相仍要求在色环上彼此分得开：--circuit-5 从 246 挪到 222，
-   免得和品牌蓝（264）撞成一个色，看不出"这是某一个分类"。
+   核心芯片不另配色，直接吃 --primary，让黑白灰的主色当主板的主色。
+   分类色相仍要求在色环上彼此分得开：--circuit-5 保持在 222，
+   免得和相邻的分类撞色，看不出"这是某一个分类"。
    -------------------------------------------------------------------------- */
 :root {
-  --circuit-board: oklch(0.985 0.004 264);
-  --circuit-line: oklch(0.9 0.008 264);
+  --circuit-board: oklch(0.985 0 0);
+  --circuit-line: oklch(0.9 0 0);
   --circuit-core: var(--primary);
   --circuit-1: oklch(0.55 0.13 152);
   --circuit-2: oklch(0.55 0.16 318);
@@ -1123,8 +1127,8 @@
   --circuit-9: oklch(0.55 0.17 8);
 }
 .dark {
-  --circuit-board: oklch(0.17 0.01 264);
-  --circuit-line: oklch(0.33 0.012 264);
+  --circuit-board: oklch(0.213 0 0);
+  --circuit-line: oklch(0.33 0 0);
   --circuit-core: var(--primary);
   --circuit-1: oklch(0.76 0.13 152);
   --circuit-2: oklch(0.74 0.14 318);

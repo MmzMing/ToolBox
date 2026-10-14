@@ -23,7 +23,7 @@ const SCORE_STRENGTH_KEYS = [
   'strength4',
 ] as const
 
-/** 分段色条颜色（按 score 0-4 递进）：红 → 橙 → 黄 → 青 → 品牌蓝，取自 --strength-N */
+/** 分段色条颜色（按 score 0-4 递进）：红 → 橙 → 黄 → 青 → 蓝，取自 --strength-N */
 const SCORE_COLORS = [
   'bg-strength-1',
   'bg-strength-2',

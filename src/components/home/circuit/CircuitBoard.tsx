@@ -13,7 +13,7 @@ import { CategoryChip } from './CategoryChip'
 import { ChipDetailOverlay, type ChipFlight } from './ChipDetailOverlay'
 import { CircuitTraces } from './CircuitTraces'
 import { CoreChip } from './CoreChip'
-import { flowFor, introOf, layoutOf } from './circuit-layout'
+import { assignRoutes, flowFor, introOf, layoutOf } from './circuit-layout'
 
 function toRect(rect: DOMRect): ChipFlight['origin'] {
   return { left: rect.left, top: rect.top, width: rect.width, height: rect.height }
@@ -38,6 +38,8 @@ export function CircuitBoard() {
   const reduced = usePrefersReducedMotion()
   const layout = layoutOf(breakpoint)
   const intro = useMemo(() => introOf(layout), [layout])
+  // assignRoutes 逐条对着 layout.slots 算，序号与 slots 一一对应，所以第 index 颗直接取第 index 条
+  const routes = useMemo(() => assignRoutes(layout), [layout])
   const coreRef = useRef<HTMLDivElement | null>(null)
   const chipRefs = useRef(new Map<CategoryKey, HTMLButtonElement | null>())
   const [flight, setFlight] = useState<ChipFlight | null>(null)
@@ -142,6 +144,7 @@ export function CircuitBoard() {
               introDelay={intro.chip[slot.category]}
               driftDelay={index * 0.7}
               flow={flowFor(index)}
+              entry={routes[index].entry}
               hollow={flight?.category === slot.category}
               dimmed={focus !== null && focus !== slot.category}
               onHover={setFocus}

@@ -37,15 +37,17 @@ export type CanvasFrame = { background: Background; canvasRadius: number }
 export type FrameEdges = 'all' | 'top' | 'bottom' | 'none'
 
 /** 选中框与占位用的中性灰，canvas 读不到 CSS 变量，跟 grid-render.ts 一样就地取色。
- *  数值是色板令牌的镜像：蓝 = --primary（#2F6BFF），中性灰 = --muted-foreground。
+ *  数值是色板令牌的镜像：选中框 = 暗色档 --primary（#FAFAFA），中性灰 = 亮色档 --muted-foreground（#6F6F6F）。
  *  改全局色板时这一组要跟着改。 */
-const PLACEHOLDER_FILL = 'rgba(105, 111, 123, 0.14)'
-const PLACEHOLDER_STROKE = 'rgba(105, 111, 123, 0.45)'
-const SELECTED_STROKE = 'rgba(47, 107, 255, 0.9)'
-const HOVER_STROKE = 'rgba(47, 107, 255, 0.9)'
-const HOVER_FILL = 'rgba(47, 107, 255, 0.12)'
+const PLACEHOLDER_FILL = 'rgba(111, 111, 111, 0.14)'
+const PLACEHOLDER_STROKE = 'rgba(111, 111, 111, 0.45)'
+const SELECTED_STROKE = 'rgba(250, 250, 250, 0.95)'
+const HOVER_STROKE = 'rgba(250, 250, 250, 0.95)'
+const HOVER_FILL = 'rgba(250, 250, 250, 0.12)'
+/** 描边压在用户图片上，白线得有一圈暗晕才不会被亮图吃掉 */
+const STROKE_HALO = 'rgba(0, 0, 0, 0.55)'
 /** 图被拎走时源格子盖一层中性纱，表示「这里空出来了」 */
-const PICKUP_SCRIM = 'rgba(105, 111, 123, 0.4)'
+const PICKUP_SCRIM = 'rgba(111, 111, 111, 0.4)'
 
 /**
  * 画布那一层的外框：清屏、按 edges 圆角裁切、铺背景。
@@ -329,6 +331,8 @@ export function drawSelection(context: RenderContext, cell: Rect): void {
   const lineWidth = 2
   context.save()
   context.strokeStyle = SELECTED_STROKE
+  context.shadowColor = STROKE_HALO
+  context.shadowBlur = 2
   context.lineWidth = lineWidth
   const inset = lineWidth / 2
   context.strokeRect(
@@ -340,13 +344,15 @@ export function drawSelection(context: RenderContext, cell: Rect): void {
   context.restore()
 }
 
-/** 拖拽落点高亮：蓝色虚线框 + 淡底，与选中框的实线区分 */
+/** 拖拽落点高亮：白色虚线框 + 淡底，与选中框的实线区分 */
 export function drawHover(context: RenderContext, cell: Rect): void {
   const lineWidth = 2
   context.save()
   context.fillStyle = HOVER_FILL
   context.fillRect(cell.x, cell.y, cell.width, cell.height)
   context.strokeStyle = HOVER_STROKE
+  context.shadowColor = STROKE_HALO
+  context.shadowBlur = 2
   context.lineWidth = lineWidth
   context.setLineDash([6, 4])
   const inset = lineWidth / 2
