@@ -1,4 +1,4 @@
-import { Suspense, useEffect, useRef } from 'react'
+import { useEffect, useRef } from 'react'
 
 import { ToolLayout } from '@/layouts/tool-layout'
 import { useToolsStore } from '@/stores/tools.store'
@@ -18,12 +18,10 @@ export default function ToolPage({ tool }: { tool: Tool }) {
 
   const ToolComponent = tool.lazyComponent
 
-  // fallback 留空：切页手感交给 AppShell 的显影层，这里不再插一块转圈占位
+  // 别在这里包 Suspense：随页新建的边界会先提交空 fallback，React 19 还要节流 ≥300ms 才揭示正文
   return (
     <ToolLayout tool={tool} fill={tool.immersive} wide={tool.wide}>
-      <Suspense fallback={null}>
-        <ToolComponent />
-      </Suspense>
+      <ToolComponent />
     </ToolLayout>
   )
 }

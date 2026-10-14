@@ -1,17 +1,19 @@
 import { House } from 'lucide-react'
 import { AnimatePresence, motion } from 'motion/react'
-import { useRef, useState } from 'react'
+import { Suspense, useRef, useState } from 'react'
 import { Outlet, useLocation } from 'react-router'
 import { useTranslation } from 'react-i18next'
 
 import { PageBlurVeil } from '@/components/page-blur-veil'
 import { AIOrbDock } from '@/components/ai/AIOrbDock'
 import { usePrefersReducedMotion } from '@/composable/use-prefers-reduced-motion'
+import { usePendingNavigationKey } from '@/composable/use-pending-navigation'
 import { TourSpotlight } from '@/modules/page-tour/TourSpotlight'
 import { usePageTour } from '@/modules/page-tour/use-page-tour'
 import { CategoryPanel } from '@/layouts/app-shell/CategoryPanel'
 import { DockHandle } from '@/layouts/app-shell/DockHandle'
 import { DockRail } from '@/layouts/app-shell/DockRail'
+import { MeteorLoadingBar } from '@/layouts/app-shell/MeteorLoadingBar'
 import { MobileDock } from '@/layouts/app-shell/MobileDock'
 import { SiteFooter } from '@/layouts/app-shell/SiteFooter'
 import { TopCapsules } from '@/layouts/app-shell/TopCapsules'
@@ -44,6 +46,7 @@ export function AppShell() {
   const { t } = useTranslation('common')
   const { t: tCategory } = useTranslation('categories')
   const location = useLocation()
+  const pendingKey = usePendingNavigationKey()
   const reduced = usePrefersReducedMotion()
   const breakpoint = useBreakpoint()
   const layout = resolveShellLayout(breakpoint)
@@ -216,6 +219,7 @@ export function AppShell() {
 
       <main
         data-app-shell-scroll=""
+        aria-busy={pendingKey !== null}
         // 第一次碰内容区就把 dock 折到左边缘，把画面整个让给用户；
         // dock 与浮层都不在 main 里，所以点键位不会触发折叠。
         onPointerDown={() => setCollapsedAt(location.pathname)}
@@ -230,13 +234,18 @@ export function AppShell() {
             : 'scroll-pt-(--shell-inset-top) ps-(--shell-inset-inline-start) pe-4 pt-(--shell-inset-top) pb-(--shell-inset-bottom)',
         )}
       >
-        <Outlet />
+        {/* 常驻边界：切页是 transition，新工具分包未就绪时停在旧页，就绪后页头与正文一起提交 */}
+        <Suspense fallback={null}>
+          <Outlet />
+        </Suspense>
         {/* 站点页脚（含备案号）按站点惯例只在首页出现；工具页正文不该被它占位 */}
         {isHome && <SiteFooter />}
       </main>
 
       {/* 换路由时重挂载，显影动画因此逐页重播；z-30 压在内容区之上、dock（z-40）之下 */}
       <PageBlurVeil key={location.pathname} />
+      {/* z-50：划过顶部胶囊与 dock 之上 */}
+      <MeteorLoadingBar pendingKey={pendingKey} />
       {/* 首页导览的聚光层：盖住 dock 与内容，只有当前目标那块是清晰的 */}
       <TourSpotlight rect={tour.rect} onStop={tour.stop} />
       {/* AI 悬浮球：默认由 aiOrbConfig.enabled 关着，这里挂了也不渲染 */}

@@ -86,6 +86,7 @@
   --color-dock-accent: var(--dock-accent);
   --shadow-dock: var(--dock-shadow);
   --blur-dock: var(--dock-blur);
+  --shadow-meteor: var(--meteor-glow);
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -162,6 +163,8 @@
   --dock-accent: var(--primary);
   --dock-shadow: 0 10px 30px -6px oklch(0 0 0 / 18%), 0 2px 6px -2px oklch(0 0 0 / 12%);
   --dock-blur: 14px;
+  /* 切页流星的光头辉光：亮底上深色光晕会糊成污渍，只留一圈淡晕 */
+  --meteor-glow: 0 0 6px 1px color-mix(in oklch, var(--primary) 30%, transparent);
   /* app-shell 内容留白：手机底部 dock 占高，桌面/平板左侧 dock 与顶部胶囊占位 */
   --shell-inset-top: 0rem;
   --shell-inset-inline-start: 0rem;
@@ -230,6 +233,10 @@
   --dock-panel-bg: oklch(0.213 0 0 / 96%);
   --dock-border: oklch(0.9 0 0 / 14%);
   --dock-shadow: 0 10px 30px -6px oklch(0 0 0 / 60%), 0 2px 6px -2px oklch(0 0 0 / 45%);
+  /* 暗底上光头是白热灯丝：贴身一圈亮晕 + 外圈散光 */
+  --meteor-glow:
+    0 0 6px 2px color-mix(in oklch, var(--primary) 80%, transparent),
+    0 0 18px 5px color-mix(in oklch, var(--primary) 35%, transparent);
 }
 
 /* 平板与桌面：左侧 dock 与顶部胶囊接管，底部 dock 让位。
