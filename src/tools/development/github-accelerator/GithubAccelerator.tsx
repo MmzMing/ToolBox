@@ -3,6 +3,7 @@ import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { SpanCopyable } from '@/components/copyable/span-copyable'
+import { MorphSelect } from '@/components/select/morph-select'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -10,13 +11,6 @@ import { Card } from '@/components/ui/card'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
 import { githubAcceleratorNodes } from '@/config/github-accelerator'
 import { usePreferencesStore } from '@/stores/preferences.store'
 import {
@@ -136,18 +130,14 @@ export default function GithubAccelerator() {
 
             <div className="flex flex-col gap-2">
               <Label className="text-muted-foreground text-xs">{t('nodeLabel')}</Label>
-              <Select value={activeNode.prefix} onValueChange={setSelectedPrefix}>
-                <SelectTrigger className="w-full font-mono">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {nodes.map((node) => (
-                    <SelectItem key={node.prefix} value={node.prefix}>
-                      {node.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <MorphSelect
+                label={t('nodeLabel')}
+                hideLabel
+                className="w-full font-mono"
+                items={nodes.map((node) => ({ value: node.prefix, label: node.label }))}
+                value={activeNode.prefix}
+                onValueChange={setSelectedPrefix}
+              />
             </div>
 
             <div className="flex min-w-0 items-center gap-2">

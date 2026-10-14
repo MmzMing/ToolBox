@@ -1,18 +1,19 @@
 import { House } from 'lucide-react'
-import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
+import { AnimatePresence, motion } from 'motion/react'
 import { useRef, useState } from 'react'
 import { Outlet, useLocation } from 'react-router'
 import { useTranslation } from 'react-i18next'
 
 import { PageBlurVeil } from '@/components/page-blur-veil'
 import { AIOrbDock } from '@/components/ai/AIOrbDock'
+import { usePrefersReducedMotion } from '@/composable/use-prefers-reduced-motion'
 import { TourSpotlight } from '@/modules/page-tour/TourSpotlight'
 import { usePageTour } from '@/modules/page-tour/use-page-tour'
-import { BeianCaption } from '@/layouts/app-shell/BeianCaption'
 import { CategoryPanel } from '@/layouts/app-shell/CategoryPanel'
 import { DockHandle } from '@/layouts/app-shell/DockHandle'
 import { DockRail } from '@/layouts/app-shell/DockRail'
 import { MobileDock } from '@/layouts/app-shell/MobileDock'
+import { SiteFooter } from '@/layouts/app-shell/SiteFooter'
 import { TopCapsules } from '@/layouts/app-shell/TopCapsules'
 import {
   buildBreadcrumbs,
@@ -29,10 +30,8 @@ import { categoryIcons, categoryKeys } from '@/tools/categories'
 import { getToolByPath, tools } from '@/tools'
 import { usePreferencesStore } from '@/stores/preferences.store'
 import { useSearchStore } from '@/stores/search.store'
+import { motionTokens } from '@/lib/motion-tokens'
 import { cn } from '@/lib/utils'
-
-/** 与顶栏面包屑分离动效同一套 spring，dock 收起/展开的手感要对齐 */
-const dockTransition = { type: 'spring' as const, duration: 0.42, bounce: 0.18 }
 
 /**
  * app-shell 布局根：`h-svh overflow-hidden`，唯一的滚动容器是 `<main>`。
@@ -45,7 +44,7 @@ export function AppShell() {
   const { t } = useTranslation('common')
   const { t: tCategory } = useTranslation('categories')
   const location = useLocation()
-  const reducedMotion = useReducedMotion() === true
+  const reduced = usePrefersReducedMotion()
   const breakpoint = useBreakpoint()
   const layout = resolveShellLayout(breakpoint)
   const tour = usePageTour(breakpoint)
@@ -136,7 +135,7 @@ export function AppShell() {
               initial={{ opacity: 0, scale: 0.4 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.4 }}
-              transition={dockTransition}
+              transition={motionTokens.spring.shell}
             >
               <DockHandle label={t('dock.expand')} onExpand={() => setCollapsedAt(null)} />
             </motion.div>
@@ -145,10 +144,10 @@ export function AppShell() {
               key="dock-rail"
               className="pointer-events-none absolute inset-y-0 left-3 z-40 flex items-center"
               style={{ originX: 0, originY: 0.5 }}
-              initial={{ opacity: 0, x: reducedMotion ? 0 : -24 }}
+              initial={{ opacity: 0, x: reduced ? 0 : -24 }}
               animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, scale: 0.3, x: reducedMotion ? 0 : -30 }}
-              transition={dockTransition}
+              exit={{ opacity: 0, scale: 0.3, x: reduced ? 0 : -30 }}
+              transition={motionTokens.spring.shell}
             >
               {/* 图标条与浮层共用一个悬停容器：鼠标从键位横移到浮层不会触发 leave，
                   否则经过两者之间那道缝隙时浮层会先关掉、点不到里面的工具。
@@ -190,7 +189,7 @@ export function AppShell() {
               initial={{ opacity: 0, scale: 0.4 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.4 }}
-              transition={dockTransition}
+              transition={motionTokens.spring.shell}
             >
               <DockHandle
                 label={t('dock.expand')}
@@ -205,7 +204,7 @@ export function AppShell() {
               initial={{ opacity: 0, scale: 0.4 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.4 }}
-              transition={dockTransition}
+              transition={motionTokens.spring.shell}
             >
               <div className="pointer-events-auto">
                 <MobileDock homeActive={isHome} onOpenPalette={() => openPalette(true)} />
@@ -232,8 +231,8 @@ export function AppShell() {
         )}
       >
         <Outlet />
-        {/* 备案号属法定信息，按站点惯例只在首页页脚出现；工具页正文不该被它占位 */}
-        {isHome && <BeianCaption className="pt-2 pb-4" />}
+        {/* 站点页脚（含备案号）按站点惯例只在首页出现；工具页正文不该被它占位 */}
+        {isHome && <SiteFooter />}
       </main>
 
       {/* 换路由时重挂载，显影动画因此逐页重播；z-30 压在内容区之上、dock（z-40）之下 */}

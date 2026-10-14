@@ -4,18 +4,12 @@ import { useTranslation } from 'react-i18next'
 
 import { InputCopyable } from '@/components/copyable/input-copyable'
 import { SpanCopyable } from '@/components/copyable/span-copyable'
+import { MorphSelect } from '@/components/select/morph-select'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Progress } from '@/components/ui/progress'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
 import {
   generateTotp,
   totpDigitOptions,
@@ -101,40 +95,32 @@ export default function OtpCodeGeneratorAndValidator() {
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="flex flex-col gap-2">
           <Label>{t('otp-code-generator-and-validator.digitsLabel')}</Label>
-          <Select
+          <MorphSelect
+            label={t('otp-code-generator-and-validator.digitsLabel')}
+            hideLabel
+            className="w-full"
+            items={totpDigitOptions.map((option) => ({
+              value: String(option),
+              label: String(option),
+            }))}
             value={String(digits)}
             onValueChange={(value) => setDigits(Number(value) as TotpDigits)}
-          >
-            <SelectTrigger className="w-full">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {totpDigitOptions.map((option) => (
-                <SelectItem key={option} value={String(option)}>
-                  {option}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          />
         </div>
 
         <div className="flex flex-col gap-2">
           <Label>{t('otp-code-generator-and-validator.periodLabel')}</Label>
-          <Select
+          <MorphSelect
+            label={t('otp-code-generator-and-validator.periodLabel')}
+            hideLabel
+            className="w-full"
+            items={totpPeriodOptions.map((option) => ({
+              value: String(option),
+              label: t('otp-code-generator-and-validator.periodValue', { seconds: option }),
+            }))}
             value={String(period)}
             onValueChange={(value) => setPeriod(Number(value) as TotpPeriod)}
-          >
-            <SelectTrigger className="w-full">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {totpPeriodOptions.map((option) => (
-                <SelectItem key={option} value={String(option)}>
-                  {t('otp-code-generator-and-validator.periodValue', { seconds: option })}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          />
         </div>
       </div>
 

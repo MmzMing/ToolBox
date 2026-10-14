@@ -2,13 +2,11 @@ import { Check } from 'lucide-react'
 import { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { ColorPicker } from '@/components/color-picker/ColorPicker'
 import { cn } from '@/lib/utils'
 
 import { THEME_COLORS } from '../../constants'
 import { useResumeStore } from '../../store'
-import { ColorPicker } from '../ColorPicker'
-
-const PRESETS = THEME_COLORS as readonly string[]
 
 /** 主题色浮层：12 个预设圆点 + 自定义取色器 */
 export function ThemePanel() {
@@ -60,24 +58,14 @@ export function ThemePanel() {
       </div>
 
       <ColorPicker
+        showAlpha={false}
+        label={t('resume.sidePanel.theme.custom')}
         value={themeColor}
-        onChange={commitDebounced}
-        className={cn(
-          'h-7 w-auto gap-1.5 self-start rounded-full border px-3 py-0 text-xs shadow-none',
-          PRESETS.includes(themeColor)
-            ? 'border-border text-muted-foreground hover:bg-accent/50 hover:text-foreground bg-transparent'
-            : 'border-primary/40 text-primary bg-primary/5 hover:bg-primary/10 hover:border-primary/60',
-        )}
-        style={{ backgroundColor: 'transparent' }}
-      >
-        {t('resume.sidePanel.theme.custom')}
-        {!PRESETS.includes(themeColor) && (
-          <span
-            className="ml-0.5 size-2.5 rounded-full border"
-            style={{ backgroundColor: themeColor }}
-          />
-        )}
-      </ColorPicker>
+        onValueChange={commitDebounced}
+        /* 主题色最终印在白色纸张上，对比度按白纸算 */
+        background="#ffffff"
+        className="self-start"
+      />
     </div>
   )
 }

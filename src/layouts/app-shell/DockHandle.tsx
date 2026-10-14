@@ -1,13 +1,12 @@
 import { LayoutGrid } from 'lucide-react'
-import { motion, useReducedMotion } from 'motion/react'
+import { motion } from 'motion/react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 import { dockItemClass } from '@/components/pill-styles'
+import { usePrefersReducedMotion } from '@/composable/use-prefers-reduced-motion'
 import { DOCK_HANDLE_RETRACT_DELAY_MS, DOCK_HANDLE_RETRACT_X } from '@/layouts/app-shell/dock-logic'
+import { motionTokens } from '@/lib/motion-tokens'
 import { cn } from '@/lib/utils'
-
-/** 与图标条同一套 spring：折下去与滑出来要读作同一个动作 */
-const handleSpring = { type: 'spring' as const, duration: 0.42, bounce: 0.18 }
 
 /** 折叠键贴的这条边：桌面档是左侧图标条，手机档是底部 dock 折到右下边缘 */
 type DockHandleSide = 'left' | 'right'
@@ -24,7 +23,7 @@ type DockHandleProps = {
  * 触屏没有悬停，所以收回侧垫一块透明命中区，半截球也点得动。
  */
 export function DockHandle({ label, onExpand, side = 'left' }: DockHandleProps) {
-  const reducedMotion = useReducedMotion() === true
+  const reduced = usePrefersReducedMotion()
   const [retracted, setRetracted] = useState(false)
   const retractTimer = useRef<number | null>(null)
 
@@ -50,13 +49,13 @@ export function DockHandle({ label, onExpand, side = 'left' }: DockHandleProps) 
   }, [cancelRetract])
 
   // 刚折下来时先完整露出，停手一秒再收回半截，用户才知道图标条变成了这颗键。
-  // 关了动效就常驻完整可见——半截收起本身是一种动效，不该在 reducedMotion 下偷偷跑。
+  // 关了动效就常驻完整可见——半截收起本身是一种动效，不该在 reduced 下偷偷跑。
   useEffect(() => {
-    if (!reducedMotion) {
+    if (!reduced) {
       scheduleRetract()
     }
     return cancelRetract
-  }, [cancelRetract, reducedMotion, scheduleRetract])
+  }, [cancelRetract, reduced, scheduleRetract])
 
   return (
     <motion.button
@@ -65,13 +64,13 @@ export function DockHandle({ label, onExpand, side = 'left' }: DockHandleProps) 
       aria-label={label}
       onClick={onExpand}
       onPointerEnter={extend}
-      onPointerLeave={reducedMotion ? undefined : scheduleRetract}
+      onPointerLeave={reduced ? undefined : scheduleRetract}
       // 键盘 Tab 进来的是半截按钮，看不清也难点中，与悬停同样处理
       onFocus={extend}
       animate={{
         x: retracted ? (side === 'left' ? DOCK_HANDLE_RETRACT_X : -DOCK_HANDLE_RETRACT_X) : 0,
       }}
-      transition={reducedMotion ? { duration: 0 } : handleSpring}
+      transition={reduced ? { duration: 0 } : motionTokens.spring.shell}
       className={cn(
         dockItemClass(false, 'accent'),
         'bg-dock text-dock-foreground shadow-dock backdrop-blur-dock pointer-events-auto',

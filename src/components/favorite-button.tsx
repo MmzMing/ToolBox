@@ -37,7 +37,7 @@ export function FavoriteButton({ tool, className, tabIndex }: FavoriteButtonProp
       <Star
         className={cn(
           'transition-colors',
-          isFavorite ? 'fill-amber-400 text-amber-400' : 'text-muted-foreground',
+          isFavorite ? 'fill-favorite text-favorite' : 'text-muted-foreground',
         )}
       />
     </Button>

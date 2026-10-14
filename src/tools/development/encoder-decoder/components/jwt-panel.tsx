@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { SpanCopyable } from '@/components/copyable/span-copyable'
-import { TextareaCopyable } from '@/components/copyable/textarea-copyable'
+import { JsonViewer } from '@/components/json-viewer'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
 import { Label } from '@/components/ui/label'
@@ -34,14 +34,6 @@ export function JwtPanel() {
   }, [token])
   const parts = result.parts
 
-  const headerJson = useMemo(
-    () => (parts === null ? '' : JSON.stringify(parts.header, null, 2)),
-    [parts],
-  )
-  const payloadJson = useMemo(
-    () => (parts === null ? '' : JSON.stringify(parts.payload, null, 2)),
-    [parts],
-  )
   const claims = useMemo(() => (parts === null ? [] : analyseJwtClaims(parts.payload)), [parts])
   const algorithm = parts === null ? null : getJwtAlgorithm(parts.header)
   const expiry = useMemo(() => (parts === null ? null : isJwtExpired(parts.payload)), [parts])
@@ -71,12 +63,19 @@ export function JwtPanel() {
         <>
           <div className="flex flex-col gap-2">
             <Label>{t('headerLabel')}</Label>
-            <TextareaCopyable value={headerJson} highlight language="json" rows={4} />
+            {/* Header 只有几个键，搜索框和路径条只是噪声 */}
+            <JsonViewer
+              data={parts.header}
+              rootName="header"
+              searchable={false}
+              showPath={false}
+              maxHeight={200}
+            />
           </div>
 
           <div className="flex flex-col gap-2">
             <Label>{t('payloadLabel')}</Label>
-            <TextareaCopyable value={payloadJson} highlight language="json" rows={6} />
+            <JsonViewer data={parts.payload} rootName="payload" maxHeight={320} />
           </div>
 
           {claims.length > 0 && (

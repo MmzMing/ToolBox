@@ -23,13 +23,13 @@ const SCORE_STRENGTH_KEYS = [
   'strength4',
 ] as const
 
-/** 分段色条颜色（按 score 0-4 递进） */
+/** 分段色条颜色（按 score 0-4 递进）：红 → 橙 → 黄 → 青 → 品牌蓝，取自 --strength-N */
 const SCORE_COLORS = [
-  'bg-red-500',
-  'bg-orange-500',
-  'bg-amber-500',
-  'bg-lime-500',
-  'bg-green-500',
+  'bg-strength-1',
+  'bg-strength-2',
+  'bg-strength-3',
+  'bg-strength-4',
+  'bg-strength-5',
 ] as const
 
 const SEGMENT_COUNT = 5
@@ -143,7 +143,7 @@ export default function PasswordStrengthAnalyser() {
           {analysis.checks.map((check) => (
             <div key={check.id} className="flex items-center gap-2 text-sm">
               {check.passed ? (
-                <Check className="size-4 shrink-0 text-green-600" />
+                <Check className="text-primary size-4 shrink-0" />
               ) : (
                 <X className="text-destructive size-4 shrink-0" />
               )}

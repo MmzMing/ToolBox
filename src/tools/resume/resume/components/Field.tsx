@@ -3,6 +3,7 @@ import { Wand2 } from 'lucide-react'
 import { useState } from 'react'
 
 import { Button } from '@/components/ui/button'
+import { DateRangePicker } from '@/components/date-range-picker'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
@@ -13,7 +14,13 @@ import { DateField } from './DateField'
 import { RichEditor } from './rich-editor/RichEditor'
 import { AIPolishDialog } from './ai/AIPolishDialog'
 import { useAIGate } from './ai/useAIGate'
-import { isPresentValue, joinDateRange, splitDateRange } from '../resume.service'
+import {
+  fromPickerMonth,
+  isPresentValue,
+  joinDateRange,
+  splitDateRange,
+  toPickerDate,
+} from '../resume.service'
 
 export type FieldType = 'text' | 'textarea' | 'date' | 'date-range' | 'editor'
 
@@ -109,31 +116,33 @@ export function Field({
 
   if (type === 'date-range') {
     const { start, end } = splitDateRange(value)
+    const from = toPickerDate(start)
+    const to = toPickerDate(end)
+    // 只填了开始日期是合法状态（结束未知），不能被区间面板补成整月
+    const oneSided = Boolean(from) && !to
 
     return (
       <div className={className}>
         {renderLabel()}
-        <div className="flex items-center gap-2">
-          {/* DateField 的触发按钮是 w-full + shrink-0，不包一层就会各占满整行把结束日期挤出可视区 */}
-          <div className="min-w-0 flex-1">
-            <DateField
-              value={start}
-              ariaLabel={label}
-              placeholder={placeholder}
-              onChange={(next) => onChange(joinDateRange(next, isPresent ? present : end))}
-            />
-          </div>
-          <span className="text-muted-foreground shrink-0">-</span>
-          <div className="min-w-0 flex-1">
-            <DateField
-              value={isPresent ? '' : end}
-              disabled={isPresent}
-              ariaLabel={label}
-              placeholder={placeholder}
-              onChange={(next) => onChange(joinDateRange(start, next))}
-            />
-          </div>
-        </div>
+        <DateRangePicker
+          months={1}
+          presets="none"
+          granularity="month"
+          value={from ? { start: from, end: to ?? from } : null}
+          label={label}
+          placeholder={placeholder}
+          onChange={(range) => {
+            const nextStart = fromPickerMonth(range.start)
+            const nextEnd = fromPickerMonth(range.end)
+            if (isPresent) {
+              onChange(joinDateRange(nextStart, present))
+              return
+            }
+            onChange(
+              oneSided && nextStart === nextEnd ? nextStart : joinDateRange(nextStart, nextEnd),
+            )
+          }}
+        />
       </div>
     )
   }

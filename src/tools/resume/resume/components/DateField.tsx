@@ -1,13 +1,6 @@
-import { useState } from 'react'
-import { CalendarIcon, X } from 'lucide-react'
-import { useTranslation } from 'react-i18next'
+import { DatePicker } from '@/components/date-range-picker'
 
-import { Button } from '@/components/ui/button'
-import { Calendar } from '@/components/ui/calendar'
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { cn } from '@/lib/utils'
-
-import { parseDisplayDate, toStoredMonth } from '../resume.service'
+import { fromPickerMonth, toPickerDate } from '../resume.service'
 
 type DateFieldProps = {
   /** 存储用的显示串，形如 `2021/07` */
@@ -21,58 +14,23 @@ type DateFieldProps = {
 /**
  * 月粒度日期选择。
  *
- * 替代旧项目的 HeroUI `DateInput`：简历日期本质上仍是自由显示串，所以只在写入时
- * 归一成 `YYYY/MM`，读取时容忍 `.` `/` `-` 等历史写法，不做任何强校验。
+ * 简历日期本质上仍是自由显示串，所以写入时归一成 `YYYY/MM`，读取时容忍 `.` `/` `-`
+ * 等历史写法，不做任何强校验。面板走全局共享选择器的 `granularity="month"` 降级：
+ * 这里本来没有「日」的概念，所以不显示日历日格；也没有快捷区间（`presets="none"`）。
+ * 解析不出来的串按未选择处理，与改造前一致。
  */
 export function DateField({ value, onChange, placeholder, disabled, ariaLabel }: DateFieldProps) {
-  const { t } = useTranslation('tools-resume')
-  const [open, setOpen] = useState(false)
-  const parsed = parseDisplayDate(value)
-
   return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <Button
-          type="button"
-          variant="outline"
-          disabled={disabled}
-          aria-label={ariaLabel}
-          className={cn(
-            'w-full justify-between px-3 text-left font-normal',
-            !parsed && 'text-muted-foreground',
-          )}
-        >
-          <span className="truncate">{parsed ? toStoredMonth(parsed) : placeholder}</span>
-          <CalendarIcon className="size-4 shrink-0 opacity-60" />
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent align="start" className="w-auto p-0">
-        <Calendar
-          mode="single"
-          captionLayout="dropdown"
-          defaultMonth={parsed ?? new Date()}
-          selected={parsed ?? undefined}
-          onSelect={(date) => {
-            onChange(date ? toStoredMonth(date) : '')
-            setOpen(false)
-          }}
-        />
-        {parsed && (
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            className="w-full justify-center gap-1.5 rounded-t-none border-t"
-            onClick={() => {
-              onChange('')
-              setOpen(false)
-            }}
-          >
-            <X className="size-4" />
-            {t('resume.clearDate')}
-          </Button>
-        )}
-      </PopoverContent>
-    </Popover>
+    <DatePicker
+      months={1}
+      presets="none"
+      granularity="month"
+      value={toPickerDate(value)}
+      label={ariaLabel}
+      placeholder={placeholder}
+      disabled={disabled}
+      onChange={(date) => onChange(fromPickerMonth(date))}
+      onClear={() => onChange('')}
+    />
   )
 }

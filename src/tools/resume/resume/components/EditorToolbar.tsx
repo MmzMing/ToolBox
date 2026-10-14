@@ -3,14 +3,8 @@ import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
 import { toast } from 'sonner'
 
+import { MorphSelect } from '@/components/select/morph-select'
 import { Button } from '@/components/ui/button'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
 import { cn } from '@/lib/utils'
 
 import { GrammarCheckDrawer } from './ai/GrammarCheckDrawer'
@@ -111,28 +105,21 @@ export function EditorToolbar({ collapsed, onSetPanels }: EditorToolbarProps) {
 
   return (
     <div className="flex min-w-0 items-center gap-1">
-      <Select
+      <MorphSelect
+        label={t('resume.toolbar.viewMode.label')}
+        hideLabel
+        size="sm"
+        className="hidden w-20 md:inline-flex"
+        items={VIEW_MODES.map((mode) => ({
+          value: mode,
+          label: t(`resume.toolbar.viewMode.${mode}`),
+        }))}
         value={viewMode}
         onValueChange={(value) => {
           const mode = value as ViewMode
           onSetPanels({ edit: mode === 'preview', preview: mode === 'edit' })
         }}
-      >
-        <SelectTrigger
-          size="sm"
-          className="hidden w-20 md:inline-flex"
-          aria-label={t('resume.toolbar.viewMode.label')}
-        >
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent>
-          {VIEW_MODES.map((mode) => (
-            <SelectItem key={mode} value={mode}>
-              {t(`resume.toolbar.viewMode.${mode}`)}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+      />
 
       <ToolbarButton
         icon={Copy}

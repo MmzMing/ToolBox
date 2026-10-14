@@ -1,5 +1,3 @@
-import type { CSSProperties } from 'react'
-
 import {
   activeGroups,
   droppedLineCount,
@@ -10,30 +8,14 @@ import {
 import type { BarbecuePlan } from '../types'
 
 /**
- * 导出图恒为亮色：截图要发微信、要打印，暗色底既费墨又在聊天窗口里看不清。
- * 做法是在海报根上内联覆盖主题令牌 —— @theme inline 让 bg-card / text-muted-foreground
- * 这类工具类在使用处解析成 var(--xxx)，所以子树里全部跟着变亮，页面其余部分仍是用户的主题。
- * 值逐条抄自 index.css 的 :root，改主题令牌时这里要跟着改。
- */
-const LIGHT_TOKENS = {
-  '--background': 'oklch(1 0 0)',
-  '--card': 'oklch(1 0 0)',
-  '--card-foreground': 'oklch(0.145 0 0)',
-  '--foreground': 'oklch(0.145 0 0)',
-  '--muted': 'oklch(0.97 0 0)',
-  '--muted-foreground': 'oklch(0.556 0 0)',
-  '--border': 'oklch(0.922 0 0)',
-  '--primary': 'oklch(0.63 0.15 156)',
-  '--primary-foreground': 'oklch(0.985 0 0)',
-  '--input': 'oklch(0.922 0 0)',
-  '--ring': 'oklch(0.63 0.15 156 / 60%)',
-} as CSSProperties
-
-/**
  * 导出图：单列竖条，从上往下就是一张能直接带去菜市场的购物小票。
  * 刻意不做多栏 —— 手机上截图看的是长度而不是宽度，多栏会逼人横向放大。
- * 颜色一律走主题令牌，但由 LIGHT_TOKENS 在根上钉成亮色（见上）。
  * 行首不画勾选方框：勾选是屏上清单的交互，打印出来的清单上它是噪声。
+ *
+ * 导出图恒为亮色：截图要发微信、要打印，暗色底既费墨又在聊天窗口里看不清。
+ * 做法是在海报根上挂 index.css 的 .theme-light —— @theme inline 让 bg-card /
+ * text-muted-foreground 这类工具类在使用处解析成 var(--xxx)，所以子树里全部跟着变亮，
+ * 页面其余部分仍是用户的主题，令牌值也只有 index.css 一处来源。
  */
 export function ShoppingPoster({
   plan,
@@ -58,7 +40,7 @@ export function ShoppingPoster({
       : ''
 
   return (
-    <div style={LIGHT_TOKENS} className="bg-card text-foreground flex w-[520px] flex-col p-6">
+    <div className="theme-light bg-card text-foreground flex w-[520px] flex-col p-6">
       <header className="border-border flex flex-col gap-1 border-b pb-3">
         <h1 className="text-xl font-semibold">{zh ? '烧烤采购清单' : 'BBQ shopping list'}</h1>
         <p className="text-muted-foreground text-xs">

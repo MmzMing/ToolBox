@@ -1,17 +1,11 @@
 import { Braces, Send, Trash2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
+import { MorphSelect } from '@/components/select/morph-select'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
 import { Switch } from '@/components/ui/switch'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Textarea } from '@/components/ui/textarea'
@@ -84,18 +78,14 @@ export function RequestEditor({ model, patch, onSend, pending }: EditorProps) {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-wrap items-center gap-2">
-        <Select value={model.method} onValueChange={(method) => patch({ method })}>
-          <SelectTrigger className="w-32 shrink-0">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {METHODS.map((method) => (
-              <SelectItem key={method} value={method}>
-                {method}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <MorphSelect
+          label={ns('cols.method')}
+          hideLabel
+          className="w-32 shrink-0"
+          items={METHODS.map((method) => ({ value: method, label: method }))}
+          value={model.method}
+          onValueChange={(method) => patch({ method })}
+        />
         <Input
           value={model.url}
           onChange={(event) => patch({ url: event.target.value })}
@@ -402,21 +392,14 @@ function AuthEditor({ model, patch }: { model: HttpRequestModel; patch: EditorPr
     <div className="flex flex-col gap-3">
       <div className="flex flex-wrap items-center gap-3">
         <span className="text-muted-foreground text-xs">{ns('authType')}</span>
-        <Select
+        <MorphSelect
+          label={ns('authType')}
+          hideLabel
+          className="w-56"
+          items={AUTH_KINDS.map((kind) => ({ value: kind, label: ns(`authKinds.${kind}`) }))}
           value={auth.kind}
           onValueChange={(value) => choose(value as (typeof AUTH_KINDS)[number])}
-        >
-          <SelectTrigger className="w-56">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {AUTH_KINDS.map((kind) => (
-              <SelectItem key={kind} value={kind}>
-                {ns(`authKinds.${kind}`)}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        />
       </div>
 
       {(auth.kind === 'basic' || auth.kind === 'digest') && (
@@ -435,18 +418,17 @@ function AuthEditor({ model, patch }: { model: HttpRequestModel; patch: EditorPr
             className="w-48 font-mono text-xs"
           />
           {auth.kind === 'basic' && (
-            <Select
+            <MorphSelect
+              label={ns('authVia')}
+              hideLabel
+              className="w-56 font-mono"
+              items={[
+                { value: 'option', label: '-u user:password' },
+                { value: 'header', label: 'Authorization: Basic' },
+              ]}
               value={auth.via}
               onValueChange={(via) => patch({ auth: { ...auth, via: via as 'option' | 'header' } })}
-            >
-              <SelectTrigger className="w-56">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="option">-u user:password</SelectItem>
-                <SelectItem value="header">Authorization: Basic</SelectItem>
-              </SelectContent>
-            </Select>
+            />
           )}
         </div>
       )}
@@ -460,18 +442,17 @@ function AuthEditor({ model, patch }: { model: HttpRequestModel; patch: EditorPr
             type="password"
             className="min-w-60 flex-1 font-mono text-xs"
           />
-          <Select
+          <MorphSelect
+            label={ns('authVia')}
+            hideLabel
+            className="w-56 font-mono"
+            items={[
+              { value: 'header', label: 'Authorization: Bearer' },
+              { value: 'option', label: '--oauth2-bearer' },
+            ]}
             value={auth.via}
             onValueChange={(via) => patch({ auth: { ...auth, via: via as 'option' | 'header' } })}
-          >
-            <SelectTrigger className="w-56">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="header">Authorization: Bearer</SelectItem>
-              <SelectItem value="option">--oauth2-bearer</SelectItem>
-            </SelectContent>
-          </Select>
+          />
         </div>
       )}
 
@@ -490,18 +471,17 @@ function AuthEditor({ model, patch }: { model: HttpRequestModel; patch: EditorPr
             type="password"
             className="min-w-48 flex-1 font-mono text-xs"
           />
-          <Select
+          <MorphSelect
+            label={ns('authIn')}
+            hideLabel
+            className="w-40"
+            items={[
+              { value: 'header', label: ns('authInHeader') },
+              { value: 'query', label: ns('authInQuery') },
+            ]}
             value={auth.in}
             onValueChange={(where) => patch({ auth: { ...auth, in: where as 'header' | 'query' } })}
-          >
-            <SelectTrigger className="w-40">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="header">{ns('authInHeader')}</SelectItem>
-              <SelectItem value="query">{ns('authInQuery')}</SelectItem>
-            </SelectContent>
-          </Select>
+          />
         </div>
       )}
 

@@ -2,14 +2,8 @@ import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { TextareaCopyable } from '@/components/copyable/textarea-copyable'
+import { MorphSelect } from '@/components/select/morph-select'
 import { Label } from '@/components/ui/label'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
 import { hashAlgorithms, hashText, type HashAlgorithm } from './service'
 
@@ -34,18 +28,14 @@ export default function HashText() {
     <div className="flex flex-col gap-4">
       <div className="flex flex-col gap-2">
         <Label>Hash</Label>
-        <Select value={algorithm} onValueChange={(value) => setAlgorithm(value as HashAlgorithm)}>
-          <SelectTrigger className="w-48">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {hashAlgorithms.map((item) => (
-              <SelectItem key={item} value={item}>
-                {item}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <MorphSelect
+          label="Hash"
+          hideLabel
+          className="w-48"
+          items={hashAlgorithms.map((item) => ({ value: item, label: item }))}
+          value={algorithm}
+          onValueChange={(value) => setAlgorithm(value as HashAlgorithm)}
+        />
       </div>
 
       <div className="flex flex-col gap-2">

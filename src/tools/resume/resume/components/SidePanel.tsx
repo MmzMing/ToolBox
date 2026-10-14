@@ -2,14 +2,9 @@ import { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Check, Layout, Palette, Rows3, Type, Zap } from 'lucide-react'
 
+import { ColorPicker } from '@/components/color-picker/ColorPicker'
+import { MorphSelect } from '@/components/select/morph-select'
 import { Label } from '@/components/ui/label'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
 import { Slider } from '@/components/ui/slider'
 import { Switch } from '@/components/ui/switch'
 import { cn } from '@/lib/utils'
@@ -26,13 +21,10 @@ import {
 } from '../constants'
 import { useResumeStore } from '../store'
 import { AddSectionButton } from './AddSectionButton'
-import { ColorPicker } from './ColorPicker'
 import { FontSizeSelect } from './FontSizeSelect'
 import { LayoutSetting } from './layout/LayoutSetting'
 import { NumberField } from './NumberField'
 import { SettingCard } from './SettingCard'
-
-const THEME_COLOR_PRESETS = THEME_COLORS as readonly string[]
 
 /**
  * 左栏：章节、主题色、排版、间距、显示模式。
@@ -82,26 +74,15 @@ export function SidePanel() {
         icon={Palette}
         title={t('resume.sidePanel.theme.title')}
         action={
+          /* 卡片头部只放得下一颗色块；展开后的面板里再看色值与对比度 */
           <ColorPicker
+            compact
+            showAlpha={false}
+            label={t('resume.sidePanel.theme.custom')}
             value={themeColor}
-            onChange={setThemeColorDebounced}
-            className={cn(
-              'h-7 w-auto gap-1.5 rounded-full border px-3 py-0 text-xs shadow-none',
-              THEME_COLOR_PRESETS.includes(themeColor)
-                ? 'border-border text-muted-foreground hover:bg-accent/50 hover:text-foreground bg-transparent'
-                : 'border-primary/40 text-primary bg-primary/5 hover:bg-primary/10 hover:border-primary/60',
-            )}
-            style={{ backgroundColor: 'transparent' }}
-          >
-            <Palette className="size-3.5" />
-            {t('resume.sidePanel.theme.custom')}
-            {!THEME_COLOR_PRESETS.includes(themeColor) && (
-              <span
-                className="ml-0.5 size-2.5 rounded-full border"
-                style={{ backgroundColor: themeColor }}
-              />
-            )}
-          </ColorPicker>
+            onValueChange={setThemeColorDebounced}
+            background="#ffffff"
+          />
         }
       >
         <div className="flex flex-wrap gap-2.5 pt-1">
@@ -134,21 +115,16 @@ export function SidePanel() {
             <Label className="text-muted-foreground">
               {t('resume.sidePanel.typography.font.title')}
             </Label>
-            <Select
-              value={settings.fontFamily ?? ''}
+            <MorphSelect
+              label={t('resume.sidePanel.typography.font.title')}
+              hideLabel
+              items={resumeFontOptions.map((font) => ({
+                value: font.family,
+                label: t(`resume.sidePanel.typography.font.family.${font.id}`),
+              }))}
+              value={settings.fontFamily ?? null}
               onValueChange={(value) => updateGlobalSettings({ fontFamily: value })}
-            >
-              <SelectTrigger className="border-input bg-background">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent position="popper" align="start">
-                {resumeFontOptions.map((font) => (
-                  <SelectItem key={font.id} value={font.family}>
-                    {t(`resume.sidePanel.typography.font.family.${font.id}`)}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            />
             <p className="text-muted-foreground text-xs leading-5">
               {t('resume.sidePanel.typography.font.note')}
             </p>
@@ -180,15 +156,12 @@ export function SidePanel() {
               ['subheaderSize', 'subheaderSize'],
             ] as const
           ).map(([key, labelKey]) => (
-            <div key={key} className="flex flex-col gap-2">
-              <Label className="text-muted-foreground">
-                {t(`resume.sidePanel.typography.${labelKey}.title`)}
-              </Label>
-              <FontSizeSelect
-                value={settings[key]}
-                onValueChange={(size) => updateGlobalSettings({ [key]: size })}
-              />
-            </div>
+            <FontSizeSelect
+              key={key}
+              label={t(`resume.sidePanel.typography.${labelKey}.title`)}
+              value={settings[key]}
+              onValueChange={(size) => updateGlobalSettings({ [key]: size })}
+            />
           ))}
         </div>
       </SettingCard>

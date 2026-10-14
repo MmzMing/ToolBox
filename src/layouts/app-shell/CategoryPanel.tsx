@@ -1,8 +1,9 @@
-import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
+import { AnimatePresence, motion } from 'motion/react'
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import type { RefObject } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { usePrefersReducedMotion } from '@/composable/use-prefers-reduced-motion'
 import { NavList } from '@/layouts/nav-list'
 import { categoryIcons, type CategoryKey } from '@/tools/categories'
 import { toolsByCategory } from '@/tools'
@@ -61,7 +62,7 @@ export function CategoryPanel({
   onNavigate,
   className,
 }: CategoryPanelProps) {
-  const reducedMotion = useReducedMotion() === true
+  const reduced = usePrefersReducedMotion()
   const { t: tCategory } = useTranslation('categories')
   const [geom, setGeom] = useState<Geom | null>(null)
   const toolCount =
@@ -116,12 +117,12 @@ export function CategoryPanel({
   }, [category, anchorRectFor, containerRef])
 
   const bodyVariants = {
-    enter: (dir: number) => (reducedMotion ? { opacity: 0 } : { y: dir * SLIDE_PX, opacity: 0 }),
+    enter: (dir: number) => (reduced ? { opacity: 0 } : { y: dir * SLIDE_PX, opacity: 0 }),
     center: { y: 0, opacity: 1 },
-    exit: (dir: number) => (reducedMotion ? { opacity: 0 } : { y: -dir * SLIDE_PX, opacity: 0 }),
+    exit: (dir: number) => (reduced ? { opacity: 0 } : { y: -dir * SLIDE_PX, opacity: 0 }),
   }
   const morph = {
-    duration: reducedMotion || (geom?.instant ?? true) ? 0 : SWAP,
+    duration: reduced || (geom?.instant ?? true) ? 0 : SWAP,
     ease: 'easeOut' as const,
   }
   return (
@@ -133,9 +134,9 @@ export function CategoryPanel({
           // 保持单实例，换分类就只是就地换内容，也不会重播入场淡入。
           key="dock-panel"
           ref={panelRef}
-          initial={reducedMotion ? false : { opacity: 0, x: -12 }}
+          initial={reduced ? false : { opacity: 0, x: -12 }}
           animate={{ opacity: 1, x: 0, y: geom?.y ?? 0 }}
-          exit={reducedMotion ? undefined : { opacity: 0, x: -12 }}
+          exit={reduced ? undefined : { opacity: 0, x: -12 }}
           transition={{
             opacity: { duration: SWAP, ease: 'easeOut' },
             x: { duration: SWAP, ease: 'easeOut' },
@@ -177,7 +178,7 @@ export function CategoryPanel({
                 initial="enter"
                 animate="center"
                 exit="exit"
-                transition={{ duration: reducedMotion ? 0 : SWAP, ease: 'easeOut' }}
+                transition={{ duration: reduced ? 0 : SWAP, ease: 'easeOut' }}
                 className="absolute inset-x-0 top-0"
               >
                 <div className="flex items-center gap-2 px-3.5 pt-3 pb-1">

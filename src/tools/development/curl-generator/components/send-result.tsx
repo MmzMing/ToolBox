@@ -1,9 +1,12 @@
 import { Ban, Download, Send, X } from 'lucide-react'
+import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { JsonViewer } from '@/components/json-viewer'
+import { tryParseJson } from '@/utils/json-tree'
 import type { SendOutcome } from '../use-curl-sender'
 
 interface SendResultProps {
@@ -14,10 +17,25 @@ interface SendResultProps {
   onClose: () => void
 }
 
+/** 响应体是不是一棵可展开的 JSON 树：截断的响应必然解析失败，直接走文本 */
+function jsonBodyOf(outcome: SendOutcome | null): unknown {
+  if (
+    outcome === null ||
+    outcome.errorKey !== undefined ||
+    outcome.truncated ||
+    outcome.text === undefined ||
+    !/json/i.test(outcome.contentType ?? '')
+  ) {
+    return undefined
+  }
+  return tryParseJson(outcome.text)
+}
+
 /** 发送结果：状态、耗时、响应头与响应体，外加「与 curl 不一致之处」的如实说明 */
 export function SendResult({ outcome, pending, onSend, onAbort, onClose }: SendResultProps) {
   const { t } = useTranslation('tools-development')
   const ns = (key: string) => t(`curl-generator.${key}`)
+  const jsonBody = useMemo(() => jsonBodyOf(outcome), [outcome])
 
   return (
     <Card className="gap-0 p-0">
@@ -89,12 +107,21 @@ export function SendResult({ outcome, pending, onSend, onAbort, onClose }: SendR
                 ))}
               </dl>
             )}
-            {outcome.text !== undefined && (
-              <pre className="bg-muted max-h-64 overflow-auto rounded p-2 font-mono text-[11px] leading-relaxed">
-                {outcome.text}
-                {outcome.truncated && `\n… ${ns('truncated')}`}
-              </pre>
-            )}
+            {outcome.text !== undefined &&
+              (jsonBody === undefined ? (
+                <pre className="bg-muted max-h-64 overflow-auto rounded p-2 font-mono text-[11px] leading-relaxed">
+                  {outcome.text}
+                  {outcome.truncated && `\n… ${ns('truncated')}`}
+                </pre>
+              ) : (
+                <JsonViewer
+                  data={jsonBody}
+                  searchable={false}
+                  defaultExpandDepth={3}
+                  maxHeight={256}
+                  className="text-[11px]"
+                />
+              ))}
             {outcome.downloadUrl !== undefined && (
               <Button asChild variant="outline" size="sm" className="h-7 w-fit gap-1.5">
                 <a href={outcome.downloadUrl} download={outcome.downloadName}>

@@ -68,13 +68,15 @@ export function ImageLightbox({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         // DialogContent 自带 sm:max-w-sm，跨档位列名不同、合并器不会互相抵掉，必须一并覆盖
-        className="flex h-svh max-w-none flex-col gap-3 rounded-none border-none bg-black/90 p-3 sm:max-w-none [&>button]:hidden"
+        className="bg-overlay/90 flex h-svh max-w-none flex-col gap-3 rounded-none border-none p-3 sm:max-w-none [&>button]:hidden"
         showCloseButton={false}
       >
         <DialogTitle className="sr-only">{t('title')}</DialogTitle>
 
         <div className="flex shrink-0 items-center justify-between gap-2">
-          <p className="min-w-0 flex-1 truncate px-2 text-xs text-white/80">{caption}</p>
+          <p className="text-overlay-foreground/80 min-w-0 flex-1 truncate px-2 text-xs">
+            {caption}
+          </p>
           <div className={CHIP}>
             {actions}
             {actions ? <Separator orientation="vertical" className="mx-1 h-5" /> : null}
@@ -167,7 +169,7 @@ export function ImageLightbox({
           </TransformWrapper>
         </div>
 
-        <p className="shrink-0 text-center text-xs text-white/60">{t('hint')}</p>
+        <p className="text-overlay-foreground/60 shrink-0 text-center text-xs">{t('hint')}</p>
       </DialogContent>
     </Dialog>
   )

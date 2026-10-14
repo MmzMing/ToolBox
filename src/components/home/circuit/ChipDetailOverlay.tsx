@@ -1,5 +1,5 @@
 import { X } from 'lucide-react'
-import { motion, useReducedMotion } from 'motion/react'
+import { motion } from 'motion/react'
 import { useEffect, useCallback, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useTranslation } from 'react-i18next'
@@ -8,6 +8,8 @@ import { ChipFace } from './ChipFace'
 import { circuitIndexOf } from './circuit-layout'
 import { clipFor, planFlight, type Rect } from './flight-plan'
 import { ToolCard } from '@/components/tool-card'
+import { motionTokens } from '@/lib/motion-tokens'
+import { usePrefersReducedMotion } from '@/composable/use-prefers-reduced-motion'
 import { categoryIcons, type CategoryKey } from '@/tools/categories'
 import { toolsByCategory } from '@/tools'
 
@@ -32,8 +34,8 @@ const NEXT_PHASE: Record<Phase, Phase> = {
   line: 'line',
 }
 
-/** 展开用缓出、收起用缓入：屏幕点亮是"摊开"，二向箔收拢是"抽紧" */
-const EASE_OUT = [0.16, 1, 0.3, 1] as const
+/** 展开用缓出（取自令牌，与全站入场曲线同一条）、收起用缓入：屏幕点亮是"摊开"，二向箔收拢是"抽紧" */
+const EASE_OUT = [...motionTokens.ease.enter] as [number, number, number, number]
 const EASE_IN = [0.7, 0, 0.84, 0] as const
 
 type ChipDetailOverlayProps = {
@@ -57,10 +59,10 @@ type ChipDetailOverlayProps = {
 export function ChipDetailOverlay({ flight, onFinished }: ChipDetailOverlayProps) {
   const { t } = useTranslation('home')
   const { t: tCategory } = useTranslation('categories')
-  const reducedMotion = useReducedMotion() === true
+  const reduced = usePrefersReducedMotion()
   // 关掉动画时直接以「已展开」起手：状态在初始化时一次定死，
   // 不在 effect 里补一次 setState（那会多渲染一轮，也被 lint 拦）
-  const [phase, setPhase] = useState<Phase>(() => (reducedMotion ? 'open' : 'fly'))
+  const [phase, setPhase] = useState<Phase>(() => (reduced ? 'open' : 'fly'))
   const cardRef = useRef<HTMLDivElement>(null)
 
   // 视口尺寸只在挂载那一刻取一次：卡片一旦定位就不该再跟着窗口跳
@@ -76,11 +78,11 @@ export function ChipDetailOverlay({ flight, onFinished }: ChipDetailOverlayProps
   const Icon = categoryIcons[flight.category]
   const tools = toolsByCategory.find((group) => group.category === flight.category)?.tools ?? []
 
-  const seconds = (ms: number) => (reducedMotion ? 0 : ms / 1000)
+  const seconds = (ms: number) => (reduced ? 0 : ms / 1000)
 
   useEffect(() => {
     // 关掉动画就没有分拍可走：起手即 open，收起在 handleClose 里直接结束
-    if (reducedMotion || phase === 'open') {
+    if (reduced || phase === 'open') {
       return
     }
     const timer = setTimeout(() => {
@@ -91,22 +93,22 @@ export function ChipDetailOverlay({ flight, onFinished }: ChipDetailOverlayProps
       }
     }, PHASE_MS[phase])
     return () => clearTimeout(timer)
-  }, [onFinished, phase, reducedMotion])
+  }, [onFinished, phase, reduced])
 
   // 展开时把焦点收进卡片：Escape 与 Tab 都从这里开始
   useEffect(() => {
-    if (phase === 'unfold' || (reducedMotion && phase === 'open')) {
+    if (phase === 'unfold' || (reduced && phase === 'open')) {
       cardRef.current?.focus()
     }
-  }, [phase, reducedMotion])
+  }, [phase, reduced])
 
   const handleClose = useCallback(() => {
-    if (reducedMotion) {
+    if (reduced) {
       onFinished()
       return
     }
     setPhase((current) => (current === 'fly' ? current : 'fold'))
-  }, [onFinished, reducedMotion])
+  }, [onFinished, reduced])
 
   useEffect(() => {
     const closeOnEscape = (event: KeyboardEvent) => {
@@ -174,7 +176,7 @@ export function ChipDetailOverlay({ flight, onFinished }: ChipDetailOverlayProps
             animate={{ opacity: blurOn && !collapsing ? 1 : 0, scale: 1 }}
             transition={{
               duration: seconds(collapsing ? 120 : 260),
-              delay: reducedMotion || collapsing ? 0 : 0.18,
+              delay: reduced || collapsing ? 0 : 0.18,
             }}
           >
             <header className="flex shrink-0 items-center gap-2.5 px-4 pt-4 pb-2">
@@ -211,7 +213,7 @@ export function ChipDetailOverlay({ flight, onFinished }: ChipDetailOverlayProps
           </motion.div>
 
           {/* 点亮瞬间横扫的一道光：只在展开那一拍出现，强化"屏幕开机"的观感 */}
-          {phase === 'unfold' && !reducedMotion && (
+          {phase === 'unfold' && !reduced && (
             <motion.span
               aria-hidden="true"
               className="via-primary/30 pointer-events-none absolute inset-y-0 left-0 w-1/4 bg-gradient-to-r from-transparent to-transparent blur-md"
@@ -277,7 +279,7 @@ export function ChipDetailOverlay({ flight, onFinished }: ChipDetailOverlayProps
               duration: seconds(collapsing ? 160 : 560),
               ease: collapsing ? EASE_IN : EASE_OUT,
               // 让克隆体的四角先淡干净，卡片的四角再亮起来交接，两段不会同时在场
-              delay: reducedMotion || phase !== 'unfold' ? 0 : 0.1,
+              delay: reduced || phase !== 'unfold' ? 0 : 0.1,
             }}
           />
         ))}
@@ -295,7 +297,7 @@ export function ChipDetailOverlay({ flight, onFinished }: ChipDetailOverlayProps
             animate={{ opacity: phase === 'fold' ? 1 : 0 }}
             transition={{
               duration: seconds(phase === 'fold' ? 150 : 250),
-              delay: reducedMotion || phase === 'line' ? 0 : 0.26,
+              delay: reduced || phase === 'line' ? 0 : 0.26,
             }}
           />
         )}

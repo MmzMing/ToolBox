@@ -5,13 +5,7 @@ import { useTranslation } from 'react-i18next'
 
 import { TextareaCopyable } from '@/components/copyable/textarea-copyable'
 import { Label } from '@/components/ui/label'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
+import { MorphSelect } from '@/components/select/morph-select'
 import { cn } from '@/lib/utils'
 
 import type { IdFormat, IdJoin } from '../id-format.service'
@@ -59,18 +53,14 @@ function Selector<T extends string>({
 }: SelectorProps<T>) {
   return (
     <ToolbarField label={label} htmlFor={id} className={className}>
-      <Select value={value} onValueChange={(next) => onChange(next as T)}>
-        <SelectTrigger id={id}>
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent>
-          {options.map((option) => (
-            <SelectItem key={option.value} value={option.value}>
-              {option.label}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+      <MorphSelect
+        label={label}
+        hideLabel
+        triggerId={id}
+        items={options}
+        value={value}
+        onValueChange={(next) => onChange(next as T)}
+      />
     </ToolbarField>
   )
 }

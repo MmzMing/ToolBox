@@ -57,6 +57,7 @@
   --color-circuit-7: var(--circuit-7);
   --color-circuit-8: var(--circuit-8);
   --color-circuit-9: var(--circuit-9);
+  --color-circuit-line: var(--circuit-line);
   --color-rule-sort: var(--rule-sort);
   --color-rule-case: var(--rule-case);
   --color-rule-naming: var(--rule-naming);
@@ -66,6 +67,16 @@
   --color-rule-escape: var(--rule-escape);
   --color-rule-clean: var(--rule-clean);
   --color-rule-convert: var(--rule-convert);
+  /* 媒体遮罩（灯箱、画布上的浮动标签）：纯色，透明度交给 bg-overlay/85 这类修饰符，
+     组件内不再散写 bg-black/90、text-white/60 */
+  --color-overlay: var(--overlay);
+  --color-overlay-foreground: var(--overlay-foreground);
+  --color-favorite: var(--favorite);
+  --color-strength-1: var(--strength-1);
+  --color-strength-2: var(--strength-2);
+  --color-strength-3: var(--strength-3);
+  --color-strength-4: var(--strength-4);
+  --color-strength-5: var(--strength-5);
   /* 悬浮层（dock / 胶囊 / 二级面板）专用语义令牌：亮暗各一套，组件内禁止散写 bg-card/90 */
   --color-dock: var(--dock-bg);
   --color-dock-foreground: var(--dock-fg);
@@ -84,51 +95,68 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
-:root {
+/* 全局品牌色板：主色 = #2F6BFF（oklch(0.581 0.229 264)），底色纯白。
+   中性色一律带 0.008~0.02 的微量蓝（hue 264），让灰阶读起来是"冷灰"而不是纯灰，
+   与主色同色系；色相只在此处与 chart/board 派生层出现，组件内不得再写死颜色。
+   .theme-light 与 :root 同一套值：需要把某个子树钉成亮色的导出图（如烧烤购物小票）
+   挂这个类即可，禁止再把令牌值抄一份进组件。 */
+:root,
+.theme-light {
   color-scheme: light;
   --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
+  --foreground: oklch(0.15 0.015 264);
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
+  --card-foreground: oklch(0.15 0.015 264);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.63 0.15 156);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.15 0.015 264);
+  --primary: oklch(0.581 0.229 264);
+  --primary-foreground: oklch(0.98 0.006 264);
+  --secondary: oklch(0.968 0.008 264);
+  --secondary-foreground: oklch(0.21 0.02 264);
+  --muted: oklch(0.968 0.008 264);
+  --muted-foreground: oklch(0.54 0.02 264);
+  --accent: oklch(0.955 0.015 264);
+  --accent-foreground: oklch(0.21 0.02 264);
   --destructive: oklch(0.577 0.245 27.325);
   /* 提醒黄：只用于「还能用但有风险」的说明条，比 destructive 轻一档 */
   --warning: oklch(0.66 0.15 76);
-  --warning-foreground: oklch(0.205 0 0);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.63 0.15 156 / 60%);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
+  --warning-foreground: oklch(0.21 0.02 264);
+  --border: oklch(0.918 0.008 264);
+  --input: oklch(0.918 0.008 264);
+  --ring: oklch(0.581 0.229 264 / 60%);
+  /* 图表色：以品牌蓝为起点的同色系顺序色阶（数值越大越浅） */
+  --chart-1: oklch(0.581 0.229 264);
+  --chart-2: oklch(0.65 0.19 262);
+  --chart-3: oklch(0.74 0.15 258);
+  --chart-4: oklch(0.83 0.1 254);
+  --chart-5: oklch(0.91 0.055 250);
   --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --sidebar: oklch(0.982 0.006 264);
+  --sidebar-foreground: oklch(0.15 0.015 264);
+  --sidebar-primary: oklch(0.581 0.229 264);
+  --sidebar-primary-foreground: oklch(0.98 0.006 264);
+  --sidebar-accent: oklch(0.955 0.015 264);
+  --sidebar-accent-foreground: oklch(0.21 0.02 264);
+  --sidebar-border: oklch(0.918 0.008 264);
+  --sidebar-ring: oklch(0.581 0.229 264 / 60%);
+  /* 全局 chrome 色：媒体遮罩用纯色，浓淡交给 bg-overlay/85 这类修饰符；
+     favorite 是收藏星标；strength-1..5 是密码强度由红到品牌蓝的五档递进 */
+  --overlay: oklch(0.17 0.02 264);
+  --overlay-foreground: oklch(0.98 0.006 264);
+  --favorite: oklch(0.83 0.16 84);
+  --strength-1: oklch(0.577 0.245 27);
+  --strength-2: oklch(0.65 0.19 45);
+  --strength-3: oklch(0.78 0.15 80);
+  --strength-4: oklch(0.62 0.13 190);
+  --strength-5: oklch(0.581 0.229 264);
   /* Markdown 预览的行内强调色（博客同款：紫色波浪下划线 / 红色粗删除线） */
   --md-italic-wavy: oklch(0.6 0.15 285);
   --md-del-line: oklch(0.58 0.21 27);
   /* 悬浮 dock：半透白底 + 强阴影，亮色下靠阴影而非描边分层 */
   --dock-bg: oklch(1 0 0 / 82%);
-  --dock-fg: oklch(0.205 0 0);
+  --dock-fg: oklch(0.21 0.02 264);
   --dock-panel-bg: oklch(1 0 0 / 94%);
-  --dock-border: oklch(0.75 0 0 / 30%);
+  --dock-border: oklch(0.75 0.02 264 / 32%);
   --dock-accent: var(--primary);
   --dock-shadow: 0 10px 30px -6px oklch(0 0 0 / 18%), 0 2px 6px -2px oklch(0 0 0 / 12%);
   --dock-blur: 14px;
@@ -145,48 +173,58 @@
 
 .dark {
   color-scheme: dark;
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.72 0.15 156);
-  --primary-foreground: oklch(0.16 0.03 156);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
+  --background: oklch(0.15 0.012 264);
+  --foreground: oklch(0.985 0.005 264);
+  --card: oklch(0.2 0.016 264);
+  --card-foreground: oklch(0.985 0.005 264);
+  --popover: oklch(0.2 0.016 264);
+  --popover-foreground: oklch(0.985 0.005 264);
+  /* 暗底上的品牌蓝提到 0.72 一档，仍是同一色相（264），只是把亮度让给对比度 */
+  --primary: oklch(0.72 0.16 264);
+  --primary-foreground: oklch(0.16 0.04 264);
+  --secondary: oklch(0.268 0.016 264);
+  --secondary-foreground: oklch(0.965 0.008 264);
+  --muted: oklch(0.268 0.016 264);
+  --muted-foreground: oklch(0.71 0.02 264);
+  --accent: oklch(0.28 0.028 264);
+  --accent-foreground: oklch(0.965 0.008 264);
   --destructive: oklch(0.704 0.191 22.216);
   /* 暗底上的黄要提亮一档，否则压在 card 上读不清 */
   --warning: oklch(0.81 0.14 82);
-  --warning-foreground: oklch(0.205 0 0);
+  --warning-foreground: oklch(0.16 0.03 264);
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.72 0.15 156 / 60%);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --ring: oklch(0.72 0.16 264 / 60%);
+  --chart-1: oklch(0.72 0.16 264);
+  --chart-2: oklch(0.65 0.19 262);
+  --chart-3: oklch(0.581 0.229 258);
+  --chart-4: oklch(0.5 0.2 254);
+  --chart-5: oklch(0.42 0.15 250);
+  --sidebar: oklch(0.2 0.016 264);
+  --sidebar-foreground: oklch(0.985 0.005 264);
+  --sidebar-primary: oklch(0.72 0.16 264);
+  --sidebar-primary-foreground: oklch(0.16 0.04 264);
+  --sidebar-accent: oklch(0.28 0.028 264);
+  --sidebar-accent-foreground: oklch(0.965 0.008 264);
   --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  --sidebar-ring: oklch(0.72 0.16 264 / 60%);
+  /* 暗色下遮罩要更沉一点才压得住图，星标与强度档同时提一档亮度 */
+  --overlay: oklch(0.12 0.014 264);
+  --overlay-foreground: oklch(0.98 0.006 264);
+  --favorite: oklch(0.86 0.15 86);
+  --strength-1: oklch(0.704 0.191 22);
+  --strength-2: oklch(0.76 0.17 45);
+  --strength-3: oklch(0.86 0.15 86);
+  --strength-4: oklch(0.75 0.12 190);
+  --strength-5: oklch(0.72 0.16 264);
   --md-italic-wavy: oklch(0.75 0.12 285);
   --md-del-line: oklch(0.7 0.19 25);
-  /* 暗色主体按设计定在 #161616：比页面底（≈#0d0d0d）亮一档才分得开，
+  /* 暗色主体按设计定在 #161616 那一档（同色相冷调后是 #161921）：比页面底亮一档才分得开，
      带 alpha 是为了留住毛玻璃，纯不透明会糊成一块板 */
-  --dock-bg: #161616e0;
-  --dock-fg: oklch(0.985 0 0);
-  --dock-panel-bg: #161616f5;
-  --dock-border: oklch(1 0 0 / 14%);
+  --dock-bg: oklch(0.215 0.015 264 / 88%);
+  --dock-fg: oklch(0.985 0.005 264);
+  --dock-panel-bg: oklch(0.215 0.015 264 / 96%);
+  --dock-border: oklch(0.9 0.02 264 / 14%);
   --dock-shadow: 0 10px 30px -6px oklch(0 0 0 / 60%), 0 2px 6px -2px oklch(0 0 0 / 45%);
 }
 
@@ -526,63 +564,55 @@
   }
 }
 
-/* highlight.js 极简双主题令牌（配合 TextareaCopyable，随 .dark 自动切换） */
+/* highlight.js 极简双主题令牌（配合 TextareaCopyable，随 .dark 自动切换）。
+   注释色直接用 --muted-foreground，删除/新增用 --destructive/--primary，
+   只剩四个语法色需要单独命名；导出用的十六进制镜像见
+   src/tools/text/markdown-editor/export/standalone-html.ts。 */
+:root {
+  --syntax-keyword: oklch(0.55 0.18 292);
+  --syntax-string: oklch(0.5 0.15 155);
+  --syntax-number: oklch(0.6 0.15 55);
+  --syntax-title: oklch(0.56 0.17 264);
+}
+.dark {
+  --syntax-keyword: oklch(0.75 0.14 292);
+  --syntax-string: oklch(0.78 0.14 155);
+  --syntax-number: oklch(0.78 0.13 70);
+  --syntax-title: oklch(0.75 0.13 264);
+}
 .hljs {
   color: var(--foreground);
 }
 .hljs-comment,
 .hljs-quote {
-  color: oklch(0.556 0 0);
+  color: var(--muted-foreground);
   font-style: italic;
 }
 .hljs-keyword,
 .hljs-selector-tag,
 .hljs-literal,
 .hljs-doctag {
-  color: oklch(0.55 0.18 290);
+  color: var(--syntax-keyword);
 }
 .hljs-string,
 .hljs-regexp,
 .hljs-addition {
-  color: oklch(0.5 0.15 155);
+  color: var(--syntax-string);
 }
 .hljs-number,
 .hljs-symbol,
 .hljs-bullet,
 .hljs-attr {
-  color: oklch(0.6 0.15 55);
+  color: var(--syntax-number);
 }
 .hljs-title,
 .hljs-section,
 .hljs-name,
 .hljs-type {
-  color: oklch(0.55 0.16 255);
+  color: var(--syntax-title);
 }
 .hljs-deletion {
-  color: oklch(0.58 0.2 25);
-}
-.dark .hljs-keyword,
-.dark .hljs-selector-tag,
-.dark .hljs-literal,
-.dark .hljs-doctag {
-  color: oklch(0.75 0.14 290);
-}
-.dark .hljs-string,
-.dark .hljs-regexp,
-.dark .hljs-addition {
-  color: oklch(0.78 0.14 155);
-}
-.dark .hljs-number,
-.dark .hljs-symbol,
-.dark .hljs-bullet,
-.dark .hljs-attr {
-  color: oklch(0.78 0.13 70);
-}
-.dark .hljs-title,
-.dark .hljs-section,
-.dark .hljs-name,
-.dark .hljs-type {
-  color: oklch(0.75 0.12 255);
+  color: var(--destructive);
 }
 
 /* Markdown 编辑器（CodeMirror）配色令牌。
@@ -623,11 +653,8 @@
   text-underline-offset: 2px;
 }
 .cm-code {
-  color: oklch(0.5 0.15 155);
+  color: var(--syntax-string);
   font-family: var(--font-mono);
-}
-.dark .cm-code {
-  color: oklch(0.78 0.14 155);
 }
 .cm-quote {
   color: var(--muted-foreground);
@@ -798,7 +825,7 @@
 }
 .grammar-error-punctuation,
 .grammar-error-grammar {
-  text-decoration-color: oklch(0.72 0.16 70);
+  text-decoration-color: var(--warning);
 }
 .grammar-error:hover {
   background-color: color-mix(in oklch, var(--destructive) 14%, transparent);
@@ -1077,31 +1104,33 @@
    首页电路板（components/home/circuit）
    走线本身是一根中性导管，九条同色——颜色只属于跑在里面的流星，
    每个分类各占一个色相（--circuit-N），光束与芯片从这套令牌取色；
-   核心芯片不另配色，直接吃 --primary 让品牌绿当主板的主色。
+   核心芯片不另配色，直接吃 --primary 让品牌蓝当主板的主色。
+   分类色相仍要求在色环上彼此分得开：--circuit-5 从 246 挪到 222，
+   免得和品牌蓝（264）撞成一个色，看不出"这是某一个分类"。
    -------------------------------------------------------------------------- */
 :root {
-  --circuit-board: oklch(0.985 0.004 160);
-  --circuit-line: oklch(0.9 0.005 160);
+  --circuit-board: oklch(0.985 0.004 264);
+  --circuit-line: oklch(0.9 0.008 264);
   --circuit-core: var(--primary);
   --circuit-1: oklch(0.55 0.13 152);
   --circuit-2: oklch(0.55 0.16 318);
   --circuit-3: oklch(0.6 0.15 30);
   --circuit-4: oklch(0.58 0.13 58);
-  --circuit-5: oklch(0.53 0.16 246);
+  --circuit-5: oklch(0.53 0.16 222);
   --circuit-6: oklch(0.56 0.11 192);
   --circuit-7: oklch(0.54 0.15 286);
   --circuit-8: oklch(0.55 0.13 100);
   --circuit-9: oklch(0.55 0.17 8);
 }
 .dark {
-  --circuit-board: oklch(0.17 0.008 160);
-  --circuit-line: oklch(0.33 0.006 160);
+  --circuit-board: oklch(0.17 0.01 264);
+  --circuit-line: oklch(0.33 0.012 264);
   --circuit-core: var(--primary);
   --circuit-1: oklch(0.76 0.13 152);
   --circuit-2: oklch(0.74 0.14 318);
   --circuit-3: oklch(0.77 0.13 30);
   --circuit-4: oklch(0.8 0.12 58);
-  --circuit-5: oklch(0.75 0.13 246);
+  --circuit-5: oklch(0.75 0.13 222);
   --circuit-6: oklch(0.79 0.1 192);
   --circuit-7: oklch(0.75 0.13 286);
   --circuit-8: oklch(0.78 0.12 100);
@@ -1121,7 +1150,7 @@
   --circuit-flow-tip: var(--circuit-trace-color);
 }
 .dark .circuit-flow-grad {
-  --circuit-flow-tip: #fff;
+  --circuit-flow-tip: var(--foreground);
 }
 .circuit-flow-tail {
   stop-color: var(--circuit-trace-color);

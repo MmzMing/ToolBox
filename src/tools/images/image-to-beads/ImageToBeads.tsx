@@ -14,13 +14,7 @@ import {
   PanelSliderField,
   PanelSwitchField,
 } from '@/components/panel-fields'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
+import { MorphSelect } from '@/components/select/morph-select'
 import { Separator } from '@/components/ui/separator'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
@@ -344,18 +338,18 @@ export default function ImageToBeads() {
             </BeadStage>
             <div className="flex flex-wrap items-center justify-center gap-2">
               <span className="text-muted-foreground text-xs">{t('stage.ratio')}</span>
-              <Select value={ratioKey} onValueChange={setRatioKey}>
-                <SelectTrigger className="h-8 w-24 text-xs">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {RATIOS.map((item) => (
-                    <SelectItem key={item.key} value={item.key} className="text-xs">
-                      {item.key === 'free' ? t('stage.ratioFree') : item.key}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <MorphSelect
+                label={t('stage.ratio')}
+                hideLabel
+                size="default"
+                className="w-24"
+                items={RATIOS.map((item) => ({
+                  value: item.key,
+                  label: item.key === 'free' ? t('stage.ratioFree') : item.key,
+                }))}
+                value={ratioKey}
+                onValueChange={setRatioKey}
+              />
               <TabsList className="h-8">
                 <TabsTrigger value="stage" className="text-xs">
                   {t('stage.tabStage')}

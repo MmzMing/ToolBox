@@ -2,16 +2,10 @@ import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { TextareaCopyable } from '@/components/copyable/textarea-copyable'
+import { MorphSelect } from '@/components/select/morph-select'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
 import { availableFonts, drawAscii, type AsciiFont } from './ascii-text-drawer.service'
 
 /** 把 service 抛出的英文技术错误映射为 i18n 键 */
@@ -72,18 +66,14 @@ export default function AsciiTextDrawer() {
 
         <div className="flex flex-col gap-2 sm:w-56">
           <Label>{t('ascii-text-drawer.fontLabel')}</Label>
-          <Select value={font} onValueChange={(value) => setFont(value as AsciiFont)}>
-            <SelectTrigger className="w-full">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {availableFonts.map((item) => (
-                <SelectItem key={item} value={item}>
-                  {item}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <MorphSelect
+            label={t('ascii-text-drawer.fontLabel')}
+            hideLabel
+            className="w-full"
+            items={availableFonts.map((item) => ({ value: item, label: item }))}
+            value={font}
+            onValueChange={(value) => setFont(value as AsciiFont)}
+          />
         </div>
       </div>
 

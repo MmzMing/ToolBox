@@ -1,13 +1,7 @@
 import { useTranslation } from 'react-i18next'
 
+import { MorphSelect } from '@/components/select/morph-select'
 import { Input } from '@/components/ui/input'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import {
   CANVAS_RATIOS,
@@ -113,19 +107,21 @@ function CanvasControls() {
   return (
     <>
       <FieldLabel>{t('canvas.size')}</FieldLabel>
-      <Select value={presetKey} onValueChange={setPreset}>
-        <SelectTrigger size="sm" className="w-44">
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent>
-          {presets.map((preset) => (
-            <SelectItem key={preset.key} value={preset.key}>
-              {preset.width} × {preset.height} · {t(`canvas.tier.${preset.key}`)}
-            </SelectItem>
-          ))}
-          <SelectItem value={CUSTOM_SIZE_KEY}>{t('canvas.tier.custom')}</SelectItem>
-        </SelectContent>
-      </Select>
+      <MorphSelect
+        label={t('canvas.size')}
+        hideLabel
+        size="sm"
+        className="w-44"
+        items={[
+          ...presets.map((preset) => ({
+            value: preset.key,
+            label: `${preset.width} × ${preset.height} · ${t(`canvas.tier.${preset.key}`)}`,
+          })),
+          { value: CUSTOM_SIZE_KEY, label: t('canvas.tier.custom') },
+        ]}
+        value={presetKey}
+        onValueChange={setPreset}
+      />
       {presetKey === CUSTOM_SIZE_KEY ? (
         <>
           <SizeInput

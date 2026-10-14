@@ -1,0 +1,215 @@
+/* Arc 的 CSS 变量名与本站令牌表不同名，这里只补一层映射，下面的规则保持上游原样。
+   --warning 与 --border/--foreground/--card 本站已有，不再转述。 */
+.root {
+  --surface: var(--card);
+  --surface-muted: var(--muted);
+  --border-strong: color-mix(in oklch, var(--border) 52%, var(--foreground));
+  --text-muted: var(--muted-foreground);
+  --text-secondary: var(--muted-foreground);
+  /* 站点没有 success 语义色，这块插画的"已完成"用它，亮暗各一档 */
+  --success: oklch(0.58 0.13 158);
+  --shadow-resting: 0 1px 2px rgb(0 0 0 / 6%), 0 2px 10px -4px rgb(0 0 0 / 12%);
+  --space-2: 0.5rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --duration-fast: 0.12s;
+  --duration-considered: 0.48s;
+  --ease-standard: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+:global(.dark) .root {
+  --success: oklch(0.72 0.15 155);
+}
+
+/* 居中靠这里：原来那是 .card 的职责，卡片外壳删掉后得由 .root 接手 */
+.root {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  container-type: inline-size;
+  width: 100%;
+  color: var(--foreground);
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-5);
+  width: 100%;
+  max-width: 480px;
+}
+
+.stage {
+  width: min(100%, 360px);
+  aspect-ratio: 320 / 216;
+}
+
+.art {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.shape {
+  vector-effect: non-scaling-stroke;
+  fill: none;
+  stroke: none;
+  stroke-width: 1.5px;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition:
+    fill var(--duration-considered) var(--ease-standard),
+    stroke var(--duration-considered) var(--ease-standard);
+}
+
+.shape[data-tone='outline'] {
+  fill: var(--surface);
+  stroke: var(--foreground);
+}
+
+.shape[data-tone='tuck'] {
+  fill: var(--surface);
+  stroke: var(--border-strong);
+}
+
+.shape[data-tone='slot'] {
+  fill: var(--surface);
+  stroke: var(--border-strong);
+}
+
+.shape[data-tone='query'] {
+  fill: var(--text-muted);
+  stroke: transparent;
+}
+
+.shape[data-tone='bar'] {
+  fill: var(--border-strong);
+  stroke: transparent;
+}
+
+.shape[data-tone='back'] {
+  fill: var(--surface);
+  stroke: var(--text-muted);
+}
+
+.shape[data-tone='shade'] {
+  fill: var(--surface-muted);
+  stroke: var(--foreground);
+}
+
+.shape[data-tone='dot'] {
+  fill: var(--foreground);
+  stroke: transparent;
+}
+
+.shape[data-tone='ink'] {
+  fill: var(--surface);
+  stroke: var(--foreground);
+}
+
+.shape[data-tone='muted'] {
+  fill: var(--surface);
+  stroke: var(--text-muted);
+}
+
+.shape[data-tone='subtle'] {
+  fill: var(--surface);
+  stroke: var(--border-strong);
+}
+
+.shape[data-tone='accent'] {
+  fill: var(--surface);
+  stroke: var(--foreground);
+}
+
+.shape[data-tone='success'] {
+  fill: var(--surface);
+  stroke: var(--success);
+}
+
+.shape[data-tone='warning'] {
+  fill: var(--surface);
+  stroke: var(--warning);
+}
+
+.shape:is([data-kind='stroke'], [data-kind='mark'])[data-tone] {
+  fill: none;
+}
+
+.copy {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+  width: 100%;
+  text-align: center;
+}
+
+.copyFrame {
+  width: 100%;
+}
+
+.copyInner {
+  display: grid;
+  gap: 6px;
+  padding-inline: var(--space-2);
+}
+
+.title {
+  position: relative;
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+  font-size: var(--text-lg);
+  font-weight: 500;
+  line-height: var(--leading-body);
+  letter-spacing: var(--tracking-body);
+  text-wrap: balance;
+}
+
+.line {
+  position: relative;
+  max-width: 40ch;
+  margin: 0 auto;
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+  line-height: var(--leading-body);
+  text-wrap: pretty;
+}
+
+.swap {
+  display: block;
+}
+
+/* 动作行：主键右边不留空，落点自带的键排在它左边 */
+.actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shape {
+    transition: none;
+  }
+}
+
+/* 窄容器档：命令面板与工具页里用，插画与文字都收小一号 */
+.compact {
+  gap: var(--space-4);
+  max-width: 340px;
+}
+.compact .stage {
+  width: min(100%, 210px);
+}
+.compact .title {
+  font-size: var(--text-sm);
+}
+.compact .line {
+  font-size: var(--text-xs);
+}

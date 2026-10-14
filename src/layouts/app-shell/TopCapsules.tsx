@@ -1,4 +1,4 @@
-import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
+import { AnimatePresence, motion } from 'motion/react'
 import { Search } from 'lucide-react'
 import { Link } from 'react-router'
 import { useTranslation } from 'react-i18next'
@@ -8,16 +8,15 @@ import { BrandLogo } from '@/components/brand-logo'
 import { LocaleSwitcher } from '@/components/locale-switcher'
 import { pillClass } from '@/components/pill-styles'
 import { ThemeToggle } from '@/components/theme-toggle'
+import { usePrefersReducedMotion } from '@/composable/use-prefers-reduced-motion'
 import { BreadcrumbTrail } from '@/layouts/app-shell/BreadcrumbTrail'
 import { ExternalLinks } from '@/layouts/app-shell/ExternalLinks'
 import { modKeyLabel } from '@/layouts/app-shell/dock-logic'
 import type { Crumb, ExternalLinkMode } from '@/layouts/app-shell/dock-logic'
 import { siteConfig } from '@/config/site'
+import { motionTokens } from '@/lib/motion-tokens'
 
 const MOD_KEY = modKeyLabel(typeof navigator === 'undefined' ? '' : navigator.userAgent)
-
-/** 与首页 gooey 搜索框同一套 spring，胶囊展开/分离的手感要一致 */
-const splitTransition = { type: 'spring' as const, duration: 0.45, bounce: 0.2 }
 
 type TopCapsulesProps = {
   crumbs: Crumb[]
@@ -42,7 +41,7 @@ export function TopCapsules({
   isHome,
   onOpenPalette,
 }: TopCapsulesProps) {
-  const reducedMotion = useReducedMotion()
+  const reduced = usePrefersReducedMotion()
   const { t } = useTranslation('common')
   const showCrumbs = breadcrumbVisible && !isHome
 
@@ -67,10 +66,10 @@ export function TopCapsules({
             <motion.div
               key="breadcrumb"
               className={`${pillClass} pointer-events-auto min-w-0 overflow-hidden px-4`}
-              initial={reducedMotion ? false : { width: 0, opacity: 0, x: -14 }}
+              initial={reduced ? false : { width: 0, opacity: 0, x: -14 }}
               animate={{ width: 'auto', opacity: 1, x: 0 }}
               exit={{ width: 0, opacity: 0, x: -14 }}
-              transition={reducedMotion ? { duration: 0 } : splitTransition}
+              transition={reduced ? { duration: 0 } : motionTokens.spring.shell}
             >
               <BreadcrumbTrail crumbs={crumbs} />
             </motion.div>

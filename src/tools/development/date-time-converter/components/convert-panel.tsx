@@ -3,17 +3,12 @@ import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { InputCopyable } from '@/components/copyable/input-copyable'
+import { DatePicker } from '@/components/date-range-picker'
+import { MorphSelect } from '@/components/select/morph-select'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
 
 import {
   dateToTs,
@@ -92,15 +87,17 @@ export function ConvertPanel() {
             inputMode="numeric"
           />
           <div className="flex items-center gap-2">
-            <Select value={unit} onValueChange={(value) => setUnit(value as TimestampUnit)}>
-              <SelectTrigger className="w-36">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="s">{t('date-time-converter.unitS')}</SelectItem>
-                <SelectItem value="ms">{t('date-time-converter.unitMs')}</SelectItem>
-              </SelectContent>
-            </Select>
+            <MorphSelect
+              label={t('date-time-converter.unitAria')}
+              hideLabel
+              className="w-36"
+              items={[
+                { value: 's', label: t('date-time-converter.unitS') },
+                { value: 'ms', label: t('date-time-converter.unitMs') },
+              ]}
+              value={unit}
+              onValueChange={(value) => setUnit(value as TimestampUnit)}
+            />
             <Button variant="outline" onClick={applyNow}>
               {t('date-time-converter.nowBtn')}
             </Button>
@@ -134,11 +131,17 @@ export function ConvertPanel() {
               {t('date-time-converter.convertBtn')}
             </Button>
           </div>
-          <Input
-            type="datetime-local"
-            value={dateValue}
-            onChange={(event) => setDateValue(event.target.value)}
-            className="font-mono"
+          {/* 原本就带时分秒，所以走 showTime 而不是只显示日期 */}
+          <DatePicker
+            months={1}
+            presets="none"
+            granularity="day"
+            showTime="second"
+            value={parsedDate}
+            label={t('date-time-converter.dtToTsLabel')}
+            placeholder={t('date-time-converter.pickHint')}
+            onChange={(date) => setDateValue(toDatetimeLocalValue(date))}
+            onClear={() => setDateValue('')}
           />
           <div className="bg-muted/40 rounded-md border px-3 py-2.5">
             {tsFromDt ? (

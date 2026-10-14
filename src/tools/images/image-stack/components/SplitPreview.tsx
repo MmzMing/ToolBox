@@ -140,10 +140,11 @@ export function SplitPreview() {
                 return (
                   <div
                     key={`${row}-${col}`}
-                    // 切割线画在用户照片上，不是主题化表面，浅色半透明才在任何图上都看得见
-                    className="relative border border-dashed border-white/75"
+                    // 切割线画在用户照片上，不是主题化表面：遮罩令牌在亮暗两套里都是
+                    // 「深底 + 近白前景」，所以浅色半透明在任何图上都看得见，又不用另写死颜色
+                    className="border-overlay-foreground/75 relative border border-dashed"
                   >
-                    <span className="absolute top-0.5 left-0.5 rounded bg-black/45 px-1 font-mono text-[10px] text-white tabular-nums">
+                    <span className="bg-overlay/45 text-overlay-foreground absolute top-0.5 left-0.5 rounded px-1 font-mono text-[10px] tabular-nums">
                       {row + 1}-{col + 1}
                     </span>
                   </div>

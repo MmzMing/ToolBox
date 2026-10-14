@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router'
-import { useReducedMotion } from 'motion/react'
 
 import type { Breakpoint } from '@/composable/use-breakpoint'
+import { usePrefersReducedMotion } from '@/composable/use-prefers-reduced-motion'
 import { scrollDelta, tourSelector, tourTargetsFor, type Rect, type TourTarget } from './targets'
 
 /** 滚动停稳的判定：连续这么多帧 scrollTop 不变就算停了；再多个上限帧数兜底不死等 */
@@ -82,7 +82,7 @@ export type PageTour = {
 export function usePageTour(breakpoint: Breakpoint): PageTour {
   const navigate = useNavigate()
   const location = useLocation()
-  const reducedMotion = useReducedMotion() === true
+  const reduced = usePrefersReducedMotion()
   const [step, setStep] = useState(-1)
   const [rect, setRect] = useState<Rect | null>(null)
   /** 在非首页点了介绍：先记下来，等路由真的落到首页再开第一步 */
@@ -149,7 +149,7 @@ export function usePageTour(breakpoint: Breakpoint): PageTour {
         setRect(null)
         return
       }
-      measureAfterScroll(el, document.querySelector(SCROLLER), !reducedMotion, (measured) => {
+      measureAfterScroll(el, document.querySelector(SCROLLER), !reduced, (measured) => {
         if (alive) {
           setRect(measured)
         }
@@ -159,7 +159,7 @@ export function usePageTour(breakpoint: Breakpoint): PageTour {
       alive = false
       cancelAnimationFrame(frame)
     }
-  }, [active, reducedMotion, target])
+  }, [active, reduced, target])
 
   // 视口变化与用户自己滚动时，把框重新贴到目标上
   useEffect(() => {

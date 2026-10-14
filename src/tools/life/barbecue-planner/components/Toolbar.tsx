@@ -15,13 +15,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
+import { MorphSelect } from '@/components/select/morph-select'
 import { Switch } from '@/components/ui/switch'
 import { TextareaCopyable } from '@/components/copyable/textarea-copyable'
 import { useCopy } from '@/composable/use-copy'
@@ -189,59 +183,44 @@ export function Toolbar({
     <Card className="gap-0 overflow-hidden rounded-xl p-0">
       <div className="flex flex-wrap items-end gap-x-4 gap-y-3 p-3">
         <Field label={t('fields.people')}>
-          <Select
+          <MorphSelect
+            label={t('fields.people')}
+            hideLabel
+            size="sm"
+            className="w-24"
+            items={PEOPLE_CHOICES.map((n) => ({
+              value: String(n),
+              label: t('fields.peopleValue', { n }),
+            }))}
             value={String(input.people)}
             onValueChange={(value) => onChange({ people: Number(value) })}
-          >
-            <SelectTrigger aria-label={t('fields.people')} className="w-24 text-xs">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {PEOPLE_CHOICES.map((n) => (
-                <SelectItem key={n} value={String(n)} className="text-xs">
-                  {t('fields.peopleValue', { n })}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          />
         </Field>
 
         <Field label={t('fields.appetite')}>
-          <Select
+          <MorphSelect
+            label={t('fields.appetite')}
+            hideLabel
+            size="sm"
+            className="w-28"
+            items={APPETITE_TIERS.map((tier) => ({ value: tier.id, label: tier.name[lang] }))}
             value={input.appetite}
             onValueChange={(value) => onChange({ appetite: value as PlannerInput['appetite'] })}
-          >
-            <SelectTrigger aria-label={t('fields.appetite')} className="w-28 text-xs">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {APPETITE_TIERS.map((tier) => (
-                <SelectItem key={tier.id} value={tier.id} className="text-xs">
-                  {tier.name[lang]}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          />
         </Field>
 
         <Field label={t('fields.equipment')}>
-          <Select
+          <MorphSelect
+            label={t('fields.equipment')}
+            hideLabel
+            size="sm"
+            className="w-40"
+            items={EQUIPMENT_MODES.map((mode) => ({ value: mode.id, label: mode.name[lang] }))}
             value={input.equipmentMode}
             onValueChange={(value) =>
               onChange({ equipmentMode: value as PlannerInput['equipmentMode'] })
             }
-          >
-            <SelectTrigger aria-label={t('fields.equipment')} className="w-40 text-xs">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {EQUIPMENT_MODES.map((mode) => (
-                <SelectItem key={mode.id} value={mode.id} className="text-xs">
-                  {mode.name[lang]}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          />
         </Field>
 
         <Field label={t('fields.grillStart')}>

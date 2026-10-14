@@ -1,6 +1,7 @@
 import { Slash } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
+import { ColorPicker } from '@/components/color-picker/ColorPicker'
 import { PanelField } from '@/components/panel-fields'
 import { Separator } from '@/components/ui/separator'
 import { cn } from '@/lib/utils'
@@ -60,17 +61,17 @@ export function BackgroundField({
           />
         ))}
 
-        <label className="ml-auto flex items-center gap-1.5">
-          <span className="sr-only">{t('style.pickColor')}</span>
-          <input
-            type="color"
+        <span className="ml-auto flex items-center gap-1.5">
+          {/* 色板只有六档，其余颜色走取色面板；这一行很挤，触发器只留色块 */}
+          <ColorPicker
+            compact
+            showAlpha={false}
+            label={t('style.pickColor')}
             value={color}
-            aria-label={t('style.pickColor')}
-            onChange={(event) => onChange({ type: 'color', value: event.target.value })}
-            className="border-border size-7 cursor-pointer rounded-md border bg-transparent p-0.5"
+            onValueChange={(hex) => onChange({ type: 'color', value: hex.toLowerCase() })}
           />
           <span className="text-muted-foreground font-mono text-xs uppercase">{color}</span>
-        </label>
+        </span>
       </div>
     </PanelField>
   )

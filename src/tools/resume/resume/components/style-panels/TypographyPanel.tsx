@@ -1,13 +1,7 @@
 import { useTranslation } from 'react-i18next'
 
+import { MorphSelect } from '@/components/select/morph-select'
 import { Label } from '@/components/ui/label'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
 import { Slider } from '@/components/ui/slider'
 
 import {
@@ -32,21 +26,16 @@ export function TypographyPanel() {
         <Label className="text-muted-foreground">
           {t('resume.sidePanel.typography.font.title')}
         </Label>
-        <Select
-          value={settings.fontFamily ?? ''}
+        <MorphSelect
+          label={t('resume.sidePanel.typography.font.title')}
+          hideLabel
+          items={resumeFontOptions.map((font) => ({
+            value: font.family,
+            label: t(`resume.sidePanel.typography.font.family.${font.id}`),
+          }))}
+          value={settings.fontFamily ?? null}
           onValueChange={(value) => updateGlobalSettings({ fontFamily: value })}
-        >
-          <SelectTrigger className="border-input bg-background">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent position="popper" align="start">
-            {resumeFontOptions.map((font) => (
-              <SelectItem key={font.id} value={font.family}>
-                {t(`resume.sidePanel.typography.font.family.${font.id}`)}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        />
         <p className="text-muted-foreground text-xs leading-5">
           {t('resume.sidePanel.typography.font.note')}
         </p>
@@ -78,15 +67,12 @@ export function TypographyPanel() {
           ['subheaderSize', 'subheaderSize'],
         ] as const
       ).map(([key, labelKey]) => (
-        <div key={key} className="flex flex-col gap-2">
-          <Label className="text-muted-foreground">
-            {t(`resume.sidePanel.typography.${labelKey}.title`)}
-          </Label>
-          <FontSizeSelect
-            value={settings[key]}
-            onValueChange={(size) => updateGlobalSettings({ [key]: size })}
-          />
-        </div>
+        <FontSizeSelect
+          key={key}
+          label={t(`resume.sidePanel.typography.${labelKey}.title`)}
+          value={settings[key]}
+          onValueChange={(size) => updateGlobalSettings({ [key]: size })}
+        />
       ))}
     </div>
   )

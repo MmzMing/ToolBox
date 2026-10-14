@@ -226,9 +226,8 @@ export default function VideoToGif() {
     !meta || !videoUrl ? (
       <FileDropZone
         accept={VIDEO_ACCEPT}
-        title={t('drop-title')}
-        subtitle={t('drop-subtitle')}
-        browseLabel={t('browse')}
+        label={t('drop-title')}
+        description={t('drop-subtitle')}
         icon={VideoToGifIcon}
         minHeightClass="min-h-[360px]"
         onFiles={(files) => void loadFile(files[0])}

@@ -94,7 +94,8 @@
       "utcOffset": "UTC 偏移",
       "abbreviation": "时区缩写",
       "localTime": "当地时间"
-    }
+    },
+    "retryBtn": "再试一次"
   },
   "dns-lookup": {
     "title": "域名解析查询",
@@ -103,6 +104,7 @@
     "lookupBtn": "查询",
     "loading": "查询中…",
     "compareLabel": "多源对比",
+    "sourceAria": "解析源",
     "compareTitle": "多源对比",
     "compareEmpty": "两个源都没有返回任何记录",
     "compareNote": "只比较记录值：各公共 DNS 缓存时机不同，TTL 差异不算不一致",

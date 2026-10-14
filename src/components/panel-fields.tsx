@@ -8,13 +8,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
+import { MorphSelect } from '@/components/select/morph-select'
 import { Slider } from '@/components/ui/slider'
 import { Switch } from '@/components/ui/switch'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
@@ -50,8 +44,12 @@ function FieldTip({ text }: { text: string }) {
   )
 }
 
+/**
+ * 面板组。Card 默认 overflow-hidden 会把圆角内的内容切掉，但下拉的展开面就长在字段里，
+ * 贴着卡片底边时会被卡片截断，所以这里放开：展开面按最近的可裁切祖先决定往哪边长、长多高。
+ */
 export function PanelGroup({ className, children }: { className?: string; children: ReactNode }) {
-  return <Card className={cn('gap-0 divide-y p-0', className)}>{children}</Card>
+  return <Card className={cn('gap-0 divide-y overflow-visible p-0', className)}>{children}</Card>
 }
 
 export function PanelSection({
@@ -203,18 +201,16 @@ export function PanelSelectField({
   const id = useId()
   return (
     <PanelField label={label} hint={hint} tip={tip} span={span} htmlFor={id}>
-      <Select value={value} disabled={disabled} onValueChange={onChange}>
-        <SelectTrigger id={id} className="w-full">
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent>
-          {options.map((option) => (
-            <SelectItem key={option.value} value={option.value}>
-              {option.label}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+      <MorphSelect
+        label={label}
+        hideLabel
+        triggerId={id}
+        className="w-full"
+        items={options}
+        value={value}
+        disabled={disabled}
+        onValueChange={onChange}
+      />
     </PanelField>
   )
 }

@@ -74,7 +74,10 @@
     "expandAll": "Expand all",
     "noComments": "This format has no comment syntax",
     "outputOnly": "Affects the result only — the source text is never rewritten",
-    "stripCommentsHint": "Remove comments from the source before converting; the input box stays untouched"
+    "stripCommentsHint": "Remove comments from the source before converting; the input box stays untouched",
+    "viewToggle": "Switch between tree view and text view",
+    "treeView": "Tree view",
+    "textView": "Text view"
   },
   "github-accelerator": {
     "title": "GitHub Download Accelerator",
@@ -193,6 +196,7 @@
     "description": "Convert between Unix timestamps and date-times, or extract every timestamp from JSON / YAML / XML / logs into a timeline",
     "tsLabel": "timestamp",
     "unitS": "Seconds (10-digit)",
+    "unitAria": "Unit",
     "unitMs": "Milliseconds (13-digit)",
     "nowBtn": "Now",
     "convertBtn": "Convert",
@@ -388,6 +392,8 @@
     "issues.binaryBodySkipped": "The binary body points at a local path the browser cannot read; skipped",
     "commonHeaders": "Common headers:",
     "authType": "Type",
+    "authVia": "Send via",
+    "authIn": "Placement",
     "exportTitle": "Export as code",
     "exportPlaceholder": "Enter a URL to generate code",
     "historyTitle": "Request history",

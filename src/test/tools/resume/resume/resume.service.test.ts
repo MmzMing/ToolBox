@@ -22,7 +22,9 @@ import {
   resumeFileName,
   sanitizeFileName,
   shouldImportFromFile,
+  fromPickerMonth,
   splitDateRange,
+  toPickerDate,
   toStoredMonth,
 } from '@/tools/resume/resume/resume.service'
 import {
@@ -105,6 +107,30 @@ describe('toStoredMonth', () => {
   it('pads the month and keeps the granularity at month', () => {
     expect(toStoredMonth(new Date(Date.UTC(2021, 6, 1)))).toBe('2021/07')
     expect(toStoredMonth(new Date(Date.UTC(2021, 0, 1)))).toBe('2021/01')
+  })
+})
+
+describe('toPickerDate', () => {
+  it('hands the calendar a local first-of-month built from the stored UTC parts', () => {
+    const date = toPickerDate('2021/07')
+    expect(date?.getFullYear()).toBe(2021)
+    expect(date?.getMonth()).toBe(6)
+    expect(date?.getDate()).toBe(1)
+  })
+
+  it.each([[''], ['undefined-ish'], ['至今'], ['2021-13']])(
+    'returns null for the unparseable %s',
+    (input) => {
+      expect(toPickerDate(input)).toBeNull()
+    },
+  )
+
+  it('returns null when there is no value at all', () => {
+    expect(toPickerDate(undefined)).toBeNull()
+  })
+
+  it('round-trips back to the stored shape', () => {
+    expect(fromPickerMonth(toPickerDate('2021.7')!)).toBe('2021/07')
   })
 })
 

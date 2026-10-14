@@ -1,8 +1,9 @@
 import { Fragment, useId, useState } from 'react'
 import type { KeyboardEvent, ReactNode } from 'react'
-import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
+import { AnimatePresence, motion } from 'motion/react'
 import type { Transition } from 'motion/react'
 
+import { usePrefersReducedMotion } from '@/composable/use-prefers-reduced-motion'
 import { siteConfig } from '@/config/site'
 import { cn } from '@/lib/utils'
 
@@ -157,7 +158,7 @@ export function Faq({
   avatar = <BrandAvatar />,
   className,
 }: FaqProps) {
-  const reduced = useReducedMotion() === true
+  const reduced = usePrefersReducedMotion()
   const uid = useId()
   const [openId, setOpenId] = useState<string | null>(defaultOpen ?? null)
   const Tag: 'h2' | 'h3' = level === 3 ? 'h3' : 'h2'

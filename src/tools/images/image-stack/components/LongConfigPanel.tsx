@@ -1,6 +1,7 @@
 import { ScanLine } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
+import { ColorPicker } from '@/components/color-picker/ColorPicker'
 import {
   PanelField,
   PanelGroup,
@@ -300,16 +301,16 @@ export function LongConfigPanel({ className }: { className?: string }) {
               max={MAX_CAPTION_INSET}
               format={(value) => `${value} px`}
             />
-            <PanelField label={t('long.captionColor')} htmlFor="long-caption-color">
-              <input
-                id="long-caption-color"
-                type="color"
+            <PanelField label={t('long.captionColor')}>
+              <ColorPicker
+                showAlpha={false}
+                label={t('long.captionColor')}
                 value={style.caption.color}
-                aria-label={t('long.captionColor')}
-                onChange={(event) =>
-                  setLongStyle({ caption: { ...style.caption, color: event.target.value } })
+                onValueChange={(hex) =>
+                  setLongStyle({ caption: { ...style.caption, color: hex.toLowerCase() } })
                 }
-                className="border-border h-9 w-full cursor-pointer rounded-md border bg-transparent p-1"
+                /* 角标是压在背景上的，对比度就该跟这块背景比 */
+                background={style.background.type === 'color' ? style.background.value : undefined}
               />
             </PanelField>
           </>

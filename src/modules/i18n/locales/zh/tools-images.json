@@ -101,7 +101,7 @@
       "original": "原图",
       "compressed": "压缩后",
       "swap": "交换左右",
-      "dragHint": "拖动分割线对比前后效果"
+      "dragHint": "拖动或用方向键移动分割线，对比前后效果"
     },
     "panel": {
       "resizeLabel": "调整图片尺寸",

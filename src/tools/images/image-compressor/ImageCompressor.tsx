@@ -3,6 +3,7 @@ import JSZip from 'jszip'
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { FileAddButtons, FileDropZone } from '@/components/file-drop-zone'
 import { Button } from '@/components/ui/button'
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable'
 import { useBreakpoint } from '@/composable/use-breakpoint'
@@ -10,16 +11,20 @@ import { toast } from 'sonner'
 import { CompareDialog } from './components/compare-dialog'
 import { FileList } from './components/file-list'
 import { OptionsPanel } from './components/options-panel'
-import { UploadZone } from './components/upload-zone'
 import { formatFileSize, outputFileName, percentSaved } from './service'
 import { avifCheck } from './engines/support'
 import { useCompressorStore, type ImageItem } from './store'
-import { applyOptionAndRecompress, useWorkerHandler } from './use-compressor-worker'
+import {
+  addFilesAndDispatch,
+  applyOptionAndRecompress,
+  useWorkerHandler,
+} from './use-compressor-worker'
 
 /** 图片压缩工作台（移植自 tools-pic 图小小）：左工作区（上传/列表）+ 右选项面板 */
 export default function ImageCompressor() {
   useWorkerHandler()
 
+  const { t } = useTranslation('tools-images', { keyPrefix: 'image-compressor' })
   const breakpoint = useBreakpoint()
   const hasFiles = useCompressorStore((state) => state.list.size > 0)
   const [compareKey, setCompareKey] = useState<number | null>(null)
@@ -32,12 +37,25 @@ export default function ImageCompressor() {
     void avifCheck()
   }, [])
 
+  const upload = (
+    <FileDropZone
+      accept="image/*,.heic,.heif"
+      multiple
+      allowFolder
+      allowPaste
+      label={t('workspace.dropTitle')}
+      description={t('workspace.dropSubtitle')}
+      folderLabel={t('workspace.addFolder')}
+      onFiles={(files) => void addFilesAndDispatch(files)}
+    />
+  )
+
   return (
     <div className="flex flex-col gap-4">
       {breakpoint === 'mobile' ? (
         <div className="flex flex-col gap-4">
           <div className="min-w-0">
-            {hasFiles ? <ListSection onCompare={setCompareKey} /> : <UploadZone />}
+            {hasFiles ? <ListSection onCompare={setCompareKey} /> : upload}
           </div>
           <div className="h-[560px]">
             <OptionsPanel />
@@ -47,7 +65,7 @@ export default function ImageCompressor() {
         <ResizablePanelGroup orientation="horizontal" className="min-h-[560px] rounded-lg">
           <ResizablePanel defaultSize={68} minSize={40}>
             <div className="h-full overflow-auto pr-2">
-              {hasFiles ? <ListSection onCompare={setCompareKey} /> : <UploadZone />}
+              {hasFiles ? <ListSection onCompare={setCompareKey} /> : upload}
             </div>
           </ResizablePanel>
           <ResizableHandle
@@ -125,9 +143,7 @@ function ListSection({ onCompare }: { onCompare: (key: number) => void }) {
             })}
           </span>
           {originSize > 0 && (
-            <span
-              className={`ml-1.5 font-medium ${saved >= 0 ? 'text-primary' : 'text-amber-500'}`}
-            >
+            <span className={`ml-1.5 font-medium ${saved >= 0 ? 'text-primary' : 'text-warning'}`}>
               ({saved >= 0 ? `-${saved}%` : `+${-saved}%`})
             </span>
           )}
@@ -138,7 +154,15 @@ function ListSection({ onCompare }: { onCompare: (key: number) => void }) {
           )}
         </div>
         <div className="ml-auto flex items-center gap-2">
-          <UploadZone compact />
+          <FileAddButtons
+            accept="image/*,.heic,.heif"
+            multiple
+            allowFolder
+            allowPaste
+            browseLabel={t('workspace.addFiles')}
+            folderLabel={t('workspace.addFolder')}
+            onFiles={(files) => void addFilesAndDispatch(files)}
+          />
           <Button
             variant="outline"
             size="sm"

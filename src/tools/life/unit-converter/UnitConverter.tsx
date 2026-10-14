@@ -1,15 +1,9 @@
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { MorphSelect } from '@/components/select/morph-select'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
 import {
   convertUnit,
   getCategory,
@@ -51,18 +45,13 @@ export default function UnitConverter() {
   const unitSelect = (value: string, onChange: (value: string) => void, label: string) => (
     <div className="flex flex-col gap-2">
       <Label className="text-muted-foreground text-xs">{label}</Label>
-      <Select value={value} onValueChange={onChange}>
-        <SelectTrigger>
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent>
-          {category.units.map((unit) => (
-            <SelectItem key={unit.symbol} value={unit.symbol}>
-              {unit.symbol}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+      <MorphSelect
+        label={label}
+        hideLabel
+        items={category.units.map((unit) => ({ value: unit.symbol, label: unit.symbol }))}
+        value={value}
+        onValueChange={onChange}
+      />
     </div>
   )
 
@@ -70,21 +59,14 @@ export default function UnitConverter() {
     <div className="flex flex-col gap-4">
       <div className="flex flex-col gap-2">
         <Label>{t('categoryLabel')}</Label>
-        <Select
+        <MorphSelect
+          label={t('categoryLabel')}
+          hideLabel
+          className="md:max-w-xs"
+          items={unitCategories.map((item) => ({ value: item.id, label: t(item.labelKey) }))}
           value={categoryId}
           onValueChange={(value) => switchCategory(value as UnitCategoryId)}
-        >
-          <SelectTrigger className="md:max-w-xs">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {unitCategories.map((item) => (
-              <SelectItem key={item.id} value={item.id}>
-                {t(item.labelKey)}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        />
       </div>
 
       <div className="grid gap-4 md:grid-cols-[1fr_auto_1fr] md:items-end">

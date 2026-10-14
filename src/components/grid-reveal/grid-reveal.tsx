@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState, type ComponentProps } from 'react'
-import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
+import { AnimatePresence, motion } from 'motion/react'
+import type { Transition } from 'motion/react'
 
+import { usePrefersReducedMotion } from '@/composable/use-prefers-reduced-motion'
 import { cn } from '@/lib/utils'
 
 import { buildTree, clamp01, COLOR_MS, HOLD, selfPaced, smoothstep, WAIT_CAP } from './grid'
@@ -22,10 +24,28 @@ export type GridRevealProps = Omit<ComponentProps<'div'>, 'children'> & {
   onError?: () => void
 }
 
-/** 字幕条的文字扫光；减弱动效时退回纯色 */
+/** waiting 灰格劈裂等图；tinted 图落地、格子染均色；revealed 真图浮出，动画收尾停帧 */
+type Stage = 'waiting' | 'tinted' | 'revealed'
+
+/** 字幕条的进出与 layout 补间共用这一条对称曲线，两处不同步就会一个快一个慢 */
+const CAPTION: Transition = { duration: 0.28, ease: [0.4, 0, 0.2, 1] }
+
+/** 扫光一次循环的时长，以及它回到起点前的停顿 */
+const SHIMMER_CYCLE: Transition = {
+  duration: 1.6,
+  repeat: Infinity,
+  repeatDelay: 0.5,
+  ease: [0.45, 0, 0.55, 1],
+}
+
+/** 字幕条的文字扫光；减弱动效时退回纯色。亮端直接用遮罩上的前景色令牌 */
 const SHIMMER = {
-  backgroundImage:
-    'linear-gradient(90deg, rgba(255,255,255,0.5) 40%, rgba(255,255,255,0.98) 50%, rgba(255,255,255,0.5) 60%)',
+  backgroundImage: `linear-gradient(
+    90deg,
+    color-mix(in oklch, var(--overlay-foreground) 50%, transparent) 40%,
+    var(--overlay-foreground) 50%,
+    color-mix(in oklch, var(--overlay-foreground) 50%, transparent) 60%
+  )`,
   backgroundSize: '250% 100%',
 } as const
 
@@ -50,24 +70,27 @@ export function GridReveal({
   style,
   ...props
 }: GridRevealProps) {
-  const reduce = useReducedMotion()
+  const reduced = usePrefersReducedMotion()
   const ratio = Number.isFinite(aspect) && aspect > 0 ? aspect : 1
   const frameRef = useRef<HTMLDivElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
-  const [loaded, setLoaded] = useState(false)
-  const [revealed, setRevealed] = useState(false)
+  /**
+   * 这一张图演到哪一拍，连同它属于哪张图一起记：换 src 时不必在 effect 里补一次 setState
+   * 清零，key 对不上就派生成 waiting（与 dock 记 pathname 同一套写法，少一轮渲染）。
+   */
+  const [reveal, setReveal] = useState<{ key: string | null; stage: Stage }>(() => ({
+    key: src ?? null,
+    stage: 'waiting',
+  }))
+  const onCurrentKey = reveal.key === (src ?? null)
+  const loaded = onCurrentKey && reveal.stage !== 'waiting'
+  const revealed = onCurrentKey && reveal.stage === 'revealed'
 
-  const progressRef = useRef(progress)
-  const durationRef = useRef(estimatedDuration)
-  const doneRef = useRef(onRevealComplete)
-  const errorRef = useRef(onError)
-
+  /** 调用方每次渲染都换新的回调与进度，所以只喂给循环、不进依赖数组，否则整棵格子树随渲染重建 */
+  const latest = useRef({ progress, estimatedDuration, onRevealComplete, onError })
   useEffect(() => {
-    progressRef.current = progress
-    durationRef.current = estimatedDuration
-    doneRef.current = onRevealComplete
-    errorRef.current = onError
+    latest.current = { progress, estimatedDuration, onRevealComplete, onError }
   })
 
   useEffect(() => {
@@ -81,10 +104,6 @@ export function GridReveal({
     if (!ctx) {
       return
     }
-
-    // 换源就从头再来：上一张的完成态不能留给这一张
-    setLoaded(false)
-    setRevealed(false)
 
     const { root, branches } = buildTree(ratio)
 
@@ -113,7 +132,7 @@ export function GridReveal({
     }
 
     const repaint = () => {
-      if (!reduce) {
+      if (!reduced) {
         return render(scene.split, performance.now())
       }
       // 减弱动效没有循环，直接落到稳定帧
@@ -154,14 +173,14 @@ export function GridReveal({
           return
         }
         if (!el.naturalWidth || !el.naturalHeight) {
-          errorRef.current?.()
+          latest.current.onError?.()
           return
         }
         scene.image = el
         loadedAt = performance.now()
         scene.hasColors = readAverages(el, root, branches, scene.split)
-        setLoaded(true)
-        if (reduce) {
+        setReveal({ key: src ?? null, stage: 'tinted' })
+        if (reduced) {
           repaint()
         }
       }
@@ -173,7 +192,7 @@ export function GridReveal({
         if (withCors) {
           load(url, false)
         } else {
-          errorRef.current?.()
+          latest.current.onError?.()
         }
       }
       el.src = url
@@ -184,7 +203,7 @@ export function GridReveal({
       load(src, !/^(blob|data):/i.test(src))
     }
 
-    if (reduce) {
+    if (reduced) {
       repaint()
       return () => {
         cancelled = true
@@ -212,16 +231,16 @@ export function GridReveal({
       scene.clock = elapsed
 
       const ready = scene.image !== null
-      const paced = progressRef.current === undefined
+      const paced = latest.current.progress === undefined
       let target: number
 
       // 真正收尾的是图片到达，不是那个数字
       if (ready) {
         target = 1
       } else if (paced) {
-        target = selfPaced(elapsed * 1000, durationRef.current)
+        target = selfPaced(elapsed * 1000, latest.current.estimatedDuration)
       } else {
-        target = Math.min(clamp01(progressRef.current as number), HOLD)
+        target = Math.min(clamp01(latest.current.progress as number), HOLD)
       }
 
       eased += (target - eased) * (1 - Math.exp(-dt * 5.5))
@@ -231,8 +250,8 @@ export function GridReveal({
 
       if (!fired && ready && eased > 0.995 && now - loadedAt > COLOR_MS) {
         fired = true
-        setRevealed(true)
-        doneRef.current?.()
+        setReveal({ key: src ?? null, stage: 'revealed' })
+        latest.current.onRevealComplete?.()
       }
 
       // 此后画面不再变化，没理由继续烧帧
@@ -280,15 +299,15 @@ export function GridReveal({
       observer?.disconnect()
       visibility?.disconnect()
     }
-  }, [reduce, src, ratio])
+  }, [reduced, src, ratio])
 
   useEffect(() => {
-    if (reduce && loaded) {
-      doneRef.current?.()
+    if (reduced && loaded) {
+      latest.current.onRevealComplete?.()
     }
-  }, [reduce, loaded])
+  }, [reduced, loaded])
 
-  const finished = reduce ? loaded : revealed
+  const finished = reduced ? loaded : revealed
 
   return (
     <div
@@ -307,13 +326,10 @@ export function GridReveal({
       {caption ? (
         <motion.div
           layout
-          className="pointer-events-none absolute bottom-3 left-3 flex h-6 items-center overflow-hidden bg-black/45 px-2.5 backdrop-blur-md"
+          className="bg-overlay/45 pointer-events-none absolute bottom-3 left-3 flex h-6 items-center overflow-hidden px-2.5 backdrop-blur-md"
           style={{ borderRadius: 9999 }}
           animate={{ opacity: finished ? 0 : 1 }}
-          transition={{
-            opacity: { duration: 0.28, ease: [0.4, 0, 0.2, 1] },
-            layout: { duration: 0.28, ease: [0.4, 0, 0.2, 1] },
-          }}
+          transition={{ opacity: CAPTION, layout: CAPTION }}
         >
           <AnimatePresence mode="popLayout" initial={false}>
             <motion.span
@@ -321,24 +337,19 @@ export function GridReveal({
               layout="position"
               className={cn(
                 'block text-[11px] leading-6 font-medium whitespace-nowrap',
-                reduce ? 'text-white/75' : 'bg-clip-text text-transparent',
+                reduced ? 'text-overlay-foreground/75' : 'bg-clip-text text-transparent',
               )}
-              style={reduce ? undefined : SHIMMER}
+              style={reduced ? undefined : SHIMMER}
               initial={{ opacity: 0 }}
               animate={{
                 opacity: 1,
-                ...(reduce || finished ? {} : { backgroundPosition: ['105% 0%', '-5% 0%'] }),
+                ...(reduced || finished ? {} : { backgroundPosition: ['105% 0%', '-5% 0%'] }),
               }}
               exit={{ opacity: 0 }}
               transition={{
-                duration: reduce ? 0 : 0.28,
-                ease: [0.4, 0, 0.2, 1],
-                backgroundPosition: {
-                  duration: 1.6,
-                  repeat: Infinity,
-                  repeatDelay: 0.5,
-                  ease: [0.45, 0, 0.55, 1],
-                },
+                duration: reduced ? 0 : CAPTION.duration,
+                ease: CAPTION.ease,
+                backgroundPosition: SHIMMER_CYCLE,
               }}
             >
               {caption}

@@ -234,7 +234,7 @@ export function PreviewPanel() {
                     className="page-break-line pointer-events-none absolute right-0 left-0"
                     style={{ top: `${top}px` }}
                   >
-                    <div className="absolute w-full border-t-2 border-dashed border-red-400" />
+                    <div className="border-destructive absolute w-full border-t-2 border-dashed" />
                   </div>
                 ))}
               </div>

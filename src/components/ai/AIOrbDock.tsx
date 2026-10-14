@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useReducedMotion } from 'motion/react'
 import { Heart, Rabbit, RotateCcw, Turtle } from 'lucide-react'
 import type { PointerEvent as ReactPointerEvent } from 'react'
 
@@ -11,6 +10,7 @@ import { OrbBubble } from '@/components/fluid-orb/OrbBubble'
 import type { Box } from '@/components/fluid-orb/orb-bubble-placement'
 import { createMoodCycler, tapMood } from '@/components/fluid-orb/orb-mood'
 import type { OrbEyeMood } from '@/components/fluid-orb/orb-eye-states'
+import { usePrefersReducedMotion } from '@/composable/use-prefers-reduced-motion'
 import { clampHole, holeOf, orbStation } from '@/modules/page-tour/targets'
 import { resolveVoice } from '@/modules/page-tour/tour-voice'
 import { useTourVoice } from '@/modules/page-tour/use-tour-voice'
@@ -102,12 +102,12 @@ export function AIOrbDock({ tour }: AIOrbDockProps) {
   }, [bubbleOpen])
 
   const { speak, stop: stopVoice, revealed } = useTourVoice(aiOrbConfig.tour.sound)
-  const reduceMotion = useReducedMotion() === true
+  const reduced = usePrefersReducedMotion()
   const stepKey = tour.target?.key
   const sentence = stepKey ? t(`tour.steps.${stepKey}.body`) : ''
   // 念到哪露到哪。没在念的时候（配音关着、解码没回来、这一句念完了）整句显示，
   // 减弱动效时也直接给全文——打字机本身就是动效
-  const typing = revealed !== null && !reduceMotion
+  const typing = revealed !== null && !reduced
   const shown = typing ? sentence.slice(0, revealed) : sentence
 
   const speakCurrent = (quick = fast) => {

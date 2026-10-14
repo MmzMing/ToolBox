@@ -23,6 +23,7 @@ import { useTranslation } from 'react-i18next'
 
 import type { LucideIcon } from 'lucide-react'
 
+import { ColorPicker } from '@/components/color-picker/ColorPicker'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -149,12 +150,8 @@ function ColorRow({
   return (
     <label className="flex flex-col gap-1 text-[11px]">
       <span className="text-muted-foreground">{label}</span>
-      <input
-        type="color"
-        value={value}
-        onChange={(e) => onChange(e.target.value.toUpperCase())}
-        className="border-input h-7 w-full cursor-pointer rounded border bg-transparent p-0.5"
-      />
+      {/* 三列窄栏放不下色值，触发器只留色块；名字靠 label 包裹关联 */}
+      <ColorPicker compact showAlpha={false} label={label} value={value} onValueChange={onChange} />
     </label>
   )
 }

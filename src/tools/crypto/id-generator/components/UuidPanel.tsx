@@ -5,13 +5,7 @@ import { useTranslation } from 'react-i18next'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
+import { MorphSelect } from '@/components/select/morph-select'
 
 import type { UuidNamespace, UuidOptions, UuidVersion } from '../uuid.service'
 
@@ -112,18 +106,14 @@ export function UuidPanel() {
         }
       >
         <ToolbarField label={t('uuid.version')} htmlFor="uuid-version" className="w-32">
-          <Select value={version} onValueChange={(next) => setVersion(next as UuidVersion)}>
-            <SelectTrigger id="uuid-version">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {PANEL_VERSIONS.map((item) => (
-                <SelectItem key={item} value={item}>
-                  {item.toUpperCase()}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <MorphSelect
+            label={t('uuid.version')}
+            hideLabel
+            triggerId="uuid-version"
+            items={PANEL_VERSIONS.map((item) => ({ value: item, label: item.toUpperCase() }))}
+            value={version}
+            onValueChange={(next) => setVersion(next as UuidVersion)}
+          />
         </ToolbarField>
 
         <ToolbarField label={t('uuid.count')} htmlFor="uuid-count" className="w-32">
@@ -158,21 +148,17 @@ export function UuidPanel() {
         {named && (
           <>
             <ToolbarField label={t('uuid.namespace')} htmlFor="uuid-namespace" className="w-40">
-              <Select
+              <MorphSelect
+                label={t('uuid.namespace')}
+                hideLabel
+                triggerId="uuid-namespace"
+                items={UUID_NAMESPACES.map((item) => ({
+                  value: item,
+                  label: t(`uuid.namespace-${item}`),
+                }))}
                 value={namespace}
                 onValueChange={(next) => setNamespace(next as UuidNamespace)}
-              >
-                <SelectTrigger id="uuid-namespace">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {UUID_NAMESPACES.map((item) => (
-                    <SelectItem key={item} value={item}>
-                      {t(`uuid.namespace-${item}`)}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              />
             </ToolbarField>
 
             {namespace === 'custom' && (

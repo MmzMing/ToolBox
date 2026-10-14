@@ -1,5 +1,5 @@
 import { ArrowLeft, House, Info, LayoutGrid, Menu, Search, Settings, X } from 'lucide-react'
-import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
+import { AnimatePresence, motion } from 'motion/react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { ComponentType, ReactNode, SVGProps } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router'
@@ -9,9 +9,11 @@ import { GithubIcon } from '@/components/icons/github-icon'
 import { LocaleSwitcher } from '@/components/locale-switcher'
 import { ThemeToggle } from '@/components/theme-toggle'
 import { dockItemClass, pillClass } from '@/components/pill-styles'
+import { usePrefersReducedMotion } from '@/composable/use-prefers-reduced-motion'
 import { fanSlots } from '@/layouts/app-shell/dock-logic'
 import { NavList } from '@/layouts/nav-list'
 import { siteConfig } from '@/config/site'
+import { motionTokens } from '@/lib/motion-tokens'
 import { categoryIcons } from '@/tools/categories'
 import type { CategoryKey } from '@/tools/categories'
 import { toolsByCategory } from '@/tools'
@@ -22,9 +24,6 @@ const FAN_RADIUS = 132
 const FAN_STAGGER = 0.035
 
 const fanSpring = { type: 'spring' as const, duration: 0.5, bounce: 0.28 }
-
-/** 横向条 ⇄ 卡片的形变，与 dock 折叠、顶栏面包屑分离同一套 spring */
-const shellSpring = { type: 'spring' as const, duration: 0.45, bounce: 0.18 }
 
 /** 内容换层比外壳形变慢半拍起，形变最扭曲的那一截由外壳的缩放独自扛 */
 const contentFade = { duration: 0.22, delay: 0.14 }
@@ -54,7 +53,7 @@ export function MobileDock({ homeActive, onOpenPalette }: MobileDockProps) {
   const { t: tCategory } = useTranslation('categories')
   const location = useLocation()
   const navigate = useNavigate()
-  const reducedMotion = useReducedMotion() === true
+  const reduced = usePrefersReducedMotion()
   const dockRef = useRef<HTMLDivElement | null>(null)
   // 散开态记着所在路由：换页即派生成收起，省掉一次 effect 里的 setState
   const [fan, setFan] = useState(() => ({ open: false, pathname: location.pathname }))
@@ -154,7 +153,7 @@ export function MobileDock({ homeActive, onOpenPalette }: MobileDockProps) {
       data-tour="dock"
       layout
       initial={false}
-      transition={reducedMotion ? { duration: 0 } : shellSpring}
+      transition={reduced ? { duration: 0 } : motionTokens.spring.shell}
       className={cn(
         // 无边框，玻璃底 + 阴影浮起来。overflow-hidden 只在卡片态挂：常驻会把齿轮
         // 散开的扇形键削掉，那五个键本来就浮在条上方 132px 的溢出的区域里
@@ -167,10 +166,10 @@ export function MobileDock({ homeActive, onOpenPalette }: MobileDockProps) {
           <motion.div
             key="dock-card"
             layout
-            initial={reducedMotion ? false : { opacity: 0 }}
+            initial={reduced ? false : { opacity: 0 }}
             animate={{ opacity: 1 }}
-            exit={{ opacity: 0, transition: { duration: reducedMotion ? 0 : 0.12 } }}
-            transition={reducedMotion ? { duration: 0 } : contentFade}
+            exit={{ opacity: 0, transition: { duration: reduced ? 0 : 0.12 } }}
+            transition={reduced ? { duration: 0 } : contentFade}
             className="flex min-h-0 flex-col"
           >
             <header className="flex items-center gap-1.5 px-4 pt-2 pb-1">
@@ -225,10 +224,10 @@ export function MobileDock({ homeActive, onOpenPalette }: MobileDockProps) {
             role="toolbar"
             aria-orientation="horizontal"
             aria-label={t('dock.settings')}
-            initial={reducedMotion ? false : { opacity: 0 }}
+            initial={reduced ? false : { opacity: 0 }}
             animate={{ opacity: 1 }}
-            exit={{ opacity: 0, transition: { duration: reducedMotion ? 0 : 0.12 } }}
-            transition={reducedMotion ? { duration: 0 } : contentFade}
+            exit={{ opacity: 0, transition: { duration: reduced ? 0 : 0.12 } }}
+            transition={reduced ? { duration: 0 } : contentFade}
             className="flex items-center gap-2 p-1"
           >
             <LabeledKey icon={House} label={t('dock.home')} to="/" active={homeActive} />
@@ -240,21 +239,19 @@ export function MobileDock({ homeActive, onOpenPalette }: MobileDockProps) {
                     <motion.div
                       key={index}
                       className="absolute"
-                      initial={reducedMotion ? false : { x: 0, y: 0, scale: 0.2, opacity: 0 }}
+                      initial={reduced ? false : { x: 0, y: 0, scale: 0.2, opacity: 0 }}
                       animate={{ x: slot.x, y: slot.y, scale: 1, opacity: 1 }}
                       exit={{
                         x: 0,
                         y: 0,
                         scale: 0.2,
                         opacity: 0,
-                        transition: reducedMotion
+                        transition: reduced
                           ? { duration: 0 }
                           : { delay: (slots.length - index - 1) * FAN_STAGGER },
                       }}
                       transition={
-                        reducedMotion
-                          ? { duration: 0 }
-                          : { ...fanSpring, delay: index * FAN_STAGGER }
+                        reduced ? { duration: 0 } : { ...fanSpring, delay: index * FAN_STAGGER }
                       }
                     >
                       {fanChildren[index]}
@@ -267,7 +264,7 @@ export function MobileDock({ homeActive, onOpenPalette }: MobileDockProps) {
                 aria-label={t('dock.settings')}
                 aria-expanded={fanOpen}
                 onClick={() => setFanOpen(!fanOpen)}
-                animate={{ scale: fanOpen && !reducedMotion ? 1.14 : 1, rotate: fanOpen ? 90 : 0 }}
+                animate={{ scale: fanOpen && !reduced ? 1.14 : 1, rotate: fanOpen ? 90 : 0 }}
                 transition={fanSpring}
                 className="bg-primary text-primary-foreground relative z-10 flex size-11 items-center justify-center rounded-full"
               >

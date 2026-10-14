@@ -60,7 +60,7 @@ export function BeadLightbox({ initialView, sourceView, chartView }: BeadLightbo
       <DialogContent
         onKeyDown={handleKeyDown}
         // DialogContent 自带 sm:max-w-sm，跨档位列名不同、合并器不会互相抵掉，必须一并覆盖
-        className="flex h-svh max-w-none flex-col gap-3 rounded-none border-none bg-black/90 p-3 sm:max-w-none [&>button]:hidden"
+        className="bg-overlay/90 flex h-svh max-w-none flex-col gap-3 rounded-none border-none p-3 sm:max-w-none [&>button]:hidden"
       >
         <DialogTitle className="sr-only">{t('title')}</DialogTitle>
 
@@ -145,7 +145,7 @@ export function BeadLightbox({ initialView, sourceView, chartView }: BeadLightbo
           </TransformWrapper>
         </div>
 
-        <p className="shrink-0 text-center text-xs text-white/60">{t('hint')}</p>
+        <p className="text-overlay-foreground/60 shrink-0 text-center text-xs">{t('hint')}</p>
       </DialogContent>
     </Dialog>
   )

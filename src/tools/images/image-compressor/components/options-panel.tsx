@@ -2,6 +2,7 @@ import { RotateCcw } from 'lucide-react'
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { ColorPicker } from '@/components/color-picker/ColorPicker'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import {
@@ -268,16 +269,15 @@ export function OptionsPanel() {
             </div>
             {option.format.target === 'jpg' && (
               <PanelField label={t('panel.transparentFill')}>
-                <input
-                  type="color"
+                <ColorPicker
+                  showAlpha={false}
+                  label={t('panel.transparentFill')}
                   value={option.format.transparentFill}
-                  onChange={(event) =>
+                  onValueChange={(hex) =>
                     update((draft) => {
-                      draft.format.transparentFill = event.target.value.toUpperCase()
+                      draft.format.transparentFill = hex
                     })
                   }
-                  aria-label={t('panel.transparentFill')}
-                  className="border-border size-8 w-full cursor-pointer rounded-md border bg-transparent p-1"
                 />
               </PanelField>
             )}

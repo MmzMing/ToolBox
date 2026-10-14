@@ -163,7 +163,7 @@ export function ImageCard({
         </div>
 
         {metaLine && (
-          <p className="absolute inset-x-0 bottom-0 truncate bg-gradient-to-t from-black/60 to-transparent px-2 pt-4 pb-1 text-[10px] text-white/90">
+          <p className="from-overlay/60 text-overlay-foreground/90 absolute inset-x-0 bottom-0 truncate bg-gradient-to-t to-transparent px-2 pt-4 pb-1 text-[10px]">
             {metaLine}
           </p>
         )}

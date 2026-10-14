@@ -96,6 +96,30 @@ export function toStoredMonth(date: Date): string {
   return `${date.getUTCFullYear()}/${String(date.getUTCMonth() + 1).padStart(2, '0')}`
 }
 
+/**
+ * 存储串 → 日历组件用的本地日期。
+ *
+ * `parseDisplayDate` 造的是 UTC 日子，直接交给按本地日解析的日历会让负时区读错一天，
+ * 所以这里把 UTC 的年月拆成本地年月。解析不出来（含「至今」）返回 null。
+ */
+export function toPickerDate(value: string | undefined): Date | null {
+  if (!value) {
+    return null
+  }
+
+  const parsed = parseDisplayDate(value)
+  if (!parsed) {
+    return null
+  }
+
+  return new Date(parsed.getUTCFullYear(), parsed.getUTCMonth(), 1)
+}
+
+/** 日历组件选出的本地日期 → 存储串，只取年月 */
+export function fromPickerMonth(date: Date): string {
+  return toStoredMonth(new Date(Date.UTC(date.getFullYear(), date.getMonth(), 1)))
+}
+
 export function formatDisplayDate(value: string | undefined, locale = 'zh'): string {
   if (!value) {
     return ''

@@ -7,13 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { ParamField } from '@/components/param-field'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
+import { MorphSelect } from '@/components/select/morph-select'
 import { Separator } from '@/components/ui/separator'
 import { Textarea } from '@/components/ui/textarea'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
@@ -103,21 +97,15 @@ export function HmacPanel() {
           <ParamBar>
             <ParamSlot className="w-44">
               <ParamField label={t('hmac.algorithm')} htmlFor="hmac-algorithm">
-                <Select
+                <MorphSelect
+                  label={t('hmac.algorithm')}
+                  hideLabel
+                  triggerId="hmac-algorithm"
+                  className="w-full"
+                  items={hmacAlgorithms.map((item) => ({ value: item, label: item }))}
                   value={algorithm}
                   onValueChange={(next) => setAlgorithm(next as HmacAlgorithm)}
-                >
-                  <SelectTrigger id="hmac-algorithm" className="w-full">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {hmacAlgorithms.map((item) => (
-                      <SelectItem key={item} value={item}>
-                        {item}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                />
               </ParamField>
             </ParamSlot>
 

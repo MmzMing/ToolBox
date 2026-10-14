@@ -36,7 +36,7 @@ export type BarCore = {
   axis?: number
   /**
    * 倾角（度），**从竖直方向量出去**：0 = 站直，越大越平。
-   * 符号只管方向——负 = 内角压低（反八字，生气），正 = 内角抬起（正八字，委屈）。
+   * 符号只管方向——正 = 内角压低（反八字，生气），负 = 内角抬起（正八字，委屈）。
    * 别改成"与水平线的夹角"：那样 25° 意味着几乎躺平，笔画必须削短削细才塞得下两只眼，
    * 长条就不成其为长条了。方向由 orb-eyes.test.ts 的主轴角断言钉住。
    */
@@ -189,10 +189,10 @@ export const ORB_EYE_BARS: readonly BarSpec[] = [
   // 3  angry / working —— 反八字：内角压低。40°/48° 是"更平更狠"的那档，两只不一样斜
   //    也是故意的：完全对称读成一个图标。旋转不拉伸笔画，所以 h/w 与竖杠那格同尺寸，
   //    是一支完完整整的圆角长条歪过去，不是被剪切压扁的平行四边形
-  { h: 38, w: 13, spread: 10, left: { tilt: -40 }, right: { tilt: -48 } },
+  { h: 38, w: 13, spread: 10, left: { tilt: 40 }, right: { tilt: 48 } },
   // 4  sad / drowsy / confused —— 正八字：内角抬起、外角耷拉，读作委屈与无奈。
   //    角度与生气那格左右相反（左 48°、右 40°），两张脸才不会像同一格转了个方向
-  { h: 38, w: 13, spread: 10, left: { tilt: 48 }, right: { tilt: 40 } },
+  { h: 38, w: 13, spread: 10, left: { tilt: -48 }, right: { tilt: -40 } },
   // 5  excited / suspicious / happy / laughing / playful / celebrate —— 眯成 > <。
   //    笔画必须细，粗了凹口会被自己填平
   { h: 36, w: 10, chev: 22 },

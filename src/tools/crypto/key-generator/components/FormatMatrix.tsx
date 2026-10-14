@@ -4,14 +4,8 @@ import { Lock } from 'lucide-react'
 
 import { InputCopyable } from '@/components/copyable/input-copyable'
 import { TextareaCopyable } from '@/components/copyable/textarea-copyable'
+import { MorphSelect } from '@/components/select/morph-select'
 import { Label } from '@/components/ui/label'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
 import { cn } from '@/lib/utils'
 
 import type { EncodedSecret } from '../hmac.service'
@@ -194,18 +188,15 @@ export function FormatMatrix({ formats }: FormatMatrixProps) {
         </div>
         <div className="flex shrink-0 items-center gap-2">
           <span className="text-muted-foreground text-xs">{t('output-format')}</span>
-          <Select value={groupId} onValueChange={(next) => setGroupId(next as FormatGroup['id'])}>
-            <SelectTrigger size="sm" className="w-40">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {FORMAT_GROUPS.map((item) => (
-                <SelectItem key={item.id} value={item.id}>
-                  {t(`group-${item.id}`)}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <MorphSelect
+            label={t('output-format')}
+            hideLabel
+            size="sm"
+            className="w-40"
+            items={FORMAT_GROUPS.map((item) => ({ value: item.id, label: t(`group-${item.id}`) }))}
+            value={groupId}
+            onValueChange={(next) => setGroupId(next as FormatGroup['id'])}
+          />
         </div>
       </div>
 

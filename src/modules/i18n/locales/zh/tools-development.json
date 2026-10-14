@@ -74,7 +74,10 @@
     "expandAll": "全部展开",
     "noComments": "该格式没有注释语法",
     "outputOnly": "只影响结果，不回写左侧源文本",
-    "stripCommentsHint": "转换前先去掉源文本里的注释，左侧文本框保持原样"
+    "stripCommentsHint": "转换前先去掉源文本里的注释，左侧文本框保持原样",
+    "viewToggle": "在树视图与文本视图之间切换",
+    "treeView": "树视图",
+    "textView": "文本视图"
   },
   "github-accelerator": {
     "title": "GitHub 加速下载",
@@ -193,6 +196,7 @@
     "description": "Unix 时间戳与日期时间互转，并从 JSON / YAML / XML / 日志中批量提取时间戳生成时间轴",
     "tsLabel": "时间戳",
     "unitS": "秒（10 位）",
+    "unitAria": "单位",
     "unitMs": "毫秒（13 位）",
     "nowBtn": "当前时间",
     "convertBtn": "转换",
@@ -388,6 +392,8 @@
     "issues.binaryBodySkipped": "二进制请求体指向本地路径，浏览器无法读取，已跳过",
     "commonHeaders": "常用头部：",
     "authType": "认证类型",
+    "authVia": "发送方式",
+    "authIn": "放置位置",
     "exportTitle": "导出为其他语言",
     "exportPlaceholder": "填写请求地址后生成代码",
     "historyTitle": "请求历史",

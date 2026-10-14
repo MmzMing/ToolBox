@@ -101,7 +101,7 @@
       "original": "Original",
       "compressed": "Compressed",
       "swap": "Swap sides",
-      "dragHint": "Drag the divider to compare"
+      "dragHint": "Drag the divider, or nudge it with the arrow keys, to compare"
     },
     "panel": {
       "resizeLabel": "Resize",

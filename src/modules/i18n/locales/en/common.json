@@ -2,7 +2,74 @@
   "siteName": "MmzMing's Toolbox",
   "searchPlaceholder": "Search tools…",
   "noResults": "No matching tools found",
+  "select": {
+    "placeholder": "Select…",
+    "searchPlaceholder": "Search…",
+    "searchAria": "Search {{label}}",
+    "clearSearch": "Clear search",
+    "optionCount": "{{total}} options",
+    "noResults": "No matches",
+    "noMatch": "No matches for “{{query}}”"
+  },
+  "jsonViewer": {
+    "treeAria": "JSON structure",
+    "searchAria": "Search in JSON",
+    "searchPlaceholder": "Search keys and values",
+    "noMatch": "No matches",
+    "prevMatch": "Previous match",
+    "nextMatch": "Next match",
+    "expandAll": "Expand all",
+    "collapseAll": "Collapse all",
+    "copyValue": "Copy value",
+    "copyPath": "Copy path",
+    "copied": "Copied",
+    "copyFailed": "Copy failed",
+    "copiedValue": "Copied the value at {{path}}",
+    "copiedPath": "Copied path {{path}}",
+    "items_one": "{{count}} item",
+    "items_other": "{{count}} items",
+    "keys_one": "{{count}} key",
+    "keys_other": "{{count}} keys",
+    "showMore_one": "Show {{count}} more",
+    "showMore_other": "Show {{count}} more",
+    "hiddenCount_one": "{{count}} more hidden",
+    "hiddenCount_other": "{{count}} more hidden",
+    "moreAria": "Show {{count}} more, {{hidden}} hidden",
+    "page": "page"
+  },
   "copied": "Copied to clipboard",
+  "fileDrop": {
+    "label": "Add files",
+    "description": "Drop files here, or click to choose from your device",
+    "dropLabel": "Release to add",
+    "browse": "Choose files",
+    "browseFolder": "Choose folder",
+    "pasteHint": "You can also paste",
+    "maxFiles_one": "Up to {{count}} file",
+    "maxFiles_other": "Up to {{count}} files",
+    "listLabel": "Selected files",
+    "remove": "Remove {{name}}",
+    "retry": "Retry {{name}}",
+    "status": {
+      "processing": "Processing",
+      "ready": "Ready",
+      "error": "Failed"
+    },
+    "errors": {
+      "unsupportedOne": "{{name}} is not a supported file type.",
+      "unsupportedMany_one": "{{count}} file was skipped — its type is not supported.",
+      "unsupportedMany_other": "{{count}} files were skipped — their type is not supported.",
+      "tooLarge": "Some files are larger than {{max}} and were skipped.",
+      "tooMany_one": "Only {{count}} file can be added, the rest were skipped.",
+      "tooMany_other": "Only {{count}} files can be added, the rest were skipped."
+    },
+    "announcement": {
+      "added_one": "{{count}} file added",
+      "added_other": "{{count}} files added",
+      "removed": "{{name}} removed",
+      "retrying": "Retrying {{name}}"
+    }
+  },
   "copyFailed": "Copy failed, please copy manually",
   "copy": "Copy",
   "paste": "Paste",
@@ -14,6 +81,36 @@
   "generate": "Generate",
   "generateCount": "Count",
   "clear": "Clear",
+  "reset": "Reset",
+  "datePicker": {
+    "rangeLabel": "Date range",
+    "singleLabel": "Date",
+    "placeholder": "Select dates",
+    "noDates": "No dates",
+    "dayCount_one": "{{count}} day",
+    "dayCount_other": "{{count}} days",
+    "pickEnd": "Pick an end date",
+    "pickEndStatus": "Starts {{start}}. Choose an end date.",
+    "clear": "Clear",
+    "cancel": "Cancel",
+    "apply": "Apply",
+    "time": "Time",
+    "presetsGroup": "Quick ranges",
+    "prevMonth": "Previous month",
+    "nextMonth": "Next month",
+    "prevYear": "Previous year",
+    "nextYear": "Next year",
+    "presets": {
+      "today": "Today",
+      "yesterday": "Yesterday",
+      "last7": "Last 7 days",
+      "last30": "Last 30 days",
+      "thisMonth": "This month",
+      "lastMonth": "Last month",
+      "thisQuarter": "This quarter",
+      "ytd": "Year to date"
+    }
+  },
   "fullscreen": "Fullscreen",
   "resizePanes": "Drag to resize panes",
   "caretPosition": "Line {{line}} · Col {{column}}",
@@ -69,6 +166,17 @@
   "beian": {
     "policeAlt": "PSB filing badge"
   },
+  "footer": {
+    "ariaLabel": "Site footer",
+    "tagline": "Encoding, conversion, cheat sheets and image tools gathered in one place — open and use.",
+    "localNote": "Every calculation runs in your browser. Nothing is collected or uploaded.",
+    "categories": "Categories",
+    "popular": "Popular tools",
+    "about": "About this site",
+    "home": "Home",
+    "copyright": "© {{year}} {{site}}",
+    "toolCount": "{{total}} tools"
+  },
   "crashTitle": "Something went wrong",
   "crashDescription": "The app hit an unexpected error. Your data lives on this device and is not lost — reloading usually fixes it.",
   "reload": "Reload",
@@ -79,6 +187,38 @@
     "fit": "Fit to window",
     "close": "Close",
     "hint": "Scroll to zoom · drag to pan · double-click to magnify · click outside the image to close"
+  },
+  "imageCompare": {
+    "label": "Before and after divider",
+    "valueText": "{{percent}}% after",
+    "orientation": "Switch divider direction",
+    "hint": "Drag the divider, or focus it and use the arrow keys"
+  },
+  "colorPicker": {
+    "defaultLabel": "Color",
+    "dialogSuffix": "color panel",
+    "pickFromScreen": "Pick a color from the screen",
+    "done": "Done",
+    "areaRoledescription": "2D slider",
+    "saturationBrightness": "Saturation and brightness",
+    "saturationBrightnessValue": "Saturation {{s}}%, brightness {{v}}%",
+    "hue": "Hue",
+    "opacity": "Opacity",
+    "formatAria": "Format: {{format}}. Switch format",
+    "valueAria": "{{label}} in {{format}}",
+    "invalid": "Enter a hex, RGB, HSL, or OKLCH color",
+    "against": "against background",
+    "level": {
+      "aaa": "AAA",
+      "aa": "AA",
+      "aaLarge": "AA large",
+      "fail": "Fails"
+    },
+    "contrastAria": "Contrast {{ratio}} to 1, {{level}}",
+    "saveSwatch": "Save {{color}}",
+    "savedColors": "Saved colors",
+    "swatchAria": "{{color}}. Alt and arrow keys to move, Delete to remove",
+    "noSwatches": "Press + to save this color"
   },
   "ai": {
     "entry": "AI assist",
@@ -188,6 +328,82 @@
       },
       "circuit": {
         "body": "This circuit board is the whole toolset: each chip is a category. Light up a category tab on a chip to expand that group’s tools."
+      }
+    }
+  },
+  "empty": {
+    "art": {
+      "search": {
+        "idle": "A magnifying glass over three empty result rows",
+        "loading": "A magnifying glass over three empty result rows",
+        "done": "A results list with a search field and two results"
+      },
+      "offline": {
+        "idle": "A cloud joined to a device by a broken line",
+        "loading": "The broken line reaching back toward the cloud",
+        "done": "A cloud joined to a device by an unbroken line, with a check on the device"
+      },
+      "inbox": {
+        "idle": "A stacked tray with a check mark",
+        "loading": "A stacked tray being checked again",
+        "done": "A stacked tray with a check mark"
+      },
+      "map": {
+        "idle": "A folded map with a dashed route that ends in an x",
+        "loading": "A folded map while the route is looked up again",
+        "done": "A folded map whose dashed route ends at a checked destination"
+      }
+    },
+    "search": {
+      "idle": {
+        "title": "No matching tools",
+        "line": "Try another keyword, or clear the search to see everything.",
+        "action": "Clear search"
+      },
+      "loading": "",
+      "done": {
+        "title": "Search cleared",
+        "line": "Showing every tool.",
+        "action": "Type again"
+      }
+    },
+    "offline": {
+      "idle": {
+        "title": "You are offline",
+        "line": "This step needs the network, and this device has no connection right now.",
+        "action": "Try again"
+      },
+      "loading": "Reconnecting…",
+      "done": {
+        "title": "Back online",
+        "line": "The result was just refreshed.",
+        "action": "Go offline"
+      }
+    },
+    "inbox": {
+      "idle": {
+        "title": "All done here",
+        "line": "Nothing is left to handle. New items land here first.",
+        "action": "Check again"
+      },
+      "loading": "Checking…",
+      "done": {
+        "title": "Still all done",
+        "line": "Checked just now. Nothing new since then.",
+        "action": "Check once more"
+      }
+    },
+    "map": {
+      "idle": {
+        "title": "Page not found",
+        "line": "This address is not in the site’s route table, and it will not redirect anywhere.",
+        "action": "Search the tools"
+      },
+      "loading": "Looking it up…",
+      "done": {
+        "title": "Found the way in",
+        "line": "Continue from the category grid on the home page.",
+        "action": "Back to home"
       }
     }
   }

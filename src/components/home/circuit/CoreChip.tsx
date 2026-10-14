@@ -1,7 +1,8 @@
-import { motion, useReducedMotion } from 'motion/react'
+import { motion } from 'motion/react'
 import { useRef } from 'react'
 import type { CSSProperties, PointerEvent as ReactPointerEvent, Ref } from 'react'
 
+import { usePrefersReducedMotion } from '@/composable/use-prefers-reduced-motion'
 import { siteConfig } from '@/config/site'
 import { CoreAurora, type AuroraPointer } from './CoreAurora'
 import { cqwOf, pctOf, type BoardLayout } from './circuit-layout'
@@ -42,7 +43,7 @@ export function CoreChip({
   const core = layout.core
   const color = 'var(--circuit-core)'
   const metric = (ratio: number) => cqwOf(layout, core.w * ratio)
-  const reducedMotion = useReducedMotion() === true
+  const reduced = usePrefersReducedMotion()
   const pointer = useRef<AuroraPointer>({ x: 0, y: 0, push: 0 })
 
   const handlePointerMove = (event: ReactPointerEvent<HTMLDivElement>) => {
@@ -81,7 +82,7 @@ export function CoreChip({
         className="circuit-pop-in bg-card relative size-full overflow-hidden rounded-[9%]"
         style={{ '--circuit-in-delay': `${introDelay}s` } as CSSProperties}
       >
-        <CoreAurora radiusRatio={RADIUS_RATIO} pointer={pointer} still={reducedMotion} />
+        <CoreAurora radiusRatio={RADIUS_RATIO} pointer={pointer} still={reduced} />
         <span className="relative flex size-full flex-col items-center justify-center gap-[3%] px-[6%] text-center">
           <img
             src={siteConfig.icons.brand}

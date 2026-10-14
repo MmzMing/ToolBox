@@ -34,3 +34,13 @@ export const categoryIcons: Record<CategoryKey, ComponentType<SVGProps<SVGSVGEle
   text: Type,
   life: CategoryLifeIcon,
 }
+
+/**
+ * 分类没有独立路由，页脚的分类入口统一走首页的 `/?category=<key>`：
+ * CircuitBoard 读到合法值就点亮对应芯片，非法值一律当没填。
+ */
+export const CATEGORY_PARAM = 'category'
+
+export function resolveCategoryParam(raw: string | null | undefined): CategoryKey | null {
+  return categoryKeys.find((category) => category === raw) ?? null
+}

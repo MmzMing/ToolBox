@@ -38,8 +38,8 @@ export const siteConfig = {
    * 必须是位图——Facebook 与 Twitter 的抓取器都不接受 SVG。
    */
   ogImage: '/images/og-image.png',
-  /** 浏览器 UI 着色与 Safari 固定标签页着色 */
-  themeColor: '#0ea95e',
+  /** 浏览器 UI 着色与 Safari 固定标签页着色（与 index.css 的 --primary 同一支蓝） */
+  themeColor: '#2f6bff',
   /**
    * 备案信息：侧栏底部常驻展示，两条都必须链到官方查询页（工信部 / 全国互联网安全管理服务平台）。
    * 备案号是法定标识、不随界面语言变化，因此不进 i18n；police-badge.png 是公安备案官方徽标位图，

@@ -7,13 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { ParamField } from '@/components/param-field'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
+import { MorphSelect } from '@/components/select/morph-select'
 import { Switch } from '@/components/ui/switch'
 import type { EncodedSecret } from '../hmac.service'
 import {
@@ -110,21 +104,18 @@ export function SymmetricPanel() {
           <ParamBar>
             <ParamSlot className="w-56">
               <ParamField label={t('symmetric.kind')} htmlFor="symmetric-kind">
-                <Select
+                <MorphSelect
+                  label={t('symmetric.kind')}
+                  hideLabel
+                  triggerId="symmetric-kind"
+                  className="w-full"
+                  items={SYMMETRIC_KEY_KIND_LIST.map((item) => ({
+                    value: item,
+                    label: t(`symmetric.${item}`),
+                  }))}
                   value={params.kind}
                   onValueChange={(next) => patch({ kind: next as SymmetricKeyKind })}
-                >
-                  <SelectTrigger id="symmetric-kind" className="w-full">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {SYMMETRIC_KEY_KIND_LIST.map((item) => (
-                      <SelectItem key={item} value={item}>
-                        {t(`symmetric.${item}`)}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                />
               </ParamField>
             </ParamSlot>
 
@@ -152,21 +143,15 @@ export function SymmetricPanel() {
             {params.withIv && (
               <ParamSlot className="w-40">
                 <ParamField label={t('symmetric.iv-kind')} htmlFor="symmetric-iv-kind">
-                  <Select
+                  <MorphSelect
+                    label={t('symmetric.iv-kind')}
+                    hideLabel
+                    triggerId="symmetric-iv-kind"
+                    className="w-full"
+                    items={IV_KIND_LIST.map((item) => ({ value: item, label: item }))}
                     value={params.ivKind}
                     onValueChange={(next) => patch({ ivKind: next as IvKind })}
-                  >
-                    <SelectTrigger id="symmetric-iv-kind" className="w-full">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {IV_KIND_LIST.map((item) => (
-                        <SelectItem key={item} value={item}>
-                          {item}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  />
                 </ParamField>
               </ParamSlot>
             )}

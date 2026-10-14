@@ -3,6 +3,8 @@ import { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { FileAddButtons, FileDropZone } from '@/components/file-drop-zone'
+import { ImageCompare, ImageCompareOrientationToggle } from '@/components/image-compare'
+import type { ImageCompareOrientation } from '@/components/image-compare'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -53,6 +55,7 @@ type Result = {
 /** GIF 压缩：左预览/结果，右参数面板；目标体积模式下自动搜索达标参数。全程本地处理。 */
 export default function GifCompressor() {
   const { t } = useTranslation('tools-images', { keyPrefix: 'gif-compressor' })
+  const { t: tCommon } = useTranslation('common')
   const isMobile = useIsMobile()
   const { inspect, optimize } = useGifWorker()
 
@@ -73,6 +76,7 @@ export default function GifCompressor() {
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [result, setResult] = useState<Result | null>(null)
+  const [orientation, setOrientation] = useState<ImageCompareOrientation>('horizontal')
 
   useEffect(() => {
     if (!result) return
@@ -196,23 +200,40 @@ export default function GifCompressor() {
                       : t('result-saved', { percent: Math.round(summary.savedRatio * 100) })}
                   </span>
                 </div>
-                <div className="flex flex-wrap items-start gap-4">
-                  <figure className="flex flex-col gap-1">
-                    <img src={result.url} alt="" className="max-h-72 rounded-md border" />
-                    <figcaption className="text-muted-foreground text-xs">
-                      {t('caption-result')} · {formatBytes(result.blob.size)}
-                    </figcaption>
-                  </figure>
-                  <figure className="flex flex-col gap-1">
-                    <img
-                      src={sourceUrl ?? undefined}
-                      alt=""
-                      className="max-h-72 rounded-md border"
+                <div className="flex flex-col gap-2">
+                  <ImageCompare
+                    className="checkerboard max-h-72 w-full"
+                    aspectRatio={`${descriptor.width} / ${descriptor.height}`}
+                    orientation={orientation}
+                    labels={[
+                      `${t('caption-original')} · ${formatBytes(result.originalBytes)}`,
+                      `${t('caption-result')} · ${formatBytes(result.blob.size)}`,
+                    ]}
+                    before={
+                      <img
+                        src={sourceUrl ?? undefined}
+                        alt=""
+                        className="size-full object-contain"
+                        draggable={false}
+                      />
+                    }
+                    after={
+                      <img
+                        src={result.url}
+                        alt=""
+                        className="size-full object-contain"
+                        draggable={false}
+                      />
+                    }
+                  />
+                  <div className="flex items-center justify-between gap-2">
+                    <p className="text-muted-foreground text-xs">{tCommon('imageCompare.hint')}</p>
+                    <ImageCompareOrientationToggle
+                      orientation={orientation}
+                      onOrientationChange={setOrientation}
+                      className="border"
                     />
-                    <figcaption className="text-muted-foreground text-xs">
-                      {t('caption-original')} · {formatBytes(result.originalBytes)}
-                    </figcaption>
-                  </figure>
+                  </div>
                 </div>
                 <p className="text-muted-foreground text-xs">
                   {t('result-params', {
@@ -240,10 +261,9 @@ export default function GifCompressor() {
     ) : (
       <FileDropZone
         accept="image/gif,.gif"
-        title={t('drop-title')}
-        subtitle={t('drop-subtitle')}
-        browseLabel={t('choose-file')}
-        pasteHint={t('paste-hint')}
+        label={t('drop-title')}
+        description={t('drop-subtitle')}
+        allowPaste
         icon={Film}
         onFiles={(files) => void handleFiles(files)}
       />

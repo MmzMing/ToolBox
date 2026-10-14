@@ -51,6 +51,11 @@ export interface IoPairInput extends IoPairSide {
 export interface IoPairOutput extends IoPairSide {
   /** highlight.js 语言标识，如 json / yaml */
   language?: string
+  /**
+   * 输出内容插槽：传入即替换只读文本区（如 JSON 树）。
+   * 复制按钮与全屏窗仍看 `value` 文本，所以调用方要继续维护那份字符串。
+   */
+  body?: ReactNode
 }
 
 interface IoPairProps {
@@ -148,6 +153,7 @@ export function IoPair({
       placeholder={output.placeholder}
       tag={output.tag}
       language={output.language}
+      body={output.body}
       footer={output.footer ?? <PairStatus value={output.value} />}
     />
   )

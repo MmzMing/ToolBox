@@ -10,13 +10,7 @@ import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
+import { MorphSelect } from '@/components/select/morph-select'
 import { Separator } from '@/components/ui/separator'
 import { Switch } from '@/components/ui/switch'
 import { DiagnosisPanel } from './DiagnosisPanel'
@@ -56,19 +50,20 @@ function SourceSelect({
   exclude?: string
 }) {
   const { t } = useTranslation('tools-web', { keyPrefix: 'dns-lookup' })
+  const items = DNS_SOURCES.filter((source) => source.id !== exclude).map((source) => ({
+    value: source.id,
+    label: t(`sources.${source.id}`),
+  }))
   return (
-    <Select value={value} onValueChange={onChange}>
-      <SelectTrigger size="sm" className="w-fit shrink-0 gap-1">
-        <SelectValue />
-      </SelectTrigger>
-      <SelectContent>
-        {DNS_SOURCES.filter((source) => source.id !== exclude).map((source) => (
-          <SelectItem key={source.id} value={source.id}>
-            {t(`sources.${source.id}`)}
-          </SelectItem>
-        ))}
-      </SelectContent>
-    </Select>
+    <MorphSelect
+      label={t('sourceAria')}
+      hideLabel
+      size="sm"
+      className="w-fit shrink-0"
+      items={items}
+      value={value}
+      onValueChange={onChange}
+    />
   )
 }
 

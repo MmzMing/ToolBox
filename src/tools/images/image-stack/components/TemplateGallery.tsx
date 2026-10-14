@@ -3,13 +3,7 @@ import { type ReactNode, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { PanelField, PanelSection, PanelSliderField } from '@/components/panel-fields'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
+import { MorphSelect } from '@/components/select/morph-select'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { cn } from '@/lib/utils'
 import {
@@ -298,18 +292,17 @@ function StitchGallery() {
       customId={STITCH_CUSTOM_TEMPLATE}
       extra={
         <PanelField label={t('template.imageCount')} span={2}>
-          <Select value={`${cells}`} onValueChange={(value) => setStitchCells(Number(value))}>
-            <SelectTrigger className="w-full">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {LAYOUT_COUNTS.map((count) => (
-                <SelectItem key={count} value={`${count}`}>
-                  {t('template.imageCountValue', { total: count })}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <MorphSelect
+            label={t('template.imageCount')}
+            hideLabel
+            className="w-full"
+            items={LAYOUT_COUNTS.map((count) => ({
+              value: `${count}`,
+              label: t('template.imageCountValue', { total: count }),
+            }))}
+            value={`${cells}`}
+            onValueChange={(value) => setStitchCells(Number(value))}
+          />
         </PanelField>
       }
       cols={cols}

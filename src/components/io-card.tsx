@@ -24,6 +24,11 @@ interface IoCardProps {
   /** 输出卡的 highlight.js 语言 */
   language?: string
   /**
+   * 输出卡的内容插槽：传入即替换只读文本区（如 JSON 树）。
+   * 顶部的复制 / 全屏按钮仍作用于 `value` 文本，所以调用方要把同一份数据序列化成字符串。
+   */
+  body?: ReactNode
+  /**
    * 卡片底部的状态条插槽（如行列与字符统计），不传则内容区撑满。
    * 传函数时注入输入框的实时光标行列——光标状态留在卡片内部，
    * 父级不会因为移动光标而重渲染。
@@ -56,6 +61,7 @@ export function IoCard({
   placeholder,
   onValueChange,
   language,
+  body,
   footer,
   floatingActions = false,
   fullscreen,
@@ -163,16 +169,18 @@ export function IoCard({
             gutterClassName="bg-transparent"
           />
         ) : (
-          <TextareaCopyable
-            value={value}
-            rows={1}
-            highlight
-            language={language}
-            hideCopyButton
-            showLineNumbers
-            placeholder={placeholder}
-            className="h-full min-h-0 rounded-none border-0"
-          />
+          (body ?? (
+            <TextareaCopyable
+              value={value}
+              rows={1}
+              highlight
+              language={language}
+              hideCopyButton
+              showLineNumbers
+              placeholder={placeholder}
+              className="h-full min-h-0 rounded-none border-0"
+            />
+          ))
         )}
       </CardContent>
 

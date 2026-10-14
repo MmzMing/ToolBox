@@ -1,18 +1,20 @@
-import { AlertCircle, FoldVertical, MessageSquareOff, UnfoldVertical } from 'lucide-react'
+import {
+  AlignLeft,
+  AlertCircle,
+  FoldVertical,
+  FolderTree,
+  MessageSquareOff,
+  UnfoldVertical,
+} from 'lucide-react'
 import { useDeferredValue, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { IoPair } from '@/components/io-pair'
+import { JsonViewer } from '@/components/json-viewer'
+import { MorphSelect } from '@/components/select/morph-select'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
 import { canStripComments, stripComments } from '@/utils/code-comments'
 import {
   convert,
@@ -23,6 +25,7 @@ import {
   type ConvertStyle,
   type FormatId,
 } from '@/utils/format-convert'
+import { tryParseJson } from '@/utils/json-tree'
 
 interface FormatSelectProps {
   id: string
@@ -35,23 +38,25 @@ interface FormatSelectProps {
 /** 卡片上方的格式选择器；选项文案走 common.formats，中英双语共用一份 */
 function FormatSelect({ id, label, value, formats, onValueChange }: FormatSelectProps) {
   const { t } = useTranslation('common')
+  const items = useMemo(
+    () => formats.map((format) => ({ value: format, label: t(`formats.${format}`) })),
+    [formats, t],
+  )
   return (
     <div className="flex items-center gap-2">
       <Label htmlFor={id} className="text-muted-foreground shrink-0 text-xs">
         {label}
       </Label>
-      <Select value={value} onValueChange={(next) => onValueChange(next as FormatId)}>
-        <SelectTrigger id={id} size="sm" className="min-w-32">
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent>
-          {formats.map((format) => (
-            <SelectItem key={format} value={format}>
-              {t(`formats.${format}`)}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+      <MorphSelect
+        label={label}
+        hideLabel
+        triggerId={id}
+        size="sm"
+        className="min-w-32"
+        items={items}
+        value={value}
+        onValueChange={(next) => onValueChange(next as FormatId)}
+      />
     </div>
   )
 }
@@ -73,6 +78,8 @@ export default function FormatStudio() {
   const [input, setInput] = useState('')
   const [style, setStyle] = useState<ConvertStyle>('pretty')
   const [stripSourceComments, setStripSourceComments] = useState(false)
+  /** JSON 输出默认用树视图看，文本视图仍可切回来（复制与全屏始终是文本） */
+  const [view, setView] = useState<'tree' | 'text'>('tree')
 
   const handleFromChange = (next: FormatId) => {
     setFrom(next)
@@ -106,6 +113,16 @@ export default function FormatStudio() {
 
   const noOutput = output === ''
 
+  /**
+   * 树视图需要真的能解析成结构；输出不是合法 JSON（切到 YAML 等目标格式）时
+   * jsonValue 为 undefined，动作条上的切换按钮也随之消失。
+   */
+  const jsonValue = useMemo(
+    () => (to === 'json' && output !== '' ? tryParseJson(output) : undefined),
+    [to, output],
+  )
+  const treeActive = jsonValue !== undefined && view === 'tree'
+
   const actions = (
     <div className="flex flex-wrap items-center gap-1.5" title={t('outputOnly')}>
       <Button
@@ -120,31 +137,52 @@ export default function FormatStudio() {
         <MessageSquareOff className="size-3.5" />
         {t('stripComments')}
       </Button>
-      <span className="bg-border h-4 w-px" aria-hidden="true" />
-      <Button
-        variant={style === 'compact' ? 'secondary' : 'ghost'}
-        size="sm"
-        className="gap-1.5"
-        disabled={noOutput}
-        aria-pressed={style === 'compact'}
-        title={t('outputOnly')}
-        onClick={() => setStyle('compact')}
-      >
-        <FoldVertical className="size-3.5" />
-        {t('collapseAll')}
-      </Button>
-      <Button
-        variant={style === 'pretty' ? 'secondary' : 'ghost'}
-        size="sm"
-        className="gap-1.5"
-        disabled={noOutput}
-        aria-pressed={style === 'pretty'}
-        title={t('outputOnly')}
-        onClick={() => setStyle('pretty')}
-      >
-        <UnfoldVertical className="size-3.5" />
-        {t('expandAll')}
-      </Button>
+      {jsonValue !== undefined && (
+        <>
+          <span className="bg-border h-4 w-px" aria-hidden="true" />
+          <Button
+            variant={treeActive ? 'secondary' : 'ghost'}
+            size="sm"
+            className="gap-1.5"
+            aria-pressed={treeActive}
+            title={t('viewToggle')}
+            onClick={() => setView(treeActive ? 'text' : 'tree')}
+          >
+            {treeActive ? <FolderTree className="size-3.5" /> : <AlignLeft className="size-3.5" />}
+            {t(treeActive ? 'treeView' : 'textView')}
+          </Button>
+        </>
+      )}
+      {/* 树模式下的展开折叠由查看器自己的工具栏负责，这里的两个动作只改文本形态 */}
+      {!treeActive && (
+        <>
+          <span className="bg-border h-4 w-px" aria-hidden="true" />
+          <Button
+            variant={style === 'compact' ? 'secondary' : 'ghost'}
+            size="sm"
+            className="gap-1.5"
+            disabled={noOutput}
+            aria-pressed={style === 'compact'}
+            title={t('outputOnly')}
+            onClick={() => setStyle('compact')}
+          >
+            <FoldVertical className="size-3.5" />
+            {t('collapseAll')}
+          </Button>
+          <Button
+            variant={style === 'pretty' ? 'secondary' : 'ghost'}
+            size="sm"
+            className="gap-1.5"
+            disabled={noOutput}
+            aria-pressed={style === 'pretty'}
+            title={t('outputOnly')}
+            onClick={() => setStyle('pretty')}
+          >
+            <UnfoldVertical className="size-3.5" />
+            {t('expandAll')}
+          </Button>
+        </>
+      )}
     </div>
   )
 
@@ -177,6 +215,14 @@ export default function FormatStudio() {
           value: output,
           placeholder: t('outputPlaceholder'),
           language: languageOf(to),
+          body:
+            treeActive && jsonValue !== undefined ? (
+              <JsonViewer
+                data={jsonValue}
+                maxHeight="100%"
+                className="h-full min-h-0 rounded-none border-0"
+              />
+            ) : undefined,
           head: (
             <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
               <FormatSelect

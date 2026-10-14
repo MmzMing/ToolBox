@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next'
 
+import { FileDropZone } from '@/components/file-drop-zone'
 import { PanelGroup } from '@/components/panel-fields'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Filmstrip } from './components/Filmstrip'
@@ -10,7 +11,6 @@ import { StageCanvas } from './components/StageCanvas'
 import { StageToolbar } from './components/StageToolbar'
 import { StylePanel } from './components/StylePanel'
 import { TemplateGallery } from './components/TemplateGallery'
-import { UploadZone } from './components/UploadZone'
 import { MODES } from './image-stack.service'
 import { useImageStackStore, type Mode } from './store'
 
@@ -27,6 +27,7 @@ export default function ImageStack() {
   const mode = useImageStackStore((state) => state.mode)
   const setMode = useImageStackStore((state) => state.setMode)
   const hasItems = useImageStackStore((state) => state.items.length > 0)
+  const addFiles = useImageStackStore((state) => state.addFiles)
   const selectedCell = useImageStackStore((state) => state.selectedCell)
   const isStitch = mode === 'stitch'
   const isLong = mode === 'long'
@@ -65,7 +66,15 @@ export default function ImageStack() {
           )}
         </div>
       ) : (
-        <UploadZone />
+        <FileDropZone
+          accept="image/*"
+          multiple
+          allowFolder
+          allowPaste
+          label={t('upload.dropTitle')}
+          description={t('upload.dropSubtitle')}
+          onFiles={(files) => void addFiles(files)}
+        />
       )}
 
       <div className="text-muted-foreground flex flex-col gap-1 text-xs">

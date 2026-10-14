@@ -36,14 +36,16 @@ export type CanvasFrame = { background: Background; canvasRadius: number }
 /** 分段导出时首尾两段才该有圆角，内部切口必须平直 */
 export type FrameEdges = 'all' | 'top' | 'bottom' | 'none'
 
-/** 选中框与占位用的中性灰，canvas 读不到 CSS 变量，跟 grid-render.ts 一样就地取色 */
-const PLACEHOLDER_FILL = 'rgba(120, 120, 128, 0.14)'
-const PLACEHOLDER_STROKE = 'rgba(120, 120, 128, 0.45)'
-const SELECTED_STROKE = 'rgba(59, 130, 246, 0.9)'
-const HOVER_STROKE = 'rgba(59, 130, 246, 0.9)'
-const HOVER_FILL = 'rgba(59, 130, 246, 0.12)'
+/** 选中框与占位用的中性灰，canvas 读不到 CSS 变量，跟 grid-render.ts 一样就地取色。
+ *  数值是色板令牌的镜像：蓝 = --primary（#2F6BFF），中性灰 = --muted-foreground。
+ *  改全局色板时这一组要跟着改。 */
+const PLACEHOLDER_FILL = 'rgba(105, 111, 123, 0.14)'
+const PLACEHOLDER_STROKE = 'rgba(105, 111, 123, 0.45)'
+const SELECTED_STROKE = 'rgba(47, 107, 255, 0.9)'
+const HOVER_STROKE = 'rgba(47, 107, 255, 0.9)'
+const HOVER_FILL = 'rgba(47, 107, 255, 0.12)'
 /** 图被拎走时源格子盖一层中性纱，表示「这里空出来了」 */
-const PICKUP_SCRIM = 'rgba(148, 163, 184, 0.4)'
+const PICKUP_SCRIM = 'rgba(105, 111, 123, 0.4)'
 
 /**
  * 画布那一层的外框：清屏、按 edges 圆角裁切、铺背景。

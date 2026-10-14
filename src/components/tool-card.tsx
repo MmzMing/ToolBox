@@ -41,7 +41,7 @@ export function ToolCard({ tool }: ToolCardProps) {
       />
       <FavoriteButton
         tool={tool}
-        className="absolute top-2 right-2 z-20 opacity-0 transition-opacity group-hover:opacity-100 has-[.fill-amber-400]:opacity-100"
+        className="absolute top-2 right-2 z-20 opacity-0 transition-opacity group-hover:opacity-100 has-[.fill-favorite]:opacity-100"
       />
     </Card>
   )

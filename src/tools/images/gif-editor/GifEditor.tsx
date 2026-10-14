@@ -308,10 +308,9 @@ export default function GifEditor() {
   ) : !meta || !bounds || !size ? (
     <FileDropZone
       accept="image/gif,.gif"
-      title={t('drop-title')}
-      subtitle={t('drop-subtitle')}
-      browseLabel={t('browse')}
-      pasteHint={t('paste-hint')}
+      label={t('drop-title')}
+      description={t('drop-subtitle')}
+      allowPaste
       icon={Images}
       minHeightClass="min-h-[360px]"
       onFiles={(files) => void loadFile(files[0])}

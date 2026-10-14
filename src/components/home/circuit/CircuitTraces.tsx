@@ -1,7 +1,7 @@
 import { useEffect, useId, useMemo, useRef } from 'react'
 import type { CSSProperties } from 'react'
-import { useReducedMotion } from 'motion/react'
 
+import { usePrefersReducedMotion } from '@/composable/use-prefers-reduced-motion'
 import type { CategoryKey } from '@/tools/categories'
 
 import {
@@ -39,7 +39,7 @@ export function CircuitTraces({
   const traces = useMemo(() => buildTraces(layout), [layout])
   const intro = useMemo(() => introOf(layout), [layout])
   const uid = 'circuit' + useId().replace(/[^a-zA-Z0-9_-]/g, '')
-  const reducedMotion = useReducedMotion() === true
+  const reduced = usePrefersReducedMotion()
 
   /** 每颗分类三个节点：量长度的导管、被 rAF 写 opacity 的光束组、跟着跑的渐变 */
   const lineRefs = useRef<(SVGPathElement | null)[]>([])
@@ -52,7 +52,7 @@ export function CircuitTraces({
   }, [focus])
 
   useEffect(() => {
-    if (reducedMotion) {
+    if (reduced) {
       return
     }
     const lengths = traces.map((_, i) => lineRefs.current[i]?.getTotalLength() ?? 0)
@@ -105,7 +105,7 @@ export function CircuitTraces({
     }
     raf = requestAnimationFrame(frame)
     return () => cancelAnimationFrame(raf)
-  }, [traces, reducedMotion])
+  }, [traces, reduced])
 
   return (
     <svg

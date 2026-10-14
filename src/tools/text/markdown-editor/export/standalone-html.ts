@@ -13,13 +13,13 @@ const EXPORT_CSS = `
 html,body{margin:0}
 .md-preview{min-height:100vh;padding:32px 16px 64px}
 @page{size:A4;margin:16mm}
-.hljs{color:#0a0a0a}
-.hljs-comment,.hljs-quote{color:#737373;font-style:italic}
-.hljs-keyword,.hljs-selector-tag,.hljs-literal,.hljs-doctag{color:#7457d1}
-.hljs-string,.hljs-regexp,.hljs-addition{color:#007a3a}
-.hljs-number,.hljs-symbol,.hljs-bullet,.hljs-attr{color:#c26300}
-.hljs-title,.hljs-section,.hljs-name,.hljs-type{color:#2171cc}
-.hljs-deletion{color:#d73337}
+.hljs{color:#080B12}
+.hljs-comment,.hljs-quote{color:#696F7B;font-style:italic}
+.hljs-keyword,.hljs-selector-tag,.hljs-literal,.hljs-doctag{color:#7756D0}
+.hljs-string,.hljs-regexp,.hljs-addition{color:#007A3A}
+.hljs-number,.hljs-symbol,.hljs-bullet,.hljs-attr{color:#C26300}
+.hljs-title,.hljs-section,.hljs-name,.hljs-type{color:#3F6DD7}
+.hljs-deletion{color:#E7000B}
 @media print{
   body{print-color-adjust:exact;-webkit-print-color-adjust:exact}
   .md-preview{max-width:none;min-height:0;padding:0}

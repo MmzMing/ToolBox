@@ -1,14 +1,8 @@
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { MorphSelect } from '@/components/select/morph-select'
 import { Label } from '@/components/ui/label'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
 import {
   decodeUrl,
   encodeUrl,
@@ -50,18 +44,16 @@ export function UrlPanel() {
             >
               {t('modeLabel')}
             </Label>
-            <Select value={mode} onValueChange={(next) => setMode(next as UrlEncodeMode)}>
-              <SelectTrigger id="encoder-decoder-url-mode" size="sm" className="min-w-56">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {urlEncodeModes.map((item) => (
-                  <SelectItem key={item} value={item}>
-                    {t(`mode-${item}`)}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <MorphSelect
+              label={t('modeLabel')}
+              hideLabel
+              triggerId="encoder-decoder-url-mode"
+              size="sm"
+              className="min-w-56"
+              items={urlEncodeModes.map((item) => ({ value: item, label: t(`mode-${item}`) }))}
+              value={mode}
+              onValueChange={(next) => setMode(next as UrlEncodeMode)}
+            />
           </div>
         ) : undefined
       }

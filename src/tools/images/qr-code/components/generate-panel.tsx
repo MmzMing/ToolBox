@@ -2,9 +2,9 @@ import { useEffect, useMemo, useState } from 'react'
 import { Download } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
+import { ColorPicker } from '@/components/color-picker/ColorPicker'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import {
   PanelField,
   PanelGroup,
@@ -163,24 +163,22 @@ export function GeneratePanel() {
             step={1}
             format={(value) => t('marginValue', { n: value })}
           />
-          <PanelField label={t('darkColorLabel')} htmlFor="qr-dark-color">
-            <Input
-              id="qr-dark-color"
-              type="color"
+          <PanelField label={t('darkColorLabel')}>
+            <ColorPicker
+              showAlpha={false}
+              label={t('darkColorLabel')}
               value={darkColor}
-              onChange={(event) => setDarkColor(event.target.value)}
-              aria-label={t('darkColorLabel')}
-              className="h-8 w-full cursor-pointer p-1"
+              onValueChange={setDarkColor}
+              background={lightColor}
             />
           </PanelField>
-          <PanelField label={t('lightColorLabel')} htmlFor="qr-light-color">
-            <Input
-              id="qr-light-color"
-              type="color"
+          <PanelField label={t('lightColorLabel')}>
+            <ColorPicker
+              showAlpha={false}
+              label={t('lightColorLabel')}
               value={lightColor}
-              onChange={(event) => setLightColor(event.target.value)}
-              aria-label={t('lightColorLabel')}
-              className="h-8 w-full cursor-pointer p-1"
+              onValueChange={setLightColor}
+              background={darkColor}
             />
           </PanelField>
         </PanelSection>

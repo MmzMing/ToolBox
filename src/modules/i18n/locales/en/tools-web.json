@@ -94,7 +94,8 @@
       "utcOffset": "UTC offset",
       "abbreviation": "Timezone abbr.",
       "localTime": "Local time"
-    }
+    },
+    "retryBtn": "Try again"
   },
   "dns-lookup": {
     "title": "DNS Lookup",
@@ -103,6 +104,7 @@
     "lookupBtn": "Lookup",
     "loading": "Looking up…",
     "compareLabel": "Compare resolvers",
+    "sourceAria": "Resolver",
     "compareTitle": "Resolver comparison",
     "compareEmpty": "Neither resolver returned any record",
     "compareNote": "Only record values are compared: public resolvers cache at different times, so TTL gaps are not a mismatch",

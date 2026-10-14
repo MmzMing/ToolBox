@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
 
 import { GithubIcon } from '@/components/icons/github-icon'
+import { EmptyStates } from '@/components/empty-states/EmptyStates'
 import { Button } from '@/components/ui/button'
 import { Command, CommandList, CommandSeparator } from '@/components/ui/command'
 import { InputGroup, InputGroupAddon } from '@/components/ui/input-group'
@@ -133,7 +134,15 @@ export function PaletteBody() {
         })}
 
         {matchedTools.length === 0 && hasQuery && (
-          <div className="text-muted-foreground py-8 text-center text-sm">{t('noResults')}</div>
+          <EmptyStates
+            scene="search"
+            compact
+            className="pt-2"
+            onAction={() => {
+              setQuery('')
+              inputRef.current?.focus()
+            }}
+          />
         )}
       </CommandList>
     </Command>

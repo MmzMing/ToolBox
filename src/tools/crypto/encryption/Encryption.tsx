@@ -3,17 +3,11 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { TextareaCopyable } from '@/components/copyable/textarea-copyable'
+import { MorphSelect } from '@/components/select/morph-select'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
 import { AlertTriangle } from 'lucide-react'
 import {
@@ -88,21 +82,14 @@ export default function Encryption() {
       <div className="flex flex-col gap-4 sm:flex-row">
         <div className="flex flex-col gap-2">
           <Label>{t('encryption.algorithm')}</Label>
-          <Select
+          <MorphSelect
+            label={t('encryption.algorithm')}
+            hideLabel
+            className="w-40"
+            items={encryptionAlgorithms.map((item) => ({ value: item, label: item }))}
             value={algorithm}
             onValueChange={(value) => setAlgorithm(value as EncryptionAlgorithm)}
-          >
-            <SelectTrigger className="w-40">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {encryptionAlgorithms.map((item) => (
-                <SelectItem key={item} value={item}>
-                  {item}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          />
         </div>
 
         <div className="flex flex-1 flex-col gap-2">

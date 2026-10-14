@@ -29,6 +29,21 @@ type DockController = {
 }
 
 /**
+ * 浮层这一层的完整状态：悬停预览、点击固定、换层方向，外加它们产生于哪条路由。
+ *
+ * 四者总是一起被同一个动作改写，拆开成三个 useState 就会出现「hover 已换层、方向还是旧的」
+ * 这种中间帧；pathname 也收在同一个对象里，换页后整体派生成关闭，比在 effect 里补一次
+ * setState 少一轮渲染，也不会留下悬停不走的浮层。
+ */
+type Layer = {
+  hover: CategoryKey | null
+  pin: CategoryKey | null
+  /** 1 表示新列表从下方升入 */
+  dir: 1 | -1
+  pathname: string
+}
+
+/**
  * 悬浮 dock 的浮层开合：悬停即出、点击固定、移开回落、换页收起。
  *
  * 只负责"哪一个分类在浮层里"。持久化的 activeCategory 是刷新后的高亮线索，
@@ -37,34 +52,28 @@ type DockController = {
 export function useDockController(options: { enabled: boolean }): DockController {
   const { enabled } = options
   const location = useLocation()
-  // 两个态都记"是在哪条路由上产生的"：换页后一律派生成关闭，
-  // 比在 effect 里补一次 setState 少一轮渲染，也不会留下悬停不走的浮层
-  const [hovered, setHovered] = useState(() => ({
-    category: null as CategoryKey | null,
+  const [layer, setLayer] = useState<Layer>(() => ({
+    hover: null,
+    pin: null,
+    dir: 1,
     pathname: location.pathname,
   }))
-  const [pinned, setPinned] = useState(() => ({
-    category: null as CategoryKey | null,
-    pathname: location.pathname,
-  }))
-  const onSameRoute = (state: { pathname: string }) => state.pathname === location.pathname
-  const hoveredCategory = onSameRoute(hovered) ? hovered.category : null
-  const pinnedCategory = onSameRoute(pinned) ? pinned.category : null
+  const onSameRoute = layer.pathname === location.pathname
+  const hoveredCategory = onSameRoute ? layer.hover : null
+  const pinnedCategory = onSameRoute ? layer.pin : null
   const visibleCategory = hoveredCategory ?? pinnedCategory
 
   const panelRef = useRef<HTMLDivElement | null>(null)
   const itemRefs = useRef(new Map<string, HTMLElement>())
   const setActiveCategory = usePreferencesStore((state) => state.setActiveCategory)
-  // 浮层换层的滑动方向：由"新键在图标条上更靠下还是更靠上"决定，
-  // 只有真正换层时才更新，收起与重复悬停同一颗键都保持原值
-  const [slideDir, setSlideDir] = useState<1 | -1>(1)
 
-  const stepTo = useCallback(
-    (next: CategoryKey | null) => {
-      if (next !== null && visibleCategory !== null && next !== visibleCategory) {
-        setSlideDir(panelSlideDirection(categoryKeys, visibleCategory, next))
-      }
-    },
+  // 浮层换层的滑动方向：由"新键在图标条上更靠下还是更靠上"决定，
+  // 只有真正换层时才改，收起与重复悬停同一颗键都保持原值
+  const directionOf = useCallback(
+    (next: CategoryKey | null, current: 1 | -1): 1 | -1 =>
+      next !== null && visibleCategory !== null && next !== visibleCategory
+        ? panelSlideDirection(categoryKeys, visibleCategory, next)
+        : current,
     [visibleCategory],
   )
 
@@ -87,26 +96,35 @@ export function useDockController(options: { enabled: boolean }): DockController
 
   const dismiss = useCallback(() => {
     const pathname = location.pathname
-    setHovered({ category: null, pathname })
-    setPinned({ category: null, pathname })
+    setLayer((current) => ({ ...current, hover: null, pin: null, pathname }))
   }, [location.pathname])
 
   const hover = useCallback(
     (category: CategoryKey | null) => {
-      stepTo(category)
-      setHovered({ category, pathname: location.pathname })
+      const pathname = location.pathname
+      setLayer((current) => ({
+        hover: category,
+        pin: current.pin,
+        dir: directionOf(category, current.dir),
+        pathname,
+      }))
     },
-    [location.pathname, stepTo],
+    [directionOf, location.pathname],
   )
 
   const togglePin = useCallback(
     (category: CategoryKey) => {
       const next = toggleCategory(pinnedCategory, category)
-      stepTo(next)
-      setPinned({ category: next, pathname: location.pathname })
+      const pathname = location.pathname
+      setLayer((current) => ({
+        hover: current.hover,
+        pin: next,
+        dir: directionOf(next, current.dir),
+        pathname,
+      }))
       setActiveCategory(category)
     },
-    [pinnedCategory, location.pathname, setActiveCategory, stepTo],
+    [directionOf, location.pathname, pinnedCategory, setActiveCategory],
   )
 
   useEffect(() => {
@@ -120,7 +138,7 @@ export function useDockController(options: { enabled: boolean }): DockController
       if (panelRef.current?.contains(target) || trigger?.contains(target)) {
         return
       }
-      setPinned({ category: null, pathname: location.pathname })
+      setLayer((current) => ({ ...current, pin: null, pathname: location.pathname }))
     }
     document.addEventListener('pointerdown', unpinOnOutsidePointer)
     return () => document.removeEventListener('pointerdown', unpinOnOutsidePointer)
@@ -150,7 +168,7 @@ export function useDockController(options: { enabled: boolean }): DockController
   return {
     visibleCategory,
     pinnedCategory,
-    slideDir,
+    slideDir: layer.dir,
     hover,
     togglePin,
     dismiss,

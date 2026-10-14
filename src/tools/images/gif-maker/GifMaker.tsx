@@ -211,11 +211,10 @@ export default function GifMaker() {
         accept="image/*"
         multiple
         allowFolder
-        title={t('drop-title')}
-        subtitle={t('drop-subtitle')}
-        browseLabel={t('browse')}
+        label={t('drop-title')}
+        description={t('drop-subtitle')}
         folderLabel={t('browse-folder')}
-        pasteHint={t('paste-hint')}
+        allowPaste
         icon={Images}
         onFiles={(files) => void addFiles(files)}
       />

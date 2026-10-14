@@ -211,7 +211,7 @@ export function OutputCard({
                   className={
                     issue.level === 'error'
                       ? 'text-destructive mt-0.5 shrink-0'
-                      : 'mt-0.5 shrink-0 text-amber-500'
+                      : 'text-warning mt-0.5 shrink-0'
                   }
                 />
                 <span className="leading-relaxed">

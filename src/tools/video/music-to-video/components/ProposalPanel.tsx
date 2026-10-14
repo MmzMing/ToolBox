@@ -16,6 +16,13 @@ import {
 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { Separator } from '@/components/ui/separator'
 import { FONTS } from '../engine/fonts'
 import { THEME_ORDER, type ThemeId } from '../engine/omakase'
@@ -118,26 +125,35 @@ export function ProposalPanel({
         <Separator orientation="vertical" className="mx-1 h-5" />
 
         {/* 方向：把一键随机限定在一个主题里（对应JIZURA的 テーマ）；全称只进 tooltip，
-            摆在行里会挤掉右边。标签与下拉捆成一组，折行时不会被拆到两行 */}
+            摆在行里会挤掉右边。标签与下拉捆成一组，折行时不会被拆到两行。
+            这件留 portal 的 Radix Select：舞台那一栏在 xl 是 overflow-hidden，
+            原地展开的面会被栏子切掉，够不着下面的选项 */}
         <span className="flex min-w-0 items-center gap-1">
           <span className="text-muted-foreground shrink-0 text-[11px]" title={t('themeTitle')}>
             {t('themeLabel')}
           </span>
-          <select
-            className="border-input bg-background h-7 min-w-0 rounded-md border px-1.5 text-[11px]"
-            aria-label={t('themeTitle')}
+          <Select
             value={theme ?? 'none'}
-            onChange={(e) =>
-              onTheme(e.target.value === 'none' ? null : (e.target.value as ThemeId))
-            }
+            onValueChange={(next) => onTheme(next === 'none' ? null : (next as ThemeId))}
           >
-            <option value="none">{t('themes.none')}</option>
-            {THEME_ORDER.map((id) => (
-              <option key={id} value={id}>
-                {t(`themes.${id}`)}
-              </option>
-            ))}
-          </select>
+            <SelectTrigger
+              size="sm"
+              aria-label={t('themeTitle')}
+              className="min-w-0 shrink gap-1 text-[11px]"
+            >
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="none" className="text-[11px]">
+                {t('themes.none')}
+              </SelectItem>
+              {THEME_ORDER.map((id) => (
+                <SelectItem key={id} value={id} className="text-[11px]">
+                  {t(`themes.${id}`)}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </span>
         <TipButton
           size="icon"

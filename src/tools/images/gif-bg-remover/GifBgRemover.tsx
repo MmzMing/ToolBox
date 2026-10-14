@@ -3,6 +3,7 @@ import JSZip from 'jszip'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { ColorPicker } from '@/components/color-picker/ColorPicker'
 import { CopyLinkButton } from '@/components/copy-link-button'
 import { FavoriteButton } from '@/components/favorite-button'
 import { FileDropZone } from '@/components/file-drop-zone'
@@ -627,21 +628,16 @@ export default function GifBgRemover() {
                 ))}
               </div>
               <span className="bg-border h-6 w-px shrink-0" aria-hidden="true" />
-              {/* 右侧自选色：色值只读展示，改色交给原生取色器，省掉手打十六进制出错这条路 */}
-              <label className="flex min-w-0 flex-1 items-center gap-2">
-                <input
-                  type="color"
-                  value={
-                    /^#[0-9a-f]{6}$/i.test(settings.matteColor) ? settings.matteColor : '#ffffff'
-                  }
-                  aria-label={t('matte-color-custom')}
-                  onChange={(event) => patch({ matteColor: event.target.value })}
-                  className="bg-background size-7 shrink-0 cursor-pointer rounded-md border p-0.5"
-                />
-                <span className="text-muted-foreground truncate font-mono text-xs">
-                  {t('matte-color-custom')} {settings.matteColor}
-                </span>
-              </label>
+              {/* 右侧自选色：色值只在触发器上只读展示，改色交给取色面板，省掉手打十六进制出错这条路 */}
+              <ColorPicker
+                className="min-w-0 flex-1"
+                showAlpha={false}
+                label={t('matte-color-custom')}
+                value={
+                  /^#[0-9a-f]{6}$/i.test(settings.matteColor) ? settings.matteColor : '#ffffff'
+                }
+                onValueChange={(hex) => patch({ matteColor: hex.toLowerCase() })}
+              />
             </div>
           </PanelField>
         )}
@@ -879,10 +875,9 @@ export default function GifBgRemover() {
         {!meta ? (
           <FileDropZone
             accept="image/gif,.gif"
-            title={t('drop-title')}
-            subtitle={t('drop-subtitle')}
-            browseLabel={t('choose-file')}
-            pasteHint={t('paste-hint')}
+            label={t('drop-title')}
+            description={t('drop-subtitle')}
+            allowPaste
             icon={Sparkles}
             minHeightClass="min-h-[360px]"
             onFiles={(files) => void handleFiles(files)}

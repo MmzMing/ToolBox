@@ -1,9 +1,12 @@
-import { useCallback, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { CSSProperties } from 'react'
+import { useSearchParams } from 'react-router'
 import { useTranslation } from 'react-i18next'
 
 import { useBreakpoint } from '@/composable/use-breakpoint'
+import { usePrefersReducedMotion } from '@/composable/use-prefers-reduced-motion'
 import { tools } from '@/tools'
+import { CATEGORY_PARAM, resolveCategoryParam } from '@/tools/categories'
 import type { CategoryKey } from '@/tools/categories'
 
 import { CategoryChip } from './CategoryChip'
@@ -32,6 +35,7 @@ export function CircuitBoard() {
   const { t: tCommon } = useTranslation('common')
   const { t: tCategory } = useTranslation('categories')
   const breakpoint = useBreakpoint()
+  const reduced = usePrefersReducedMotion()
   const layout = layoutOf(breakpoint)
   const intro = useMemo(() => introOf(layout), [layout])
   const coreRef = useRef<HTMLDivElement | null>(null)
@@ -63,6 +67,55 @@ export function CircuitBoard() {
       chipRefs.current.get(category)?.focus({ preventScroll: true })
     }
   }, [])
+
+  const [searchParams, setSearchParams] = useSearchParams()
+  const queryCategory = useMemo(
+    () => resolveCategoryParam(searchParams.get(CATEGORY_PARAM)),
+    [searchParams],
+  )
+  // 记下挂载时刻：冷开分享链接时要等芯片入场完成，从页脚点进来则已经隔了很久，直接开。
+  // 这个 effect 声明在下面的消费方之前，所以首帧就能读到已写入的时间戳。
+  const mountedAt = useRef(0)
+  useEffect(() => {
+    mountedAt.current = performance.now()
+  }, [])
+
+  const openFromCategory = useCallback((category: CategoryKey) => {
+    const core = coreRef.current
+    if (core === null) {
+      return
+    }
+    const coreRect = toRect(core.getBoundingClientRect())
+    const chipRect = chipRefs.current.get(category)?.getBoundingClientRect()
+    // 芯片不在视口里（页脚就在电路板下方）就让它从核心起飞，免得飞的那一拍什么都看不见
+    const origin =
+      chipRect !== undefined && chipRect.top >= 0 && chipRect.bottom <= window.innerHeight
+        ? toRect(chipRect)
+        : coreRect
+    focusTarget.current = category
+    setFlight((current) => current ?? { category, origin, core: coreRect })
+  }, [])
+
+  useEffect(() => {
+    if (queryCategory === null) {
+      return
+    }
+    const target = queryCategory
+    const settleAt = reduced ? 0 : (intro.chip[target] + 0.35) * 1000
+    const delay = Math.max(0, settleAt - (performance.now() - mountedAt.current))
+    const timer = window.setTimeout(() => {
+      openFromCategory(target)
+      // 用完就抹掉：否则关掉浮层后再按后退，浮层会被这个参数重新弹开
+      setSearchParams(
+        (params) => {
+          params.delete(CATEGORY_PARAM)
+          return params
+        },
+        { replace: true },
+      )
+    }, delay)
+    return () => window.clearTimeout(timer)
+  }, [intro, openFromCategory, queryCategory, reduced, setSearchParams])
 
   return (
     <section data-tour="circuit" className="mt-6 md:mt-8" aria-label={t('circuit.ariaLabel')}>

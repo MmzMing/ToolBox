@@ -2,18 +2,13 @@ import { Check, Minus, Plus, Trash2, Undo2, X } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { EmptyStates } from '@/components/empty-states/EmptyStates'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Progress } from '@/components/ui/progress'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
+import { MorphSelect } from '@/components/select/morph-select'
 import { UNIT_LABELS } from '../data/index'
 import {
   CUSTOM_UNIT_CHOICES,
@@ -286,22 +281,18 @@ function AddRowForm({
         aria-label={t('custom.qty')}
         className="h-7 w-12 shrink-0 px-0 text-center font-mono text-xs tabular-nums"
       />
-      <Select value={unit} onValueChange={(value) => setUnit(value as ServeUnit)}>
-        <SelectTrigger
-          size="sm"
-          aria-label={t('custom.unit')}
-          className="w-[4.5rem] shrink-0 text-xs"
-        >
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent>
-          {CUSTOM_UNIT_CHOICES.map((choice) => (
-            <SelectItem key={choice} value={choice} className="text-xs">
-              {UNIT_LABELS[choice][lang]}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+      <MorphSelect
+        label={t('custom.unit')}
+        hideLabel
+        size="sm"
+        className="w-[4.5rem] shrink-0"
+        items={CUSTOM_UNIT_CHOICES.map((choice) => ({
+          value: choice,
+          label: UNIT_LABELS[choice][lang],
+        }))}
+        value={unit}
+        onValueChange={(value) => setUnit(value as ServeUnit)}
+      />
       <Button
         type="submit"
         size="sm"
@@ -408,6 +399,17 @@ export function ShoppingSection({
         <Progress value={total === 0 ? 0 : (done / total) * 100} />
         <p className="text-muted-foreground text-[11px] leading-relaxed">{t('shop.qtyHint')}</p>
       </div>
+
+      {/* 买齐了这件事以前只有百分比在说，现在给一个明确的收束态 */}
+      {total > 0 && done === total && (
+        <EmptyStates
+          scene="inbox"
+          compact
+          phase="done"
+          title={t('shop.allDoneTitle')}
+          line={t('shop.allDoneLine')}
+        />
+      )}
 
       {/* 一列至少 340px 才装得下"名字 + 用途 + 步进器"一行，所以最多两列 */}
       <div className="grid gap-3 md:grid-cols-2">

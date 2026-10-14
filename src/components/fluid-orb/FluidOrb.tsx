@@ -1,4 +1,4 @@
-import { motion, useReducedMotion } from 'motion/react'
+import { motion } from 'motion/react'
 import { useContext, useEffect, useMemo, useRef, useState, useImperativeHandle } from 'react'
 import type { PointerEvent as ReactPointerEvent } from 'react'
 
@@ -24,6 +24,7 @@ import {
 import { ORB_CANVAS_PAD, RIM_CYCLE_SECONDS } from './orb-shader'
 import { OrbEyes } from './OrbEyes'
 import type { FluidOrbHandle, FluidOrbProps } from './types'
+import { usePrefersReducedMotion } from '@/composable/use-prefers-reduced-motion'
 import { ThemeContext } from '@/modules/theme/theme-context'
 import { cn } from '@/lib/utils'
 
@@ -77,8 +78,8 @@ export function FluidOrb({
   const rootRef = useRef<HTMLDivElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const themeCtx = useContext(ThemeContext)
-  const reducedMotion = useReducedMotion() === true
-  const still = paused || reducedMotion
+  const reduced = usePrefersReducedMotion()
+  const still = paused || reduced
   /** 拿不到 WebGL2 或编译失败时置位，改画一颗 CSS 静态球 */
   const [noGl, setNoGl] = useState(false)
 
@@ -368,7 +369,7 @@ export function FluidOrb({
     >
       <motion.div
         className="pointer-events-none absolute inset-0"
-        initial={intro && !reducedMotion ? { opacity: 0, scale: 0.86 } : false}
+        initial={intro && !reduced ? { opacity: 0, scale: 0.86 } : false}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ type: 'spring', duration: 0.72, bounce: 0.34 }}
       >

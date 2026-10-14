@@ -3,7 +3,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { SpanCopyable } from '@/components/copyable/span-copyable'
-import { Alert, AlertDescription } from '@/components/ui/alert'
+import { EmptyStates } from '@/components/empty-states/EmptyStates'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -118,10 +118,22 @@ export default function IpLookup() {
         </div>
         {/* 数据流向必须在点之前就看到，所以放在输入区而不是结果区 */}
         <p className="text-muted-foreground text-xs">{t('networkNote')}</p>
+        {/* 查不到就是把线断在中间：重试是真重试，原始错误信息留在说明行里不丢 */}
         {error && (
-          <Alert variant="destructive">
-            <AlertDescription>{error}</AlertDescription>
-          </Alert>
+          <EmptyStates
+            scene="offline"
+            compact
+            phase={busy ? 'loading' : 'idle'}
+            line={error}
+            action={t('retryBtn')}
+            onAction={() => {
+              if (query.trim() === '') {
+                lookupMyIp()
+                return
+              }
+              void runLookup(query)
+            }}
+          />
         )}
       </Card>
 

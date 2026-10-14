@@ -6,7 +6,7 @@
 
 [中文](./README.md) · [English](./README.en.md)
 
-![License MIT](https://img.shields.io/badge/license-MIT-0ea95e)
+![License MIT](https://img.shields.io/badge/license-MIT-2f6bff)
 ![release](https://img.shields.io/badge/release-v0.1.0-orange)
 ![tools](https://img.shields.io/badge/tools-52-brightgreen)
 ![built with React](https://img.shields.io/badge/built%20with-React%2019-61dafb)

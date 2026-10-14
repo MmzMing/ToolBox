@@ -124,7 +124,9 @@
       "zeroed": "{{n}} set to 0",
       "qtyHint": "Edit any quantity with − / + or by typing. Zero means \"not this time\" — the row stays on screen so you can undo it, but it leaves the copy text and the exported image. Quantities only change their own row: charcoal, skewer totals and marinade ratios keep running off the researched baseline.",
       "textVersion": "Plain text (manual copy fallback)",
-      "textHint": "When the browser blocks clipboard access (non-HTTPS page, or the window lost focus), select and copy here. Rows set to zero never appear in this text."
+      "textHint": "When the browser blocks clipboard access (non-HTTPS page, or the window lost focus), select and copy here. Rows set to zero never appear in this text.",
+      "allDoneTitle": "Everything is on the list",
+      "allDoneLine": "No unchecked items left. Scan it once more before you head out."
     },
     "custom": {
       "add": "Add an item",
