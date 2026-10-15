@@ -171,13 +171,23 @@
   "footer": {
     "ariaLabel": "Site footer",
     "tagline": "Encoding, conversion, cheat sheets and image tools gathered in one place — open and use.",
-    "localNote": "Every calculation runs in your browser. Nothing is collected or uploaded.",
-    "categories": "Categories",
     "popular": "Popular tools",
     "about": "About this site",
     "home": "Home",
     "copyright": "© {{year}} {{site}}",
-    "toolCount": "{{total}} tools"
+    "toolCount": "{{total}} tools",
+    "faq": {
+      "title": "FAQ",
+      "more": "All questions",
+      "q-account": "Do the tools need an account or a fee?",
+      "a-account": "Neither. Open a page and use it — no sign-up, no plan, no usage limit.",
+      "q-privacy": "Is the data I paste uploaded?",
+      "a-privacy": "No. Text, images and secrets are processed on this device and the site sends no requests. The one exception is an AI provider you configure yourself — that traffic goes straight to the endpoint you set.",
+      "q-mobile": "Does it work on a phone?",
+      "a-mobile": "Yes. Phone, tablet and desktop each get their own layout; favourites and recent tools stay on this device and do not follow you to another one.",
+      "q-contribute": "Want a new tool, or found a bug?",
+      "a-contribute": "Open an issue on GitHub, or add it yourself following the guide in the repo — the whole site is MIT licensed."
+    }
   },
   "crashTitle": "Something went wrong",
   "crashDescription": "The app hit an unexpected error. Your data lives on this device and is not lost — reloading usually fixes it.",
