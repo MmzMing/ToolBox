@@ -7,7 +7,8 @@ import {
   fullRect,
   isFullRect,
   mapRect,
-  sizeForRatio,
+  rectFromDrag,
+  resizeRect,
 } from '@/modules/gif/crop'
 
 describe('centerCrop', () => {
@@ -86,26 +87,88 @@ describe('clampRect', () => {
   })
 })
 
-describe('sizeForRatio', () => {
-  it('derives the height from the width', () => {
-    expect(sizeForRatio(200, 10, 1, { width: 640, height: 360 })).toEqual({
+describe('resizeRect', () => {
+  const frame = { width: 640, height: 360 }
+
+  it('moves the box without touching its size', () => {
+    expect(
+      resizeRect({ x: 10, y: 20, width: 100, height: 80 }, 'move', 5, -8, null, frame),
+    ).toEqual({ x: 15, y: 12, width: 100, height: 80 })
+  })
+
+  it('keeps the far corner fixed when dragging a corner freely', () => {
+    const next = resizeRect({ x: 100, y: 100, width: 200, height: 100 }, 'se', 30, 20, null, frame)
+
+    expect(next).toEqual({ x: 100, y: 100, width: 230, height: 120 })
+  })
+
+  it('anchors the opposite corner for a north-west drag', () => {
+    const next = resizeRect(
+      { x: 100, y: 100, width: 200, height: 100 },
+      'nw',
+      -30,
+      -20,
+      null,
+      frame,
+    )
+
+    expect(next).toEqual({ x: 70, y: 80, width: 230, height: 120 })
+  })
+
+  it('holds the ratio and derives the height from a wider horizontal drag', () => {
+    const next = resizeRect({ x: 0, y: 0, width: 200, height: 100 }, 'se', 40, 2, 2, frame)
+
+    expect(next.width / next.height).toBeCloseTo(2, 1)
+    expect(next.width).toBe(240)
+  })
+
+  it('holds the ratio and derives the width from a taller vertical drag', () => {
+    const next = resizeRect({ x: 0, y: 0, width: 200, height: 100 }, 'se', 2, 50, 2, frame)
+
+    expect(next).toEqual({ x: 0, y: 0, width: 300, height: 150 })
+  })
+
+  it('shrinks both edges instead of breaking the ratio when the frame runs out', () => {
+    const next = resizeRect({ x: 0, y: 0, width: 200, height: 100 }, 'se', 900, 900, 2, frame)
+
+    expect(next).toEqual({ x: 0, y: 0, width: 640, height: 320 })
+  })
+
+  it('never lets a north-west drag cross the frame origin', () => {
+    const next = resizeRect({ x: 10, y: 10, width: 100, height: 50 }, 'nw', -999, -999, null, frame)
+
+    expect(next).toEqual({ x: 0, y: 0, width: 110, height: 60 })
+  })
+})
+
+describe('rectFromDrag', () => {
+  const frame = { width: 640, height: 360 }
+
+  it('builds a box from two corners in any direction', () => {
+    expect(rectFromDrag({ x: 300, y: 200 }, { x: 100, y: 60 }, null, frame)).toEqual({
+      x: 100,
+      y: 60,
       width: 200,
-      height: 200,
+      height: 140,
+    })
+    expect(rectFromDrag({ x: 100, y: 60 }, { x: 300, y: 200 }, null, frame)).toEqual({
+      x: 100,
+      y: 60,
+      width: 200,
+      height: 140,
     })
   })
 
-  it('falls back to the requested height when the width would overflow the frame', () => {
-    const size = sizeForRatio(600, 300, 1, { width: 640, height: 360 })
+  it('locks the ratio to the anchor corner while drawing', () => {
+    const next = rectFromDrag({ x: 100, y: 100 }, { x: 300, y: 250 }, 2, frame)
 
-    expect(size.height).toBeLessThanOrEqual(360)
-    expect(size.width).toBeLessThanOrEqual(640)
+    expect(next).toEqual({ x: 100, y: 100, width: 300, height: 150 })
   })
 
-  it('stays inside the bounds for a tall ratio', () => {
-    const size = sizeForRatio(500, 900, 9 / 16, { width: 320, height: 480 })
+  it('stays inside the frame when dragged past an edge', () => {
+    const next = rectFromDrag({ x: 600, y: 300 }, { x: 900, y: 900 }, null, frame)
 
-    expect(size.width).toBeLessThanOrEqual(320)
-    expect(size.height).toBeLessThanOrEqual(480)
+    expect(next).toEqual({ x: 600, y: 300, width: 40, height: 60 })
   })
 })
 

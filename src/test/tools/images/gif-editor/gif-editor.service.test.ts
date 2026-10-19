@@ -2,25 +2,31 @@ import { describe, expect, it } from 'vitest'
 
 import {
   CROP_RATIOS,
-  FLIPS,
+  type EditSnapshot,
+  MAX_UNDO_STEPS,
   ROTATIONS,
   type EditorTransforms,
+  boomerangCount,
   editorBudget,
   exportSize,
   frameDelays,
   loadPercent,
   pngFrameName,
+  previewSize,
+  pushSnapshot,
   scaleToFit,
   sizeAfterRotate,
 } from '@/tools/images/gif-editor/gif-editor.service'
 import { MOBILE_LIMITS } from '@/modules/gif/budget'
+import type { RgbaFrame } from '@/modules/gif/types'
 
 const SOURCE = { width: 640, height: 360 }
 
 function transforms(overrides: Partial<EditorTransforms> = {}): EditorTransforms {
   return {
     rotate: 0,
-    flip: 'none',
+    flipX: false,
+    flipY: false,
     crop: null,
     speed: 1,
     width: 320,
@@ -68,6 +74,26 @@ describe('exportSize', () => {
   })
 })
 
+describe('previewSize', () => {
+  it('ignores the crop so the crop box keeps the frame coordinate space', () => {
+    const crop = { x: 100, y: 0, width: 200, height: 300 }
+
+    expect(previewSize(SOURCE, transforms({ crop }))).toEqual(
+      previewSize(SOURCE, transforms({ crop: null })),
+    )
+    expect(exportSize(SOURCE, transforms({ crop }))).not.toEqual(
+      previewSize(SOURCE, transforms({ crop })),
+    )
+  })
+
+  it('follows a quarter turn like the frame does', () => {
+    expect(previewSize(SOURCE, transforms({ rotate: 90, width: 320 }))).toEqual({
+      width: 180,
+      height: 320,
+    })
+  })
+})
+
 describe('frameDelays', () => {
   it('scales every base delay by the speed factor', () => {
     const frames = [{ delayCs: 20 }, { delayCs: 40 }]
@@ -112,9 +138,42 @@ describe('option tables', () => {
     expect(CROP_RATIOS.map((item) => item.id)).toContain('nineSixteen')
   })
 
-  it('offers the four GIF rotations and a no-flip default', () => {
+  it('offers the four GIF rotations', () => {
     expect(ROTATIONS).toEqual([0, 90, 180, 270])
-    expect(FLIPS[0]).toBe('none')
+  })
+})
+
+describe('pushSnapshot', () => {
+  const frame: RgbaFrame = { width: 1, height: 1, rgba: new Uint8ClampedArray(4), delayCs: 10 }
+  const snapshot = (steps: number): EditSnapshot => ({
+    frames: Array.from({ length: steps }, () => frame),
+    transforms: transforms({ speed: steps }),
+    ratioId: 'free',
+  })
+
+  it('appends the step and keeps the order oldest first', () => {
+    const history = pushSnapshot(pushSnapshot([], snapshot(1)), snapshot(2))
+
+    expect(history.map((step) => step.transforms.speed)).toEqual([1, 2])
+  })
+
+  it('drops the oldest steps once the stack is deeper than the ceiling', () => {
+    let history: EditSnapshot[] = []
+    for (const step of Array.from({ length: MAX_UNDO_STEPS + 5 }, (_, i) => i + 1)) {
+      history = pushSnapshot(history, snapshot(step))
+    }
+
+    expect(history).toHaveLength(MAX_UNDO_STEPS)
+    expect(history[0]?.transforms.speed).toBe(6)
+    expect(history.at(-1)?.transforms.speed).toBe(MAX_UNDO_STEPS + 5)
+  })
+})
+
+describe('boomerangCount', () => {
+  it('drops the duplicated endpoints when folding the sequence back', () => {
+    expect(boomerangCount(8)).toBe(14)
+    expect(boomerangCount(1)).toBe(1)
+    expect(boomerangCount(0)).toBe(0)
   })
 })
 

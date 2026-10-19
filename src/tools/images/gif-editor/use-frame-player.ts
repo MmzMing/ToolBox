@@ -19,10 +19,9 @@ export function applyEditorTransforms(
   size: Bounds,
 ): RgbaFrame {
   const rotated = rotateImage(frame, transforms.rotate)
-  const flipped = transforms.flip === 'none' ? rotated : flipImage(rotated, transforms.flip)
-  const cropped = transforms.crop
-    ? cropImage(flipped, clampRect(transforms.crop, flipped))
-    : flipped
+  const flipped = transforms.flipX ? flipImage(rotated, 'horizontal') : rotated
+  const turned = transforms.flipY ? flipImage(flipped, 'vertical') : flipped
+  const cropped = transforms.crop ? cropImage(turned, clampRect(transforms.crop, turned)) : turned
   return { ...resizeImage(cropped, size), delayCs: frame.delayCs }
 }
 

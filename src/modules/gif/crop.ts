@@ -50,24 +50,119 @@ export function isFullRect(rect: Rect, bounds: Bounds): boolean {
   )
 }
 
-/** 按比例锁定尺寸：以宽为主轴；高度顶到画面上边界时改用请求的高度反推宽度 */
-export function sizeForRatio(
+/** 按比例拖框时，短于这条边视为误点，不产生新框 */
+export const MIN_CREATE_EDGE = 16
+
+export type CropHandle = 'move' | 'nw' | 'ne' | 'sw' | 'se'
+
+export type Point = { x: number; y: number }
+
+function clamp(value: number, min: number, max: number): number {
+  return Math.min(Math.max(value, min), max)
+}
+
+/**
+ * 定比例下拖角点：谁拖得远就以谁为主轴，另一条边按比例反推，
+ * 主轴顶到画面边缘后再反推副轴，保证框始终在画面里且比例不变。
+ */
+function sizeWithinRatio(
   width: number,
   height: number,
   ratio: number,
-  bounds: Bounds,
+  available: Bounds,
 ): { width: number; height: number } {
-  let nextWidth = Math.max(MIN_CROP_EDGE, Math.round(width))
-  let nextHeight = Math.max(MIN_CROP_EDGE, Math.round(nextWidth / ratio))
-  if (nextHeight > bounds.height) {
-    nextHeight = Math.max(MIN_CROP_EDGE, Math.min(Math.round(height), bounds.height))
-    nextWidth = Math.max(MIN_CROP_EDGE, Math.round(nextHeight * ratio))
+  const max = { width: Math.max(1, available.width), height: Math.max(1, available.height) }
+  let nextWidth: number
+  let nextHeight: number
+  // 把纵向拖距折算到横向同一量纲再比较，才能判断哪条边在主导
+  if (Math.abs(height) * ratio > Math.abs(width)) {
+    nextHeight = clamp(Math.round(height), MIN_CROP_EDGE, max.height)
+    nextWidth = Math.round(nextHeight * ratio)
+    if (nextWidth > max.width) {
+      nextWidth = max.width
+      nextHeight = Math.round(nextWidth / ratio)
+    }
+  } else {
+    nextWidth = clamp(Math.round(width), MIN_CROP_EDGE, max.width)
+    nextHeight = Math.round(nextWidth / ratio)
+    if (nextHeight > max.height) {
+      nextHeight = max.height
+      nextWidth = Math.round(nextHeight * ratio)
+    }
   }
-  if (nextWidth > bounds.width) {
-    nextWidth = bounds.width
-    nextHeight = Math.max(MIN_CROP_EDGE, Math.round(nextWidth / ratio))
+  return {
+    width: clamp(nextWidth, MIN_CROP_EDGE, max.width),
+    height: clamp(nextHeight, MIN_CROP_EDGE, max.height),
   }
-  return { width: nextWidth, height: nextHeight }
+}
+
+/** 由拖拽方向求出锚点（对角不动）与它在两个方向上还能长多少 */
+function anchorOf(origin: Rect, handle: CropHandle, bounds: Bounds) {
+  const west = handle === 'nw' || handle === 'sw'
+  const north = handle === 'nw' || handle === 'ne'
+  const x = west ? origin.x + origin.width : origin.x
+  const y = north ? origin.y + origin.height : origin.y
+  return {
+    west,
+    north,
+    x,
+    y,
+    available: {
+      width: west ? x : bounds.width - x,
+      height: north ? y : bounds.height - y,
+    },
+  }
+}
+
+/** 拖角点缩放 / 拖框体平移，返回未 clamp 但已收进画面的矩形 */
+export function resizeRect(
+  origin: Rect,
+  handle: CropHandle,
+  dx: number,
+  dy: number,
+  ratio: number | null,
+  bounds: Bounds,
+): Rect {
+  if (handle === 'move') return { ...origin, x: origin.x + dx, y: origin.y + dy }
+  const anchor = anchorOf(origin, handle, bounds)
+  const width = anchor.west ? anchor.x - (origin.x + dx) : origin.width + dx
+  const height = anchor.north ? anchor.y - (origin.y + dy) : origin.height + dy
+  const sized = ratio
+    ? sizeWithinRatio(width, height, ratio, anchor.available)
+    : {
+        width: clamp(Math.round(width), MIN_CROP_EDGE, Math.max(1, anchor.available.width)),
+        height: clamp(Math.round(height), MIN_CROP_EDGE, Math.max(1, anchor.available.height)),
+      }
+  return {
+    x: anchor.west ? anchor.x - sized.width : anchor.x,
+    y: anchor.north ? anchor.y - sized.height : anchor.y,
+    width: sized.width,
+    height: sized.height,
+  }
+}
+
+/** 在空白处按下拖出新框：锚点是按下那一点，方向随指针落在锚点哪一侧决定 */
+export function rectFromDrag(from: Point, to: Point, ratio: number | null, bounds: Bounds): Rect {
+  const west = to.x < from.x
+  const north = to.y < from.y
+  const available = {
+    width: west ? from.x : bounds.width - from.x,
+    height: north ? from.y : bounds.height - from.y,
+  }
+  const width = Math.abs(to.x - from.x)
+  const height = Math.abs(to.y - from.y)
+  const sized = ratio
+    ? sizeWithinRatio(width, height, ratio, available)
+    : {
+        width: clamp(Math.round(width), 0, Math.max(1, available.width)),
+        height: clamp(Math.round(height), 0, Math.max(1, available.height)),
+      }
+  return {
+    x: west ? from.x - sized.width : from.x,
+    y: north ? from.y - sized.height : from.y,
+    width: sized.width,
+    height: sized.height,
+  }
 }
 
 export type FillMode = 'contain' | 'cover' | 'stretch'
